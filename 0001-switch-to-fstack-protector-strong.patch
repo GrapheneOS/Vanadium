@@ -1,0 +1,25 @@
+From 607e43b69c751e77c4dbf84d52b16e1f6f954a7d Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 18 Nov 2016 07:29:13 -0500
+Subject: [PATCH 1/7] switch to -fstack-protector-strong
+
+---
+ build/config/compiler/BUILD.gn | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 1584926..0f1f502 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -207,7 +207,7 @@ config("compiler") {
+       if (is_android && current_cpu == "x86") {
+         cflags += [ "-fno-stack-protector" ]
+       } else {
+-        cflags += [ "-fstack-protector" ]
++        cflags += [ "-fstack-protector-strong" ]
+       }
+     }
+ 
+-- 
+2.10.2
+

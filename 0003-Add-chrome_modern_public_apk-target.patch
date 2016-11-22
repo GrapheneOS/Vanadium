@@ -1,0 +1,80 @@
+From 3d9240c1c4ba77d64c5449cba766613befcc52c1 Mon Sep 17 00:00:00 2001
+From: agrieve <agrieve@chromium.org>
+Date: Wed, 9 Nov 2016 07:06:15 -0800
+Subject: [PATCH 3/7] Add chrome_modern_public_apk target
+
+This adds an upstream equivalent to ChromeModern.apk, which is sent to
+devices with Android L & M.
+
+It differs from ChromePublic.apk only by having the native library
+stored uncompressed (besides setting the minSdkVersion).
+
+BUG=650927
+
+Review-Url: https://codereview.chromium.org/2483213003
+Cr-Commit-Position: refs/heads/master@{#430931}
+---
+ chrome/android/BUILD.gn | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index c44cd45..f188ca9 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -24,6 +24,8 @@ chrome_public_jinja_variables = default_chrome_public_jinja_variables +
+                                 [ "manifest_package=$manifest_package" ]
+ chrome_public_android_manifest =
+     "$target_gen_dir/chrome_public_apk/AndroidManifest.xml"
++chrome_modern_public_android_manifest =
++    "$target_gen_dir/chrome_modern_public_apk/AndroidManifest.xml"
+ chrome_sync_shell_android_manifest =
+     "$target_gen_dir/chrome_sync_shell_apk/AndroidManifest.xml"
+ 
+@@ -46,6 +48,16 @@ jinja_template("chrome_public_android_manifest") {
+   ]
+ }
+ 
++jinja_template("chrome_modern_public_android_manifest") {
++  input = "java/AndroidManifest.xml"
++  output = chrome_modern_public_android_manifest
++  variables = chrome_public_jinja_variables
++  variables += [
++    "min_sdk_version=21",
++    "target_sdk_version=23",
++  ]
++}
++
+ java_cpp_template("chrome_webapk_signature_srcjar") {
+   sources = [
+     "java/src/org/chromium/chrome/browser/webapps/ChromeWebApkHostSignature.template",
+@@ -643,6 +655,9 @@ shared_library("chrome_sync_shell") {
+ template("chrome_public_apk_tmpl_shared") {
+   chrome_public_apk_tmpl(target_name) {
+     forward_variables_from(invoker, "*")
++    if (!defined(deps)) {
++      deps = []
++    }
+ 
+     native_lib_version_rule = "//build/util:chrome_version_json"
+ 
+@@ -660,8 +675,16 @@ chrome_public_apk_tmpl_shared("chrome_public_apk") {
+   android_manifest_dep = ":chrome_public_android_manifest"
+   apk_name = "ChromePublic"
+   shared_libraries = [ ":chrome" ]
++}
++
++chrome_public_apk_tmpl_shared("chrome_modern_public_apk") {
++  android_manifest = chrome_modern_public_android_manifest
++  android_manifest_dep = ":chrome_modern_public_android_manifest"
++  apk_name = "ChromeModernPublic"
++  shared_libraries = [ ":chrome" ]
+ 
+-  deps = []
++  # Always enable load_library_from_apk.
++  load_library_from_apk = chromium_linker_supported
+ }
+ 
+ chrome_public_apk_tmpl_shared("chrome_sync_shell_apk") {
+-- 
+2.10.2
+

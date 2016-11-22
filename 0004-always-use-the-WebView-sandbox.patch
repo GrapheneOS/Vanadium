@@ -1,0 +1,31 @@
+From 7c3c68de7f4beb25d06ec81c56f0fceae58ec7ef Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 22 Nov 2016 07:34:45 -0500
+Subject: [PATCH 4/7] always use the WebView sandbox
+
+---
+ .../android/webview/chromium/WebViewChromiumFactoryProvider.java  | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index 334b39f..9b2920d 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -222,12 +222,8 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             CommandLine.init(null);
+         }
+ 
+-        if (Settings.Global.getInt(ContextUtils.getApplicationContext().getContentResolver(),
+-                    Settings.Global.WEBVIEW_MULTIPROCESS, 0)
+-                == 1) {
+-            CommandLine cl = CommandLine.getInstance();
+-            cl.appendSwitch("webview-sandboxed-renderer");
+-        }
++        CommandLine cl = CommandLine.getInstance();
++        cl.appendSwitch("webview-sandboxed-renderer");
+ 
+         ThreadUtils.setWillOverrideUiThread();
+         // Load chromium library.
+-- 
+2.10.2
+

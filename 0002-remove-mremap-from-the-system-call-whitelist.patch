@@ -1,0 +1,24 @@
+From b569726f3a11999719e0de6d4cf2e39a0d77fe4f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 18 Nov 2016 10:53:56 -0500
+Subject: [PATCH 2/7] remove mremap from the system call whitelist
+
+---
+ content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc b/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc
+index bf35601..99de3dd 100644
+--- a/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc
++++ b/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc
+@@ -79,7 +79,6 @@ ResultExpr SandboxBPFBasePolicyAndroid::EvaluateSyscall(int sysno) const {
+ #endif
+     case __NR_getpriority:
+     case __NR_ioctl:
+-    case __NR_mremap:
+     case __NR_msync:
+     // File system access cannot be restricted with seccomp-bpf on Android,
+     // since the JVM classloader and other Framework features require file
+-- 
+2.10.2
+
