@@ -1,0 +1,41 @@
+From db0f9a0456a57c2229e9cc9db9b52d08532223b7 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 24 Nov 2016 08:19:03 -0500
+Subject: [PATCH] disable first run welcome and data saver pages
+
+---
+ .../chrome/browser/firstrun/FirstRunActivity.java        | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
+index 6f4d982..984eed7 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
+@@ -120,16 +120,16 @@ public class FirstRunActivity extends AppCompatActivity implements FirstRunPageD
+         mFreProgressStates = new ArrayList<Integer>();
+ 
+         // An optional welcome page.
+-        if (mShowWelcomePage) {
+-            mPages.add(pageOf(ToSAndUMAFirstRunFragment.class));
+-            mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
+-        }
++        //if (mShowWelcomePage) {
++            //mPages.add(pageOf(ToSAndUMAFirstRunFragment.class));
++            //mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
++        //}
+ 
+         // An optional Data Saver page.
+-        if (mFreProperties.getBoolean(SHOW_DATA_REDUCTION_PAGE)) {
+-            mPages.add(pageOf(DataReductionProxyFirstRunFragment.class));
+-            mFreProgressStates.add(FRE_PROGRESS_DATA_SAVER_SHOWN);
+-        }
++        //if (mFreProperties.getBoolean(SHOW_DATA_REDUCTION_PAGE)) {
++            //mPages.add(pageOf(DataReductionProxyFirstRunFragment.class));
++            //mFreProgressStates.add(FRE_PROGRESS_DATA_SAVER_SHOWN);
++        //}
+ 
+         // An optional sign-in page.
+         if (mFreProperties.getBoolean(SHOW_SIGNIN_PAGE)) {
+-- 
+2.10.2
+
