@@ -1,0 +1,25 @@
+From 7c2dc5306853709d51db00e781a0ac434991a906 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 24 Nov 2016 14:23:03 -0500
+Subject: [PATCH 11/11] disable other data reduction proxy promotions
+
+---
+ .../browser/preferences/datareduction/DataReductionPromoUtils.java      | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/datareduction/DataReductionPromoUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/datareduction/DataReductionPromoUtils.java
+index 9866be8..abf4544 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/datareduction/DataReductionPromoUtils.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/datareduction/DataReductionPromoUtils.java
+@@ -49,7 +49,7 @@ public class DataReductionPromoUtils {
+         }
+         if (DataReductionProxySettings.getInstance().isDataReductionProxyManaged()) return false;
+         if (DataReductionProxySettings.getInstance().isDataReductionProxyEnabled()) return false;
+-        return true;
++        return false;
+     }
+ 
+     /**
+-- 
+2.10.2
+
