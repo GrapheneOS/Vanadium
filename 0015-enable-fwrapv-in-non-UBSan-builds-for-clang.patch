@@ -1,0 +1,27 @@
+From 80c51764c79b168a6baa1b2e3799080e3ca50be7 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 22 Dec 2016 07:15:34 -0500
+Subject: [PATCH 15/15] enable -fwrapv in non-UBSan builds for clang
+
+---
+ build/config/compiler/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 0f1f50227fea..02b4fa946335 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -211,6 +211,10 @@ config("compiler") {
+       }
+     }
+ 
++    if (is_clang && !is_ubsan && !is_ubsan_security) {
++        cflags += [ "-fwrapv" ]
++    }
++
+     # Linker warnings.
+     if (fatal_linker_warnings && !(is_chromeos && current_cpu == "arm") &&
+         !(is_android && use_order_profiling) && !is_mac && !is_ios) {
+-- 
+2.11.0
+
