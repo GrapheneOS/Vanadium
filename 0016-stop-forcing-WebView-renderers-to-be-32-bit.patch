@@ -1,0 +1,26 @@
+From 3c221b9df341397cd3940bb038a7419e70a0c340 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 26 Jan 2017 01:30:12 -0500
+Subject: [PATCH 16/16] stop forcing WebView renderers to be 32-bit
+
+---
+ android_webview/apk/java/AndroidManifest.xml | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/android_webview/apk/java/AndroidManifest.xml b/android_webview/apk/java/AndroidManifest.xml
+index fed3b31b3811..1a357f6312f1 100644
+--- a/android_webview/apk/java/AndroidManifest.xml
++++ b/android_webview/apk/java/AndroidManifest.xml
+@@ -17,8 +17,7 @@
+ 
+     <application android:label="Android System WebView"
+         android:icon="@drawable/icon_webview"
+-        android:multiArch="true"
+-        android:use32bitAbi="true">
++        android:multiArch="true">
+         {# This part is shared between stand-alone WebView and Monochrome #}
+         {% macro common(manifest_package, webview_lib) %}
+             <activity android:name="com.android.webview.chromium.LicenseActivity"
+-- 
+2.11.0
+
