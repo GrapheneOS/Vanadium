@@ -1,24 +1,24 @@
-From 52f6cf3859a58cf3b0928d4fb8e4eb80fedbcd37 Mon Sep 17 00:00:00 2001
+From e1e7acbe2621bd3620963948944a29d98a7d90d3 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 18 Nov 2016 10:53:56 -0500
-Subject: [PATCH 02/16] remove mremap from the system call whitelist
+Subject: [PATCH 02/15] remove mremap from the system call whitelist
 
 ---
  content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc b/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc
-index bf3560173592..99de3ddf8f03 100644
+index be6a91c6c679..04387208aa1e 100644
 --- a/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc
 +++ b/content/common/sandbox_linux/android/sandbox_bpf_base_policy_android.cc
-@@ -79,7 +79,6 @@ ResultExpr SandboxBPFBasePolicyAndroid::EvaluateSyscall(int sysno) const {
+@@ -85,7 +85,6 @@ ResultExpr SandboxBPFBasePolicyAndroid::EvaluateSyscall(int sysno) const {
  #endif
      case __NR_getpriority:
      case __NR_ioctl:
 -    case __NR_mremap:
-     case __NR_msync:
-     // File system access cannot be restricted with seccomp-bpf on Android,
-     // since the JVM classloader and other Framework features require file
+ #if defined(__i386__)
+     // Used on pre-N to initialize threads in ART.
+     case __NR_modify_ldt:
 -- 
 2.11.0
 
