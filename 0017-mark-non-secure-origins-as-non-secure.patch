@@ -1,0 +1,27 @@
+From 96a8a04a73ae69a848f4bade86c6f3f6b04e4655 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 7 Feb 2017 21:58:02 -0500
+Subject: [PATCH 17/17] mark non-secure origins as non-secure
+
+---
+ components/security_state/core/security_state.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
+index 42f2a5772320..4d76be8b2de2 100644
+--- a/components/security_state/core/security_state.cc
++++ b/components/security_state/core/security_state.cc
+@@ -77,8 +77,8 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
+             group, displayed_sensitive_input_on_http, &level, &status)) {
+       // If neither the command-line switch nor field trial group is set, then
+       // nonsecure defaults to neutral.
+-      status = NEUTRAL;
+-      level = NONE;
++      status = NON_SECURE;
++      level = DANGEROUS;
+     }
+   }
+ 
+-- 
+2.11.1
+
