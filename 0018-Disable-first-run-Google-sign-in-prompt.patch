@@ -1,0 +1,31 @@
+From 371c66d6b9d619baad5ab26a4e19d2750a63f5eb Mon Sep 17 00:00:00 2001
+From: Aaron Fields <spirotot@gmail.com>
+Date: Mon, 13 Feb 2017 21:10:58 -0500
+Subject: [PATCH] Disable first-run Google sign-in prompt.
+
+---
+ .../org/chromium/chrome/browser/firstrun/FirstRunActivity.java    | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
+index c38eef74a7e6..9343a5d4a299 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
+@@ -134,10 +134,10 @@ public class FirstRunActivity extends AppCompatActivity implements FirstRunPageD
+         }
+ 
+         // An optional sign-in page.
+-        if (mFreProperties.getBoolean(SHOW_SIGNIN_PAGE)) {
+-            mPages.add(pageOf(AccountFirstRunFragment.class));
+-            mFreProgressStates.add(FRE_PROGRESS_SIGNIN_SHOWN);
+-        }
++        //if (mFreProperties.getBoolean(SHOW_SIGNIN_PAGE)) {
++        //    mPages.add(pageOf(AccountFirstRunFragment.class));
++        //    mFreProgressStates.add(FRE_PROGRESS_SIGNIN_SHOWN);
++        //}
+     }
+ 
+     // Activity:
+-- 
+2.11.1
+
