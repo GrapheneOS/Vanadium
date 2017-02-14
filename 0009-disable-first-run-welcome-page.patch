@@ -1,31 +1,34 @@
-From cdc690120d613da7f7c930e0589cc5c37e656955 Mon Sep 17 00:00:00 2001
+From aacf4ba138e99e2f8763bdffcdb9447a8334e6b5 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 24 Nov 2016 08:19:03 -0500
 Subject: [PATCH 09/17] disable first run welcome page
 
 ---
- .../org/chromium/chrome/browser/firstrun/FirstRunActivity.java    | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java    | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-index ce91e5ebb242..c38eef74a7e6 100644
+index ce91e5ebb242..67085ab02a7a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -122,10 +122,10 @@ public class FirstRunActivity extends AppCompatActivity implements FirstRunPageD
-         mFreProgressStates = new ArrayList<Integer>();
+@@ -93,7 +93,7 @@ public class FirstRunActivity extends AppCompatActivity implements FirstRunPageD
+     @VisibleForTesting
+     static FirstRunGlue sGlue = new FirstRunGlueImpl();
  
-         // An optional welcome page.
--        if (mShowWelcomePage) {
--            mPages.add(pageOf(ToSAndUMAFirstRunFragment.class));
--            mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
--        }
-+        //if (mShowWelcomePage) {
-+            //mPages.add(pageOf(ToSAndUMAFirstRunFragment.class));
-+            //mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
-+        //}
+-    private boolean mShowWelcomePage = true;
++    private boolean mShowWelcomePage = false;
  
-         // An optional Data Saver page.
-         if (mFreProperties.getBoolean(SHOW_DATA_REDUCTION_PAGE)) {
+     private String mResultSignInAccountName;
+     private boolean mResultShowSignInSettings;
+@@ -177,7 +177,7 @@ public class FirstRunActivity extends AppCompatActivity implements FirstRunPageD
+                 }
+ 
+                 mFreProperties = freProperties;
+-                mShowWelcomePage = mFreProperties.getBoolean(SHOW_WELCOME_PAGE);
++                //mShowWelcomePage = mFreProperties.getBoolean(SHOW_WELCOME_PAGE);
+ 
+                 createPageSequence();
+ 
 -- 
 2.11.1
 
