@@ -1,0 +1,25 @@
+From 308dd5663c522b419776e0a71cc30c0e63a60cde Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 8 Mar 2018 22:43:12 -0500
+Subject: [PATCH 12/19] disable article suggestions feature by default
+
+---
+ components/ntp_snippets/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/ntp_snippets/features.cc b/components/ntp_snippets/features.cc
+index 5bfa44094100..29f56aeb4dba 100644
+--- a/components/ntp_snippets/features.cc
++++ b/components/ntp_snippets/features.cc
+@@ -35,7 +35,7 @@ const base::Feature* const kAllFeatures[] = {
+     &kRemoteSuggestionsBackendFeature};
+ 
+ const base::Feature kArticleSuggestionsFeature{
+-    "NTPArticleSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
++    "NTPArticleSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kBookmarkSuggestionsFeature{
+     "NTPBookmarkSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
+-- 
+2.20.1
+

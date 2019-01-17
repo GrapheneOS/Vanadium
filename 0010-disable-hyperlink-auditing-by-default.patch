@@ -1,0 +1,39 @@
+From 85a7dc63e95cb423d4ec9470c8ca587a453b8fe4 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 26 Nov 2016 14:57:22 -0500
+Subject: [PATCH 10/19] disable hyperlink auditing by default
+
+---
+ chrome/browser/about_flags.cc                   | 2 +-
+ chrome/browser/chrome_content_browser_client.cc | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
+index db54ccb61b9d..988b4d31af7d 100644
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -1505,7 +1505,7 @@ const FeatureEntry kFeatureEntries[] = {
+      SINGLE_VALUE_TYPE(switches::kDisablePushStateThrottle)},
+     {"disable-hyperlink-auditing", flag_descriptions::kHyperlinkAuditingName,
+      flag_descriptions::kHyperlinkAuditingDescription, kOsAll,
+-     SINGLE_DISABLE_VALUE_TYPE(switches::kNoPings)},
++     SINGLE_VALUE_TYPE(switches::kNoPings)},
+ #if defined(OS_ANDROID)
+     {"contextual-search", flag_descriptions::kContextualSearchName,
+      flag_descriptions::kContextualSearchDescription, kOsAndroid,
+diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
+index 4aa34381aa2c..4fb7308e9e61 100644
+--- a/chrome/browser/chrome_content_browser_client.cc
++++ b/chrome/browser/chrome_content_browser_client.cc
+@@ -1053,7 +1053,7 @@ void ChromeContentBrowserClient::RegisterLocalStatePrefs(
+ void ChromeContentBrowserClient::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* registry) {
+   registry->RegisterBooleanPref(prefs::kDisable3DAPIs, false);
+-  registry->RegisterBooleanPref(prefs::kEnableHyperlinkAuditing, true);
++  registry->RegisterBooleanPref(prefs::kEnableHyperlinkAuditing, false);
+   registry->RegisterListPref(prefs::kEnableDeprecatedWebPlatformFeatures);
+   // Register user prefs for mapping SitePerProcess and IsolateOrigins in
+   // user policy in addition to the same named ones in Local State (which are
+-- 
+2.20.1
+

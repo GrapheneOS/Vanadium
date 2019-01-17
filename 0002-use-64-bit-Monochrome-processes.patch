@@ -1,0 +1,149 @@
+From 1f3b84fe8778145e109c7a16c11262c525bcabcf Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 5 Jul 2017 00:22:37 -0400
+Subject: [PATCH 02/19] use 64-bit Monochrome processes
+
+---
+ android_webview/BUILD.gn                      |  2 ++
+ android_webview/system_webview_apk_tmpl.gni   |  2 +-
+ chrome/android/BUILD.gn                       | 22 +++++--------------
+ chrome/android/chrome_public_apk_tmpl.gni     | 17 ++------------
+ .../java/AndroidManifest_monochrome.xml       |  1 -
+ ...hrome_android_manifest_jinja_variables.gni |  1 -
+ 6 files changed, 11 insertions(+), 34 deletions(-)
+
+diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
+index 3fea650fe911..40037580ee77 100644
+--- a/android_webview/BUILD.gn
++++ b/android_webview/BUILD.gn
+@@ -425,7 +425,9 @@ if (android_64bit_target_cpu) {
+       "//v8($android_secondary_abi_toolchain)",
+     ]
+   }
++}
+ 
++if (android_64bit_target_cpu && current_toolchain == android_secondary_abi_toolchain) {
+   shared_library("monochrome") {
+     deps = [
+       ":webview_entry_point",
+diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
+index 819907a3a9fa..52e39a792cd8 100644
+--- a/android_webview/system_webview_apk_tmpl.gni
++++ b/android_webview/system_webview_apk_tmpl.gni
+@@ -35,7 +35,7 @@ template("system_webview_apk_tmpl") {
+       # Include placeholder libraries to ensure we are treated as the desired
+       # architecture.
+       if (android_64bit_target_cpu) {
+-        shared_libraries = [ "//android_webview:monochrome" ]
++        shared_libraries = [ "//chrome/android:monochrome" ]
+         if (build_apk_secondary_abi) {
+           secondary_native_lib_placeholders = [ "libdummy.so" ]
+         }
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 2e1aba975c1b..9e0194cecc4a 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -1046,13 +1046,7 @@ if (current_toolchain == default_toolchain) {
+ 
+   if (enable_resource_whitelist_generation) {
+     generate_resource_whitelist("monochrome_resource_whitelist") {
+-      # Always use the 32-bit library's whitelist since the 64-bit one is
+-      # webview-only.
+-      if (!android_64bit_target_cpu) {
+-        _fat_lib_toolchain = current_toolchain
+-      } else {
+-        _fat_lib_toolchain = android_secondary_abi_toolchain
+-      }
++      _fat_lib_toolchain = current_toolchain
+       deps = [
+         ":monochrome($_fat_lib_toolchain)",
+       ]
+@@ -1170,14 +1164,8 @@ if (current_toolchain == default_toolchain) {
+   }
+ }  # current_toolchain == host_toolchain
+ 
+-#
+-# Only 32-bit //chrome/android/monochrome is needed, beside
+-# being built with 32-bit default toolchain, it is also built
+-# with secondary 32-bit toolchain in 64-bit platform because we
+-# need 64-bit //android_webview/monochrome and 32-bit this target
+-# for 64-bit APK.
+ if (!android_64bit_target_cpu ||
+-    current_toolchain == android_secondary_abi_toolchain) {
++    current_toolchain != android_secondary_abi_toolchain) {
+   shared_library("monochrome") {
+     sources = [
+       "../browser/android/monochrome_entry_point.cc",
+@@ -1207,10 +1195,12 @@ if (!android_64bit_target_cpu ||
+     public_configs = extra_chrome_shared_library_configs
+     deps += extra_chrome_shared_library_deps
+   }
+-} else {
++}
++
++if (android_64bit_target_cpu && current_toolchain != android_secondary_abi_toolchain) {
+   group("monochrome_secondary_abi_lib") {
+     public_deps = [
+-      ":monochrome($android_secondary_abi_toolchain)",
++      "//android_webview:monochrome($android_secondary_abi_toolchain)",
+     ]
+   }
+ }
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index ce88a322ac00..4a2d3086e224 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -195,26 +195,13 @@ template("monochrome_public_common_apk_or_module_tmpl") {
+   chrome_public_common_apk_or_module_tmpl(target_name) {
+     if (!defined(invoker.use_trichrome_library) ||
+         !invoker.use_trichrome_library) {
+-      # Always build 64-bit //android_webview:monochrome because Chrome runs
+-      # in 32-bit mode.
+-      if (android_64bit_target_cpu) {
+-        shared_libraries = [ "//android_webview:monochrome" ]
+-      } else {
+-        shared_libraries = [ "//chrome/android:monochrome" ]
+-      }
++      shared_libraries = [ "//chrome/android:monochrome" ]
+       if (android_64bit_target_cpu && build_apk_secondary_abi) {
+         secondary_abi_shared_libraries =
+             [ "//chrome/android:monochrome_secondary_abi_lib" ]
+       }
+     } else {
+-      # Include a 32-bit placeholder library to ensure that Chrome runs in
+-      # 32-bit mode.
+-      if (android_64bit_target_cpu) {
+-        # We don't want to be 64-bit, only include a placeholder for secondary.
+-        secondary_native_lib_placeholders = [ "libdummy.so" ]
+-      } else {
+-        native_lib_placeholders = [ "libdummy.so" ]
+-      }
++      native_lib_placeholders = [ "libdummy.so" ]
+     }
+ 
+     alternative_android_sdk_dep = webview_framework_dep
+diff --git a/chrome/android/java/AndroidManifest_monochrome.xml b/chrome/android/java/AndroidManifest_monochrome.xml
+index 5ae85dec51d1..934d13d806dc 100644
+--- a/chrome/android/java/AndroidManifest_monochrome.xml
++++ b/chrome/android/java/AndroidManifest_monochrome.xml
+@@ -19,7 +19,6 @@
+ {{ super() }}
+ android:multiArch="true"
+ android:extractNativeLibs="false"
+-{{use32bitAbi|default('')}}
+ {% endblock %}
+ 
+ {% block extra_keyset_definitions %}
+diff --git a/chrome/android/monochrome_android_manifest_jinja_variables.gni b/chrome/android/monochrome_android_manifest_jinja_variables.gni
+index dcbfa96764a1..8e6d7ccac9e2 100644
+--- a/chrome/android/monochrome_android_manifest_jinja_variables.gni
++++ b/chrome/android/monochrome_android_manifest_jinja_variables.gni
+@@ -5,5 +5,4 @@
+ monochrome_android_manifest_jinja_variables = [
+   "min_sdk_version=24",
+   "sandboxed_service_exported=true",
+-  "use32bitAbi=android:use32bitAbi=\"true\"",
+ ]
+-- 
+2.20.1
+

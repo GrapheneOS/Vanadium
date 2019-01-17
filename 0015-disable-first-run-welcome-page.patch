@@ -1,0 +1,34 @@
+From 114d90a66a4b5af835658f1324b5915053cbee3f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 24 Nov 2016 08:19:03 -0500
+Subject: [PATCH 15/19] disable first run welcome page
+
+---
+ .../chromium/chrome/browser/firstrun/FirstRunActivity.java    | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
+index 7c3e360bf061..bc34a9fe81f8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
+@@ -85,7 +85,7 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
+ 
+     private static FirstRunActivityObserver sObserver;
+ 
+-    private boolean mShowWelcomePage = true;
++    private boolean mShowWelcomePage = false;
+ 
+     private String mResultSignInAccountName;
+     private boolean mResultIsDefaultAccount;
+@@ -211,7 +211,7 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
+                 }
+ 
+                 mFreProperties = freProperties;
+-                mShowWelcomePage = mFreProperties.getBoolean(SHOW_WELCOME_PAGE);
++                //mShowWelcomePage = mFreProperties.getBoolean(SHOW_WELCOME_PAGE);
+                 if (TextUtils.isEmpty(mResultSignInAccountName)) {
+                     mResultSignInAccountName = mFreProperties.getString(
+                             AccountFirstRunFragment.FORCE_SIGNIN_ACCOUNT_TO);
+-- 
+2.20.1
+
