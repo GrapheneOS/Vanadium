@@ -1,4 +1,4 @@
-From 1f3b84fe8778145e109c7a16c11262c525bcabcf Mon Sep 17 00:00:00 2001
+From d9ab84a7b19ef76c846b4dde674ff13d082ee360 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 5 Jul 2017 00:22:37 -0400
 Subject: [PATCH 02/19] use 64-bit Monochrome processes
@@ -6,14 +6,14 @@ Subject: [PATCH 02/19] use 64-bit Monochrome processes
 ---
  android_webview/BUILD.gn                      |  2 ++
  android_webview/system_webview_apk_tmpl.gni   |  2 +-
- chrome/android/BUILD.gn                       | 22 +++++--------------
- chrome/android/chrome_public_apk_tmpl.gni     | 17 ++------------
+ chrome/android/BUILD.gn                       | 25 +++++--------------
+ chrome/android/chrome_public_apk_tmpl.gni     | 17 ++-----------
  .../java/AndroidManifest_monochrome.xml       |  1 -
  ...hrome_android_manifest_jinja_variables.gni |  1 -
- 6 files changed, 11 insertions(+), 34 deletions(-)
+ 6 files changed, 11 insertions(+), 37 deletions(-)
 
 diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
-index 3fea650fe911..40037580ee77 100644
+index 535f0b9bbe91..fe126b225af0 100644
 --- a/android_webview/BUILD.gn
 +++ b/android_webview/BUILD.gn
 @@ -425,7 +425,9 @@ if (android_64bit_target_cpu) {
@@ -40,25 +40,28 @@ index 819907a3a9fa..52e39a792cd8 100644
            secondary_native_lib_placeholders = [ "libdummy.so" ]
          }
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 2e1aba975c1b..9e0194cecc4a 100644
+index 85234d43b441..db7aa7fae563 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -1046,13 +1046,7 @@ if (current_toolchain == default_toolchain) {
+@@ -1165,16 +1165,7 @@ if (current_toolchain == default_toolchain) {
+       }
  
-   if (enable_resource_whitelist_generation) {
-     generate_resource_whitelist("monochrome_resource_whitelist") {
--      # Always use the 32-bit library's whitelist since the 64-bit one is
--      # webview-only.
--      if (!android_64bit_target_cpu) {
--        _fat_lib_toolchain = current_toolchain
--      } else {
--        _fat_lib_toolchain = android_secondary_abi_toolchain
--      }
-+      _fat_lib_toolchain = current_toolchain
-       deps = [
-         ":monochrome($_fat_lib_toolchain)",
-       ]
-@@ -1170,14 +1164,8 @@ if (current_toolchain == default_toolchain) {
+       generate_resource_whitelist(_resource_whitelist_target) {
+-        _fat_lib_toolchain = ""
+-        if (_is_monochrome) {
+-          # Always use the 32-bit library's whitelist since the 64-bit one is
+-          # webview-only.
+-          if (!android_64bit_target_cpu) {
+-            _fat_lib_toolchain = current_toolchain
+-          } else {
+-            _fat_lib_toolchain = android_secondary_abi_toolchain
+-          }
+-        }
++        _fat_lib_toolchain = current_toolchain
+         deps = [
+           ":${_target}($_fat_lib_toolchain)",
+         ]
+@@ -1325,14 +1316,8 @@ if (current_toolchain == default_toolchain) {
    }
  }  # current_toolchain == host_toolchain
  
@@ -71,12 +74,12 @@ index 2e1aba975c1b..9e0194cecc4a 100644
  if (!android_64bit_target_cpu ||
 -    current_toolchain == android_secondary_abi_toolchain) {
 +    current_toolchain != android_secondary_abi_toolchain) {
-   shared_library("monochrome") {
+   chrome_common_shared_library("monochrome") {
      sources = [
        "../browser/android/monochrome_entry_point.cc",
-@@ -1207,10 +1195,12 @@ if (!android_64bit_target_cpu ||
-     public_configs = extra_chrome_shared_library_configs
-     deps += extra_chrome_shared_library_deps
+@@ -1345,10 +1330,12 @@ if (!android_64bit_target_cpu ||
+     enable_compressed_relocations = use_lld
+     use_gnu_hash_style = true
    }
 -} else {
 +}
@@ -90,10 +93,10 @@ index 2e1aba975c1b..9e0194cecc4a 100644
    }
  }
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index ce88a322ac00..4a2d3086e224 100644
+index 3915df1fcb8e..a8de0e560f04 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -195,26 +195,13 @@ template("monochrome_public_common_apk_or_module_tmpl") {
+@@ -218,26 +218,13 @@ template("monochrome_public_common_apk_or_module_tmpl") {
    chrome_public_common_apk_or_module_tmpl(target_name) {
      if (!defined(invoker.use_trichrome_library) ||
          !invoker.use_trichrome_library) {
@@ -120,8 +123,8 @@ index ce88a322ac00..4a2d3086e224 100644
 -      }
 +      native_lib_placeholders = [ "libdummy.so" ]
      }
- 
-     alternative_android_sdk_dep = webview_framework_dep
+     if (invoker.add_unwind_tables_in_apk) {
+       shared_library_for_unwind_asset = "monochrome"
 diff --git a/chrome/android/java/AndroidManifest_monochrome.xml b/chrome/android/java/AndroidManifest_monochrome.xml
 index 5ae85dec51d1..934d13d806dc 100644
 --- a/chrome/android/java/AndroidManifest_monochrome.xml
