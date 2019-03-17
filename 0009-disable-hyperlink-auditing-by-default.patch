@@ -1,7 +1,7 @@
-From d900eb53b05c5b5e445c6e6c24fadaec2eeb7a49 Mon Sep 17 00:00:00 2001
+From f5d2707d5fb052d56dd060c076732c1bcf3cb1e4 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 26 Nov 2016 14:57:22 -0500
-Subject: [PATCH 10/19] disable hyperlink auditing by default
+Subject: [PATCH 09/18] disable hyperlink auditing by default
 
 ---
  chrome/browser/about_flags.cc                   | 2 +-
@@ -9,10 +9,10 @@ Subject: [PATCH 10/19] disable hyperlink auditing by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 0a84c6ac1cd0..14c46f698156 100644
+index 7074857d8bec..af095c9640a6 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -1418,7 +1418,7 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -1325,7 +1325,7 @@ const FeatureEntry kFeatureEntries[] = {
       SINGLE_VALUE_TYPE(switches::kDisableIpcFloodingProtection)},
      {"disable-hyperlink-auditing", flag_descriptions::kHyperlinkAuditingName,
       flag_descriptions::kHyperlinkAuditingDescription, kOsAll,
@@ -22,10 +22,10 @@ index 0a84c6ac1cd0..14c46f698156 100644
      {"contextual-search", flag_descriptions::kContextualSearchName,
       flag_descriptions::kContextualSearchDescription, kOsAndroid,
 diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
-index 1461387b7418..0f8d77c6da4e 100644
+index 92ac69c55247..3a55d9585139 100644
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -1055,7 +1055,7 @@ void ChromeContentBrowserClient::RegisterLocalStatePrefs(
+@@ -1098,7 +1098,7 @@ void ChromeContentBrowserClient::RegisterLocalStatePrefs(
  void ChromeContentBrowserClient::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
    registry->RegisterBooleanPref(prefs::kDisable3DAPIs, false);
@@ -35,5 +35,5 @@ index 1461387b7418..0f8d77c6da4e 100644
    // Register user prefs for mapping SitePerProcess and IsolateOrigins in
    // user policy in addition to the same named ones in Local State (which are
 -- 
-2.20.1
+2.21.0
 

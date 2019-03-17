@@ -1,25 +1,24 @@
-From 88eeefabac9be83b5d80f7c949f586cf76c734a2 Mon Sep 17 00:00:00 2001
+From a08110f7aa438c5a1d3ced3fdb166ed641853ed1 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 26 Jan 2017 01:30:12 -0500
-Subject: [PATCH 01/19] use 64-bit WebView processes
+Subject: [PATCH 01/18] use 64-bit WebView processes
 
 ---
- android_webview/apk/java/AndroidManifest.xml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ android_webview/apk/java/AndroidManifest.xml | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/android_webview/apk/java/AndroidManifest.xml b/android_webview/apk/java/AndroidManifest.xml
-index 39f5d9712bac..704d4565ce2b 100644
+index 747af3f01cfa..1eb775986dca 100644
 --- a/android_webview/apk/java/AndroidManifest.xml
 +++ b/android_webview/apk/java/AndroidManifest.xml
-@@ -25,7 +25,7 @@
+@@ -25,7 +25,6 @@
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('com.android.webview.chromium.WebViewApplication') }}"
                   android:multiArch="true"
--                 android:use32bitAbi="true">
-+                 android:use32bitAbi="false">
+-                 android:use32bitAbi="true"
+                  android:extractNativeLibs="{{ trichrome_library is not defined }}">
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
-             <meta-data android:name="com.android.webview.WebViewLibrary"
 -- 
-2.20.1
+2.21.0
 
