@@ -1,0 +1,51 @@
+From fffbc4880db3a3c368784cf1184a1f55b7abc2af Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 2 May 2019 07:15:32 -0400
+Subject: [PATCH 20/20] enable strict site isolation by default on Android
+
+---
+ chrome/browser/about_flags.cc    | 9 ---------
+ chrome/common/chrome_features.cc | 7 +------
+ 2 files changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
+index 4db65beb6d67..dade513e5adf 100644
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -1801,15 +1801,6 @@ const FeatureEntry kFeatureEntries[] = {
+      flag_descriptions::kSSLCommittedInterstitialsName,
+      flag_descriptions::kSSLCommittedInterstitialsDescription, kOsAll,
+      FEATURE_VALUE_TYPE(features::kSSLCommittedInterstitials)},
+-#if defined(OS_ANDROID)
+-    {"enable-site-isolation-for-password-sites",
+-     flag_descriptions::kSiteIsolationForPasswordSitesName,
+-     flag_descriptions::kSiteIsolationForPasswordSitesDescription, kOsAndroid,
+-     FEATURE_VALUE_TYPE(features::kSiteIsolationForPasswordSites)},
+-    {"enable-site-per-process", flag_descriptions::kStrictSiteIsolationName,
+-     flag_descriptions::kStrictSiteIsolationDescription, kOsAndroid,
+-     SINGLE_VALUE_TYPE(switches::kSitePerProcess)},
+-#endif
+     {"site-isolation-trial-opt-out",
+      flag_descriptions::kSiteIsolationOptOutName,
+      flag_descriptions::kSiteIsolationOptOutDescription, kOsAll,
+diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
+index 7a87febba576..3fce73c8ea85 100644
+--- a/chrome/common/chrome_features.cc
++++ b/chrome/common/chrome_features.cc
+@@ -558,12 +558,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
+ // TODO(alexmos): Move this and the other site isolation features below to
+ // browser_features, as they are only used on the browser side.
+ const base::Feature kSitePerProcess {
+-  "site-per-process",
+-#if defined(OS_ANDROID)
+-      base::FEATURE_DISABLED_BY_DEFAULT
+-#else
+-      base::FEATURE_ENABLED_BY_DEFAULT
+-#endif
++  "site-per-process", base::FEATURE_ENABLED_BY_DEFAULT
+ };
+ 
+ // Controls a mode for dynamically process-isolating sites where the user has
+-- 
+2.21.0
+
