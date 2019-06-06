@@ -1,7 +1,7 @@
-From 5cb2474c56fa73e6f2733e59269af5b2922d6ebb Mon Sep 17 00:00:00 2001
+From 8207cf56390d083bf1cc42bf6cd3183b30f16b95 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
-Subject: [PATCH 19/20] enable strict site isolation by default on Android
+Subject: [PATCH 18/19] enable strict site isolation by default on Android
 
 ---
  chrome/browser/about_flags.cc    | 9 ---------
@@ -9,10 +9,10 @@ Subject: [PATCH 19/20] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 15 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 4db65beb6d67..dade513e5adf 100644
+index 30f8b03e98e7..3f0f27a6d6d3 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -1801,15 +1801,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -1651,15 +1651,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kSSLCommittedInterstitialsName,
       flag_descriptions::kSSLCommittedInterstitialsDescription, kOsAll,
       FEATURE_VALUE_TYPE(features::kSSLCommittedInterstitials)},
@@ -25,14 +25,14 @@ index 4db65beb6d67..dade513e5adf 100644
 -     flag_descriptions::kStrictSiteIsolationDescription, kOsAndroid,
 -     SINGLE_VALUE_TYPE(switches::kSitePerProcess)},
 -#endif
-     {"site-isolation-trial-opt-out",
-      flag_descriptions::kSiteIsolationOptOutName,
-      flag_descriptions::kSiteIsolationOptOutDescription, kOsAll,
+     {"isolate-origins", flag_descriptions::kIsolateOriginsName,
+      flag_descriptions::kIsolateOriginsDescription, kOsAll,
+      ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 7a87febba576..3fce73c8ea85 100644
+index 0bfcb822f2d1..fe1bf3e5f2af 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -558,12 +558,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
+@@ -557,12 +557,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

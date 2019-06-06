@@ -1,17 +1,19 @@
-From a20216228beb40ce2ee48dd83763c9dd4a35a6ff Mon Sep 17 00:00:00 2001
+From 3e47005e2a1801c7b342038f3e60c3815c1c0e65 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 1 Aug 2017 20:29:56 -0400
-Subject: [PATCH 14/20] disable search engine geolocation by default
+Subject: [PATCH 13/19] disable search engine permissions by default
 
+Disable the geolocation and notification permissions for the default
+search engine by default.
 ---
  .../search_permissions/search_permissions_service.cc      | 8 +++-----
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/browser/android/search_permissions/search_permissions_service.cc b/chrome/browser/android/search_permissions/search_permissions_service.cc
-index 0d25effb0798..26537c38a463 100644
+index f55019c639f2..70daef07a718 100644
 --- a/chrome/browser/android/search_permissions/search_permissions_service.cc
 +++ b/chrome/browser/android/search_permissions/search_permissions_service.cc
-@@ -197,7 +197,7 @@ void SearchPermissionsService::ResetDSEPermission(ContentSettingsType type) {
+@@ -190,7 +190,7 @@ void SearchPermissionsService::ResetDSEPermission(ContentSettingsType type) {
    DCHECK(dse_url.is_empty() || IsPermissionControlledByDSE(type, dse_origin));
  
    if (!dse_url.is_empty())
@@ -20,7 +22,7 @@ index 0d25effb0798..26537c38a463 100644
  }
  
  void SearchPermissionsService::ResetDSEPermissions() {
-@@ -381,10 +381,8 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
+@@ -370,10 +370,8 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
        pref_service_->ClearPref(prefs::kDSEGeolocationSettingDeprecated);
      } else if (dse_geolocation_setting == CONTENT_SETTING_ASK) {
        // If the user hasn't explicitly allowed or blocked geolocation for the
