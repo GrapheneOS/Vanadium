@@ -1,4 +1,4 @@
-From 0a9e5113b7c840d97422c1253139924a3023676f Mon Sep 17 00:00:00 2001
+From f4e5fbea221fae241fc9ae94f4e57f99e1851a2e Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 1 Aug 2017 20:29:56 -0400
 Subject: [PATCH 13/21] disable search engine permissions by default
@@ -6,11 +6,11 @@ Subject: [PATCH 13/21] disable search engine permissions by default
 Disable the geolocation and notification permissions for the default
 search engine by default.
 ---
- .../search_permissions_service.cc                  | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ .../search_permissions_service.cc             | 20 ++++++-------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
 diff --git a/chrome/browser/android/search_permissions/search_permissions_service.cc b/chrome/browser/android/search_permissions/search_permissions_service.cc
-index f55019c639f2..b0a00c11ef29 100644
+index f55019c639f2..69c98e105903 100644
 --- a/chrome/browser/android/search_permissions/search_permissions_service.cc
 +++ b/chrome/browser/android/search_permissions/search_permissions_service.cc
 @@ -190,7 +190,7 @@ void SearchPermissionsService::ResetDSEPermission(ContentSettingsType type) {
@@ -22,7 +22,20 @@ index f55019c639f2..b0a00c11ef29 100644
  }
  
  void SearchPermissionsService::ResetDSEPermissions() {
-@@ -370,10 +370,8 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
+@@ -333,11 +333,7 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
+     return;
+   }
+ 
+-  // If we get to here, the DSE is not disabled by enterprise policy. If it was
+-  // previously enterprise controlled, we initialize the setting to BLOCK since
+-  // we don't know what the user's setting was previously.
+-  bool was_enterprise_controlled =
+-      pref_service_->GetBoolean(prefs::kDSEWasDisabledByPolicy);
++  // If we get to here, the DSE is not disabled by enterprise policy.
+   pref_service_->ClearPref(prefs::kDSEWasDisabledByPolicy);
+ 
+   // Initialize the pref for geolocation if it hasn't been initialized yet.
+@@ -370,10 +366,8 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
        pref_service_->ClearPref(prefs::kDSEGeolocationSettingDeprecated);
      } else if (dse_geolocation_setting == CONTENT_SETTING_ASK) {
        // If the user hasn't explicitly allowed or blocked geolocation for the
@@ -35,7 +48,7 @@ index f55019c639f2..b0a00c11ef29 100644
      }
  
      // Update the content setting with the auto-grants for the DSE.
-@@ -398,11 +396,9 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
+@@ -398,11 +392,9 @@ void SearchPermissionsService::InitializeSettingsIfNeeded() {
          GetContentSetting(dse_origin, CONTENT_SETTINGS_TYPE_NOTIFICATIONS);
      ContentSetting dse_notifications_setting = notifications_setting_to_restore;
      // If the user hasn't explicitly allowed or blocked notifications for the
