@@ -1,0 +1,27 @@
+From 7af6789c98c5a3f9c331463d6a04f9bf3e7ae1dd Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 28 Jun 2019 17:48:49 -0400
+Subject: [PATCH 28/28] show download prompt again by default
+
+---
+ .../chrome/browser/download/DownloadLocationCustomView.java   | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
+index f25930b612d1..9311a63f3092 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
+@@ -55,10 +55,6 @@ public class DownloadLocationCustomView
+     void initialize(@DownloadLocationDialogType int dialogType, File suggestedPath) {
+         mDialogType = dialogType;
+ 
+-        // Automatically check "don't show again" the first time the user is seeing the dialog.
+-        boolean isInitial = PrefServiceBridge.getInstance().getPromptForDownloadAndroid()
+-                == DownloadPromptStatus.SHOW_INITIAL;
+-        mDontShowAgain.setChecked(isInitial);
+         mDontShowAgain.setOnCheckedChangeListener(this);
+ 
+         mFileName.setText(suggestedPath.getName());
+-- 
+2.22.0
+
