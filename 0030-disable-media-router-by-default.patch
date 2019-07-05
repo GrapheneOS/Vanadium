@@ -1,0 +1,56 @@
+From eed8e0708b6dc452e27a0c36da1ca2f6a8498868 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 4 Jul 2019 19:08:52 -0400
+Subject: [PATCH 30/30] disable media router by default
+
+---
+ .../media/router/media_router_feature.cc        | 17 ++++++++---------
+ chrome/browser/profiles/profile_impl.cc         |  2 +-
+ 2 files changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
+index 9c42d30ecd22..e773dd54ad9e 100644
+--- a/chrome/browser/media/router/media_router_feature.cc
++++ b/chrome/browser/media/router/media_router_feature.cc
+@@ -56,17 +56,16 @@ const PrefService::Preference* GetMediaRouterPref(
+ 
+ bool MediaRouterEnabled(content::BrowserContext* context) {
+ #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
+-  const PrefService::Preference* pref = GetMediaRouterPref(context);
+-  // Only use the pref value if it set from a mandatory policy.
+-  if (pref->IsManaged() && !pref->IsDefaultValue()) {
+-    bool allowed = false;
+-    CHECK(pref->GetValue()->GetAsBoolean(&allowed));
+-    return allowed;
+-  }
+-
+   // The component extension cannot be loaded in guest sessions.
+   // TODO(crbug.com/756243): Figure out why.
+-  return !Profile::FromBrowserContext(context)->IsGuestSession();
++  if (Profile::FromBrowserContext(context)->IsGuestSession()) {
++    return false;
++  }
++
++  const PrefService::Preference* pref = GetMediaRouterPref(context);
++  bool allowed = false;
++  pref->GetValue()->GetAsBoolean(&allowed);
++  return allowed;
+ #else  // !(defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS))
+   return false;
+ #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
+diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
+index 86ffb0c6cfc3..e32f0e7b83fe 100644
+--- a/chrome/browser/profiles/profile_impl.cc
++++ b/chrome/browser/profiles/profile_impl.cc
+@@ -443,7 +443,7 @@ void ProfileImpl::RegisterProfilePrefs(
+   registry->RegisterStringPref(
+       prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
+   registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);
+-  registry->RegisterBooleanPref(prefs::kEnableMediaRouter, true);
++  registry->RegisterBooleanPref(prefs::kEnableMediaRouter, false);
+ #if defined(OS_CHROMEOS)
+   registry->RegisterBooleanPref(
+       prefs::kOobeMarketingOptInScreenFinished, false,
+-- 
+2.22.0
+
