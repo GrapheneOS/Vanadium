@@ -1,0 +1,25 @@
+From ad5538c7cf22b9f48233414ea8fa9a6bdaebcdcc Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 12 Jul 2019 04:23:18 -0400
+Subject: [PATCH 27/36] disable browser sign in feature by default
+
+---
+ components/signin/core/browser/signin_manager_base.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/signin/core/browser/signin_manager_base.cc b/components/signin/core/browser/signin_manager_base.cc
+index e4af93620919..05a9c752583c 100644
+--- a/components/signin/core/browser/signin_manager_base.cc
++++ b/components/signin/core/browser/signin_manager_base.cc
+@@ -54,7 +54,7 @@ void SigninManagerBase::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+                                std::string());
+   registry->RegisterBooleanPref(prefs::kAutologinEnabled, true);
+   registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
+-  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
++  registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
+   registry->RegisterInt64Pref(prefs::kSignedInTime,
+                               base::Time().ToInternalValue());
+   registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
+-- 
+2.22.0
+
