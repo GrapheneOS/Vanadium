@@ -1,0 +1,25 @@
+From a7fab88bcfa9db944ba4b2785e4575a4b794be96 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 17 Jun 2019 13:14:22 -0400
+Subject: [PATCH 34/37] always use local new tab page
+
+---
+ chrome/browser/search/search.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/search/search.cc b/chrome/browser/search/search.cc
+index f19f0b901000..42917ee45309 100644
+--- a/chrome/browser/search/search.cc
++++ b/chrome/browser/search/search.cc
+@@ -167,7 +167,7 @@ bool ShouldShowLocalNewTab(Profile* profile) {
+          (base::FeatureList::IsEnabled(features::kUseGoogleLocalNtp) &&
+           profile && DefaultSearchProviderIsGoogle(profile));
+ #endif
+-  return false;
++  return true;
+ }
+ 
+ bool ShouldDelayRemoteNTP(const GURL& search_provider_url, Profile* profile) {
+-- 
+2.22.0
+
