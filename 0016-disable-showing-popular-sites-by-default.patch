@@ -1,17 +1,17 @@
-From f1849d67f5ab84f99ba6dd1fc38cc011456b83d3 Mon Sep 17 00:00:00 2001
+From 5edc02b0800403c8c86301c9a1ffe579ddf97c61 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 6 Mar 2018 00:27:41 -0500
-Subject: [PATCH 16/37] disable showing popular sites by default
+Subject: [PATCH 16/36] disable showing popular sites by default
 
 ---
- components/ntp_tiles/constants.cc | 4 ++--
+ components/ntp_tiles/features.cc | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/components/ntp_tiles/constants.cc b/components/ntp_tiles/constants.cc
-index b40488bcd098..3cfb203d065a 100644
---- a/components/ntp_tiles/constants.cc
-+++ b/components/ntp_tiles/constants.cc
-@@ -12,7 +12,7 @@ namespace ntp_tiles {
+diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
+index 0ea51f0746e0..5fe7b5bbdfd4 100644
+--- a/components/ntp_tiles/features.cc
++++ b/components/ntp_tiles/features.cc
+@@ -12,13 +12,13 @@ namespace ntp_tiles {
  const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
  
  const base::Feature kPopularSitesBakedInContentFeature{
@@ -20,14 +20,13 @@ index b40488bcd098..3cfb203d065a 100644
  
  const base::Feature kNtpMostLikelyFaviconsFromServerFeature{
      "NTPMostLikelyFaviconsFromServer", base::FEATURE_ENABLED_BY_DEFAULT};
-@@ -21,6 +21,6 @@ const base::Feature kSiteExplorationUiFeature{
-     "SiteExplorationUi", base::FEATURE_DISABLED_BY_DEFAULT};
  
  const base::Feature kUsePopularSitesSuggestions{
 -    "UsePopularSitesSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "UsePopularSitesSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
  
- }  // namespace ntp_tiles
+ const base::Feature kDefaultSearchShortcut{"DefaultSearchShortcut",
+                                            base::FEATURE_DISABLED_BY_DEFAULT};
 -- 
 2.22.0
 

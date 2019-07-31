@@ -1,18 +1,25 @@
-From ef3c086cad7e63294cf538b8f2d1dd426d2d480a Mon Sep 17 00:00:00 2001
+From 995bcae12113e4942b98c4655ee6961f6cf213a1 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
-Subject: [PATCH 24/37] disable media router by default
+Subject: [PATCH 24/36] disable media router by default
 
 ---
- .../media/router/media_router_feature.cc        | 17 ++++++++---------
- chrome/browser/profiles/profile_impl.cc         |  2 +-
- 2 files changed, 9 insertions(+), 10 deletions(-)
+ .../media/router/media_router_feature.cc      | 19 +++++++++----------
+ chrome/browser/profiles/profile_impl.cc       |  2 +-
+ 2 files changed, 10 insertions(+), 11 deletions(-)
 
 diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
-index 9c42d30ecd22..e773dd54ad9e 100644
+index 5d7b8ea024e5..8532439e4cf5 100644
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -56,17 +56,16 @@ const PrefService::Preference* GetMediaRouterPref(
+@@ -52,23 +52,22 @@ const PrefService::Preference* GetMediaRouterPref(
+     content::BrowserContext* context) {
+   return user_prefs::UserPrefs::Get(context)->FindPreference(
+       ::prefs::kEnableMediaRouter);
+-}
++    }
+ }  // namespace
+ #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
  
  bool MediaRouterEnabled(content::BrowserContext* context) {
  #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
@@ -35,14 +42,14 @@ index 9c42d30ecd22..e773dd54ad9e 100644
 +  bool allowed = false;
 +  pref->GetValue()->GetAsBoolean(&allowed);
 +  return allowed;
- #else  // !(defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS))
+ #else   // !(defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS))
    return false;
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index 86ffb0c6cfc3..e32f0e7b83fe 100644
+index 71619ca3d527..062569a76016 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -443,7 +443,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -435,7 +435,7 @@ void ProfileImpl::RegisterProfilePrefs(
    registry->RegisterStringPref(
        prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

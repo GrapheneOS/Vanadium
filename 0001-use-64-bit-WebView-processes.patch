@@ -1,19 +1,19 @@
-From 1b1698686eaec6c5fe0c2f0e4bfc084e36e80011 Mon Sep 17 00:00:00 2001
+From acf4f6b173370304341ff48b2a6e3c5f5fc3a059 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 26 Jan 2017 01:30:12 -0500
-Subject: [PATCH 01/37] use 64-bit WebView processes
+Subject: [PATCH 01/36] use 64-bit WebView processes
 
 ---
  android_webview/apk/java/AndroidManifest.xml | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/android_webview/apk/java/AndroidManifest.xml b/android_webview/apk/java/AndroidManifest.xml
-index 76c992db3369..ee7ed4b1e094 100644
+index bca5a6bdcf82..1b321d04f5a7 100644
 --- a/android_webview/apk/java/AndroidManifest.xml
 +++ b/android_webview/apk/java/AndroidManifest.xml
 @@ -28,7 +28,6 @@
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
-                  android:name="{{ application_name|default('com.android.webview.chromium.WebViewApplication') }}"
+                  android:name="{{ application_name|default('com.android.webview.chromium.WebViewApkApplication') }}"
                   android:multiArch="true"
 -                 android:use32bitAbi="true"
                   android:extractNativeLibs="{{ trichrome_library is not defined }}">
