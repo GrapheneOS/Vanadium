@@ -1,0 +1,83 @@
+From 8db033603a3c7290bee0bb9fe225d8a62f596498 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 3 Aug 2019 00:34:43 -0400
+Subject: [PATCH 46/46] remove redundant services preference category
+
+---
+ .../java/res/xml/sync_and_services_preferences.xml        | 8 ++++----
+ .../browser/preferences/SyncAndServicesPreferences.java   | 8 ++++----
+ chrome/android/java/strings/android_chrome_strings.grd    | 6 +++---
+ 3 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+index f3315e1a595d..e52b7ba5341e 100644
+--- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
++++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+@@ -38,9 +38,9 @@
+             <!--android:fragment="org.chromium.chrome.browser.preferences.ManageSyncPreferences"/>-->
+     <!--</PreferenceCategory>-->
+ 
+-    <PreferenceCategory
+-        android:key="services_category"
+-        android:title="@string/services_category_title">
++    <!--<PreferenceCategory-->
++        <!--android:key="services_category"-->
++        <!--android:title="@string/services_category_title">-->
+ 
+         <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
+             android:key="search_suggestions"
+@@ -76,5 +76,5 @@
+             android:key="contextual_search"
+             android:title="@string/contextual_search_title"
+             android:fragment="org.chromium.chrome.browser.preferences.privacy.ContextualSearchPreferenceFragment"/>
+-    </PreferenceCategory>
++    <!--</PreferenceCategory>-->
+ </PreferenceScreen>
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
+index f76a5e4fe114..d125e95d7aac 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
+@@ -81,7 +81,7 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+     private static final String PREF_SYNC_ERROR_CARD = "sync_error_card";
+     private static final String PREF_SYNC_REQUESTED = "sync_requested";
+ 
+-    private static final String PREF_SERVICES_CATEGORY = "services_category";
++    //private static final String PREF_SERVICES_CATEGORY = "services_category";
+     private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
+     //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+@@ -206,11 +206,11 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+         //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
+         //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+-        PreferenceCategory servicesCategory =
+-                (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
++        //PreferenceCategory servicesCategory =
++                //(PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
+         mContextualSearch = findPreference(PREF_CONTEXTUAL_SEARCH);
+         if (!ContextualSearchFieldTrial.isEnabled()) {
+-            removePreference(servicesCategory, mContextualSearch);
++            getPreferenceScreen().removePreference(mContextualSearch);
+             mContextualSearch = null;
+         }
+ 
+diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
+index 36078900647a..eab3ffda3e3d 100644
+--- a/chrome/android/java/strings/android_chrome_strings.grd
++++ b/chrome/android/java/strings/android_chrome_strings.grd
+@@ -388,9 +388,9 @@ CHAR-LIMIT guidelines:
+       <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
+         Manage sync
+       </message>
+-      <message name="IDS_SERVICES_CATEGORY_TITLE" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account.">
+-        Other Google services
+-      </message>
++      <!--<message name="IDS_SERVICES_CATEGORY_TITLE" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account.">-->
++        <!--Other Google services-->
++      <!--</message>-->
+       <message name="IDS_AUTOCOMPLETE_SEARCHES_AND_URLS_TITLE" desc="Title for a checkbox in Settings that controls URL and search autocompletion and informs the user about the data shared by this feature.">
+         Autocomplete searches and URLs
+       </message>
+-- 
+2.22.0
+
