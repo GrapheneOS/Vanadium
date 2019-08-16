@@ -1,0 +1,25 @@
+From 527d50f114a3644cf240bbcce33f52312346258f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 23 Nov 2016 08:29:58 -0500
+Subject: [PATCH 12/48] disable navigation error correction by default
+
+---
+ chrome/browser/ui/navigation_correction_tab_observer.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/navigation_correction_tab_observer.cc b/chrome/browser/ui/navigation_correction_tab_observer.cc
+index 40256d42872f..6d802c92bcaf 100644
+--- a/chrome/browser/ui/navigation_correction_tab_observer.cc
++++ b/chrome/browser/ui/navigation_correction_tab_observer.cc
+@@ -55,7 +55,7 @@ NavigationCorrectionTabObserver::~NavigationCorrectionTabObserver() {}
+ // static
+ void NavigationCorrectionTabObserver::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* prefs) {
+-  prefs->RegisterBooleanPref(prefs::kAlternateErrorPagesEnabled, true,
++  prefs->RegisterBooleanPref(prefs::kAlternateErrorPagesEnabled, false,
+                              user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ }
+ 
+-- 
+2.22.1
+

@@ -1,0 +1,40 @@
+From 3ac485366b630f9f123018d4d5caca7c1cc8b0aa Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 01:33:01 -0400
+Subject: [PATCH 05/48] migrate package name to org.grapheneos.vanadium
+
+---
+ chrome/android/BUILD.gn                 | 2 +-
+ chrome/android/java/AndroidManifest.xml | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index cdb97d71d90c..690414fe1573 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -42,7 +42,7 @@ if (dfmify_devtools) {
+   import("//chrome/android/features/devtools/devtools_module_tmpl.gni")
+ }
+ 
+-manifest_package = "org.chromium.chrome"
++manifest_package = "org.grapheneos.vanadium"
+ test_manifest_package = "org.chromium.chrome.tests"
+ 
+ chrome_public_jinja_variables = default_chrome_public_jinja_variables +
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index d786da85cb5f..cb35a7a6be01 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -16,6 +16,9 @@ by a child template that "extends" this file.
+     tools:ignore="MissingVersion">
+     <!-- android:versionCode and android:versionName is set through gyp. See build/common.gypi -->
+ 
++    <!-- migrate data from the original package name -->
++    <original-package android:name="org.chromium.chrome"/>
++
+     <uses-sdk android:minSdkVersion="{{min_sdk_version}}" android:targetSdkVersion="{{target_sdk_version}}" />
+     <uses-feature android:glEsVersion="0x00020000" />
+ 
+-- 
+2.22.1
+
