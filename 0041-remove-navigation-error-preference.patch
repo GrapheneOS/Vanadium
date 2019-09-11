@@ -1,40 +1,40 @@
-From 740848ec76e75328c138c1001d9c82860f041945 Mon Sep 17 00:00:00 2001
+From e9eb1506026b3cf5ac998b33de1556c4d0510ebd Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
 Subject: [PATCH 41/48] remove navigation error preference
 
 ---
  .../res/xml/sync_and_services_preferences.xml | 10 ++++-----
- .../SyncAndServicesPreferences.java           | 22 +++++++++----------
+ .../sync/SyncAndServicesPreferences.java      | 22 +++++++++----------
  .../java/strings/android_chrome_strings.grd   | 12 +++++-----
  3 files changed, 22 insertions(+), 22 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 64ae3a3db45c..b4730396b586 100644
+index 052375395843..1c9d7ec0ffa6 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -47,11 +47,11 @@
+@@ -51,11 +51,11 @@
              android:title="@string/autocomplete_searches_and_urls_title"
              android:summary="@string/autocomplete_searches_and_urls_summary"
              android:persistent="false"/>
--        <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
+-        <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
 -            android:key="navigation_error"
 -            android:title="@string/navigation_error_suggestions_title"
 -            android:summary="@string/navigation_error_suggestions_summary"
 -            android:persistent="false"/>
-+        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreference-->
++        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat-->
 +            <!--android:key="navigation_error"-->
 +            <!--android:title="@string/navigation_error_suggestions_title"-->
 +            <!--android:summary="@string/navigation_error_suggestions_summary"-->
 +            <!--android:persistent="false"/>-->
-         <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
+         <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
              android:key="safe_browsing"
              android:title="@string/safe_browsing_title"
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
-index df270a0df9cc..c1d356115acd 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
-@@ -83,7 +83,7 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
+index 99ac42964641..62eb693c4fb9 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
+@@ -94,7 +94,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
  
      private static final String PREF_SERVICES_CATEGORY = "services_category";
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
@@ -43,29 +43,29 @@ index df270a0df9cc..c1d356115acd 100644
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
              "safe_browsing_scout_reporting";
-@@ -120,7 +120,7 @@ public class SyncAndServicesPreferences extends PreferenceFragment
-     //private ChromeSwitchPreference mSyncRequested;
+@@ -133,7 +133,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     //private ChromeSwitchPreferenceCompat mSyncRequested;
  
-     private ChromeSwitchPreference mSearchSuggestions;
--    private ChromeSwitchPreference mNavigationError;
-+    //private ChromeSwitchPreference mNavigationError;
-     private ChromeSwitchPreference mSafeBrowsing;
-     private ChromeSwitchPreference mSafeBrowsingReporting;
-     private ChromeSwitchPreference mUsageAndCrashReporting;
-@@ -183,9 +183,9 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+     private ChromeSwitchPreferenceCompat mSearchSuggestions;
+-    private ChromeSwitchPreferenceCompat mNavigationError;
++    //private ChromeSwitchPreferenceCompat mNavigationError;
+     private ChromeSwitchPreferenceCompat mSafeBrowsing;
+     private ChromeSwitchPreferenceCompat mSafeBrowsingReporting;
+     private ChromeSwitchPreferenceCompat mUsageAndCrashReporting;
+@@ -198,9 +198,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
--        mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
+-        mNavigationError = (ChromeSwitchPreferenceCompat) findPreference(PREF_NAVIGATION_ERROR);
 -        mNavigationError.setOnPreferenceChangeListener(this);
 -        mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
-+        //mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
++        //mNavigationError = (ChromeSwitchPreferenceCompat) findPreference(PREF_NAVIGATION_ERROR);
 +        //mNavigationError.setOnPreferenceChangeListener(this);
 +        //mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
-         mSafeBrowsing = (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING);
+         mSafeBrowsing = (ChromeSwitchPreferenceCompat) findPreference(PREF_SAFE_BROWSING);
          mSafeBrowsing.setOnPreferenceChangeListener(this);
-@@ -318,8 +318,8 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+@@ -333,8 +333,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              mPrefServiceBridge.setSafeBrowsingEnabled((boolean) newValue);
          } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
              mPrefServiceBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
@@ -76,7 +76,7 @@ index df270a0df9cc..c1d356115acd 100644
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
              UmaSessionStats.changeMetricsReportingConsent((boolean) newValue);
          } else if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
-@@ -491,7 +491,7 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+@@ -507,7 +507,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.isSearchSuggestEnabled());
@@ -85,8 +85,8 @@ index df270a0df9cc..c1d356115acd 100644
          mSafeBrowsing.setChecked(mPrefServiceBridge.isSafeBrowsingEnabled());
          mSafeBrowsingReporting.setChecked(
                  mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
-@@ -537,9 +537,9 @@ public class SyncAndServicesPreferences extends PreferenceFragment
-     private ManagedPreferenceDelegate createManagedPreferenceDelegate() {
+@@ -564,9 +564,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     private ManagedPreferenceDelegateCompat createManagedPreferenceDelegate() {
          return preference -> {
              String key = preference.getKey();
 -            if (PREF_NAVIGATION_ERROR.equals(key)) {
@@ -99,10 +99,10 @@ index df270a0df9cc..c1d356115acd 100644
                  return mPrefServiceBridge.isSearchSuggestManaged();
              }
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index e183e182f5e7..61cacbc762e3 100644
+index 2a310c0a2eea..f792846416da 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -403,12 +403,12 @@ CHAR-LIMIT guidelines:
+@@ -400,12 +400,12 @@ CHAR-LIMIT guidelines:
        <message name="IDS_PRELOAD_PAGES_SUMMARY" desc="Summary for a checkbox in Settings that controls pages preloading and informs the user about the data shared by this feature.">
          Uses cookies to remember your preferences, even if you don't visit those pages
        </message>
@@ -122,5 +122,5 @@ index e183e182f5e7..61cacbc762e3 100644
          Make searches and browsing better
        </message>
 -- 
-2.22.1
+2.23.0
 

@@ -1,52 +1,52 @@
-From bf74c0fd00ac72473413cd43dd77c08db975c7c0 Mon Sep 17 00:00:00 2001
+From 24f36a160bc9ba691b07258fd67475f7984e13f7 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 3 Aug 2019 00:34:43 -0400
 Subject: [PATCH 46/48] remove redundant services preference category
 
 ---
  .../java/res/xml/sync_and_services_preferences.xml        | 8 ++++----
- .../browser/preferences/SyncAndServicesPreferences.java   | 8 ++++----
+ .../preferences/sync/SyncAndServicesPreferences.java      | 8 ++++----
  chrome/android/java/strings/android_chrome_strings.grd    | 6 +++---
  3 files changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index f3315e1a595d..e52b7ba5341e 100644
+index d3b920e274ab..7b4b9666ac2a 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -38,9 +38,9 @@
-             <!--android:fragment="org.chromium.chrome.browser.preferences.ManageSyncPreferences"/>-->
-     <!--</PreferenceCategory>-->
+@@ -42,9 +42,9 @@
+             <!--android:fragment="org.chromium.chrome.browser.preferences.sync.ManageSyncPreferences"/>-->
+     <!--</android.support.v7.preference.PreferenceCategory>-->
  
--    <PreferenceCategory
+-    <android.support.v7.preference.PreferenceCategory
 -        android:key="services_category"
 -        android:title="@string/services_category_title">
-+    <!--<PreferenceCategory-->
++    <!--<android.support.v7.preference.PreferenceCategory-->
 +        <!--android:key="services_category"-->
 +        <!--android:title="@string/services_category_title">-->
  
-         <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
+         <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
              android:key="search_suggestions"
-@@ -76,5 +76,5 @@
+@@ -80,5 +80,5 @@
              android:key="contextual_search"
              android:title="@string/contextual_search_title"
              android:fragment="org.chromium.chrome.browser.preferences.privacy.ContextualSearchPreferenceFragment"/>
--    </PreferenceCategory>
-+    <!--</PreferenceCategory>-->
- </PreferenceScreen>
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
-index f76a5e4fe114..d125e95d7aac 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/SyncAndServicesPreferences.java
-@@ -81,7 +81,7 @@ public class SyncAndServicesPreferences extends PreferenceFragment
-     private static final String PREF_SYNC_ERROR_CARD = "sync_error_card";
-     private static final String PREF_SYNC_REQUESTED = "sync_requested";
+-    </android.support.v7.preference.PreferenceCategory>
++    <!--</android.support.v7.preference.PreferenceCategory>-->
+ </android.support.v7.preference.PreferenceScreen>
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
+index 432f4c1e6a59..a757c2a8f169 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
+@@ -92,7 +92,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     public static final String PREF_SYNC_REQUESTED = "sync_requested";
+     private static final String PREF_MANAGE_SYNC = "manage_sync";
  
 -    private static final String PREF_SERVICES_CATEGORY = "services_category";
 +    //private static final String PREF_SERVICES_CATEGORY = "services_category";
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
      //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -206,11 +206,11 @@ public class SyncAndServicesPreferences extends PreferenceFragment
+@@ -221,11 +221,11 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
          //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -62,10 +62,10 @@ index f76a5e4fe114..d125e95d7aac 100644
          }
  
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index 36078900647a..eab3ffda3e3d 100644
+index 977b4ecd7fcc..3d604c1f35b1 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -388,9 +388,9 @@ CHAR-LIMIT guidelines:
+@@ -385,9 +385,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
          Manage sync
        </message>
@@ -79,5 +79,5 @@ index 36078900647a..eab3ffda3e3d 100644
          Autocomplete searches and URLs
        </message>
 -- 
-2.22.1
+2.23.0
 

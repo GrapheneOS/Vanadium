@@ -1,18 +1,18 @@
-From 58f5ced84815efc53f5df314ccfe39eb65dbee82 Mon Sep 17 00:00:00 2001
+From a43077cd43aac6e6a071e087388aab90d1781da3 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH 30/48] enable strict site isolation by default on Android
 
 ---
- chrome/browser/about_flags.cc    | 14 --------------
+ chrome/browser/about_flags.cc    | 19 -------------------
  chrome/common/chrome_features.cc |  7 +------
- 2 files changed, 1 insertion(+), 20 deletions(-)
+ 2 files changed, 1 insertion(+), 25 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 61bb2977bb7c..66371626d07f 100644
+index 245672956715..7bf4c47874b2 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -1698,20 +1698,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -1838,25 +1838,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kHTTPAuthCommittedInterstitialsName,
       flag_descriptions::kHTTPAuthCommittedInterstitialsDescription, kOsAll,
       FEATURE_VALUE_TYPE(features::kHTTPAuthCommittedInterstitials)},
@@ -24,6 +24,11 @@ index 61bb2977bb7c..66371626d07f 100644
 -    {"enable-site-per-process", flag_descriptions::kStrictSiteIsolationName,
 -     flag_descriptions::kStrictSiteIsolationDescription, kOsAndroid,
 -     SINGLE_VALUE_TYPE(switches::kSitePerProcess)},
+-    {"enable-process-sharing-with-default-site-instances",
+-     flag_descriptions::kProcessSharingWithDefaultSiteInstancesName,
+-     flag_descriptions::kProcessSharingWithDefaultSiteInstancesDescription,
+-     kOsAndroid,
+-     FEATURE_VALUE_TYPE(features::kProcessSharingWithDefaultSiteInstances)},
 -    {"enable-process-sharing-with-strict-site-instances",
 -     flag_descriptions::kProcessSharingWithStrictSiteInstancesName,
 -     flag_descriptions::kProcessSharingWithStrictSiteInstancesDescription,
@@ -34,10 +39,10 @@ index 61bb2977bb7c..66371626d07f 100644
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
       ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 86b61edb4a5a..66ae0278410b 100644
+index 4f880eb10f17..0cd545a1a3f1 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -552,12 +552,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
+@@ -608,12 +608,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {
@@ -52,5 +57,5 @@ index 86b61edb4a5a..66ae0278410b 100644
  
  // Controls a mode for dynamically process-isolating sites where the user has
 -- 
-2.22.1
+2.23.0
 

@@ -1,25 +1,25 @@
-From 1f089eb864adde29ccdbf941149d11adb65dbf82 Mon Sep 17 00:00:00 2001
+From 222bcecfc059b11db779011abd3ec1ae99f666da Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 12 Jul 2019 04:23:18 -0400
 Subject: [PATCH 26/48] disable browser sign in feature by default
 
 ---
- components/signin/core/browser/signin_manager_base.cc | 2 +-
+ .../signin/internal/identity_manager/primary_account_manager.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/components/signin/core/browser/signin_manager_base.cc b/components/signin/core/browser/signin_manager_base.cc
-index 37ee80721d59..436daa169af6 100644
---- a/components/signin/core/browser/signin_manager_base.cc
-+++ b/components/signin/core/browser/signin_manager_base.cc
-@@ -59,7 +59,7 @@ void SigninManagerBase::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
+index 91105525fcc7..ca5c044ed6b4 100644
+--- a/components/signin/internal/identity_manager/primary_account_manager.cc
++++ b/components/signin/internal/identity_manager/primary_account_manager.cc
+@@ -58,7 +58,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
                                 std::string());
    registry->RegisterBooleanPref(prefs::kAutologinEnabled, true);
    registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
 -  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
 +  registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
-   registry->RegisterInt64Pref(prefs::kSignedInTime,
-                               base::Time().ToInternalValue());
    registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
+ 
+   // Deprecated prefs: will be removed in a future release.
 -- 
-2.22.1
+2.23.0
 

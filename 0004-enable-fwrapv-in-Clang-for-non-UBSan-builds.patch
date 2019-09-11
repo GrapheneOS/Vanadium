@@ -1,4 +1,4 @@
-From be2daf3766689dc25e7d439b32c6d7d326d89bce Mon Sep 17 00:00:00 2001
+From 11a552f31489f43bc21b65ad48c86ccd72aee0f3 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 22 Dec 2016 07:15:34 -0500
 Subject: [PATCH 04/48] enable -fwrapv in Clang for non-UBSan builds
@@ -8,10 +8,10 @@ Subject: [PATCH 04/48] enable -fwrapv in Clang for non-UBSan builds
  1 file changed, 4 insertions(+)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index d0679c35c1eb..00cff1a45a98 100644
+index e1baadcdd048..33be26cec70b 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -262,6 +262,10 @@ config("compiler") {
+@@ -288,6 +288,10 @@ config("compiler") {
        }
      }
  
@@ -23,5 +23,5 @@ index d0679c35c1eb..00cff1a45a98 100644
      if (fatal_linker_warnings && !(is_chromeos && current_cpu == "arm") &&
          !(is_android && use_order_profiling) && !is_mac && !is_ios &&
 -- 
-2.22.1
+2.23.0
 
