@@ -1,0 +1,126 @@
+From af4d8556879b5310e14aadd465aa684055fbb442 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 23:46:41 -0400
+Subject: [PATCH 40/47] remove navigation error preference
+
+---
+ .../res/xml/sync_and_services_preferences.xml | 10 ++++-----
+ .../sync/SyncAndServicesPreferences.java      | 22 +++++++++----------
+ .../java/strings/android_chrome_strings.grd   | 12 +++++-----
+ 3 files changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+index 052375395843..1c9d7ec0ffa6 100644
+--- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
++++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+@@ -51,11 +51,11 @@
+             android:title="@string/autocomplete_searches_and_urls_title"
+             android:summary="@string/autocomplete_searches_and_urls_summary"
+             android:persistent="false"/>
+-        <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
+-            android:key="navigation_error"
+-            android:title="@string/navigation_error_suggestions_title"
+-            android:summary="@string/navigation_error_suggestions_summary"
+-            android:persistent="false"/>
++        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat-->
++            <!--android:key="navigation_error"-->
++            <!--android:title="@string/navigation_error_suggestions_title"-->
++            <!--android:summary="@string/navigation_error_suggestions_summary"-->
++            <!--android:persistent="false"/>-->
+         <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
+             android:key="safe_browsing"
+             android:title="@string/safe_browsing_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
+index 99ac42964641..62eb693c4fb9 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
+@@ -94,7 +94,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+ 
+     private static final String PREF_SERVICES_CATEGORY = "services_category";
+     private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
+-    private static final String PREF_NAVIGATION_ERROR = "navigation_error";
++    //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+     private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
+             "safe_browsing_scout_reporting";
+@@ -133,7 +133,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     //private ChromeSwitchPreferenceCompat mSyncRequested;
+ 
+     private ChromeSwitchPreferenceCompat mSearchSuggestions;
+-    private ChromeSwitchPreferenceCompat mNavigationError;
++    //private ChromeSwitchPreferenceCompat mNavigationError;
+     private ChromeSwitchPreferenceCompat mSafeBrowsing;
+     private ChromeSwitchPreferenceCompat mSafeBrowsingReporting;
+     private ChromeSwitchPreferenceCompat mUsageAndCrashReporting;
+@@ -198,9 +198,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+         mSearchSuggestions.setOnPreferenceChangeListener(this);
+         mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+-        mNavigationError = (ChromeSwitchPreferenceCompat) findPreference(PREF_NAVIGATION_ERROR);
+-        mNavigationError.setOnPreferenceChangeListener(this);
+-        mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        //mNavigationError = (ChromeSwitchPreferenceCompat) findPreference(PREF_NAVIGATION_ERROR);
++        //mNavigationError.setOnPreferenceChangeListener(this);
++        //mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+         mSafeBrowsing = (ChromeSwitchPreferenceCompat) findPreference(PREF_SAFE_BROWSING);
+         mSafeBrowsing.setOnPreferenceChangeListener(this);
+@@ -333,8 +333,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+             mPrefServiceBridge.setSafeBrowsingEnabled((boolean) newValue);
+         } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+             mPrefServiceBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
+-        } else if (PREF_NAVIGATION_ERROR.equals(key)) {
+-            mPrefServiceBridge.setResolveNavigationErrorEnabled((boolean) newValue);
++        //} else if (PREF_NAVIGATION_ERROR.equals(key)) {
++            //mPrefServiceBridge.setResolveNavigationErrorEnabled((boolean) newValue);
+         } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
+             UmaSessionStats.changeMetricsReportingConsent((boolean) newValue);
+         } else if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
+@@ -507,7 +507,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+         //updateSyncPreferences();
+ 
+         mSearchSuggestions.setChecked(mPrefServiceBridge.isSearchSuggestEnabled());
+-        mNavigationError.setChecked(mPrefServiceBridge.isResolveNavigationErrorEnabled());
++        //mNavigationError.setChecked(mPrefServiceBridge.isResolveNavigationErrorEnabled());
+         mSafeBrowsing.setChecked(mPrefServiceBridge.isSafeBrowsingEnabled());
+         mSafeBrowsingReporting.setChecked(
+                 mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
+@@ -564,9 +564,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     private ManagedPreferenceDelegateCompat createManagedPreferenceDelegate() {
+         return preference -> {
+             String key = preference.getKey();
+-            if (PREF_NAVIGATION_ERROR.equals(key)) {
+-                return mPrefServiceBridge.isResolveNavigationErrorManaged();
+-            }
++            //if (PREF_NAVIGATION_ERROR.equals(key)) {
++                //return mPrefServiceBridge.isResolveNavigationErrorManaged();
++            //}
+             if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
+                 return mPrefServiceBridge.isSearchSuggestManaged();
+             }
+diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
+index 2a310c0a2eea..f792846416da 100644
+--- a/chrome/android/java/strings/android_chrome_strings.grd
++++ b/chrome/android/java/strings/android_chrome_strings.grd
+@@ -400,12 +400,12 @@ CHAR-LIMIT guidelines:
+       <message name="IDS_PRELOAD_PAGES_SUMMARY" desc="Summary for a checkbox in Settings that controls pages preloading and informs the user about the data shared by this feature.">
+         Uses cookies to remember your preferences, even if you don't visit those pages
+       </message>
+-      <message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_TITLE" desc="Title for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">
+-        Show suggestions for similar pages when a page can't be found
+-      </message>
+-      <message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_SUMMARY" desc="Summary for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">
+-        Sends the URL of a page you're trying to reach to Google
+-      </message>
++      <!--<message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_TITLE" desc="Title for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">-->
++        <!--Show suggestions for similar pages when a page can't be found-->
++      <!--</message>-->
++      <!--<message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_SUMMARY" desc="Summary for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">-->
++        <!--Sends the URL of a page you're trying to reach to Google-->
++      <!--</message>-->
+       <message name="IDS_URL_KEYED_ANONYMIZED_DATA_TITLE" desc="Title for a checkbox in Settings that controls non-personalized URL collection and informs the user about the data shared by this feature.">
+         Make searches and browsing better
+       </message>
+-- 
+2.23.0
+
