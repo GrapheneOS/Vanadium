@@ -1,0 +1,34 @@
+From 7471757fb56994c5361a666b650cd765680e5e23 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <zkang@wpi.edu>
+Date: Sat, 7 Sep 2019 03:55:56 -0400
+Subject: [PATCH 50/50] update subresource filter rules after startup
+
+---
+ chrome/browser/after_startup_task_utils.cc | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/chrome/browser/after_startup_task_utils.cc b/chrome/browser/after_startup_task_utils.cc
+index 698d5c5ca080..01b5bba88337 100644
+--- a/chrome/browser/after_startup_task_utils.cc
++++ b/chrome/browser/after_startup_task_utils.cc
+@@ -19,6 +19,7 @@
+ #include "base/task/post_task.h"
+ #include "base/task_runner.h"
+ #include "build/build_config.h"
++#include "chrome/browser/ui/webui/components_ui.h"
+ #include "content/public/browser/browser_task_traits.h"
+ #include "content/public/browser/browser_thread.h"
+ #include "content/public/browser/page_visibility_state.h"
+@@ -135,6 +136,9 @@ void SetBrowserStartupIsComplete() {
+   g_after_startup_tasks.Get().clear();
+   g_after_startup_tasks.Get().shrink_to_fit();
+ 
++  // Update Subresource Filter Rules component
++  ComponentsUI::OnDemandUpdate("gcmjkmgdlgnkkcocmoeiminaijmmjnii");
++
+ #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+   // Make sure we complete the startup notification sequence, or launchers will
+   // get confused by not receiving the expected message from the main process.
+-- 
+2.21.0
+
