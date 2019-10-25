@@ -1,4 +1,4 @@
-From 3cf1822075e627deda7d0bdb438ffe835035c4bb Mon Sep 17 00:00:00 2001
+From 283ec5b58c2f890b556fd0d676dce7d553ce7558 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH 29/47] enable strict site isolation by default on Android
@@ -9,10 +9,10 @@ Subject: [PATCH 29/47] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 25 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 245672956715..7bf4c47874b2 100644
+index e608f06a232a..e2e5daf08f76 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -1838,25 +1838,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2002,25 +2002,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kHTTPAuthCommittedInterstitialsName,
       flag_descriptions::kHTTPAuthCommittedInterstitialsDescription, kOsAll,
       FEATURE_VALUE_TYPE(features::kHTTPAuthCommittedInterstitials)},
@@ -39,10 +39,10 @@ index 245672956715..7bf4c47874b2 100644
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
       ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 0f6bd7979c2e..ae663ab50d84 100644
+index 328083464268..7a7cdebdcdcd 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -608,12 +608,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
+@@ -616,12 +616,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

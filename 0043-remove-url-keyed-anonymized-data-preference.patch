@@ -1,37 +1,38 @@
-From 847ff46b64bbc7fa80ad982bd04ccec02c62ab22 Mon Sep 17 00:00:00 2001
+From cbdd908b627af25b1d40e4b3269881786326e06d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:50:03 -0400
 Subject: [PATCH 43/47] remove url keyed anonymized data preference
 
 ---
- .../res/xml/sync_and_services_preferences.xml | 10 +++----
+ .../res/xml/sync_and_services_preferences.xml | 11 ++++----
  .../sync/SyncAndServicesPreferences.java      | 28 +++++++++----------
  .../java/strings/android_chrome_strings.grd   | 12 ++++----
- 3 files changed, 25 insertions(+), 25 deletions(-)
+ 3 files changed, 25 insertions(+), 26 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 0db6d74d99bf..d3b920e274ab 100644
+index 22ba806ea75f..06298e464120 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -71,11 +71,11 @@
+@@ -70,12 +70,11 @@
              <!--android:title="@string/usage_and_crash_reports_title"-->
              <!--android:summary="@string/usage_and_crash_reports_summary"-->
              <!--android:persistent="false"/>-->
--        <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
+-        <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
 -            android:key="url_keyed_anonymized_data"
 -            android:title="@string/url_keyed_anonymized_data_title"
 -            android:summary="@string/url_keyed_anonymized_data_summary"
 -            android:persistent="false"/>
-+        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat-->
+-        <org.chromium.chrome.browser.preferences.ChromeBasePreference
++        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreference-->
 +            <!--android:key="url_keyed_anonymized_data"-->
 +            <!--android:title="@string/url_keyed_anonymized_data_title"-->
 +            <!--android:summary="@string/url_keyed_anonymized_data_summary"-->
 +            <!--android:persistent="false"/>-->
-         <org.chromium.chrome.browser.preferences.ChromeBasePreferenceCompat
              android:key="contextual_search"
              android:title="@string/contextual_search_title"
+             android:fragment="org.chromium.chrome.browser.preferences.privacy.ContextualSearchPreferenceFragment"/>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-index 43b103cc92ca..432f4c1e6a59 100644
+index 31c7f343d9ce..7d87da41ab16 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 @@ -99,7 +99,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
@@ -43,31 +44,31 @@ index 43b103cc92ca..432f4c1e6a59 100644
      private static final String PREF_CONTEXTUAL_SEARCH = "contextual_search";
  
      @IntDef({SyncError.NO_ERROR, SyncError.ANDROID_SYNC_DISABLED, SyncError.AUTH_ERROR,
-@@ -137,7 +137,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
-     private ChromeSwitchPreferenceCompat mSafeBrowsing;
-     //private ChromeSwitchPreferenceCompat mSafeBrowsingReporting;
-     //private ChromeSwitchPreferenceCompat mUsageAndCrashReporting;
--    private ChromeSwitchPreferenceCompat mUrlKeyedAnonymizedData;
-+    //private ChromeSwitchPreferenceCompat mUrlKeyedAnonymizedData;
+@@ -139,7 +139,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     private ChromeSwitchPreference mSafeBrowsing;
+     //private ChromeSwitchPreference mSafeBrowsingReporting;
+     //private ChromeSwitchPreference mUsageAndCrashReporting;
+-    private ChromeSwitchPreference mUrlKeyedAnonymizedData;
++    //private ChromeSwitchPreference mUrlKeyedAnonymizedData;
      private @Nullable Preference mContextualSearch;
  
      private ProfileSyncService.SyncSetupInProgressHandle mSyncSetupInProgressHandle;
-@@ -216,10 +216,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -218,10 +218,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          //mUsageAndCrashReporting.setOnPreferenceChangeListener(this);
          //mUsageAndCrashReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
 -        mUrlKeyedAnonymizedData =
--                (ChromeSwitchPreferenceCompat) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
+-                (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
 -        mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
 -        mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
 +        //mUrlKeyedAnonymizedData =
-+                //(ChromeSwitchPreferenceCompat) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
++                //(ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
 +        //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
 +        //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
          PreferenceCategory servicesCategory =
                  (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
-@@ -337,9 +337,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -345,9 +345,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              //mPrefServiceBridge.setResolveNavigationErrorEnabled((boolean) newValue);
          //} else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
              //UmaSessionStats.changeMetricsReportingConsent((boolean) newValue);
@@ -80,7 +81,7 @@ index 43b103cc92ca..432f4c1e6a59 100644
          }
          return true;
      }
-@@ -513,8 +513,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -549,8 +549,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
                  //mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
          //mUsageAndCrashReporting.setChecked(
                  //mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
@@ -91,7 +92,7 @@ index 43b103cc92ca..432f4c1e6a59 100644
  
          if (mContextualSearch != null) {
              boolean isContextualSearchEnabled = !mPrefServiceBridge.isContextualSearchDisabled();
-@@ -579,9 +579,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -621,9 +621,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              //if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
                  //return mPrefServiceBridge.isMetricsReportingManaged();
              //}
@@ -105,10 +106,10 @@ index 43b103cc92ca..432f4c1e6a59 100644
          };
      }
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index a56576cb45f2..977b4ecd7fcc 100644
+index bd38ed8013ed..a8ed54acc6d0 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -406,12 +406,12 @@ CHAR-LIMIT guidelines:
+@@ -412,12 +412,12 @@ CHAR-LIMIT guidelines:
        <!--<message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_SUMMARY" desc="Summary for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">-->
          <!--Sends the URL of a page you're trying to reach to Google-->
        <!--</message>-->

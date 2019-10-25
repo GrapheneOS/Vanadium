@@ -1,92 +1,90 @@
-From 1678604de9724b0f27d94419b03971478c30e5f2 Mon Sep 17 00:00:00 2001
+From 1f1bbfa2dac510383e7c950e5288cb4208f25283 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:12:28 -0400
 Subject: [PATCH 39/47] remove sync preferences
 
 ---
- .../res/xml/sync_and_services_preferences.xml |  58 ++++----
- .../sync/SyncAndServicesPreferences.java      | 136 +++++++++---------
- .../java/strings/android_chrome_strings.grd   |  24 ++--
- 3 files changed, 109 insertions(+), 109 deletions(-)
+ .../res/xml/sync_and_services_preferences.xml |  56 +++----
+ .../sync/SyncAndServicesPreferences.java      | 150 +++++++++---------
+ .../java/strings/android_chrome_strings.grd   |  24 +--
+ 3 files changed, 115 insertions(+), 115 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index ec89aae1aa2d..052375395843 100644
+index 700fd5f13b72..c98ffa9dd91f 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -8,39 +8,39 @@
+@@ -8,38 +8,38 @@
       chrome/browser/unified_consent/unified_consent_service_factory.cc has to be
       updated accordingly. -->
- <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
--    <android.support.v7.preference.PreferenceCategory
+ <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+-    <PreferenceCategory
 -        android:key="user_category"
 -        android:title="@string/user"/>
 -    <org.chromium.chrome.browser.preferences.sync.SignInPreference
 -        android:key="sign_in"
 -        android:title="@string/sign_in_to_chrome"/>
-+    <!--<android.support.v7.preference.PreferenceCategory-->
++    <!--<PreferenceCategory-->
 +        <!--android:key="user_category"-->
 +        <!--android:title="@string/user"/>-->
 +    <!--<org.chromium.chrome.browser.preferences.sync.SignInPreference-->
 +        <!--android:key="sign_in"-->
 +        <!--android:title="@string/sign_in_to_chrome"/>-->
  
--    <org.chromium.chrome.browser.preferences.ChromeBasePreferenceCompat
+-    <org.chromium.chrome.browser.preferences.ChromeBasePreference
 -        android:key="manage_your_google_account"
 -        android:title="@string/manage_your_google_account"/>
-+    <!--<org.chromium.chrome.browser.preferences.ChromeBasePreferenceCompat-->
++    <!--<org.chromium.chrome.browser.preferences.ChromeBasePreference-->
 +        <!--android:key="manage_your_google_account"-->
 +        <!--android:title="@string/manage_your_google_account"/>-->
  
--    <android.support.v7.preference.PreferenceCategory
+-    <PreferenceCategory
 -        android:key="sync_category"
 -        android:title="@string/sync_category_title">
-+    <!--<android.support.v7.preference.PreferenceCategory-->
++    <!--<PreferenceCategory-->
 +        <!--android:key="sync_category"-->
 +        <!--android:title="@string/sync_category_title">-->
  
--        <android.support.v7.preference.Preference
+-        <Preference
 -            android:key="sync_error_card"
--            android:layout="@layout/account_management_account_row"
--            android:title="@string/sync_error_card_title"/>
--        <android.support.v7.preference.Preference
+-            android:layout="@layout/account_management_account_row"/>
+-        <Preference
 -            android:key="sync_disabled_by_administrator"
 -            android:layout="@layout/account_management_account_row"
 -            android:title="@string/sync_is_disabled_by_administrator"/>
--        <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
+-        <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
 -            android:key="sync_requested"
 -            android:title="@string/sync_switch_title"
 -            android:persistent="false"/>
-+        <!--<android.support.v7.preference.Preference-->
++        <!--<Preference-->
 +            <!--android:key="sync_error_card"-->
-+            <!--android:layout="@layout/account_management_account_row"-->
-+            <!--android:title="@string/sync_error_card_title"/>-->
-+        <!--<android.support.v7.preference.Preference-->
++            <!--android:layout="@layout/account_management_account_row"/>-->
++        <!--<Preference-->
 +            <!--android:key="sync_disabled_by_administrator"-->
 +            <!--android:layout="@layout/account_management_account_row"-->
 +            <!--android:title="@string/sync_is_disabled_by_administrator"/>-->
-+        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat-->
++        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreference-->
 +            <!--android:key="sync_requested"-->
 +            <!--android:title="@string/sync_switch_title"-->
 +            <!--android:persistent="false"/>-->
  
--        <org.chromium.chrome.browser.preferences.ChromeBasePreferenceCompat
+-        <org.chromium.chrome.browser.preferences.ChromeBasePreference
 -            android:key="manage_sync"
 -            android:title="@string/manage_sync_title"
 -            android:fragment="org.chromium.chrome.browser.preferences.sync.ManageSyncPreferences"/>
--    </android.support.v7.preference.PreferenceCategory>
-+        <!--<org.chromium.chrome.browser.preferences.ChromeBasePreferenceCompat-->
+-    </PreferenceCategory>
++        <!--<org.chromium.chrome.browser.preferences.ChromeBasePreference-->
 +            <!--android:key="manage_sync"-->
 +            <!--android:title="@string/manage_sync_title"-->
 +            <!--android:fragment="org.chromium.chrome.browser.preferences.sync.ManageSyncPreferences"/>-->
-+    <!--</android.support.v7.preference.PreferenceCategory>-->
++    <!--</PreferenceCategory>-->
  
-     <android.support.v7.preference.PreferenceCategory
+     <PreferenceCategory
          android:key="services_category"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-index 7b20141292c0..99ac42964641 100644
+index 8244a1224abb..61d9b595ea12 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-@@ -123,14 +123,14 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -125,14 +125,14 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
  
      private boolean mIsFromSigninScreen;
  
@@ -98,17 +96,17 @@ index 7b20141292c0..99ac42964641 100644
 -    private PreferenceCategory mSyncCategory;
 -    private Preference mSyncErrorCard;
 -    private Preference mSyncDisabledByAdministrator;
--    private ChromeBasePreferenceCompat mManageSync;
--    private ChromeSwitchPreferenceCompat mSyncRequested;
+-    private ChromeBasePreference mManageSync;
+-    private ChromeSwitchPreference mSyncRequested;
 +    //private PreferenceCategory mSyncCategory;
 +    //private Preference mSyncErrorCard;
 +    //private Preference mSyncDisabledByAdministrator;
-+    //private ChromeBasePreferenceCompat mManageSync;
-+    //private ChromeSwitchPreferenceCompat mSyncRequested;
++    //private ChromeBasePreference mManageSync;
++    //private ChromeSwitchPreference mSyncRequested;
  
-     private ChromeSwitchPreferenceCompat mSearchSuggestions;
-     private ChromeSwitchPreferenceCompat mNavigationError;
-@@ -172,27 +172,27 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     private ChromeSwitchPreference mSearchSuggestions;
+     private ChromeSwitchPreference mNavigationError;
+@@ -174,27 +174,27 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
  
          PreferenceUtils.addPreferencesFromResource(this, R.xml.sync_and_services_preferences);
  
@@ -130,9 +128,9 @@ index 7b20141292c0..99ac42964641 100644
 -        mSyncDisabledByAdministrator = findPreference(PREF_SYNC_DISABLED_BY_ADMINISTRATOR);
 -        mSyncDisabledByAdministrator.setIcon(
 -                ManagedPreferencesUtils.getManagedByEnterpriseIconId());
--        mSyncRequested = (ChromeSwitchPreferenceCompat) findPreference(PREF_SYNC_REQUESTED);
+-        mSyncRequested = (ChromeSwitchPreference) findPreference(PREF_SYNC_REQUESTED);
 -        mSyncRequested.setOnPreferenceChangeListener(this);
--        mManageSync = (ChromeBasePreferenceCompat) findPreference(PREF_MANAGE_SYNC);
+-        mManageSync = (ChromeBasePreference) findPreference(PREF_MANAGE_SYNC);
 +        //if (!ChromeFeatureList.isEnabled(ChromeFeatureList.IDENTITY_DISC)) {
 +            //getPreferenceScreen().removePreference(findPreference(PREF_USER_CATEGORY));
 +        //}
@@ -151,13 +149,13 @@ index 7b20141292c0..99ac42964641 100644
 +        //mSyncDisabledByAdministrator = findPreference(PREF_SYNC_DISABLED_BY_ADMINISTRATOR);
 +        //mSyncDisabledByAdministrator.setIcon(
 +                //ManagedPreferencesUtils.getManagedByEnterpriseIconId());
-+        //mSyncRequested = (ChromeSwitchPreferenceCompat) findPreference(PREF_SYNC_REQUESTED);
++        //mSyncRequested = (ChromeSwitchPreference) findPreference(PREF_SYNC_REQUESTED);
 +        //mSyncRequested.setOnPreferenceChangeListener(this);
-+        //mManageSync = (ChromeBasePreferenceCompat) findPreference(PREF_MANAGE_SYNC);
++        //mManageSync = (ChromeBasePreference) findPreference(PREF_MANAGE_SYNC);
  
-         mSearchSuggestions = (ChromeSwitchPreferenceCompat) findPreference(PREF_SEARCH_SUGGESTIONS);
+         mSearchSuggestions = (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
          mSearchSuggestions.setOnPreferenceChangeListener(this);
-@@ -287,7 +287,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -289,7 +289,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      public void onStart() {
          super.onStart();
          mProfileSyncService.addSyncStateChangedListener(this);
@@ -166,7 +164,7 @@ index 7b20141292c0..99ac42964641 100644
  
          if (!mIsFromSigninScreen || ChromeSigninController.get().isSignedIn()) {
              return;
-@@ -310,7 +310,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -312,7 +312,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      public void onStop() {
          super.onStop();
  
@@ -175,7 +173,7 @@ index 7b20141292c0..99ac42964641 100644
          mProfileSyncService.removeSyncStateChangedListener(this);
      }
  
-@@ -504,7 +504,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -540,7 +540,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      }
  
      private void updatePreferences() {
@@ -184,7 +182,7 @@ index 7b20141292c0..99ac42964641 100644
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.isSearchSuggestEnabled());
          mNavigationError.setChecked(mPrefServiceBridge.isResolveNavigationErrorEnabled());
-@@ -523,43 +523,43 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -559,49 +559,49 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          }
      }
  
@@ -217,12 +215,18 @@ index 7b20141292c0..99ac42964641 100644
 -        if (mCurrentSyncError == SyncError.NO_ERROR) {
 -            mSyncCategory.removePreference(mSyncErrorCard);
 -        } else {
--            String summary = getSyncErrorHint(mCurrentSyncError);
--            mSyncErrorCard.setSummary(summary);
+-            mSyncErrorCard.setTitle(getSyncErrorTitle(mCurrentSyncError));
+-            mSyncErrorCard.setSummary(getSyncErrorHint(mCurrentSyncError));
 -            mSyncCategory.addPreference(mSyncErrorCard);
 -        }
 -
 -        mSyncRequested.setChecked(AndroidSyncSettings.get().isChromeSyncEnabled());
+-        if (ChromeFeatureList.isEnabled(ChromeFeatureList.SYNC_MANUAL_START_ANDROID)
+-                && wasSigninFlowInterrupted()) {
+-            // If sync setup was not completed the sync request toggle should be off.
+-            // In this situation, switching it on will trigger a call to setFirstSetupComplete.
+-            mSyncRequested.setChecked(false);
+-        }
 -        mSyncRequested.setEnabled(canDisableSync());
 -    }
 +    //private void updateSyncPreferences() {
@@ -254,22 +258,37 @@ index 7b20141292c0..99ac42964641 100644
 +        //if (mCurrentSyncError == SyncError.NO_ERROR) {
 +            //mSyncCategory.removePreference(mSyncErrorCard);
 +        //} else {
-+            //String summary = getSyncErrorHint(mCurrentSyncError);
-+            //mSyncErrorCard.setSummary(summary);
++            //mSyncErrorCard.setTitle(getSyncErrorTitle(mCurrentSyncError));
++            //mSyncErrorCard.setSummary(getSyncErrorHint(mCurrentSyncError));
 +            //mSyncCategory.addPreference(mSyncErrorCard);
 +        //}
 +
 +        //mSyncRequested.setChecked(AndroidSyncSettings.get().isChromeSyncEnabled());
++        //if (ChromeFeatureList.isEnabled(ChromeFeatureList.SYNC_MANUAL_START_ANDROID)
++                //&& wasSigninFlowInterrupted()) {
++            //// If sync setup was not completed the sync request toggle should be off.
++            //// In this situation, switching it on will trigger a call to setFirstSetupComplete.
++            //mSyncRequested.setChecked(false);
++        //}
 +        //mSyncRequested.setEnabled(canDisableSync());
 +    //}
  
-     private ManagedPreferenceDelegateCompat createManagedPreferenceDelegate() {
+     private ManagedPreferenceDelegate createManagedPreferenceDelegate() {
          return preference -> {
+@@ -635,7 +635,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+             // If the setup flow was previously interrupted, and now the user dismissed the page
+             // without turning sync on, then mark first setup as complete (so that we won't show the
+             // error again), but turn sync off.
+-            assert !mSyncRequested.isChecked();
++            //assert !mSyncRequested.isChecked();
+             SyncPreferenceUtils.enableSync(false);
+             mProfileSyncService.setFirstSetupComplete();
+         }
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index a849a9512258..2a310c0a2eea 100644
+index 439049fbd396..ca92ea2e2741 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -257,9 +257,9 @@ CHAR-LIMIT guidelines:
+@@ -260,9 +260,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_SHOW" desc="Label for a show button. Used in multiple contexts. [CHAR-LIMIT=20]">
          Show
        </message>
@@ -282,7 +301,7 @@ index a849a9512258..2a310c0a2eea 100644
        <message name="IDS_MENU_ITEM_MOVE_UP" desc="Option in item menu. User can click the 'Move up' option to move the item up by one position in its list. [CHAR-LIMIT=24]">
          Move up
        </message>
-@@ -373,15 +373,15 @@ CHAR-LIMIT guidelines:
+@@ -379,15 +379,15 @@ CHAR-LIMIT guidelines:
        <message name="IDS_SIGN_OUT_AND_TURN_OFF_SYNC" desc="The text for a preferences row that for signs out the user and turns off sync.">
          Sign out and turn off sync
        </message>

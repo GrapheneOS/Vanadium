@@ -1,4 +1,4 @@
-From b44bb388d59bf25be9d6f2a97ffd75f02f10cf42 Mon Sep 17 00:00:00 2001
+From de0d2f7c9531da2994c7edcf496c85bfe7d31e8d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 3 Aug 2019 00:34:43 -0400
 Subject: [PATCH 45/47] remove redundant services preference category
@@ -10,31 +10,31 @@ Subject: [PATCH 45/47] remove redundant services preference category
  3 files changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index d3b920e274ab..7b4b9666ac2a 100644
+index 06298e464120..294f6abce438 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -42,9 +42,9 @@
+@@ -41,9 +41,9 @@
              <!--android:fragment="org.chromium.chrome.browser.preferences.sync.ManageSyncPreferences"/>-->
-     <!--</android.support.v7.preference.PreferenceCategory>-->
+     <!--</PreferenceCategory>-->
  
--    <android.support.v7.preference.PreferenceCategory
+-    <PreferenceCategory
 -        android:key="services_category"
 -        android:title="@string/services_category_title">
-+    <!--<android.support.v7.preference.PreferenceCategory-->
++    <!--<PreferenceCategory-->
 +        <!--android:key="services_category"-->
 +        <!--android:title="@string/services_category_title">-->
  
-         <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
+         <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
              android:key="search_suggestions"
-@@ -80,5 +80,5 @@
+@@ -78,5 +78,5 @@
              android:key="contextual_search"
              android:title="@string/contextual_search_title"
              android:fragment="org.chromium.chrome.browser.preferences.privacy.ContextualSearchPreferenceFragment"/>
--    </android.support.v7.preference.PreferenceCategory>
-+    <!--</android.support.v7.preference.PreferenceCategory>-->
- </android.support.v7.preference.PreferenceScreen>
+-    </PreferenceCategory>
++    <!--</PreferenceCategory>-->
+ </PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-index 432f4c1e6a59..a757c2a8f169 100644
+index 7d87da41ab16..ad492f6deaa2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 @@ -92,7 +92,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
@@ -46,7 +46,7 @@ index 432f4c1e6a59..a757c2a8f169 100644
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
      //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -221,11 +221,11 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -223,11 +223,11 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
          //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -62,10 +62,10 @@ index 432f4c1e6a59..a757c2a8f169 100644
          }
  
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index 977b4ecd7fcc..3d604c1f35b1 100644
+index a8ed54acc6d0..f9830a919681 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -385,9 +385,9 @@ CHAR-LIMIT guidelines:
+@@ -391,9 +391,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
          Manage sync
        </message>

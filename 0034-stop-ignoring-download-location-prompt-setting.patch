@@ -1,17 +1,17 @@
-From 40f33fd2497766cd0e75e22234272e968835a9c4 Mon Sep 17 00:00:00 2001
+From b7e30802edc57c94a584e4b4dcf082f3b643a5f5 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 28 Jun 2019 16:56:37 -0400
 Subject: [PATCH 34/47] stop ignoring download location prompt setting
 
 ---
- .../download/DownloadLocationDialogBridge.java     | 14 --------------
- 1 file changed, 14 deletions(-)
+ .../download/DownloadLocationDialogBridge.java   | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-index 64823b27d948..251558b0565f 100644
+index 6c1d7834fc55..191ad264f30c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-@@ -109,20 +109,6 @@ public class DownloadLocationDialogBridge implements ModalDialogProperties.Contr
+@@ -110,22 +110,6 @@ public class DownloadLocationDialogBridge implements ModalDialogProperties.Contr
       * @param dirs An list of available download directories.
       */
      private void onDirectoryOptionsRetrieved(ArrayList<DirectoryOption> dirs) {
@@ -24,7 +24,9 @@ index 64823b27d948..251558b0565f 100644
 -                assert(!TextUtils.isEmpty(dir.location));
 -                PrefServiceBridge.getInstance().setDownloadAndSaveFileDefaultDirectory(
 -                        dir.location);
--                nativeOnComplete(mNativeDownloadLocationDialogBridge, mSuggestedPath);
+-                DownloadLocationDialogBridgeJni.get().onComplete(
+-                        mNativeDownloadLocationDialogBridge, DownloadLocationDialogBridge.this,
+-                        mSuggestedPath);
 -            }
 -            return;
 -        }

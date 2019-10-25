@@ -1,4 +1,4 @@
-From 65f50aa9c119b4cd25a814a7753e661be6dc710e Mon Sep 17 00:00:00 2001
+From e3beb3169db2bb51a081fc95203a9e8e1f92e425 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
 Subject: [PATCH 23/47] disable media router by default
@@ -46,10 +46,10 @@ index 13f8c0149911..c0fc552533a7 100644
    return false;
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index 084648e9606f..8eae19f81d76 100644
+index 714af841142c..ffafc339352b 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -437,7 +437,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -445,7 +445,7 @@ void ProfileImpl::RegisterProfilePrefs(
    registry->RegisterStringPref(
        prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

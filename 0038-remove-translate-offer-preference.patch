@@ -1,4 +1,4 @@
-From 97c72a738720f29ec3c2b899cb76f345dc5342a7 Mon Sep 17 00:00:00 2001
+From 34810138437aa08b2f4bb922021572d751f831d8 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:11:17 -0400
 Subject: [PATCH 38/47] remove translate offer preference
@@ -10,37 +10,37 @@ Subject: [PATCH 38/47] remove translate offer preference
  3 files changed, 25 insertions(+), 25 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/languages_preferences.xml b/chrome/android/java/res/xml/languages_preferences.xml
-index 8d62f755e820..0d727947b67c 100644
+index 64e48b61ec91..fe8068814ed6 100644
 --- a/chrome/android/java/res/xml/languages_preferences.xml
 +++ b/chrome/android/java/res/xml/languages_preferences.xml
 @@ -11,9 +11,9 @@
          android:layout="@layout/languages_preference"
          android:widgetLayout="@layout/accept_languages_list" />
  
--    <org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat
+-    <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
 -        android:key="translate_switch"
 -        android:summaryOn="@string/languages_offer_translate_switch"
 -        android:summaryOff="@string/languages_offer_translate_switch" />
-+    <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreferenceCompat-->
++    <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreference-->
 +        <!--android:key="translate_switch"-->
 +        <!--android:summaryOn="@string/languages_offer_translate_switch"-->
 +        <!--android:summaryOff="@string/languages_offer_translate_switch" />-->
  
- </android.support.v7.preference.PreferenceScreen>
+ </PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/languages/LanguagesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/languages/LanguagesPreferences.java
-index 26fe204c5367..d09cc4b0f855 100644
+index 8325886f3637..92878d9d0845 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/languages/LanguagesPreferences.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/languages/LanguagesPreferences.java
 @@ -36,25 +36,25 @@ public class LanguagesPreferences
                  (LanguageListPreference) findPreference(PREFERRED_LANGUAGES_KEY);
          mLanguageListPref.registerActivityLauncher(this);
  
--        ChromeSwitchPreferenceCompat translateSwitch =
--                (ChromeSwitchPreferenceCompat) findPreference(TRANSLATE_SWITCH_KEY);
+-        ChromeSwitchPreference translateSwitch =
+-                (ChromeSwitchPreference) findPreference(TRANSLATE_SWITCH_KEY);
 -        boolean isTranslateEnabled = PrefServiceBridge.getInstance().isTranslateEnabled();
 -        translateSwitch.setChecked(isTranslateEnabled);
-+        //ChromeSwitchPreferenceCompat translateSwitch =
-+                //(ChromeSwitchPreferenceCompat) findPreference(TRANSLATE_SWITCH_KEY);
++        //ChromeSwitchPreference translateSwitch =
++                //(ChromeSwitchPreference) findPreference(TRANSLATE_SWITCH_KEY);
 +        //boolean isTranslateEnabled = PrefServiceBridge.getInstance().isTranslateEnabled();
 +        //translateSwitch.setChecked(isTranslateEnabled);
  
@@ -76,10 +76,10 @@ index 26fe204c5367..d09cc4b0f855 100644
      }
  
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index 9081f46eee2a..a849a9512258 100644
+index b4a3f4dc26ac..439049fbd396 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -1181,9 +1181,9 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1199,9 +1199,9 @@ Your Google account may have other forms of browsing history like searches and a
        <message name="IDS_LANGUAGES_LIST_PREFS_DESCRIPTION" desc="Description on the Languages settings screen. Appears above a list of one or more languages that the user selects, to tell Vanadium which languages they prefer to use to read website content.">
          Websites will show text in your preferred language, when possible.
        </message>
