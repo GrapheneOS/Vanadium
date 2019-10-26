@@ -1,0 +1,43 @@
+From 90115e131a7435c4ea4c741597d52e53a0291b22 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 26 Oct 2019 00:16:58 -0400
+Subject: [PATCH 48/48] temporarily disable AImageReader support
+
+This works around a CFI failure issue:
+
+https://bugs.chromium.org/p/chromium/issues/detail?id=977583
+---
+ gpu/ipc/service/gpu_init.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
+index ec9fe283577f..16ff44ee2f5c 100644
+--- a/gpu/ipc/service/gpu_init.cc
++++ b/gpu/ipc/service/gpu_init.cc
+@@ -457,9 +457,9 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
+ 
+ #if defined(OS_ANDROID)
+   // Disable AImageReader if the workaround is enabled.
+-  if (gpu_feature_info_.IsWorkaroundEnabled(DISABLE_AIMAGEREADER)) {
++  //if (gpu_feature_info_.IsWorkaroundEnabled(DISABLE_AIMAGEREADER)) {
+     base::android::AndroidImageReader::DisableSupport();
+-  }
++  //}
+ #endif
+ #if defined(USE_OZONE)
+   gpu_feature_info_.supported_buffer_formats_for_allocation_and_texturing =
+@@ -487,9 +487,9 @@ void GpuInit::InitializeInProcess(base::CommandLine* command_line,
+   default_offscreen_surface_ = gl::init::CreateOffscreenGLSurface(gfx::Size());
+ 
+   // Disable AImageReader if the workaround is enabled.
+-  if (gpu_feature_info_.IsWorkaroundEnabled(DISABLE_AIMAGEREADER)) {
++  //if (gpu_feature_info_.IsWorkaroundEnabled(DISABLE_AIMAGEREADER)) {
+     base::android::AndroidImageReader::DisableSupport();
+-  }
++  //}
+ 
+   UMA_HISTOGRAM_ENUMERATION("GPU.GLImplementation", gl::GetGLImplementation());
+ }
+-- 
+2.23.0
+
