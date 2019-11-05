@@ -1,19 +1,19 @@
-From e62a468213fa404457d1ee879826a9ae07a73255 Mon Sep 17 00:00:00 2001
+From ca052e165bdf04545a79e67de657b4b595e53505 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:50:03 -0400
 Subject: [PATCH 43/48] remove url keyed anonymized data preference
 
 ---
- .../res/xml/sync_and_services_preferences.xml | 11 ++++----
+ .../res/xml/sync_and_services_preferences.xml | 10 +++----
  .../sync/SyncAndServicesPreferences.java      | 28 +++++++++----------
  .../java/strings/android_chrome_strings.grd   | 12 ++++----
- 3 files changed, 25 insertions(+), 26 deletions(-)
+ 3 files changed, 25 insertions(+), 25 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 22ba806ea75f..06298e464120 100644
+index 22ba806ea75f..25400c59ec49 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -70,12 +70,11 @@
+@@ -70,11 +70,11 @@
              <!--android:title="@string/usage_and_crash_reports_title"-->
              <!--android:summary="@string/usage_and_crash_reports_summary"-->
              <!--android:persistent="false"/>-->
@@ -22,15 +22,14 @@ index 22ba806ea75f..06298e464120 100644
 -            android:title="@string/url_keyed_anonymized_data_title"
 -            android:summary="@string/url_keyed_anonymized_data_summary"
 -            android:persistent="false"/>
--        <org.chromium.chrome.browser.preferences.ChromeBasePreference
 +        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreference-->
 +            <!--android:key="url_keyed_anonymized_data"-->
 +            <!--android:title="@string/url_keyed_anonymized_data_title"-->
 +            <!--android:summary="@string/url_keyed_anonymized_data_summary"-->
 +            <!--android:persistent="false"/>-->
+         <org.chromium.chrome.browser.preferences.ChromeBasePreference
              android:key="contextual_search"
              android:title="@string/contextual_search_title"
-             android:fragment="org.chromium.chrome.browser.preferences.privacy.ContextualSearchPreferenceFragment"/>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 index 31c7f343d9ce..7d87da41ab16 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
