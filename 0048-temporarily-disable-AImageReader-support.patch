@@ -1,4 +1,4 @@
-From 4a1e1c5b17f1948b99a5f46ca189baae71352dae Mon Sep 17 00:00:00 2001
+From 3b3a5ac256859cab0b8fa23c67a46c3fc51e981f Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 26 Oct 2019 00:16:58 -0400
 Subject: [PATCH 48/48] temporarily disable AImageReader support
@@ -11,10 +11,10 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=977583
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
-index ec9fe283577f..16ff44ee2f5c 100644
+index 0aa6832893e7..f76131050d93 100644
 --- a/gpu/ipc/service/gpu_init.cc
 +++ b/gpu/ipc/service/gpu_init.cc
-@@ -457,9 +457,9 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
+@@ -493,9 +493,9 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
  
  #if defined(OS_ANDROID)
    // Disable AImageReader if the workaround is enabled.
@@ -26,7 +26,7 @@ index ec9fe283577f..16ff44ee2f5c 100644
  #endif
  #if defined(USE_OZONE)
    gpu_feature_info_.supported_buffer_formats_for_allocation_and_texturing =
-@@ -487,9 +487,9 @@ void GpuInit::InitializeInProcess(base::CommandLine* command_line,
+@@ -523,9 +523,9 @@ void GpuInit::InitializeInProcess(base::CommandLine* command_line,
    default_offscreen_surface_ = gl::init::CreateOffscreenGLSurface(gfx::Size());
  
    // Disable AImageReader if the workaround is enabled.
@@ -39,5 +39,5 @@ index ec9fe283577f..16ff44ee2f5c 100644
    UMA_HISTOGRAM_ENUMERATION("GPU.GLImplementation", gl::GetGLImplementation());
  }
 -- 
-2.24.0
+2.21.0
 

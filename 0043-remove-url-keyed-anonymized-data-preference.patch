@@ -1,4 +1,4 @@
-From 8b4312c09efd01e82e2c5c76128ee6293089485d Mon Sep 17 00:00:00 2001
+From 6b8f53fc3d3640c807690ed4f379d4783315c2ec Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:50:03 -0400
 Subject: [PATCH 43/48] remove url keyed anonymized data preference
@@ -10,10 +10,10 @@ Subject: [PATCH 43/48] remove url keyed anonymized data preference
  3 files changed, 25 insertions(+), 25 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 22ba806ea75f..25400c59ec49 100644
+index f354e994e436..e9bfb5d668e1 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-@@ -70,11 +70,11 @@
+@@ -74,11 +74,11 @@
              <!--android:title="@string/usage_and_crash_reports_title"-->
              <!--android:summary="@string/usage_and_crash_reports_summary"-->
              <!--android:persistent="false"/>-->
@@ -31,10 +31,10 @@ index 22ba806ea75f..25400c59ec49 100644
              android:key="contextual_search"
              android:title="@string/contextual_search_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-index 31c7f343d9ce..7d87da41ab16 100644
+index 1c1886c2f312..7bcb741b7d9d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-@@ -99,7 +99,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -102,7 +102,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      //private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
              //"safe_browsing_scout_reporting";
      //private static final String PREF_USAGE_AND_CRASH_REPORTING = "usage_and_crash_reports";
@@ -43,8 +43,8 @@ index 31c7f343d9ce..7d87da41ab16 100644
      private static final String PREF_CONTEXTUAL_SEARCH = "contextual_search";
  
      @IntDef({SyncError.NO_ERROR, SyncError.ANDROID_SYNC_DISABLED, SyncError.AUTH_ERROR,
-@@ -139,7 +139,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
-     private ChromeSwitchPreference mSafeBrowsing;
+@@ -143,7 +143,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     private @Nullable ChromeSwitchPreference mPasswordLeakDetection;
      //private ChromeSwitchPreference mSafeBrowsingReporting;
      //private ChromeSwitchPreference mUsageAndCrashReporting;
 -    private ChromeSwitchPreference mUrlKeyedAnonymizedData;
@@ -52,7 +52,7 @@ index 31c7f343d9ce..7d87da41ab16 100644
      private @Nullable Preference mContextualSearch;
  
      private ProfileSyncService.SyncSetupInProgressHandle mSyncSetupInProgressHandle;
-@@ -218,10 +218,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -235,10 +235,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          //mUsageAndCrashReporting.setOnPreferenceChangeListener(this);
          //mUsageAndCrashReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -65,9 +65,9 @@ index 31c7f343d9ce..7d87da41ab16 100644
 +        //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
 +        //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
-         PreferenceCategory servicesCategory =
-                 (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
-@@ -345,9 +345,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+         mContextualSearch = findPreference(PREF_CONTEXTUAL_SEARCH);
+         if (!ContextualSearchFieldTrial.isEnabled()) {
+@@ -364,9 +364,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              //mPrefServiceBridge.setResolveNavigationErrorEnabled((boolean) newValue);
          //} else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
              //UmaSessionStats.changeMetricsReportingConsent((boolean) newValue);
@@ -80,8 +80,8 @@ index 31c7f343d9ce..7d87da41ab16 100644
          }
          return true;
      }
-@@ -549,8 +549,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
-                 //mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
+@@ -567,8 +567,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+ 
          //mUsageAndCrashReporting.setChecked(
                  //mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
 -        mUrlKeyedAnonymizedData.setChecked(
@@ -91,7 +91,7 @@ index 31c7f343d9ce..7d87da41ab16 100644
  
          if (mContextualSearch != null) {
              boolean isContextualSearchEnabled = !mPrefServiceBridge.isContextualSearchDisabled();
-@@ -621,9 +621,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -671,9 +671,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              //if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
                  //return mPrefServiceBridge.isMetricsReportingManaged();
              //}
@@ -105,10 +105,10 @@ index 31c7f343d9ce..7d87da41ab16 100644
          };
      }
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index bd38ed8013ed..a8ed54acc6d0 100644
+index 0ef603c42e43..4b52516670e3 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -412,12 +412,12 @@ CHAR-LIMIT guidelines:
+@@ -406,12 +406,12 @@ CHAR-LIMIT guidelines:
        <!--<message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_SUMMARY" desc="Summary for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">-->
          <!--Sends the URL of a page you're trying to reach to Google-->
        <!--</message>-->
@@ -128,5 +128,5 @@ index bd38ed8013ed..a8ed54acc6d0 100644
          For more settings that relate to privacy, security, and data collection, see <ph name="BEGIN_LINK">&lt;link&gt;</ph>Services<ph name="END_LINK">&lt;/link&gt;</ph>
        </message>
 -- 
-2.24.0
+2.21.0
 
