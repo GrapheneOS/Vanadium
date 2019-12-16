@@ -1,4 +1,4 @@
-From c981f66b3d04fb210feb8da04841034dca6a6562 Mon Sep 17 00:00:00 2001
+From 3b12ce5c0d98fcb137836b33fbcdeebad8ed37f4 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 20 Oct 2017 21:20:50 -0400
 Subject: [PATCH 28/48] mark non-secure origins as non-secure by default
@@ -8,27 +8,30 @@ Subject: [PATCH 28/48] mark non-secure origins as non-secure by default
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
-index 3ee6b82abe54..173e9a6307e6 100644
+index 9eec5f2b09d6..c62d6073bcc5 100644
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
-@@ -41,14 +41,12 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
+@@ -41,17 +41,15 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
          features::kMarkHttpAsFeature,
          features::kMarkHttpAsFeatureParameterName);
  
 -    if (parameter == features::kMarkHttpAsParameterDangerous) {
 -      return DANGEROUS;
 +    if (parameter == features::kMarkHttpAsParameterWarningAndDangerousOnFormEdits) {
-+      return HTTP_SHOW_WARNING;
++      return WARNING;
+     }
+     if (parameter == features::kMarkHttpAsParameterDangerWarning) {
+       return WARNING;
      }
    }
  
 -  // Default to dangerous on editing form fields and otherwise
 -  // warning.
--  return input_events.insecure_field_edited ? DANGEROUS : HTTP_SHOW_WARNING;
+-  return input_events.insecure_field_edited ? DANGEROUS : WARNING;
 +  return DANGEROUS;
  }
  
  std::string GetHistogramSuffixForSecurityLevel(
 -- 
-2.24.0
+2.21.1
 
