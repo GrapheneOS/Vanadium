@@ -1,4 +1,4 @@
-From 58abd5d25c0ce379087b6166ebbe898539c46b19 Mon Sep 17 00:00:00 2001
+From dfa42bd4d24cd72cf6b78644983e638e6dcc146b Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
 Subject: [PATCH 40/48] remove navigation error preference
@@ -10,7 +10,7 @@ Subject: [PATCH 40/48] remove navigation error preference
  3 files changed, 22 insertions(+), 22 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index c98ffa9dd91f..3e15b9da04b2 100644
+index fce27cd3753d..9ae13669be47 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 @@ -50,11 +50,11 @@
@@ -31,28 +31,28 @@ index c98ffa9dd91f..3e15b9da04b2 100644
              android:key="safe_browsing"
              android:title="@string/safe_browsing_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-index 61d9b595ea12..da4614905ba2 100644
+index 95d7e897c32d..8d12ddbcadb6 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-@@ -94,7 +94,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -96,7 +96,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
  
      private static final String PREF_SERVICES_CATEGORY = "services_category";
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
 -    private static final String PREF_NAVIGATION_ERROR = "navigation_error";
 +    //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
+     private static final String PREF_PASSWORD_LEAK_DETECTION = "password_leak_detection";
      private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
-             "safe_browsing_scout_reporting";
-@@ -135,7 +135,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -138,7 +138,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      //private ChromeSwitchPreference mSyncRequested;
  
      private ChromeSwitchPreference mSearchSuggestions;
 -    private ChromeSwitchPreference mNavigationError;
 +    //private ChromeSwitchPreference mNavigationError;
      private ChromeSwitchPreference mSafeBrowsing;
+     private @Nullable ChromeSwitchPreference mPasswordLeakDetection;
      private ChromeSwitchPreference mSafeBrowsingReporting;
-     private ChromeSwitchPreference mUsageAndCrashReporting;
-@@ -200,9 +200,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -205,9 +205,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -65,8 +65,8 @@ index 61d9b595ea12..da4614905ba2 100644
  
          mSafeBrowsing = (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING);
          mSafeBrowsing.setOnPreferenceChangeListener(this);
-@@ -341,8 +341,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
-             mPrefServiceBridge.setSafeBrowsingEnabled((boolean) newValue);
+@@ -360,8 +360,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+                     Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
          } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
              mPrefServiceBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
 -        } else if (PREF_NAVIGATION_ERROR.equals(key)) {
@@ -76,16 +76,16 @@ index 61d9b595ea12..da4614905ba2 100644
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
              UmaSessionStats.changeMetricsReportingConsent((boolean) newValue);
          } else if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
-@@ -543,7 +543,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -560,7 +560,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.isSearchSuggestEnabled());
 -        mNavigationError.setChecked(mPrefServiceBridge.isResolveNavigationErrorEnabled());
 +        //mNavigationError.setChecked(mPrefServiceBridge.isResolveNavigationErrorEnabled());
          mSafeBrowsing.setChecked(mPrefServiceBridge.isSafeBrowsingEnabled());
-         mSafeBrowsingReporting.setChecked(
-                 mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
-@@ -606,9 +606,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+ 
+         updateLeakDetectionAndSafeBrowsingReportingPreferences();
+@@ -652,9 +652,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      private ManagedPreferenceDelegate createManagedPreferenceDelegate() {
          return preference -> {
              String key = preference.getKey();
@@ -99,10 +99,10 @@ index 61d9b595ea12..da4614905ba2 100644
                  return mPrefServiceBridge.isSearchSuggestManaged();
              }
 diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index ca92ea2e2741..9483c87b3ff1 100644
+index f06a453c2c8d..e70c97cca1f3 100644
 --- a/chrome/android/java/strings/android_chrome_strings.grd
 +++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -406,12 +406,12 @@ CHAR-LIMIT guidelines:
+@@ -400,12 +400,12 @@ CHAR-LIMIT guidelines:
        <message name="IDS_PRELOAD_PAGES_SUMMARY" desc="Summary for a checkbox in Settings that controls pages preloading and informs the user about the data shared by this feature.">
          Uses cookies to remember your preferences, even if you don't visit those pages
        </message>
@@ -122,5 +122,5 @@ index ca92ea2e2741..9483c87b3ff1 100644
          Make searches and browsing better
        </message>
 -- 
-2.24.0
+2.21.1
 
