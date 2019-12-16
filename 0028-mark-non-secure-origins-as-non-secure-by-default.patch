@@ -1,4 +1,4 @@
-From 349352cdc349b02c6ef45a37c713366e3fc5625b Mon Sep 17 00:00:00 2001
+From 3b12ce5c0d98fcb137836b33fbcdeebad8ed37f4 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 20 Oct 2017 21:20:50 -0400
 Subject: [PATCH 28/48] mark non-secure origins as non-secure by default
@@ -8,7 +8,7 @@ Subject: [PATCH 28/48] mark non-secure origins as non-secure by default
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
-index 9eec5f2b09d6..6b4fbaecc1ce 100644
+index 9eec5f2b09d6..c62d6073bcc5 100644
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
 @@ -41,17 +41,15 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
@@ -18,7 +18,7 @@ index 9eec5f2b09d6..6b4fbaecc1ce 100644
 -    if (parameter == features::kMarkHttpAsParameterDangerous) {
 -      return DANGEROUS;
 +    if (parameter == features::kMarkHttpAsParameterWarningAndDangerousOnFormEdits) {
-+      return HTTP_SHOW_WARNING;
++      return WARNING;
      }
      if (parameter == features::kMarkHttpAsParameterDangerWarning) {
        return WARNING;
