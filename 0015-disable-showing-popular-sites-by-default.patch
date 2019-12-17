@@ -1,4 +1,4 @@
-From 49d6ac60576fa0eb7f9b2ddcd390929c37553a10 Mon Sep 17 00:00:00 2001
+From 948bd53589830564e5ec9dc7e29dd3f08cf0350a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 6 Mar 2018 00:27:41 -0500
 Subject: [PATCH 15/48] disable showing popular sites by default
@@ -8,10 +8,10 @@ Subject: [PATCH 15/48] disable showing popular sites by default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
-index a5baa537fa48..0ba16de13cbf 100644
+index 6096def69b70..97ca547cdbb0 100644
 --- a/components/ntp_tiles/features.cc
 +++ b/components/ntp_tiles/features.cc
-@@ -12,12 +12,12 @@ namespace ntp_tiles {
+@@ -13,13 +13,13 @@ namespace ntp_tiles {
  const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
  
  const base::Feature kPopularSitesBakedInContentFeature{
@@ -25,7 +25,8 @@ index a5baa537fa48..0ba16de13cbf 100644
 -    "UsePopularSitesSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "UsePopularSitesSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
  
- }  // namespace ntp_tiles
+ const base::FeatureState kDisplaySuggestionsServiceTilesDefaultState =
+ #if defined(OS_ANDROID) || defined(OS_IOS)
 -- 
-2.24.0
+2.21.1
 
