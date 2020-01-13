@@ -1,4 +1,4 @@
-From 376452a5ea0066e0f89f75aa49e933c5dd829de8 Mon Sep 17 00:00:00 2001
+From 9620766034eb9987d2729a30ba8edb45e63ba968 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 26 Oct 2019 00:16:58 -0400
 Subject: [PATCH 48/49] temporarily disable AImageReader support
@@ -7,10 +7,45 @@ This works around a CFI failure issue:
 
 https://bugs.chromium.org/p/chromium/issues/detail?id=977583
 ---
- gpu/ipc/service/gpu_init.cc  | 8 ++++----
- media/base/media_switches.cc | 2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ chrome/browser/android/chrome_startup_flags.cc | 9 +++++++++
+ gpu/ipc/service/gpu_init.cc                    | 8 ++++----
+ media/base/media_switches.cc                   | 2 +-
+ 3 files changed, 14 insertions(+), 5 deletions(-)
 
+diff --git a/chrome/browser/android/chrome_startup_flags.cc b/chrome/browser/android/chrome_startup_flags.cc
+index eb0d3ed9aa21..e86955881ae6 100644
+--- a/chrome/browser/android/chrome_startup_flags.cc
++++ b/chrome/browser/android/chrome_startup_flags.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "chrome/browser/android/chrome_startup_flags.h"
+ 
++#include "base/android/build_info.h"
+ #include "base/android/jni_android.h"
+ #include "base/android/jni_string.h"
+ #include "base/android/scoped_java_ref.h"
+@@ -16,6 +17,7 @@
+ #include "chrome/common/chrome_switches.h"
+ #include "components/browser_sync/browser_sync_switches.h"
+ #include "components/dom_distiller/core/dom_distiller_switches.h"
++#include "content/public/common/content_switches.h"
+ #include "media/base/media_switches.h"
+ 
+ namespace {
+@@ -40,6 +42,13 @@ void SetChromeSpecificCommandLineFlags() {
+   if (base::SysInfo::IsLowEndDevice())
+     SetCommandLineSwitchASCII(switches::kDisableSyncTypes, "Favicon Images");
+ 
++#ifdef ARCH_CPU_ARM64
++  // workaround for Android 10 "Q" arm64 crash
++  if (base::android::BuildInfo::GetInstance()->sdk_int() > base::android::SDK_VERSION_P) {
++    SetCommandLineSwitchASCII(switches::kDisableAcceleratedVideoDecode, "true");
++  }
++#endif
++
+   // Enable DOM Distiller backend.
+   SetCommandLineSwitch(switches::kEnableDomDistiller);
+ }
 diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
 index 0aa6832893e7..f76131050d93 100644
 --- a/gpu/ipc/service/gpu_init.cc
