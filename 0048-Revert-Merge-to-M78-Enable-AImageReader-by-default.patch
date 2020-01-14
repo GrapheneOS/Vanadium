@@ -1,3 +1,4 @@
+From 04a010aa4b4cd10d4a093d35b2d8e7346929f14a Mon Sep 17 00:00:00 2001
 From: csagan5 <32685696+csagan5@users.noreply.github.com>
 Date: Mon, 14 Oct 2019 20:27:33 +0200
 Subject: [PATCH 48/49] Revert "[Merge to M78] Enable AImageReader by default."
@@ -13,6 +14,7 @@ Automatically disable hardware acceleration for Android Q on arm64
  4 files changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/chrome/browser/android/chrome_startup_flags.cc b/chrome/browser/android/chrome_startup_flags.cc
+index eb0d3ed9aa21..e86955881ae6 100644
 --- a/chrome/browser/android/chrome_startup_flags.cc
 +++ b/chrome/browser/android/chrome_startup_flags.cc
 @@ -6,6 +6,7 @@
@@ -46,6 +48,7 @@ diff --git a/chrome/browser/android/chrome_startup_flags.cc b/chrome/browser/and
    SetCommandLineSwitch(switches::kEnableDomDistiller);
  }
 diff --git a/gpu/config/gpu_finch_features.cc b/gpu/config/gpu_finch_features.cc
+index ddb2ed78da45..6b4db27801aa 100644
 --- a/gpu/config/gpu_finch_features.cc
 +++ b/gpu/config/gpu_finch_features.cc
 @@ -31,7 +31,7 @@ bool FieldIsInBlacklist(const char* current_value, std::string blacklist_str) {
@@ -58,6 +61,7 @@ diff --git a/gpu/config/gpu_finch_features.cc b/gpu/config/gpu_finch_features.cc
  // Use android SurfaceControl API for managing display compositor's buffer queue
  // and using overlays on Android.
 diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
+index 0aa6832893e7..05991c7b3457 100644
 --- a/gpu/ipc/service/gpu_init.cc
 +++ b/gpu/ipc/service/gpu_init.cc
 @@ -493,9 +493,7 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
@@ -83,9 +87,10 @@ diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
    UMA_HISTOGRAM_ENUMERATION("GPU.GLImplementation", gl::GetGLImplementation());
  }
 diff --git a/media/base/media_switches.cc b/media/base/media_switches.cc
+index e7c7c5374c04..c805afbec9b6 100644
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -453,7 +453,7 @@ const base::Feature kMediaDrmPreprovisioningAtStartup{
+@@ -457,7 +457,7 @@ const base::Feature kMediaDrmPreprovisioningAtStartup{
  
  // Enables the Android Image Reader path for Video decoding(for AVDA and MCVD)
  const base::Feature kAImageReaderVideoOutput{"AImageReaderVideoOutput",
@@ -95,5 +100,5 @@ diff --git a/media/base/media_switches.cc b/media/base/media_switches.cc
  // Prevents using SurfaceLayer for videos. This is meant to be used by embedders
  // that cannot support SurfaceLayer at the moment.
 -- 
-2.17.1
+2.24.1
 
