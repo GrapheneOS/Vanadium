@@ -1,4 +1,4 @@
-From 9549c5d1903d6f44cc74d01e61f98c0b4bcd36bf Mon Sep 17 00:00:00 2001
+From 5955ce0195b0d870c924de4bdd2f3f0197dab721 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:48:41 -0400
 Subject: [PATCH 41/49] remove safe browsing reporting preference
@@ -6,35 +6,35 @@ Subject: [PATCH 41/49] remove safe browsing reporting preference
 ---
  .../res/xml/sync_and_services_preferences.xml | 10 +++----
  .../sync/SyncAndServicesPreferences.java      | 30 +++++++++----------
- .../java/strings/android_chrome_strings.grd   |  6 ----
+ .../strings/android_chrome_strings.grd        |  6 ----
  3 files changed, 20 insertions(+), 26 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 9ae13669be47..84dd60f1b7b8 100644
+index 4899eb53a137..791de37cd2c6 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 @@ -64,11 +64,11 @@
              android:key="password_leak_detection"
              android:title="@string/passwords_leak_detection_switch_title"
              android:persistent="false"/>
--        <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
+-        <org.chromium.chrome.browser.settings.ChromeSwitchPreference
 -            android:key="safe_browsing_scout_reporting"
 -            android:title="@string/safe_browsing_scout_reporting_title"
 -            android:summary="@string/safe_browsing_scout_reporting_summary"
 -            android:persistent="false"/>
-+        <!--<org.chromium.chrome.browser.preferences.ChromeSwitchPreference-->
++        <!--<org.chromium.chrome.browser.settings.ChromeSwitchPreference-->
 +            <!--android:key="safe_browsing_scout_reporting"-->
 +            <!--android:title="@string/safe_browsing_scout_reporting_title"-->
 +            <!--android:summary="@string/safe_browsing_scout_reporting_summary"-->
 +            <!--android:persistent="false"/>-->
-         <org.chromium.chrome.browser.preferences.ChromeSwitchPreference
+         <org.chromium.chrome.browser.settings.ChromeSwitchPreference
              android:key="usage_and_crash_reports"
              android:title="@string/usage_and_crash_reports_title"
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-index 8d12ddbcadb6..dc6361c4ea0d 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/sync/SyncAndServicesPreferences.java
-@@ -99,8 +99,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
+index d733a4d0fb28..744917161c9d 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
+@@ -106,8 +106,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_PASSWORD_LEAK_DETECTION = "password_leak_detection";
@@ -45,7 +45,7 @@ index 8d12ddbcadb6..dc6361c4ea0d 100644
      private static final String PREF_USAGE_AND_CRASH_REPORTING = "usage_and_crash_reports";
      private static final String PREF_URL_KEYED_ANONYMIZED_DATA = "url_keyed_anonymized_data";
      private static final String PREF_CONTEXTUAL_SEARCH = "contextual_search";
-@@ -141,7 +141,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -150,7 +150,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
      //private ChromeSwitchPreference mNavigationError;
      private ChromeSwitchPreference mSafeBrowsing;
      private @Nullable ChromeSwitchPreference mPasswordLeakDetection;
@@ -54,7 +54,7 @@ index 8d12ddbcadb6..dc6361c4ea0d 100644
      private ChromeSwitchPreference mUsageAndCrashReporting;
      private ChromeSwitchPreference mUrlKeyedAnonymizedData;
      private @Nullable Preference mContextualSearch;
-@@ -225,10 +225,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -231,10 +231,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              mPasswordLeakDetection = null;
          }
  
@@ -69,48 +69,48 @@ index 8d12ddbcadb6..dc6361c4ea0d 100644
  
          mUsageAndCrashReporting =
                  (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
-@@ -358,8 +358,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -374,8 +374,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
          } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
              mPrefServiceBridge.setBoolean(
                      Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
--            mPrefServiceBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
+-            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
 +        //} else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
-+            //mPrefServiceBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
++            //SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
          //} else if (PREF_NAVIGATION_ERROR.equals(key)) {
-             //mPrefServiceBridge.setResolveNavigationErrorEnabled((boolean) newValue);
+             //mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
-@@ -627,9 +627,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -668,9 +668,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
       */
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
          boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
 -        mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
 -        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
--                && mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
+-                && SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
 +        //mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
 +        //mSafeBrowsingReporting.setChecked(safe_browsing_enabled
-+                //&& mPrefServiceBridge.isSafeBrowsingExtendedReportingEnabled());
++                //&& SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
  
          if (mPasswordLeakDetection == null) return; // Early exit without leak detection to update.
  
-@@ -658,9 +658,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -699,9 +699,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
              if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
-                 return mPrefServiceBridge.isSearchSuggestManaged();
+                 return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
              }
 -            if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
--                return mPrefServiceBridge.isSafeBrowsingExtendedReportingManaged();
+-                return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
 -            }
 +            //if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
-+                //return mPrefServiceBridge.isSafeBrowsingExtendedReportingManaged();
++                //return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
 +            //}
              if (PREF_SAFE_BROWSING.equals(key)) {
-                 return mPrefServiceBridge.isSafeBrowsingManaged();
+                 return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
              }
-diff --git a/chrome/android/java/strings/android_chrome_strings.grd b/chrome/android/java/strings/android_chrome_strings.grd
-index e70c97cca1f3..5700b086be76 100644
---- a/chrome/android/java/strings/android_chrome_strings.grd
-+++ b/chrome/android/java/strings/android_chrome_strings.grd
-@@ -711,12 +711,6 @@ CHAR-LIMIT guidelines:
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index fbf454517d95..6430e6bc8013 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -741,12 +741,6 @@ CHAR-LIMIT guidelines:
        <message name="IDS_PREFS_PRIVACY" desc="Title for the Privacy preferences. [CHAR-LIMIT=32]">
          Privacy
        </message>
@@ -124,5 +124,5 @@ index e70c97cca1f3..5700b086be76 100644
          Safe Browsing (protects you and your device from dangerous sites)
        </message>
 -- 
-2.24.0
+2.25.0
 

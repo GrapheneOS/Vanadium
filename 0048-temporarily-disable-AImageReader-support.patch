@@ -1,4 +1,4 @@
-From 376452a5ea0066e0f89f75aa49e933c5dd829de8 Mon Sep 17 00:00:00 2001
+From 40b27e717c7a5e3c998d71660898c114f7b6515d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 26 Oct 2019 00:16:58 -0400
 Subject: [PATCH 48/49] temporarily disable AImageReader support
@@ -12,10 +12,10 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=977583
  2 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
-index 0aa6832893e7..f76131050d93 100644
+index 1aeba67edd48..b8b7d22daed8 100644
 --- a/gpu/ipc/service/gpu_init.cc
 +++ b/gpu/ipc/service/gpu_init.cc
-@@ -493,9 +493,9 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
+@@ -491,9 +491,9 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
  
  #if defined(OS_ANDROID)
    // Disable AImageReader if the workaround is enabled.
@@ -27,7 +27,7 @@ index 0aa6832893e7..f76131050d93 100644
  #endif
  #if defined(USE_OZONE)
    gpu_feature_info_.supported_buffer_formats_for_allocation_and_texturing =
-@@ -523,9 +523,9 @@ void GpuInit::InitializeInProcess(base::CommandLine* command_line,
+@@ -522,9 +522,9 @@ void GpuInit::InitializeInProcess(base::CommandLine* command_line,
    default_offscreen_surface_ = gl::init::CreateOffscreenGLSurface(gfx::Size());
  
    // Disable AImageReader if the workaround is enabled.
@@ -40,10 +40,10 @@ index 0aa6832893e7..f76131050d93 100644
    UMA_HISTOGRAM_ENUMERATION("GPU.GLImplementation", gl::GetGLImplementation());
  }
 diff --git a/media/base/media_switches.cc b/media/base/media_switches.cc
-index e7c7c5374c04..c805afbec9b6 100644
+index 5f33919f151f..bdb8c75840a2 100644
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -457,7 +457,7 @@ const base::Feature kMediaDrmPreprovisioningAtStartup{
+@@ -491,7 +491,7 @@ const base::Feature kMediaDrmPreprovisioningAtStartup{
  
  // Enables the Android Image Reader path for Video decoding(for AVDA and MCVD)
  const base::Feature kAImageReaderVideoOutput{"AImageReaderVideoOutput",
@@ -53,5 +53,5 @@ index e7c7c5374c04..c805afbec9b6 100644
  // Prevents using SurfaceLayer for videos. This is meant to be used by embedders
  // that cannot support SurfaceLayer at the moment.
 -- 
-2.24.1
+2.25.0
 

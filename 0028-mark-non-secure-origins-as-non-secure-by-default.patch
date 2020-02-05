@@ -1,4 +1,4 @@
-From daf8ce9d5d11760481ddc79be612ea9cf0f7ab7b Mon Sep 17 00:00:00 2001
+From 8092d81dd069823b4762188fe1995df93b982294 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 20 Oct 2017 21:20:50 -0400
 Subject: [PATCH 28/49] mark non-secure origins as non-secure by default
@@ -8,10 +8,10 @@ Subject: [PATCH 28/49] mark non-secure origins as non-secure by default
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
-index 9eec5f2b09d6..c62d6073bcc5 100644
+index f674cc925dfb..09a1127597b2 100644
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
-@@ -41,17 +41,15 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
+@@ -43,17 +43,15 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
          features::kMarkHttpAsFeature,
          features::kMarkHttpAsFeatureParameterName);
  
@@ -31,7 +31,7 @@ index 9eec5f2b09d6..c62d6073bcc5 100644
 +  return DANGEROUS;
  }
  
- std::string GetHistogramSuffixForSecurityLevel(
+ SecurityLevel GetSecurityLevelForDisplayedMixedContent(bool suppress_warning) {
 -- 
-2.24.0
+2.25.0
 
