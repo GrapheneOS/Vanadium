@@ -1,4 +1,4 @@
-From 26d05f951af6a2ea3790fd7289ba7ac7121bd968 Mon Sep 17 00:00:00 2001
+From 5a104113bb1415da8fe06da9cb60783dce63617c Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 6 Jul 2019 05:56:45 -0400
 Subject: [PATCH 06/49] remove Help & feedback menu entry
@@ -7,15 +7,15 @@ Subject: [PATCH 06/49] remove Help & feedback menu entry
  chrome/android/java/res/menu/main_menu.xml               | 2 --
  .../src/org/chromium/chrome/browser/ChromeActivity.java  | 9 ---------
  .../org/chromium/chrome/browser/KeyboardShortcuts.java   | 3 ---
- .../chrome/browser/customtabs/CustomTabActivity.java     | 2 +-
+ .../chrome/browser/customtabs/BaseCustomTabActivity.java | 2 +-
  .../browser/directactions/MenuDirectActionHandler.java   | 2 --
  5 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
-index 4580a99b4e57..55f2a2f2fc38 100644
+index 8c1f91bc88ef..67d4dc8ca9fd 100644
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -76,8 +76,6 @@
+@@ -81,8 +81,6 @@
              android:icon="@drawable/reader_mode_prefs_icon" />
          <item android:id="@+id/preferences_id"
              android:title="@string/menu_preferences" />
@@ -25,10 +25,10 @@ index 4580a99b4e57..55f2a2f2fc38 100644
              android:title="@string/enter_vr" />
      </group>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-index 99cac3df4999..662eae9de666 100644
+index 3fdc4ba9b800..abcb25ca71be 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -2177,15 +2177,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+@@ -2148,15 +2148,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
  
          final Tab currentTab = getActivityTab();
  
@@ -41,11 +41,11 @@ index 99cac3df4999..662eae9de666 100644
 -            return true;
 -        }
 -
-         // All the code below assumes currentTab is not null, so return early if it is null.
-         if (currentTab == null) {
-             return false;
+         if (id == R.id.open_history_menu_id) {
+             // 'currentTab' could only be null when opening history from start surface, which is
+             // not available on tablet.
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-index 054490a8ab41..5bfc451d5e58 100644
+index a8e7d3df840d..036b474be024 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
 @@ -342,9 +342,6 @@ public class KeyboardShortcuts {
@@ -58,18 +58,18 @@ index 054490a8ab41..5bfc451d5e58 100644
              }
          }
  
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivity.java
-index 2dd2bba2f1ac..a0856be51f70 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivity.java
-@@ -441,7 +441,7 @@ public class CustomTabActivity extends ChromeActivity<CustomTabActivityComponent
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
+index 840a0bf35829..09cedda544e8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
+@@ -125,7 +125,7 @@ public abstract class BaseCustomTabActivity<C extends ChromeActivityComponent>
+     @Override
      public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
          // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
-         if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id
--                || id == R.id.help_id || id == R.id.recent_tabs_menu_id
-+                || id == R.id.recent_tabs_menu_id
-                 || id == R.id.new_incognito_tab_menu_id || id == R.id.new_tab_menu_id
-                 || id == R.id.open_history_menu_id) {
+-        if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id || id == R.id.help_id
++        if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id
+                 || id == R.id.recent_tabs_menu_id || id == R.id.new_incognito_tab_menu_id
+                 || id == R.id.new_tab_menu_id || id == R.id.open_history_menu_id) {
              return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
 index 77387b08a5d9..46cd9af4429a 100644
@@ -92,5 +92,5 @@ index 77387b08a5d9..46cd9af4429a 100644
          availableItemIds.add(R.id.preferences_id);
  
 -- 
-2.24.0
+2.25.0
 

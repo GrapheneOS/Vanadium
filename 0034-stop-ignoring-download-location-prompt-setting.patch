@@ -1,17 +1,17 @@
-From 100fdf28cb6a40abf16226bfb9f2b4a13d5f3c3c Mon Sep 17 00:00:00 2001
+From e53caaf5a44e800b23d2837ef9a9d14624b6bb42 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 28 Jun 2019 16:56:37 -0400
 Subject: [PATCH 34/49] stop ignoring download location prompt setting
 
 ---
- .../download/DownloadLocationDialogBridge.java   | 16 ----------------
- 1 file changed, 16 deletions(-)
+ .../download/DownloadLocationDialogBridge.java    | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-index 6c1d7834fc55..191ad264f30c 100644
+index 92513b019c76..44373ec4a963 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-@@ -110,22 +110,6 @@ public class DownloadLocationDialogBridge implements ModalDialogProperties.Contr
+@@ -109,21 +109,6 @@ public class DownloadLocationDialogBridge implements ModalDialogProperties.Contr
       * @param dirs An list of available download directories.
       */
      private void onDirectoryOptionsRetrieved(ArrayList<DirectoryOption> dirs) {
@@ -22,8 +22,7 @@ index 6c1d7834fc55..191ad264f30c 100644
 -            final DirectoryOption dir = dirs.get(0);
 -            if (dir.type == DirectoryOption.DownloadLocationDirectoryType.DEFAULT) {
 -                assert(!TextUtils.isEmpty(dir.location));
--                PrefServiceBridge.getInstance().setDownloadAndSaveFileDefaultDirectory(
--                        dir.location);
+-                setDownloadAndSaveFileDefaultDirectory(dir.location);
 -                DownloadLocationDialogBridgeJni.get().onComplete(
 -                        mNativeDownloadLocationDialogBridge, DownloadLocationDialogBridge.this,
 -                        mSuggestedPath);
@@ -35,5 +34,5 @@ index 6c1d7834fc55..191ad264f30c 100644
          if (mDialogModel != null) return;
  
 -- 
-2.24.0
+2.25.0
 
