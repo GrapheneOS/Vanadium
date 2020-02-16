@@ -1,0 +1,32 @@
+From f20d322c8dab55346b763c83731a1a214443b84f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 6 Mar 2018 00:27:41 -0500
+Subject: [PATCH 16/49] disable showing popular sites by default
+
+---
+ components/ntp_tiles/features.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
+index 6096def69b70..97ca547cdbb0 100644
+--- a/components/ntp_tiles/features.cc
++++ b/components/ntp_tiles/features.cc
+@@ -13,13 +13,13 @@ namespace ntp_tiles {
+ const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
+ 
+ const base::Feature kPopularSitesBakedInContentFeature{
+-    "NTPPopularSitesBakedInContent", base::FEATURE_ENABLED_BY_DEFAULT};
++    "NTPPopularSitesBakedInContent", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kNtpMostLikelyFaviconsFromServerFeature{
+     "NTPMostLikelyFaviconsFromServer", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kUsePopularSitesSuggestions{
+-    "UsePopularSitesSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
++    "UsePopularSitesSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::FeatureState kDisplaySuggestionsServiceTilesDefaultState =
+ #if defined(OS_ANDROID) || defined(OS_IOS)
+-- 
+2.25.0
+

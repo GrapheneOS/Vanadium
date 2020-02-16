@@ -1,0 +1,128 @@
+From 5dba23b83e42e43563709c583e35eb71393153d9 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 23:48:41 -0400
+Subject: [PATCH 42/49] remove safe browsing reporting preference
+
+---
+ .../res/xml/sync_and_services_preferences.xml | 10 +++----
+ .../sync/SyncAndServicesPreferences.java      | 30 +++++++++----------
+ .../strings/android_chrome_strings.grd        |  6 ----
+ 3 files changed, 20 insertions(+), 26 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+index 4899eb53a137..791de37cd2c6 100644
+--- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
++++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+@@ -64,11 +64,11 @@
+             android:key="password_leak_detection"
+             android:title="@string/passwords_leak_detection_switch_title"
+             android:persistent="false"/>
+-        <org.chromium.chrome.browser.settings.ChromeSwitchPreference
+-            android:key="safe_browsing_scout_reporting"
+-            android:title="@string/safe_browsing_scout_reporting_title"
+-            android:summary="@string/safe_browsing_scout_reporting_summary"
+-            android:persistent="false"/>
++        <!--<org.chromium.chrome.browser.settings.ChromeSwitchPreference-->
++            <!--android:key="safe_browsing_scout_reporting"-->
++            <!--android:title="@string/safe_browsing_scout_reporting_title"-->
++            <!--android:summary="@string/safe_browsing_scout_reporting_summary"-->
++            <!--android:persistent="false"/>-->
+         <org.chromium.chrome.browser.settings.ChromeSwitchPreference
+             android:key="usage_and_crash_reports"
+             android:title="@string/usage_and_crash_reports_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
+index d733a4d0fb28..744917161c9d 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
+@@ -106,8 +106,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+     private static final String PREF_PASSWORD_LEAK_DETECTION = "password_leak_detection";
+-    private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
+-            "safe_browsing_scout_reporting";
++    //private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
++            //"safe_browsing_scout_reporting";
+     private static final String PREF_USAGE_AND_CRASH_REPORTING = "usage_and_crash_reports";
+     private static final String PREF_URL_KEYED_ANONYMIZED_DATA = "url_keyed_anonymized_data";
+     private static final String PREF_CONTEXTUAL_SEARCH = "contextual_search";
+@@ -150,7 +150,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     //private ChromeSwitchPreference mNavigationError;
+     private ChromeSwitchPreference mSafeBrowsing;
+     private @Nullable ChromeSwitchPreference mPasswordLeakDetection;
+-    private ChromeSwitchPreference mSafeBrowsingReporting;
++    //private ChromeSwitchPreference mSafeBrowsingReporting;
+     private ChromeSwitchPreference mUsageAndCrashReporting;
+     private ChromeSwitchPreference mUrlKeyedAnonymizedData;
+     private @Nullable Preference mContextualSearch;
+@@ -231,10 +231,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+             mPasswordLeakDetection = null;
+         }
+ 
+-        mSafeBrowsingReporting =
+-                (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
+-        mSafeBrowsingReporting.setOnPreferenceChangeListener(this);
+-        mSafeBrowsingReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        //mSafeBrowsingReporting =
++                //(ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
++        //mSafeBrowsingReporting.setOnPreferenceChangeListener(this);
++        //mSafeBrowsingReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+         mUsageAndCrashReporting =
+                 (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
+@@ -374,8 +374,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+         } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
+             mPrefServiceBridge.setBoolean(
+                     Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
+-        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+-            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
++        //} else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
++            //SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
+         //} else if (PREF_NAVIGATION_ERROR.equals(key)) {
+             //mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
+         } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
+@@ -668,9 +668,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+      */
+     private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
+         boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
+-        mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
+-        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
+-                && SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
++        //mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
++        //mSafeBrowsingReporting.setChecked(safe_browsing_enabled
++                //&& SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
+ 
+         if (mPasswordLeakDetection == null) return; // Early exit without leak detection to update.
+ 
+@@ -699,9 +699,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+             if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
+                 return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
+             }
+-            if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+-                return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
+-            }
++            //if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
++                //return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
++            //}
+             if (PREF_SAFE_BROWSING.equals(key)) {
+                 return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
+             }
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index fbf454517d95..6430e6bc8013 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -741,12 +741,6 @@ CHAR-LIMIT guidelines:
+       <message name="IDS_PREFS_PRIVACY" desc="Title for the Privacy preferences. [CHAR-LIMIT=32]">
+         Privacy
+       </message>
+-      <message name="IDS_SAFE_BROWSING_SCOUT_REPORTING_TITLE" desc="Title for checkbox that controls reporting data to detect bad apps/sites. Please ensure ‘Safe Browsing’ in this message matches the ‘Safe Browsing’ settings title.">
+-        Help improve Vanadium security
+-      </message>
+-      <message name="IDS_SAFE_BROWSING_SCOUT_REPORTING_SUMMARY" desc="Body text for Vanadium setting under 'Help Improve Safe Browsing'. This feature sends small amounts of data to Google about potentially-dangerous pages to help Safe Browsing improve Vanadium's protection against malware and phishing.">
+-        To detect dangerous apps and sites, Vanadium sends URLs of some pages you visit, limited system information, and some page content to Google
+-      </message>
+       <message name="IDS_SAFE_BROWSING_TITLE" desc="Title for safe browsing.">
+         Safe Browsing (protects you and your device from dangerous sites)
+       </message>
+-- 
+2.25.0
+

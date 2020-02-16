@@ -1,0 +1,132 @@
+From 97401de36be171601a13b14a0055c7025a862d8f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 23:50:03 -0400
+Subject: [PATCH 44/49] remove url keyed anonymized data preference
+
+---
+ .../res/xml/sync_and_services_preferences.xml | 10 +++----
+ .../sync/SyncAndServicesPreferences.java      | 28 +++++++++----------
+ .../strings/android_chrome_strings.grd        | 12 ++++----
+ 3 files changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+index 039a0c06630b..d9eafcc0dd55 100644
+--- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
++++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+@@ -74,11 +74,11 @@
+             <!--android:title="@string/usage_and_crash_reports_title"-->
+             <!--android:summary="@string/usage_and_crash_reports_summary"-->
+             <!--android:persistent="false"/>-->
+-        <org.chromium.chrome.browser.settings.ChromeSwitchPreference
+-            android:key="url_keyed_anonymized_data"
+-            android:title="@string/url_keyed_anonymized_data_title"
+-            android:summary="@string/url_keyed_anonymized_data_summary"
+-            android:persistent="false"/>
++        <!--<org.chromium.chrome.browser.settings.ChromeSwitchPreference-->
++            <!--android:key="url_keyed_anonymized_data"-->
++            <!--android:title="@string/url_keyed_anonymized_data_title"-->
++            <!--android:summary="@string/url_keyed_anonymized_data_summary"-->
++            <!--android:persistent="false"/>-->
+         <org.chromium.chrome.browser.settings.ChromeBasePreference
+             android:key="contextual_search"
+             android:title="@string/contextual_search_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
+index 30f19ebfd915..8d7be584ab7e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
+@@ -109,7 +109,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     //private static final String PREF_SAFE_BROWSING_SCOUT_REPORTING =
+             //"safe_browsing_scout_reporting";
+     //private static final String PREF_USAGE_AND_CRASH_REPORTING = "usage_and_crash_reports";
+-    private static final String PREF_URL_KEYED_ANONYMIZED_DATA = "url_keyed_anonymized_data";
++    //private static final String PREF_URL_KEYED_ANONYMIZED_DATA = "url_keyed_anonymized_data";
+     private static final String PREF_CONTEXTUAL_SEARCH = "contextual_search";
+ 
+     @IntDef({SyncError.NO_ERROR, SyncError.ANDROID_SYNC_DISABLED, SyncError.AUTH_ERROR,
+@@ -152,7 +152,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+     private @Nullable ChromeSwitchPreference mPasswordLeakDetection;
+     //private ChromeSwitchPreference mSafeBrowsingReporting;
+     //private ChromeSwitchPreference mUsageAndCrashReporting;
+-    private ChromeSwitchPreference mUrlKeyedAnonymizedData;
++    //private ChromeSwitchPreference mUrlKeyedAnonymizedData;
+     private @Nullable Preference mContextualSearch;
+ 
+     private ProfileSyncService.SyncSetupInProgressHandle mSyncSetupInProgressHandle;
+@@ -241,10 +241,10 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+         //mUsageAndCrashReporting.setOnPreferenceChangeListener(this);
+         //mUsageAndCrashReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+-        mUrlKeyedAnonymizedData =
+-                (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
+-        mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
+-        mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        //mUrlKeyedAnonymizedData =
++                //(ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
++        //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
++        //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+         mContextualSearch = findPreference(PREF_CONTEXTUAL_SEARCH);
+         if (!ContextualSearchFieldTrial.isEnabled()) {
+@@ -380,9 +380,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+             //mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
+         //} else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
+             //UmaSessionStats.changeMetricsReportingConsent((boolean) newValue);
+-        } else if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
+-            UnifiedConsentServiceBridge.setUrlKeyedAnonymizedDataCollectionEnabled(
+-                    (boolean) newValue);
++        //} else if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
++            //UnifiedConsentServiceBridge.setUrlKeyedAnonymizedDataCollectionEnabled(
++                    //(boolean) newValue);
+         }
+         return true;
+     }
+@@ -607,8 +607,8 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+ 
+         //mUsageAndCrashReporting.setChecked(
+                 //mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
+-        mUrlKeyedAnonymizedData.setChecked(
+-                UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled());
++        //mUrlKeyedAnonymizedData.setChecked(
++                //UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled());
+ 
+         if (mContextualSearch != null) {
+             boolean isContextualSearchEnabled =
+@@ -712,9 +712,9 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+             //if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
+                 //return PrivacyPreferencesManager.getInstance().isMetricsReportingManaged();
+             //}
+-            if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
+-                return UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionManaged();
+-            }
++            //if (PREF_URL_KEYED_ANONYMIZED_DATA.equals(key)) {
++                //return UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionManaged();
++            //}
+             return false;
+         };
+     }
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 64569d8dde6c..15cd2a991366 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -436,12 +436,12 @@ CHAR-LIMIT guidelines:
+       <!--<message name="IDS_NAVIGATION_ERROR_SUGGESTIONS_SUMMARY" desc="Summary for a checkbox in Settings that controls pages suggestions on navigation errors and informs the user about the data shared by this feature.">-->
+         <!--Sends the URL of a page you're trying to reach to Google-->
+       <!--</message>-->
+-      <message name="IDS_URL_KEYED_ANONYMIZED_DATA_TITLE" desc="Title for a checkbox in Settings that controls non-personalized URL collection and informs the user about the data shared by this feature.">
+-        Make searches and browsing better
+-      </message>
+-      <message name="IDS_URL_KEYED_ANONYMIZED_DATA_SUMMARY" desc="Summary for a checkbox in Settings that controls non-personalized URL collection and informs the user about the data shared by this feature.">
+-        Sends URLs of pages you visit to Google
+-      </message>
++      <!--<message name="IDS_URL_KEYED_ANONYMIZED_DATA_TITLE" desc="Title for a checkbox in Settings that controls non-personalized URL collection and informs the user about the data shared by this feature.">-->
++        <!--Make searches and browsing better-->
++      <!--</message>-->
++      <!--<message name="IDS_URL_KEYED_ANONYMIZED_DATA_SUMMARY" desc="Summary for a checkbox in Settings that controls non-personalized URL collection and informs the user about the data shared by this feature.">-->
++        <!--Sends URLs of pages you visit to Google-->
++      <!--</message>-->
+       <message name="IDS_PRIVACY_SYNC_AND_SERVICES_LINK" desc="The text for Privacy preferences that is shown after all preference rows.">
+         For more settings that relate to privacy, security, and data collection, see <ph name="BEGIN_LINK">&lt;link&gt;</ph>Services<ph name="END_LINK">&lt;/link&gt;</ph>
+       </message>
+-- 
+2.25.0
+

@@ -1,0 +1,25 @@
+From c35d40e69f6f88a05f1fdb1f8b20b74e9f63659e Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 3 Aug 2019 00:28:49 -0400
+Subject: [PATCH 45/49] disable contextual search by default
+
+---
+ .../browser/contextualsearch/ContextualSearchFieldTrial.java    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java b/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
+index 340408510b90..521b4f3bc565 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
+@@ -286,7 +286,7 @@ public class ContextualSearchFieldTrial {
+         // Allow disabling the feature remotely.
+         if (getBooleanParam(DISABLED_PARAM)) return false;
+ 
+-        return true;
++        return false;
+     }
+ 
+     /**
+-- 
+2.25.0
+
