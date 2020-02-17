@@ -1,16 +1,30 @@
-From 92f4fd89968681a1e96ff8dd59efc99c72d38450 Mon Sep 17 00:00:00 2001
+From 8390a701cafbb7f4084270f2f0fc6062130dea2f Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 6 Jul 2019 05:56:45 -0400
 Subject: [PATCH 07/48] remove Help & feedback menu entry
 
 ---
+ .../java/src/org/chromium/chrome/browser/vr/VrShell.java | 2 +-
  chrome/android/java/res/menu/main_menu.xml               | 2 --
  .../src/org/chromium/chrome/browser/ChromeActivity.java  | 9 ---------
  .../org/chromium/chrome/browser/KeyboardShortcuts.java   | 3 ---
  .../chrome/browser/customtabs/BaseCustomTabActivity.java | 2 +-
  .../browser/directactions/MenuDirectActionHandler.java   | 2 --
- 5 files changed, 1 insertion(+), 17 deletions(-)
+ 6 files changed, 2 insertions(+), 18 deletions(-)
 
+diff --git a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
+index 498787168698..7f648aec1f94 100644
+--- a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
++++ b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
+@@ -1119,7 +1119,7 @@ public class VrShell extends GvrLayout
+ 
+     @CalledByNative
+     public void openFeedback() {
+-        mActivity.onMenuOrKeyboardAction(R.id.help_id, true);
++        //mActivity.onMenuOrKeyboardAction(R.id.help_id, true);
+     }
+ 
+     private void updateHistoryButtonsVisibility() {
 diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
 index 8c1f91bc88ef..67d4dc8ca9fd 100644
 --- a/chrome/android/java/res/menu/main_menu.xml
