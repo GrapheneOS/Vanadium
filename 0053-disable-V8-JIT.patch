@@ -1,0 +1,26 @@
+From 89b58572bdd8a7ca459563d283b7d6cc0273fa3e Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <zkang@wpi.edu>
+Date: Fri, 13 Mar 2020 23:55:12 -0400
+Subject: [PATCH 53/53] disable V8 JIT
+
+---
+ content/browser/android/content_startup_flags.cc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/content/browser/android/content_startup_flags.cc b/content/browser/android/content_startup_flags.cc
+index 680ae76ce5c0..4f3f9e70b2a9 100644
+--- a/content/browser/android/content_startup_flags.cc
++++ b/content/browser/android/content_startup_flags.cc
+@@ -57,6 +57,9 @@ void SetContentCommandLineFlags(bool single_process) {
+   // Disable anti-aliasing.
+   parsed_command_line->AppendSwitch(
+       cc::switches::kDisableCompositedAntialiasing);
++
++  // Disable V8 JIT
++  parsed_command_line->AppendSwitchASCII(switches::kJavaScriptFlags, "--jitless");
+ }
+ 
+ }  // namespace content
+-- 
+2.21.1
+
