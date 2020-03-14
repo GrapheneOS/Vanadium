@@ -9,10 +9,10 @@ cd out/Default/apks
 rm -f TrichromeChrome.apks
 rm -f TrichromeChrome.apk
 
-$BUNDLETOOL build-apks --bundle TrichromeChrome.aab --output TrichromeChrome.apks --mode=universal --ks $KEYSTORE --ks-pass pass:vanadiumpass --ks-key-alias vanadiumkey
+$BUNDLETOOL build-apks --bundle TrichromeChrome.aab --output TrichromeChrome.apks --mode=universal --ks $KEYSTORE --ks-pass pass:vanadiumpass --ks-key-alias vanadium
 unzip TrichromeChrome.apks universal.apk
 mv universal.apk TrichromeChrome.apk
 
 for app in TrichromeLibrary TrichromeWebView; do
-    $APKSIGNER sign --ks $KEYSTORE --ks-pass pass:vanadiumpass --ks-key-alias vanadiumkey $app.apk
+    $APKSIGNER sign --ks $KEYSTORE --ks-pass pass:vanadiumpass --ks-key-alias vanadium $app.apk
 done
