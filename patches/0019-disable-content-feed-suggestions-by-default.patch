@@ -1,0 +1,25 @@
+From 4ff6f59ae49f66ec53d8f13ecd1968d36674201d Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sun, 22 Mar 2020 01:23:48 -0400
+Subject: [PATCH 19/53] disable content feed suggestions by default
+
+---
+ components/feed/feed_feature_list.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
+index 25e149321bed..0e48a1ce9e49 100644
+--- a/components/feed/feed_feature_list.cc
++++ b/components/feed/feed_feature_list.cc
+@@ -7,7 +7,7 @@
+ namespace feed {
+ 
+ const base::Feature kInterestFeedContentSuggestions{
+-    "InterestFeedContentSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
++    "InterestFeedContentSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::FeatureParam<std::string> kDisableTriggerTypes{
+     &kInterestFeedContentSuggestions, "disable_trigger_types", ""};
+-- 
+2.25.2
+
