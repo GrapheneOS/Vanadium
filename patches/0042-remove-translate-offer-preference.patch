@@ -1,11 +1,11 @@
-From a908dcd30a7099f7a7bf0ba2c12744da9db4d6ba Mon Sep 17 00:00:00 2001
+From f02f93688fec1f47bbbc5ed96774751cee65b1d6 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:11:17 -0400
-Subject: [PATCH 42/54] remove translate offer preference
+Subject: [PATCH 42/53] remove translate offer preference
 
 ---
  .../java/res/xml/languages_preferences.xml    |  8 ++--
- .../languages/LanguagesPreferences.java       | 40 +++++++++----------
+ .../settings/languages/LanguageSettings.java  | 40 +++++++++----------
  .../strings/android_chrome_strings.grd        |  6 +--
  3 files changed, 27 insertions(+), 27 deletions(-)
 
@@ -27,11 +27,11 @@ index 5e7dfc61f959..3f8a4d1ac88f 100644
 +        <!--android:summaryOff="@string/languages_offer_translate_switch" />-->
  
  </PreferenceScreen>
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguagesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguagesPreferences.java
-index 3ced90a41e44..9dc16a6ab6d8 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguagesPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguagesPreferences.java
-@@ -38,27 +38,27 @@ public class LanguagesPreferences
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java
+index 2152e656944a..a1a021640a6c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java
+@@ -38,27 +38,27 @@ public class LanguageSettings
                  (LanguageListPreference) findPreference(PREFERRED_LANGUAGES_KEY);
          mLanguageListPref.registerActivityLauncher(this);
  
@@ -80,11 +80,11 @@ index 3ced90a41e44..9dc16a6ab6d8 100644
      }
  
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index cde01a4d80c3..4ac7460c69c9 100644
+index 91952eaa5185..259eb3385d54 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1211,9 +1211,9 @@ Your Google account may have other forms of browsing history like searches and a
-       <message name="IDS_LANGUAGES_LIST_PREFS_DESCRIPTION" desc="Description on the Languages settings screen. Appears above a list of one or more languages that the user selects, to tell Vanadium which languages they prefer to use to read website content.">
+@@ -1148,9 +1148,9 @@ Your Google account may have other forms of browsing history like searches and a
+       <message name="IDS_LANGUAGES_LIST_DESCRIPTION" desc="Description on the Languages settings screen. Appears above a list of one or more languages that the user selects, to tell Vanadium which languages they prefer to use to read website content.">
          Websites will show text in your preferred language, when possible.
        </message>
 -      <message name="IDS_LANGUAGES_OFFER_TRANSLATE_SWITCH" desc="Appears next to the 'offer to translate' switch that controls whether or not Vanadium will display the Google Translate UI on web pages that are not in the user's preferred language(s).">
@@ -97,5 +97,5 @@ index cde01a4d80c3..4ac7460c69c9 100644
          Offer to translate
        </message>
 -- 
-2.25.2
+2.26.0
 

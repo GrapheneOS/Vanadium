@@ -1,13 +1,19 @@
-From 17361bf0cd47222cec04f6669916e62f69a82950 Mon Sep 17 00:00:00 2001
+From ba0d62b4e32f1608e4fc6d7e40b94ddff2f5f7d8 Mon Sep 17 00:00:00 2001
 From: Min Qin <qinmin@chromium.org>
-Date: Wed, 26 Feb 2020 15:19:59 -0800
-Subject: [PATCH 54/54] Upstream internal DownloadCollectionBridge code
+Date: Wed, 4 Mar 2020 19:08:17 +0000
+Subject: [PATCH 53/53] Upstream internal DownloadCollectionBridge code
 
 This will allow download in public chromium build to work on Q with MediaStore.
 
 BUG=1052490
 
 Change-Id: I31476292b92c7a5882fa4ad80cc60b29f6b14dba
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/2057806
+Reviewed-by: Robert Sesek <rsesek@chromium.org>
+Reviewed-by: Yaron Friedman <yfriedman@chromium.org>
+Reviewed-by: David Trainor <dtrainor@chromium.org>
+Commit-Queue: Min Qin <qinmin@chromium.org>
+Cr-Commit-Position: refs/heads/master@{#746867}
 ---
  .../org/chromium/chrome/browser/AppHooks.java |   8 -
  .../download/DownloadManagerService.java      |   2 +
@@ -21,10 +27,10 @@ Change-Id: I31476292b92c7a5882fa4ad80cc60b29f6b14dba
  .../components/download/DownloadDelegate.java |  47 ++
  third_party/android_provider/BUILD.gn         |  14 +
  third_party/android_provider/LICENSE          | 202 +++++++++
- third_party/android_provider/OWNERS           |   5 +
+ third_party/android_provider/OWNERS           |   6 +
  third_party/android_provider/README.chromium  |  17 +
  .../android/provider/MediaStoreUtils.java     | 228 ++++++++++
- 15 files changed, 829 insertions(+), 161 deletions(-)
+ 15 files changed, 830 insertions(+), 161 deletions(-)
  create mode 100644 chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadDelegateImpl.java
  create mode 100644 components/download/internal/common/android/java/src/org/chromium/components/download/DownloadDelegate.java
  create mode 100644 third_party/android_provider/BUILD.gn
@@ -34,7 +40,7 @@ Change-Id: I31476292b92c7a5882fa4ad80cc60b29f6b14dba
  create mode 100644 third_party/android_provider/java/src/org/chromium/third_party/android/provider/MediaStoreUtils.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
-index f5e474368e4c..dc8ebf2e6bf9 100644
+index 8c911bb147aa..09abc26343aa 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
 @@ -57,7 +57,6 @@ import org.chromium.chrome.browser.usage_stats.DigitalWellbeingClient;
@@ -45,7 +51,7 @@ index f5e474368e4c..dc8ebf2e6bf9 100644
  import org.chromium.components.signin.AccountManagerDelegate;
  import org.chromium.components.signin.SystemAccountManagerDelegate;
  import org.chromium.content_public.browser.UiThreadTaskTraits;
-@@ -353,13 +352,6 @@ public abstract class AppHooks {
+@@ -343,13 +342,6 @@ public abstract class AppHooks {
          return new FeatureHighlightProvider();
      }
  
@@ -60,10 +66,10 @@ index f5e474368e4c..dc8ebf2e6bf9 100644
       * @return A new {@link DigitalWellbeingClient} instance.
       */
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadManagerService.java b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadManagerService.java
-index fc966208466b..57dd551eaf37 100644
+index 3dd9199b9350..08c16a5c8165 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadManagerService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadManagerService.java
-@@ -49,6 +49,7 @@ import org.chromium.chrome.browser.preferences.PrefServiceBridge;
+@@ -51,6 +51,7 @@ import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
  import org.chromium.chrome.browser.profiles.Profile;
  import org.chromium.chrome.browser.profiles.ProfileManager;
  import org.chromium.chrome.browser.util.ConversionUtils;
@@ -71,7 +77,7 @@ index fc966208466b..57dd551eaf37 100644
  import org.chromium.components.download.DownloadState;
  import org.chromium.components.feature_engagement.EventConstants;
  import org.chromium.components.feature_engagement.Tracker;
-@@ -289,6 +290,7 @@ public class DownloadManagerService implements DownloadController.DownloadNotifi
+@@ -288,6 +289,7 @@ public class DownloadManagerService implements DownloadController.DownloadNotifi
          mHandler = handler;
          mDownloadSnackbarController = new DownloadSnackbarController();
          mOMADownloadHandler = new OMADownloadHandler(applicationContext);
@@ -106,10 +112,10 @@ index e0dbe6573ad2..2c5e6cc7d9dc 100644
                          } else {
                              if (file.exists()) return mFilePath;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
-index c510dc8bbc96..85bda5850d99 100644
+index 721f9d3096bf..fc6166337f7c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
-@@ -80,7 +80,6 @@ import org.chromium.chrome.browser.util.ConversionUtils;
+@@ -81,7 +81,6 @@ import org.chromium.chrome.browser.util.ConversionUtils;
  import org.chromium.chrome.browser.webapps.WebApkVersionManager;
  import org.chromium.chrome.browser.webapps.WebappRegistry;
  import org.chromium.components.background_task_scheduler.BackgroundTaskSchedulerFactory;
@@ -118,8 +124,8 @@ index c510dc8bbc96..85bda5850d99 100644
  import org.chromium.components.signin.AccountManagerFacade;
  import org.chromium.components.signin.AccountsChangeObserver;
 @@ -185,11 +184,6 @@ public class ProcessInitializationHandler {
-                 new UuidBasedUniqueIdentificationGenerator(
-                         application, SESSIONS_UUID_PREF_KEY), false);
+                         application, ChromePreferenceKeys.SYNC_SESSIONS_UUID),
+                 false);
  
 -        // Set up the DownloadCollectionBridge early as display names may be immediately retrieved
 -        // after native is loaded.
@@ -130,11 +136,11 @@ index c510dc8bbc96..85bda5850d99 100644
          // read this property directly, convert it to the equivalent command line flag.
          if (DeJellyUtils.externallyEnableDeJelly()) {
 diff --git a/chrome/browser/download/android/BUILD.gn b/chrome/browser/download/android/BUILD.gn
-index da1ddbdfe8d0..2b7760693bcb 100644
+index f5eee6608acb..6b9ace830ead 100644
 --- a/chrome/browser/download/android/BUILD.gn
 +++ b/chrome/browser/download/android/BUILD.gn
 @@ -8,6 +8,7 @@ android_library("java") {
-   java_files = [
+   sources = [
      "java/src/org/chromium/chrome/browser/download/DirectoryOption.java",
      "java/src/org/chromium/chrome/browser/download/DownloadConstants.java",
 +    "java/src/org/chromium/chrome/browser/download/DownloadDelegateImpl.java",
@@ -197,15 +203,15 @@ index 000000000000..9dfa1597890a
 +    }
 +}
 diff --git a/components/download/internal/common/BUILD.gn b/components/download/internal/common/BUILD.gn
-index 4c31aa2fc3cf..2589eb1fd685 100644
+index 4f322c44456b..eba9ab16af90 100644
 --- a/components/download/internal/common/BUILD.gn
 +++ b/components/download/internal/common/BUILD.gn
 @@ -101,11 +101,15 @@ source_set("internal") {
  
  if (is_android) {
    android_library("internal_java") {
--    java_files = [ "android/java/src/org/chromium/components/download/DownloadCollectionBridge.java" ]
-+    java_files = [
+-    sources = [ "android/java/src/org/chromium/components/download/DownloadCollectionBridge.java" ]
++    sources = [
 +      "android/java/src/org/chromium/components/download/DownloadCollectionBridge.java",
 +      "android/java/src/org/chromium/components/download/DownloadDelegate.java",
 +    ]
@@ -817,7 +823,7 @@ index 000000000000..00a38da9f1d8
 +}
 diff --git a/third_party/android_provider/BUILD.gn b/third_party/android_provider/BUILD.gn
 new file mode 100644
-index 000000000000..f8b3dcfebf6e
+index 000000000000..34bedb42ef54
 --- /dev/null
 +++ b/third_party/android_provider/BUILD.gn
 @@ -0,0 +1,14 @@
@@ -830,7 +836,7 @@ index 000000000000..f8b3dcfebf6e
 +assert(is_android)
 +
 +android_library("android_provider_java") {
-+  java_files = [
++  sources = [
 +    "java/src/org/chromium/third_party/android/provider/MediaStoreUtils.java",
 +  ]
 +  deps = [ "//third_party/android_deps:androidx_annotation_annotation_java" ]
@@ -1045,15 +1051,16 @@ index 000000000000..d64569567334
 +   limitations under the License.
 diff --git a/third_party/android_provider/OWNERS b/third_party/android_provider/OWNERS
 new file mode 100644
-index 000000000000..a9cb0f078d5b
+index 000000000000..f41c89113f91
 --- /dev/null
 +++ b/third_party/android_provider/OWNERS
-@@ -0,0 +1,5 @@
+@@ -0,0 +1,6 @@
 +qinmin@chromium.org
 +dtrainor@chromium.org
 +
 +# TEAM: chrome-downloads@chromium.org
 +# COMPONENT: UI>Browser>Downloads
++
 diff --git a/third_party/android_provider/README.chromium b/third_party/android_provider/README.chromium
 new file mode 100644
 index 000000000000..56cff5bf00e2
@@ -1312,5 +1319,5 @@ index 000000000000..c4664aab7b1e
 +    }
 +}
 -- 
-2.25.2
+2.26.0
 

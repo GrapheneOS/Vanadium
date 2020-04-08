@@ -1,7 +1,7 @@
-From 103aed48efc811a25ec6f7952856cf24d3ab2df9 Mon Sep 17 00:00:00 2001
+From 0a7746d6cb359365df03b6456905353ebdb15e40 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 6 Jul 2019 05:56:45 -0400
-Subject: [PATCH 07/54] remove Help & feedback menu entry
+Subject: [PATCH 07/53] remove Help & feedback menu entry
 
 ---
  .../java/src/org/chromium/chrome/browser/vr/VrShell.java | 2 +-
@@ -13,10 +13,10 @@ Subject: [PATCH 07/54] remove Help & feedback menu entry
  6 files changed, 2 insertions(+), 18 deletions(-)
 
 diff --git a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-index 498787168698..7f648aec1f94 100644
+index a939b6a80598..207ec2d5d4be 100644
 --- a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
 +++ b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-@@ -1119,7 +1119,7 @@ public class VrShell extends GvrLayout
+@@ -1124,7 +1124,7 @@ public class VrShell extends GvrLayout
  
      @CalledByNative
      public void openFeedback() {
@@ -26,23 +26,23 @@ index 498787168698..7f648aec1f94 100644
  
      private void updateHistoryButtonsVisibility() {
 diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
-index 8c1f91bc88ef..67d4dc8ca9fd 100644
+index f2c7c73791dd..0d75fc5439d9 100644
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -81,8 +81,6 @@
+@@ -83,8 +83,6 @@
              android:icon="@drawable/reader_mode_prefs_icon" />
          <item android:id="@+id/preferences_id"
-             android:title="@string/menu_preferences" />
+             android:title="@string/menu_settings" />
 -        <item android:id="@+id/help_id"
 -            android:title="@string/menu_help" />
          <item android:id="@+id/enter_vr_id"
              android:title="@string/enter_vr" />
      </group>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-index 3fdc4ba9b800..abcb25ca71be 100644
+index 82013027db18..135fc79afd00 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -2148,15 +2148,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+@@ -2013,15 +2013,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
  
          final Tab currentTab = getActivityTab();
  
@@ -73,10 +73,10 @@ index a8e7d3df840d..036b474be024 100644
          }
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-index 840a0bf35829..09cedda544e8 100644
+index 51b2ca36bfc6..d6b3febbe218 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-@@ -125,7 +125,7 @@ public abstract class BaseCustomTabActivity<C extends ChromeActivityComponent>
+@@ -229,7 +229,7 @@ public abstract class BaseCustomTabActivity<C extends BaseCustomTabActivityCompo
      @Override
      public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
          // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
@@ -106,5 +106,5 @@ index 77387b08a5d9..46cd9af4429a 100644
          availableItemIds.add(R.id.preferences_id);
  
 -- 
-2.25.2
+2.26.0
 

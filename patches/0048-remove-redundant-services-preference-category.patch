@@ -1,20 +1,20 @@
-From b0761b4dd96113c1c211127fcdd9ec84ea4d8849 Mon Sep 17 00:00:00 2001
+From 1e9b042e741a2d42a5289b4e2a889db3886dd0f4 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 3 Aug 2019 00:34:43 -0400
-Subject: [PATCH 48/54] remove redundant services preference category
+Subject: [PATCH 48/53] remove redundant services preference category
 
 ---
  .../java/res/xml/sync_and_services_preferences.xml     |  8 ++++----
- .../settings/sync/SyncAndServicesPreferences.java      | 10 +++++-----
+ .../browser/settings/sync/SyncAndServicesSettings.java | 10 +++++-----
  .../ui/android/strings/android_chrome_strings.grd      |  6 +++---
  3 files changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index d9eafcc0dd55..cdb348c4cdf1 100644
+index 5f585085f791..fc48be354962 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 @@ -41,9 +41,9 @@
-             <!--android:fragment="org.chromium.chrome.browser.settings.sync.ManageSyncPreferences"/>-->
+             <!--android:fragment="org.chromium.chrome.browser.settings.sync.ManageSyncSettings"/>-->
      <!--</PreferenceCategory>-->
  
 -    <PreferenceCategory
@@ -26,18 +26,18 @@ index d9eafcc0dd55..cdb348c4cdf1 100644
  
          <org.chromium.chrome.browser.settings.ChromeSwitchPreference
              android:key="search_suggestions"
-@@ -83,5 +83,5 @@
+@@ -88,5 +88,5 @@
              android:key="contextual_search"
              android:title="@string/contextual_search_title"
              android:fragment="org.chromium.chrome.browser.settings.privacy.ContextualSearchPreferenceFragment"/>
 -    </PreferenceCategory>
 +    <!--</PreferenceCategory>-->
  </PreferenceScreen>
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
-index 8d7be584ab7e..04fd311b2f08 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
-@@ -101,7 +101,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
+index 7edfd03f77c4..d8ad880a611b 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
+@@ -99,7 +99,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public static final String PREF_SYNC_REQUESTED = "sync_requested";
      private static final String PREF_MANAGE_SYNC = "manage_sync";
  
@@ -46,7 +46,7 @@ index 8d7be584ab7e..04fd311b2f08 100644
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
      //private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -219,15 +219,15 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
+@@ -206,8 +206,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSafeBrowsing.setOnPreferenceChangeListener(this);
          mSafeBrowsing.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -56,16 +56,15 @@ index 8d7be584ab7e..04fd311b2f08 100644
 +                //(PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
          mPasswordLeakDetection =
                  (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
-         if (ChromeFeatureList.isEnabled(ChromeFeatureList.PASSWORD_LEAK_DETECTION)) {
-             mPasswordLeakDetection.setOnPreferenceChangeListener(this);
-             mPasswordLeakDetection.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+         mPasswordLeakDetection.setOnPreferenceChangeListener(this);
+@@ -233,13 +233,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+             mAutofillAssistant.setOnPreferenceChangeListener(this);
+             mAutofillAssistant.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
          } else {
--            removePreference(servicesCategory, mPasswordLeakDetection);
-+            getPreferenceScreen().removePreference(mPasswordLeakDetection);
-             mPasswordLeakDetection = null;
+-            removePreference(servicesCategory, mAutofillAssistant);
++            getPreferenceScreen().removePreference(mAutofillAssistant);
+             mAutofillAssistant = null;
          }
- 
-@@ -248,7 +248,7 @@ public class SyncAndServicesPreferences extends PreferenceFragmentCompat
  
          mContextualSearch = findPreference(PREF_CONTEXTUAL_SEARCH);
          if (!ContextualSearchFieldTrial.isEnabled()) {
@@ -75,10 +74,10 @@ index 8d7be584ab7e..04fd311b2f08 100644
          }
  
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index f7c8ffaaf105..12602eb7a28e 100644
+index 5edca020623c..b647a42c2979 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -415,9 +415,9 @@ CHAR-LIMIT guidelines:
+@@ -319,9 +319,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
          Manage sync
        </message>
@@ -92,5 +91,5 @@ index f7c8ffaaf105..12602eb7a28e 100644
          Autocomplete searches and URLs
        </message>
 -- 
-2.25.2
+2.26.0
 

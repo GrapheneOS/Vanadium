@@ -1,7 +1,7 @@
-From a83bee43ade3deff246ec5a5706a7d384371a421 Mon Sep 17 00:00:00 2001
+From 79ad2b01a1bfeea23778538b85654fd4ab2e5dd7 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 6 Aug 2017 12:45:14 -0400
-Subject: [PATCH 04/54] Vanadium branding
+Subject: [PATCH 04/53] Vanadium branding
 
 Current incantation of the recolor command:
 
@@ -65,10 +65,10 @@ Current incantation of the recolor command:
  create mode 100644 chrome/android/java/res_vanadium/values/channel_constants.xml
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 8b76fc6199a1..cd528bacd833 100644
+index dd59ffa4ffb9..55059bda4372 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -109,7 +109,7 @@ generate_ui_locale_resources("ui_locale_string_resources") {
+@@ -129,7 +129,7 @@ generate_ui_locale_resources("ui_locale_string_resources") {
  android_resources("chrome_app_java_resources") {
    resource_dirs = [
      "java/res",
@@ -77,7 +77,7 @@ index 8b76fc6199a1..cd528bacd833 100644
    ]
  
    if (enable_android_night_mode) {
-@@ -1063,7 +1063,7 @@ android_resources("chrome_public_test_apk_resources") {
+@@ -1083,7 +1083,7 @@ if (enable_vr || enable_arcore) {
  
  # Overrides icon / name defined in chrome_app_java_resources.
  android_resources("chrome_public_apk_resources") {
@@ -85,7 +85,7 @@ index 8b76fc6199a1..cd528bacd833 100644
 +  resource_dirs = [ "java/res_vanadium" ]
  
    # Dep needed to ensure override works properly.
-   deps = [
+   deps = [ ":chrome_app_java_resources" ]
 diff --git a/chrome/android/java/res_vanadium/OWNERS b/chrome/android/java/res_vanadium/OWNERS
 new file mode 100644
 index 000000000000..be4a107ce4a2
@@ -3755,5 +3755,5 @@ index 000000000000..934572cd12f2
 +    <string name="search_widget_title" translatable="false">Vanadium search</string>
 +</resources>
 -- 
-2.25.2
+2.26.0
 

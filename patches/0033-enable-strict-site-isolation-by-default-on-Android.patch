@@ -1,7 +1,7 @@
-From 3308a5c9dc68e5bcb822c484401222be7542b9de Mon Sep 17 00:00:00 2001
+From 1fae1f57b6ea8b24d6c9ecea0347a30eb3cf41cb Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
-Subject: [PATCH 33/54] enable strict site isolation by default on Android
+Subject: [PATCH 33/53] enable strict site isolation by default on Android
 
 ---
  chrome/browser/about_flags.cc    | 19 -------------------
@@ -9,10 +9,10 @@ Subject: [PATCH 33/54] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 25 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 1087b7020dd8..020feb7e50af 100644
+index f72729682998..0bcc69da2506 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2129,25 +2129,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2175,25 +2175,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kHTTPAuthCommittedInterstitialsName,
       flag_descriptions::kHTTPAuthCommittedInterstitialsDescription, kOsAll,
       FEATURE_VALUE_TYPE(features::kHTTPAuthCommittedInterstitials)},
@@ -39,10 +39,10 @@ index 1087b7020dd8..020feb7e50af 100644
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
       ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 92da6a9b69af..41915d080bec 100644
+index e85079fa2f02..d98f3f835ca8 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -658,12 +658,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
+@@ -654,12 +654,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {
@@ -57,5 +57,5 @@ index 92da6a9b69af..41915d080bec 100644
  
  // Controls a mode for dynamically process-isolating sites where the user has
 -- 
-2.25.2
+2.26.0
 

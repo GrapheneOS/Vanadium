@@ -1,36 +1,39 @@
-From 3981e0d3cbe0625c72b4811beac87be385736041 Mon Sep 17 00:00:00 2001
+From cc51cd13af67c0312e60984147ad4ee56a3f0796 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 22:06:31 -0400
-Subject: [PATCH 41/54] remove data reduction preference
+Subject: [PATCH 41/53] remove data reduction preference
 
 ---
- chrome/android/java/res/xml/main_preferences.xml          | 4 ++--
- .../chromium/chrome/browser/settings/MainPreferences.java | 8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ chrome/android/java/res/xml/main_preferences.xml       | 10 +++++-----
+ .../chromium/chrome/browser/settings/MainSettings.java |  8 ++++----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index 198d14432dbb..8ea16680d110 100644
+index 99288f019be9..117738c51583 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -90,11 +90,11 @@
+@@ -85,11 +85,11 @@
          android:key="languages"
-         android:order="16"
-         android:title="@string/prefs_languages"/>
+         android:order="15"
+         android:title="@string/language_settings"/>
 -    <org.chromium.chrome.browser.settings.ChromeBasePreference
-+    <!--<org.chromium.chrome.browser.settings.ChromeBasePreference
-         android:fragment="org.chromium.chrome.browser.settings.datareduction.DataReductionPreferenceFragment"
-         android:key="data_reduction"
-         android:order="17"
+-        android:fragment="org.chromium.chrome.browser.settings.datareduction.DataReductionPreferenceFragment"
+-        android:key="data_reduction"
+-        android:order="16"
 -        android:title="@string/data_reduction_title_lite_mode"/>
-+        android:title="@string/data_reduction_title_lite_mode"/>-->
++    <!--<org.chromium.chrome.browser.settings.ChromeBasePreference-->
++        <!--android:fragment="org.chromium.chrome.browser.settings.datareduction.DataReductionPreferenceFragment"-->
++        <!--android:key="data_reduction"-->
++        <!--android:order="16"-->
++        <!--android:title="@string/data_reduction_title_lite_mode"/>-->
      <org.chromium.chrome.browser.settings.ChromeBasePreference
-         android:fragment="org.chromium.chrome.browser.settings.download.DownloadPreferences"
+         android:fragment="org.chromium.chrome.browser.settings.download.DownloadSettings"
          android:key="downloads"
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainPreferences.java
-index 32213f862d26..1d8c27faab28 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainPreferences.java
-@@ -136,7 +136,7 @@ public class MainPreferences extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index 0991b6499c42..1e9b439795fc 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -129,7 +129,7 @@ public class MainSettings extends PreferenceFragmentCompat
          updatePasswordsPreference();
  
          setManagedPreferenceDelegateForPreference(PREF_SEARCH_ENGINE);
@@ -39,7 +42,7 @@ index 32213f862d26..1d8c27faab28 100644
  
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
              // If we are on Android O+ the Notifications preference should lead to the Android
-@@ -223,9 +223,9 @@ public class MainPreferences extends PreferenceFragmentCompat
+@@ -208,9 +208,9 @@ public class MainSettings extends PreferenceFragmentCompat
              removePreferenceIfPresent(PREF_DEVELOPER);
          }
  
@@ -53,5 +56,5 @@ index 32213f862d26..1d8c27faab28 100644
  
      private Preference addPreferenceIfAbsent(String key) {
 -- 
-2.25.2
+2.26.0
 
