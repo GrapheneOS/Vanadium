@@ -1,0 +1,27 @@
+From 28d35ce71a825e46b1671f1cd7e2efea507f9bce Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 8 Apr 2020 20:48:17 -0400
+Subject: [PATCH 56/56] enable -ftrivial-auto-var-init=zero
+
+---
+ build/config/compiler/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 16b5d6bf5bd1..98702fe39e8f 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -296,6 +296,10 @@ config("compiler") {
+       cflags += [ "-fwrapv" ]
+     }
+ 
++    if (is_clang) {
++      cflags += [ "-ftrivial-auto-var-init=zero", "-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang" ]
++    }
++
+     # Linker warnings.
+     if (fatal_linker_warnings && !(is_chromeos && current_cpu == "arm") &&
+         !is_mac && !is_ios && current_os != "aix") {
+-- 
+2.26.0
+
