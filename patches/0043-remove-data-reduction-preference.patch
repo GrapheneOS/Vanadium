@@ -1,0 +1,60 @@
+From 41bd266fbc9e38b88354616aa1e590d4329bfb38 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 22:06:31 -0400
+Subject: [PATCH 43/56] remove data reduction preference
+
+---
+ chrome/android/java/res/xml/main_preferences.xml       | 10 +++++-----
+ .../chromium/chrome/browser/settings/MainSettings.java |  8 ++++----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
+index 99288f019be9..117738c51583 100644
+--- a/chrome/android/java/res/xml/main_preferences.xml
++++ b/chrome/android/java/res/xml/main_preferences.xml
+@@ -85,11 +85,11 @@
+         android:key="languages"
+         android:order="15"
+         android:title="@string/language_settings"/>
+-    <org.chromium.chrome.browser.settings.ChromeBasePreference
+-        android:fragment="org.chromium.chrome.browser.settings.datareduction.DataReductionPreferenceFragment"
+-        android:key="data_reduction"
+-        android:order="16"
+-        android:title="@string/data_reduction_title_lite_mode"/>
++    <!--<org.chromium.chrome.browser.settings.ChromeBasePreference-->
++        <!--android:fragment="org.chromium.chrome.browser.settings.datareduction.DataReductionPreferenceFragment"-->
++        <!--android:key="data_reduction"-->
++        <!--android:order="16"-->
++        <!--android:title="@string/data_reduction_title_lite_mode"/>-->
+     <org.chromium.chrome.browser.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.settings.download.DownloadSettings"
+         android:key="downloads"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index 0991b6499c42..1e9b439795fc 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -129,7 +129,7 @@ public class MainSettings extends PreferenceFragmentCompat
+         updatePasswordsPreference();
+ 
+         setManagedPreferenceDelegateForPreference(PREF_SEARCH_ENGINE);
+-        setManagedPreferenceDelegateForPreference(PREF_DATA_REDUCTION);
++        //setManagedPreferenceDelegateForPreference(PREF_DATA_REDUCTION);
+ 
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+             // If we are on Android O+ the Notifications preference should lead to the Android
+@@ -208,9 +208,9 @@ public class MainSettings extends PreferenceFragmentCompat
+             removePreferenceIfPresent(PREF_DEVELOPER);
+         }
+ 
+-        ChromeBasePreference dataReduction =
+-                (ChromeBasePreference) findPreference(PREF_DATA_REDUCTION);
+-        dataReduction.setSummary(DataReductionPreferenceFragment.generateSummary(getResources()));
++        //ChromeBasePreference dataReduction =
++                //(ChromeBasePreference) findPreference(PREF_DATA_REDUCTION);
++        //dataReduction.setSummary(DataReductionPreferenceFragment.generateSummary(getResources()));
+     }
+ 
+     private Preference addPreferenceIfAbsent(String key) {
+-- 
+2.26.0
+

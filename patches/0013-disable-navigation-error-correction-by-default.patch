@@ -1,0 +1,25 @@
+From df041bce66572b44bb3e2741a338fbc80ec650dd Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 23 Nov 2016 08:29:58 -0500
+Subject: [PATCH 13/56] disable navigation error correction by default
+
+---
+ chrome/browser/ui/navigation_correction_tab_observer.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/navigation_correction_tab_observer.cc b/chrome/browser/ui/navigation_correction_tab_observer.cc
+index b3e3237e667c..4a85d5f6e63c 100644
+--- a/chrome/browser/ui/navigation_correction_tab_observer.cc
++++ b/chrome/browser/ui/navigation_correction_tab_observer.cc
+@@ -59,7 +59,7 @@ void NavigationCorrectionTabObserver::SetAllowEnableCorrectionsForTesting(
+ void NavigationCorrectionTabObserver::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* prefs) {
+   prefs->RegisterBooleanPref(embedder_support::kAlternateErrorPagesEnabled,
+-                             true,
++                             false,
+                              user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ }
+ 
+-- 
+2.26.0
+
