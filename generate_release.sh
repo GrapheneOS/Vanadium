@@ -15,10 +15,10 @@ rm -rf release
 mkdir release
 cd release
 
-$BUNDLETOOL build-apks --bundle ../TrichromeChrome.aab --output TrichromeChrome.apks --mode=universal --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium <<< $keystore_pass
+$BUNDLETOOL build-apks --bundle ../TrichromeChrome6432.aab --output TrichromeChrome.apks --mode=universal --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium <<< $keystore_pass
 unzip TrichromeChrome.apks universal.apk
 mv universal.apk TrichromeChrome.apk
 
 for app in TrichromeLibrary TrichromeWebView; do
-    $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../$app.apk --out $app.apk <<< $keystore_pass
+    $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}6432.apk --out $app.apk <<< $keystore_pass
 done
