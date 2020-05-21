@@ -1,0 +1,51 @@
+From e0237a1153fac6699609e8563330655765d7e18b Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 23:46:41 -0400
+Subject: [PATCH 48/56] remove navigation error preference
+
+---
+ .../sync/settings/SyncAndServicesSettings.java    | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index 5d7b1c9ff069..64a0d6c9e52e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -200,16 +200,19 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         mSearchSuggestions.setOnPreferenceChangeListener(this);
+         mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
++        PreferenceCategory servicesCategory =
++                (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
++
+         mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
+-        mNavigationError.setOnPreferenceChangeListener(this);
+-        mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        //mNavigationError.setOnPreferenceChangeListener(this);
++        //mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        removePreference(servicesCategory, mNavigationError);
++        mNavigationError = null;
+ 
+         mSafeBrowsing = (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING);
+         mSafeBrowsing.setOnPreferenceChangeListener(this);
+         mSafeBrowsing.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+-        PreferenceCategory servicesCategory =
+-                (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
+         mPasswordLeakDetection =
+                 (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
+         mPasswordLeakDetection.setOnPreferenceChangeListener(this);
+@@ -538,8 +541,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         //updateSyncPreferences();
+ 
+         mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
+-        mNavigationError.setChecked(
+-                mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
++        //mNavigationError.setChecked(
++                //mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
+         mSafeBrowsing.setChecked(mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+ 
+         updateLeakDetectionAndSafeBrowsingReportingPreferences();
+-- 
+2.26.2
+
