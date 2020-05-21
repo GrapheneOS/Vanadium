@@ -1,17 +1,17 @@
-From 67052b7b5d2498065e78d246937898976e5461f4 Mon Sep 17 00:00:00 2001
+From edcb26e11b28cd28019f4e477b53b0453be7fde1 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:12:28 -0400
-Subject: [PATCH 45/56] remove sync preferences
+Subject: [PATCH 45/54] remove sync preferences
 
 ---
  .../res/xml/sync_and_services_preferences.xml |  56 +++----
- .../sync/SyncAndServicesSettings.java         | 144 +++++++++---------
+ .../settings/SyncAndServicesSettings.java     | 140 +++++++++---------
  .../strings/android_chrome_strings.grd        |  18 +--
  .../strings/android/browser_ui_strings.grd    |   6 +-
- 4 files changed, 112 insertions(+), 112 deletions(-)
+ 4 files changed, 110 insertions(+), 110 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 12617bf3808f..a8afce459f31 100644
+index 86e073e963f7..c4a82cd49635 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 @@ -8,38 +8,38 @@
@@ -21,20 +21,20 @@ index 12617bf3808f..a8afce459f31 100644
 -    <PreferenceCategory
 -        android:key="user_category"
 -        android:title="@string/user"/>
--    <org.chromium.chrome.browser.settings.sync.SignInPreference
+-    <org.chromium.chrome.browser.sync.settings.SignInPreference
 -        android:key="sign_in"
 -        android:title="@string/sign_in_to_chrome"/>
 +    <!--<PreferenceCategory-->
 +        <!--android:key="user_category"-->
 +        <!--android:title="@string/user"/>-->
-+    <!--<org.chromium.chrome.browser.settings.sync.SignInPreference-->
++    <!--<org.chromium.chrome.browser.sync.settings.SignInPreference-->
 +        <!--android:key="sign_in"-->
 +        <!--android:title="@string/sign_in_to_chrome"/>-->
  
--    <org.chromium.chrome.browser.settings.ChromeBasePreference
+-    <org.chromium.components.browser_ui.settings.ChromeBasePreference
 -        android:key="manage_your_google_account"
 -        android:title="@string/manage_your_google_account"/>
-+    <!--<org.chromium.chrome.browser.settings.ChromeBasePreference-->
++    <!--<org.chromium.components.browser_ui.settings.ChromeBasePreference-->
 +        <!--android:key="manage_your_google_account"-->
 +        <!--android:title="@string/manage_your_google_account"/>-->
  
@@ -52,7 +52,7 @@ index 12617bf3808f..a8afce459f31 100644
 -            android:key="sync_disabled_by_administrator"
 -            android:layout="@layout/account_management_account_row"
 -            android:title="@string/sync_is_disabled_by_administrator"/>
--        <org.chromium.chrome.browser.settings.ChromeSwitchPreference
+-        <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
 -            android:key="sync_requested"
 -            android:title="@string/sync_switch_title"
 -            android:persistent="false"/>
@@ -63,29 +63,29 @@ index 12617bf3808f..a8afce459f31 100644
 +            <!--android:key="sync_disabled_by_administrator"-->
 +            <!--android:layout="@layout/account_management_account_row"-->
 +            <!--android:title="@string/sync_is_disabled_by_administrator"/>-->
-+        <!--<org.chromium.chrome.browser.settings.ChromeSwitchPreference-->
++        <!--<org.chromium.components.browser_ui.settings.ChromeSwitchPreference-->
 +            <!--android:key="sync_requested"-->
 +            <!--android:title="@string/sync_switch_title"-->
 +            <!--android:persistent="false"/>-->
  
--        <org.chromium.chrome.browser.settings.ChromeBasePreference
+-        <org.chromium.components.browser_ui.settings.ChromeBasePreference
 -            android:key="manage_sync"
 -            android:title="@string/manage_sync_title"
--            android:fragment="org.chromium.chrome.browser.settings.sync.ManageSyncSettings"/>
+-            android:fragment="org.chromium.chrome.browser.sync.settings.ManageSyncSettings"/>
 -    </PreferenceCategory>
-+        <!--<org.chromium.chrome.browser.settings.ChromeBasePreference-->
++        <!--<org.chromium.components.browser_ui.settings.ChromeBasePreference-->
 +            <!--android:key="manage_sync"-->
 +            <!--android:title="@string/manage_sync_title"-->
-+            <!--android:fragment="org.chromium.chrome.browser.settings.sync.ManageSyncSettings"/>-->
++            <!--android:fragment="org.chromium.chrome.browser.sync.settings.ManageSyncSettings"/>-->
 +    <!--</PreferenceCategory>-->
  
      <PreferenceCategory
          android:key="services_category"
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-index 7eab3f1bc4d1..4c601d9c2647 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-@@ -123,14 +123,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index 8657d6a07e6d..5d7b1c9ff069 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -125,14 +125,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
      private boolean mIsFromSigninScreen;
  
@@ -107,7 +107,7 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
  
      private ChromeSwitchPreference mSearchSuggestions;
      private ChromeSwitchPreference mNavigationError;
-@@ -175,24 +175,24 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -177,24 +177,24 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          SettingsUtils.addPreferencesFromResource(this, R.xml.sync_and_services_preferences);
  
@@ -150,7 +150,7 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
  
          mSearchSuggestions = (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
          mSearchSuggestions.setOnPreferenceChangeListener(this);
-@@ -256,7 +256,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -258,7 +258,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
              // If the setup flow was previously interrupted, and now the user dismissed the page
              // without turning sync on, then mark first setup as complete (so that we won't show the
              // error again), but turn sync off.
@@ -159,16 +159,16 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
              SyncSettingsUtils.enableSync(false);
              mProfileSyncService.setFirstSetupComplete(
                      SyncFirstSetupCompleteSource.ADVANCED_FLOW_INTERRUPTED_LEAVE_SYNC_OFF);
-@@ -306,7 +306,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -308,7 +308,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public void onStart() {
          super.onStart();
          mProfileSyncService.addSyncStateChangedListener(this);
 -        mSigninPreference.registerForUpdates();
 +        //mSigninPreference.registerForUpdates();
  
-         // TODO(crbug.com/1041815): Migrate away from ChromeSigninController and use IdentityManager
-         // instead.
-@@ -331,7 +331,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         if (!mIsFromSigninScreen
+                 || IdentityServicesProvider.get().getIdentityManager().hasPrimaryAccount()) {
+@@ -332,7 +332,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public void onStop() {
          super.onStop();
  
@@ -177,7 +177,7 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
          mProfileSyncService.removeSyncStateChangedListener(this);
      }
  
-@@ -534,7 +534,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -535,7 +535,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      }
  
      private void updatePreferences() {
@@ -186,7 +186,7 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
          mNavigationError.setChecked(
-@@ -559,51 +559,51 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -560,49 +560,49 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          }
      }
  
@@ -196,9 +196,7 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
 -            closeDialogIfOpen(FRAGMENT_ENTER_PASSPHRASE);
 -        }
 -
--        // TODO(crbug.com/1041815): Migrate away from ChromeSigninController and use IdentityManager
--        // instead.
--        if (!ChromeSigninController.get().isSignedIn()) {
+-        if (!IdentityServicesProvider.get().getIdentityManager().hasPrimaryAccount()) {
 -            getPreferenceScreen().removePreference(mManageYourGoogleAccount);
 -            getPreferenceScreen().removePreference(mSyncCategory);
 -            return;
@@ -235,9 +233,7 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
 +            //closeDialogIfOpen(FRAGMENT_ENTER_PASSPHRASE);
 +        //}
 +
-+        //// TODO(crbug.com/1041815): Migrate away from ChromeSigninController and use IdentityManager
-+        //// instead.
-+        //if (!ChromeSigninController.get().isSignedIn()) {
++        //if (!IdentityServicesProvider.get().getIdentityManager().hasPrimaryAccount()) {
 +            //getPreferenceScreen().removePreference(mManageYourGoogleAccount);
 +            //getPreferenceScreen().removePreference(mSyncCategory);
 +            //return;
@@ -282,10 +278,10 @@ index 7eab3f1bc4d1..4c601d9c2647 100644
      /**
       * If password leak detection is off and cannot be toggled while safe browsing is disabled, so
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index d514cc3b2505..9e4a865eff3d 100644
+index 8cc7a3ca32ac..f601966b6f16 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -307,15 +307,15 @@ CHAR-LIMIT guidelines:
+@@ -296,15 +296,15 @@ CHAR-LIMIT guidelines:
        <message name="IDS_SIGN_OUT_AND_TURN_OFF_SYNC" desc="The text for a preferences row that for signs out the user and turns off sync.">
          Sign out and turn off sync
        </message>
@@ -311,10 +307,10 @@ index d514cc3b2505..9e4a865eff3d 100644
          Manage sync
        </message>
 diff --git a/components/browser_ui/strings/android/browser_ui_strings.grd b/components/browser_ui/strings/android/browser_ui_strings.grd
-index f7c5f828a0ce..6a09880918c8 100644
+index 06a3e67a0470..3f476961b7f3 100644
 --- a/components/browser_ui/strings/android/browser_ui_strings.grd
 +++ b/components/browser_ui/strings/android/browser_ui_strings.grd
-@@ -281,9 +281,9 @@
+@@ -282,9 +282,9 @@
        <message name="IDS_SHOW" desc="Label for a show button. Used in multiple contexts. [CHAR-LIMIT=20]">
          Show
        </message>
@@ -328,5 +324,5 @@ index f7c5f828a0ce..6a09880918c8 100644
          Move up
        </message>
 -- 
-2.26.0
+2.26.2
 

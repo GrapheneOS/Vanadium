@@ -1,17 +1,17 @@
-From 153224c658de3477746c9a609f0dcdd2b3099b69 Mon Sep 17 00:00:00 2001
+From e310218f5077d53304d339c06057985eac71f08c Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:49:13 -0400
-Subject: [PATCH 49/56] remove usage and crash reports preference
+Subject: [PATCH 49/54] remove usage and crash reports preference
 
 ---
- .../browser/settings/sync/SyncAndServicesSettings.java | 10 ++++++----
+ .../browser/sync/settings/SyncAndServicesSettings.java | 10 ++++++----
  1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-index 80d2a6be61b4..906828b2bae2 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-@@ -227,8 +227,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index 5204a3d64dc8..e5037f2a9df7 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -229,8 +229,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          mUsageAndCrashReporting =
                  (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
@@ -24,7 +24,7 @@ index 80d2a6be61b4..906828b2bae2 100644
  
          mUrlKeyedAnonymizedData =
                  (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
-@@ -550,8 +552,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -551,8 +553,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          updateLeakDetectionAndSafeBrowsingReportingPreferences();
  
@@ -36,5 +36,5 @@ index 80d2a6be61b4..906828b2bae2 100644
                  UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled());
  
 -- 
-2.26.0
+2.26.2
 

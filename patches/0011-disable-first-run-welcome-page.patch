@@ -1,34 +1,27 @@
-From 07ee7f5854576bc395ff6462c19273b4430ab0de Mon Sep 17 00:00:00 2001
+From 9d434825a1c7137f9c78a7ac821379f3a3559fc1 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 24 Nov 2016 08:19:03 -0500
-Subject: [PATCH 11/56] disable first run welcome page
+Subject: [PATCH 11/54] disable first run welcome page
 
 ---
  .../chromium/chrome/browser/firstrun/FirstRunActivity.java    | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-index 7d3e6d41afa0..e33a93c4f17a 100644
+index ffa7a1e6babe..eb44bacfe080 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -85,7 +85,7 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
- 
-     private static FirstRunActivityObserver sObserver;
- 
--    private boolean mShowWelcomePage = true;
-+    private boolean mShowWelcomePage;
- 
-     private String mResultSignInAccountName;
-     private boolean mResultIsDefaultAccount;
-@@ -207,7 +207,7 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
-                 }
- 
-                 mFreProperties = freProperties;
--                mShowWelcomePage = mFreProperties.getBoolean(SHOW_WELCOME_PAGE);
-+                //mShowWelcomePage = mFreProperties.getBoolean(SHOW_WELCOME_PAGE);
-                 if (TextUtils.isEmpty(mResultSignInAccountName)) {
-                     mResultSignInAccountName = mFreProperties.getString(
-                             SigninFirstRunFragment.FORCE_SIGNIN_ACCOUNT_TO);
+@@ -113,8 +113,8 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
+      * Defines a sequence of pages to be shown (depending on parameters etc).
+      */
+     private void createPageSequence() {
+-        mPages.add(new ToSAndUMAFirstRunFragment.Page());
+-        mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
++        //mPages.add(new ToSAndUMAFirstRunFragment.Page());
++        //mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
+         // Other pages will be created by createPostNativePageSequence() after
+         // native has been initialized.
+     }
 -- 
-2.26.0
+2.26.2
 

@@ -1,17 +1,17 @@
-From f15aabdab63d3e4c463233b2522735c00574a674 Mon Sep 17 00:00:00 2001
+From bc40c2fa2de8f76bbfb379df70af88511a578116 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:48:41 -0400
-Subject: [PATCH 48/56] remove safe browsing reporting preference
+Subject: [PATCH 48/54] remove safe browsing reporting preference
 
 ---
- .../settings/sync/SyncAndServicesSettings.java       | 12 +++++++-----
+ .../sync/settings/SyncAndServicesSettings.java       | 12 +++++++-----
  1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-index 4d74473a6f15..80d2a6be61b4 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-@@ -220,8 +220,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index 1ea746ec45c0..5204a3d64dc8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -222,8 +222,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          mSafeBrowsingReporting =
                  (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
@@ -24,7 +24,7 @@ index 4d74473a6f15..80d2a6be61b4 100644
  
          mUsageAndCrashReporting =
                  (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
-@@ -616,9 +618,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -615,9 +617,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
       */
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
          boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
@@ -38,5 +38,5 @@ index 4d74473a6f15..80d2a6be61b4 100644
          if (mPasswordLeakDetection == null) {
              return;
 -- 
-2.26.0
+2.26.2
 

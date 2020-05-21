@@ -1,17 +1,17 @@
-From 070dadeb887807e6aa5f8907b2bba8646f666f49 Mon Sep 17 00:00:00 2001
+From e600938e5a89106d2d69e5a19a5988c75a8932a2 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 8 Apr 2020 20:48:17 -0400
-Subject: [PATCH 04/56] enable -ftrivial-auto-var-init=zero
+Subject: [PATCH 04/54] enable -ftrivial-auto-var-init=zero
 
 ---
  build/config/compiler/BUILD.gn | 4 ++++
  1 file changed, 4 insertions(+)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index 16b5d6bf5bd1..98702fe39e8f 100644
+index fef68b653486..f76e04c56fdc 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -296,6 +296,10 @@ config("compiler") {
+@@ -297,6 +297,10 @@ config("compiler") {
        cflags += [ "-fwrapv" ]
      }
  
@@ -20,8 +20,8 @@ index 16b5d6bf5bd1..98702fe39e8f 100644
 +    }
 +
      # Linker warnings.
-     if (fatal_linker_warnings && !(is_chromeos && current_cpu == "arm") &&
-         !is_mac && !is_ios && current_os != "aix") {
+     if (fatal_linker_warnings && !is_mac && !is_ios && current_os != "aix") {
+       ldflags += [ "-Wl,--fatal-warnings" ]
 -- 
-2.26.0
+2.26.2
 

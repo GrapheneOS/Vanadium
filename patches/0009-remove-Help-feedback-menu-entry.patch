@@ -1,7 +1,7 @@
-From 664e48d43fb75ff16399e14f34b77bb60e3a6cba Mon Sep 17 00:00:00 2001
+From 23989e3ccadd923ccf797f9c35427739e21586d2 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 6 Jul 2019 05:56:45 -0400
-Subject: [PATCH 09/56] remove Help & feedback menu entry
+Subject: [PATCH 09/54] remove Help & feedback menu entry
 
 ---
  .../java/src/org/chromium/chrome/browser/vr/VrShell.java | 2 +-
@@ -13,10 +13,10 @@ Subject: [PATCH 09/56] remove Help & feedback menu entry
  6 files changed, 2 insertions(+), 18 deletions(-)
 
 diff --git a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-index a939b6a80598..207ec2d5d4be 100644
+index af6a2b2ed3b6..a042ee8b677b 100644
 --- a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
 +++ b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-@@ -1124,7 +1124,7 @@ public class VrShell extends GvrLayout
+@@ -1125,7 +1125,7 @@ public class VrShell extends GvrLayout
  
      @CalledByNative
      public void openFeedback() {
@@ -26,7 +26,7 @@ index a939b6a80598..207ec2d5d4be 100644
  
      private void updateHistoryButtonsVisibility() {
 diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
-index f2c7c73791dd..0d75fc5439d9 100644
+index 76f4da80995a..a422f1e1f808 100644
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
 @@ -83,8 +83,6 @@
@@ -39,18 +39,18 @@ index f2c7c73791dd..0d75fc5439d9 100644
              android:title="@string/enter_vr" />
      </group>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-index 82013027db18..135fc79afd00 100644
+index 5c4a38621d16..ea889ac06788 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -2013,15 +2013,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+@@ -1929,15 +1929,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
  
          final Tab currentTab = getActivityTab();
  
 -        if (id == R.id.help_id) {
--            String url = currentTab != null ? currentTab.getUrl() : "";
+-            String url = currentTab != null ? currentTab.getUrlString() : "";
 -            Profile profile = mTabModelSelector.isIncognitoSelected()
--                    ? Profile.getLastUsedProfile().getOffTheRecordProfile()
--                    : Profile.getLastUsedProfile().getOriginalProfile();
+-                    ? Profile.getLastUsedRegularProfile().getOffTheRecordProfile()
+-                    : Profile.getLastUsedRegularProfile();
 -            startHelpAndFeedback(url, "MobileMenuFeedback", profile);
 -            return true;
 -        }
@@ -73,10 +73,10 @@ index a8e7d3df840d..036b474be024 100644
          }
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-index 51b2ca36bfc6..d6b3febbe218 100644
+index ec7de0afd185..a60b269e706e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-@@ -229,7 +229,7 @@ public abstract class BaseCustomTabActivity<C extends BaseCustomTabActivityCompo
+@@ -270,7 +270,7 @@ public abstract class BaseCustomTabActivity<C extends BaseCustomTabActivityCompo
      @Override
      public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
          // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
@@ -86,7 +86,7 @@ index 51b2ca36bfc6..d6b3febbe218 100644
                  || id == R.id.new_tab_menu_id || id == R.id.open_history_menu_id) {
              return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
-index 77387b08a5d9..46cd9af4429a 100644
+index e7f347a113bd..0c3b42157338 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
 @@ -36,7 +36,6 @@ class MenuDirectActionHandler implements DirectActionHandler {
@@ -106,5 +106,5 @@ index 77387b08a5d9..46cd9af4429a 100644
          availableItemIds.add(R.id.preferences_id);
  
 -- 
-2.26.0
+2.26.2
 

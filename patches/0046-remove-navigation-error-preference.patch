@@ -1,17 +1,17 @@
-From 1cf773903d092fe9d5f0a1a5a9a39d9f4905bf17 Mon Sep 17 00:00:00 2001
+From 9d121eda021cb647a7b10d213de6959f0e72c977 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
-Subject: [PATCH 46/56] remove navigation error preference
+Subject: [PATCH 46/54] remove navigation error preference
 
 ---
- .../settings/sync/SyncAndServicesSettings.java    | 15 +++++++++------
+ .../sync/settings/SyncAndServicesSettings.java    | 15 +++++++++------
  1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-index 4c601d9c2647..43bf53fdb18f 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
-@@ -198,16 +198,19 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index 5d7b1c9ff069..64a0d6c9e52e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -200,16 +200,19 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -35,7 +35,7 @@ index 4c601d9c2647..43bf53fdb18f 100644
          mPasswordLeakDetection =
                  (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
          mPasswordLeakDetection.setOnPreferenceChangeListener(this);
-@@ -537,8 +540,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -538,8 +541,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
@@ -47,5 +47,5 @@ index 4c601d9c2647..43bf53fdb18f 100644
  
          updateLeakDetectionAndSafeBrowsingReportingPreferences();
 -- 
-2.26.0
+2.26.2
 

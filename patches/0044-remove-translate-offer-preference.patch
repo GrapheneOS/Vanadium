@@ -1,37 +1,37 @@
-From 323c17d049b123a4533b0c8bd5926c2a2ff2596c Mon Sep 17 00:00:00 2001
+From 045511d85cb19b37c429e366a4374919282bb585 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:11:17 -0400
-Subject: [PATCH 44/56] remove translate offer preference
+Subject: [PATCH 44/54] remove translate offer preference
 
 ---
  .../java/res/xml/languages_preferences.xml    |  8 ++--
- .../settings/languages/LanguageSettings.java  | 40 +++++++++----------
+ .../language/settings/LanguageSettings.java   | 42 +++++++++----------
  .../strings/android_chrome_strings.grd        |  6 +--
- 3 files changed, 27 insertions(+), 27 deletions(-)
+ 3 files changed, 28 insertions(+), 28 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/languages_preferences.xml b/chrome/android/java/res/xml/languages_preferences.xml
-index 5e7dfc61f959..3f8a4d1ac88f 100644
+index e24997252ae3..692c5685e158 100644
 --- a/chrome/android/java/res/xml/languages_preferences.xml
 +++ b/chrome/android/java/res/xml/languages_preferences.xml
 @@ -11,9 +11,9 @@
          android:layout="@layout/languages_preference"
          android:widgetLayout="@layout/accept_languages_list" />
  
--    <org.chromium.chrome.browser.settings.ChromeSwitchPreference
+-    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
 -        android:key="translate_switch"
 -        android:summaryOn="@string/languages_offer_translate_switch"
 -        android:summaryOff="@string/languages_offer_translate_switch" />
-+    <!--<org.chromium.chrome.browser.settings.ChromeSwitchPreference-->
++    <!--<org.chromium.components.browser_ui.settings.ChromeSwitchPreference-->
 +        <!--android:key="translate_switch"-->
 +        <!--android:summaryOn="@string/languages_offer_translate_switch"-->
 +        <!--android:summaryOff="@string/languages_offer_translate_switch" />-->
  
  </PreferenceScreen>
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java
-index 2152e656944a..a1a021640a6c 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/languages/LanguageSettings.java
-@@ -38,27 +38,27 @@ public class LanguageSettings
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
+index ef7577585a0f..527c3ac90e6f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
+@@ -40,28 +40,28 @@ public class LanguageSettings
                  (LanguageListPreference) findPreference(PREFERRED_LANGUAGES_KEY);
          mLanguageListPref.registerActivityLauncher(this);
  
@@ -51,6 +51,7 @@ index 2152e656944a..a1a021640a6c 100644
 -            public boolean onPreferenceChange(Preference preference, Object newValue) {
 -                boolean enabled = (boolean) newValue;
 -                PrefServiceBridge.getInstance().setBoolean(Pref.OFFER_TRANSLATE_ENABLED, enabled);
+-                mLanguageListPref.notifyPrefChanged();
 -                LanguagesManager.recordAction(enabled ? LanguagesManager.LanguageSettingsActionType
 -                                                                .ENABLE_TRANSLATE_GLOBALLY
 -                                                      : LanguagesManager.LanguageSettingsActionType
@@ -58,7 +59,7 @@ index 2152e656944a..a1a021640a6c 100644
 -                return true;
 -            }
 -        });
--        translateSwitch.setManagedPreferenceDelegate(preference
+-        translateSwitch.setManagedPreferenceDelegate((ChromeManagedPreferenceDelegate) preference
 -                -> PrefServiceBridge.getInstance().isManagedPreference(
 -                        Pref.OFFER_TRANSLATE_ENABLED));
 +        //translateSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -66,6 +67,7 @@ index 2152e656944a..a1a021640a6c 100644
 +            //public boolean onPreferenceChange(Preference preference, Object newValue) {
 +                //boolean enabled = (boolean) newValue;
 +                //PrefServiceBridge.getInstance().setBoolean(Pref.OFFER_TRANSLATE_ENABLED, enabled);
++                //mLanguageListPref.notifyPrefChanged();
 +                //LanguagesManager.recordAction(enabled ? LanguagesManager.LanguageSettingsActionType
 +                                                                //.ENABLE_TRANSLATE_GLOBALLY
 +                                                      //: LanguagesManager.LanguageSettingsActionType
@@ -73,17 +75,17 @@ index 2152e656944a..a1a021640a6c 100644
 +                //return true;
 +            //}
 +        //});
-+        //translateSwitch.setManagedPreferenceDelegate(preference
++        //translateSwitch.setManagedPreferenceDelegate((ChromeManagedPreferenceDelegate) preference
 +                //-> PrefServiceBridge.getInstance().isManagedPreference(
 +                        //Pref.OFFER_TRANSLATE_ENABLED));
          LanguagesManager.recordImpression(LanguagesManager.LanguageSettingsPageType.PAGE_MAIN);
      }
  
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 445ebf4947b3..d514cc3b2505 100644
+index 4377d157ce7d..8cc7a3ca32ac 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1148,9 +1148,9 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1164,9 +1164,9 @@ Your Google account may have other forms of browsing history like searches and a
        <message name="IDS_LANGUAGES_LIST_DESCRIPTION" desc="Description on the Languages settings screen. Appears above a list of one or more languages that the user selects, to tell Vanadium which languages they prefer to use to read website content.">
          Websites will show text in your preferred language, when possible.
        </message>
@@ -97,5 +99,5 @@ index 445ebf4947b3..d514cc3b2505 100644
          Offer to translate
        </message>
 -- 
-2.26.0
+2.26.2
 

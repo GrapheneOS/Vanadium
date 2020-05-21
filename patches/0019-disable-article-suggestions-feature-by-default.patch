@@ -1,13 +1,28 @@
-From e6581a111f13fb17f02f7982751fa86468081702 Mon Sep 17 00:00:00 2001
+From 8e76c0d695acb426a4f27c12b6ce44907d886ed0 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 8 Mar 2018 22:43:12 -0500
-Subject: [PATCH 19/56] disable article suggestions feature by default
+Subject: [PATCH 19/54] disable article suggestions feature by default
 
 ---
- components/ntp_snippets/features.cc                           | 2 +-
- .../remote/remote_suggestions_status_service_impl.cc          | 4 ++--
+ components/feed/core/shared_prefs/pref_names.cc | 4 ++--
+ components/ntp_snippets/features.cc             | 2 +-
  2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/components/feed/core/shared_prefs/pref_names.cc b/components/feed/core/shared_prefs/pref_names.cc
+index da75d63d4c4b..fdab63635f79 100644
+--- a/components/feed/core/shared_prefs/pref_names.cc
++++ b/components/feed/core/shared_prefs/pref_names.cc
+@@ -16,8 +16,8 @@ const char kEnableSnippets[] = "ntp_snippets.enable";
+ const char kArticlesListVisible[] = "ntp_snippets.list_visible";
+ 
+ void RegisterFeedSharedProfilePrefs(PrefRegistrySimple* registry) {
+-  registry->RegisterBooleanPref(kEnableSnippets, true);
+-  registry->RegisterBooleanPref(kArticlesListVisible, true);
++  registry->RegisterBooleanPref(kEnableSnippets, false);
++  registry->RegisterBooleanPref(kArticlesListVisible, false);
+ }
+ 
+ }  // namespace prefs
 diff --git a/components/ntp_snippets/features.cc b/components/ntp_snippets/features.cc
 index 226d09dcb96a..50234b43c032 100644
 --- a/components/ntp_snippets/features.cc
@@ -21,21 +36,6 @@ index 226d09dcb96a..50234b43c032 100644
  
  const base::Feature kRemoteSuggestionsEmulateM58FetchingSchedule{
      "RemoteSuggestionsEmulateM58FetchingSchedule",
-diff --git a/components/ntp_snippets/remote/remote_suggestions_status_service_impl.cc b/components/ntp_snippets/remote/remote_suggestions_status_service_impl.cc
-index 6d2c34d2a74c..f002d0c0336d 100644
---- a/components/ntp_snippets/remote/remote_suggestions_status_service_impl.cc
-+++ b/components/ntp_snippets/remote/remote_suggestions_status_service_impl.cc
-@@ -36,8 +36,8 @@ RemoteSuggestionsStatusServiceImpl::~RemoteSuggestionsStatusServiceImpl() =
- // static
- void RemoteSuggestionsStatusServiceImpl::RegisterProfilePrefs(
-     PrefRegistrySimple* registry) {
--  registry->RegisterBooleanPref(prefs::kEnableSnippets, true);
--  registry->RegisterBooleanPref(prefs::kArticlesListVisible, true);
-+  registry->RegisterBooleanPref(prefs::kEnableSnippets, false);
-+  registry->RegisterBooleanPref(prefs::kArticlesListVisible, false);
- }
- 
- void RemoteSuggestionsStatusServiceImpl::Init(
 -- 
-2.26.0
+2.26.2
 
