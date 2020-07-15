@@ -1,4 +1,4 @@
-From ea67108a2e37cf195beb4aa075462c95449d8c90 Mon Sep 17 00:00:00 2001
+From ee773a378bea9b9ed3e1a57b665db6e9383b59fa Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 28 Jun 2019 17:48:49 -0400
 Subject: [PATCH 43/57] show download prompt again by default
@@ -7,17 +7,17 @@ Subject: [PATCH 43/57] show download prompt again by default
  .../chrome/browser/download/DownloadLocationCustomView.java   | 4 ----
  1 file changed, 4 deletions(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
-index 7d73ea94c34a..c91b4aeb8c08 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
-@@ -55,10 +55,6 @@ public class DownloadLocationCustomView
+diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
+index f9605b8e95f2..a7c850e5d903 100644
+--- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
++++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
+@@ -54,10 +54,6 @@ public class DownloadLocationCustomView
      void initialize(@DownloadLocationDialogType int dialogType, File suggestedPath) {
          mDialogType = dialogType;
  
 -        // Automatically check "don't show again" the first time the user is seeing the dialog.
--        boolean isInitial =
--                DownloadUtils.getPromptForDownloadAndroid() == DownloadPromptStatus.SHOW_INITIAL;
+-        boolean isInitial = DownloadLocationDialogBridge.getPromptForDownloadAndroid()
+-                == DownloadPromptStatus.SHOW_INITIAL;
 -        mDontShowAgain.setChecked(isInitial);
          mDontShowAgain.setOnCheckedChangeListener(this);
  

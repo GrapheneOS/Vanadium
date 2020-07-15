@@ -1,4 +1,4 @@
-From 1b2fd0a58d28f5d2d1c7fa52a1b2bf8a08bf9cef Mon Sep 17 00:00:00 2001
+From 42125c6292694accbe7343516755dbfc203aaf27 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
 Subject: [PATCH 48/57] remove navigation error preference
@@ -8,10 +8,10 @@ Subject: [PATCH 48/57] remove navigation error preference
  1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 5d7b1c9ff069..64a0d6c9e52e 100644
+index 2a27d501e155..ece90311838c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -200,16 +200,19 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -201,16 +201,19 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -35,7 +35,7 @@ index 5d7b1c9ff069..64a0d6c9e52e 100644
          mPasswordLeakDetection =
                  (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
          mPasswordLeakDetection.setOnPreferenceChangeListener(this);
-@@ -538,8 +541,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -542,8 +545,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));

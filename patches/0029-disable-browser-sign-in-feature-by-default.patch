@@ -1,4 +1,4 @@
-From 938a309fd5a8e11f2e9ddd29abf9b4d8ce9c9760 Mon Sep 17 00:00:00 2001
+From 3dc4a4491221bdd9dec0c20049769e2d4ddff76c Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 12 Jul 2019 04:23:18 -0400
 Subject: [PATCH 29/57] disable browser sign in feature by default
@@ -9,12 +9,12 @@ Subject: [PATCH 29/57] disable browser sign in feature by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
-index 50ad9257b9e5..f037805b058c 100644
+index bee334fbef58..d3217eb87e3f 100644
 --- a/chrome/browser/signin/account_consistency_mode_manager.cc
 +++ b/chrome/browser/signin/account_consistency_mode_manager.cc
-@@ -101,7 +101,7 @@ void AccountConsistencyModeManager::RegisterProfilePrefs(
-   registry->RegisterBooleanPref(prefs::kAccountConsistencyMirrorRequired,
-                                 false);
+@@ -97,7 +97,7 @@ void AccountConsistencyModeManager::RegisterProfilePrefs(
+ #if BUILDFLAG(ENABLE_DICE_SUPPORT)
+   registry->RegisterBooleanPref(kDiceMigrationCompletePref, false);
  #endif
 -  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, true);
 +  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, false);

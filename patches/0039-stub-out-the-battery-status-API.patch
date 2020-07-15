@@ -1,18 +1,18 @@
-From f552fd03351a948d601ebcdda24374577dd2224e Mon Sep 17 00:00:00 2001
+From 74fbe49252a1774a484d4af0f30590668351ff6b Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 17 Jun 2019 11:29:21 -0400
 Subject: [PATCH 39/57] stub out the battery status API
 
 Pretend that the device is always plugged in and fully charged.
 ---
- .../modules/battery/battery_manager.cc        | 25 +++----------------
- 1 file changed, 4 insertions(+), 21 deletions(-)
+ .../modules/battery/battery_manager.cc        | 26 +++----------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
 
 diff --git a/third_party/blink/renderer/modules/battery/battery_manager.cc b/third_party/blink/renderer/modules/battery/battery_manager.cc
-index cd501889fcc5..5ebb3563dba1 100644
+index 4c85ef6988f1..14d804597d32 100644
 --- a/third_party/blink/renderer/modules/battery/battery_manager.cc
 +++ b/third_party/blink/renderer/modules/battery/battery_manager.cc
-@@ -45,45 +45,28 @@ ScriptPromise BatteryManager::StartRequest(ScriptState* script_state) {
+@@ -45,46 +45,28 @@ ScriptPromise BatteryManager::StartRequest(ScriptState* script_state) {
  }
  
  bool BatteryManager::charging() {
@@ -46,10 +46,11 @@ index cd501889fcc5..5ebb3563dba1 100644
      return;
    }
 -
--  Document* document = Document::From(GetExecutionContext());
--  DCHECK(document);
--  if (document->IsContextPaused() || document->IsContextDestroyed())
+-  DCHECK(GetExecutionContext());
+-  if (GetExecutionContext()->IsContextPaused() ||
+-      GetExecutionContext()->IsContextDestroyed()) {
 -    return;
+-  }
 -
 -  if (battery_status_.Charging() != old_status.Charging())
 -    DispatchEvent(*Event::Create(event_type_names::kChargingchange));

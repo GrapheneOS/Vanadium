@@ -1,4 +1,4 @@
-From db353b24c76a1da3b6205fdc0d630a1178e2f593 Mon Sep 17 00:00:00 2001
+From de1e45b38643ed6766bd92647f8563bba4037d20 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 3 Aug 2019 00:34:43 -0400
 Subject: [PATCH 53/57] remove redundant services preference category
@@ -34,10 +34,10 @@ index c4a82cd49635..c092d646547d 100644
 +    <!--</PreferenceCategory>-->
  </PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index efd48436302a..37ef1d776838 100644
+index 61d9db935464..78fb3528eb20 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -99,7 +99,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -100,7 +100,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public static final String PREF_SYNC_REQUESTED = "sync_requested";
      private static final String PREF_MANAGE_SYNC = "manage_sync";
  
@@ -46,7 +46,7 @@ index efd48436302a..37ef1d776838 100644
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
      private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -200,13 +200,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -201,13 +201,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -63,7 +63,7 @@ index efd48436302a..37ef1d776838 100644
          mNavigationError = null;
  
          mSafeBrowsing = (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING);
-@@ -217,28 +217,28 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -218,28 +218,28 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
                  (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
          //mPasswordLeakDetection.setOnPreferenceChangeListener(this);
          //mPasswordLeakDetection.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
@@ -96,7 +96,7 @@ index efd48436302a..37ef1d776838 100644
          mUrlKeyedAnonymizedData = null;
  
          mAutofillAssistant = (ChromeSwitchPreference) findPreference(PREF_AUTOFILL_ASSISTANT);
-@@ -246,13 +246,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -247,13 +247,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
              mAutofillAssistant.setOnPreferenceChangeListener(this);
              mAutofillAssistant.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
          } else {
@@ -113,10 +113,10 @@ index efd48436302a..37ef1d776838 100644
          }
  
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index f601966b6f16..1a9b7511dc76 100644
+index a616bf43add6..478b21e18a73 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -308,9 +308,9 @@ CHAR-LIMIT guidelines:
+@@ -310,9 +310,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
          Manage sync
        </message>
@@ -126,8 +126,8 @@ index f601966b6f16..1a9b7511dc76 100644
 +      <!--<message name="IDS_SERVICES_CATEGORY_TITLE" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account.">-->
 +        <!--Other Google services-->
 +      <!--</message>-->
-       <message name="IDS_AUTOCOMPLETE_SEARCHES_AND_URLS_TITLE" desc="Title for a checkbox in Settings that controls URL and search autocompletion and informs the user about the data shared by this feature.">
-         Autocomplete searches and URLs
+       <message name="IDS_PREFS_GOOGLE_SERVICES" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account. [CHAR-LIMIT=40]">
+         Google services
        </message>
 -- 
 2.27.0

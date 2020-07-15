@@ -1,4 +1,4 @@
-From e7a39ad806fdfc2b6a11cc76b7cfb45f4625ee34 Mon Sep 17 00:00:00 2001
+From bc474d2697766e25b7d47a12ff36324d3f4821e6 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:49:13 -0400
 Subject: [PATCH 51/57] remove usage and crash reports preference
@@ -8,10 +8,10 @@ Subject: [PATCH 51/57] remove usage and crash reports preference
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 5204a3d64dc8..e5037f2a9df7 100644
+index 5cc9a8af4194..a42fdf632046 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -229,8 +229,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -230,8 +230,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          mUsageAndCrashReporting =
                  (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
@@ -24,7 +24,7 @@ index 5204a3d64dc8..e5037f2a9df7 100644
  
          mUrlKeyedAnonymizedData =
                  (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
-@@ -551,8 +553,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -555,8 +557,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          updateLeakDetectionAndSafeBrowsingReportingPreferences();
  
@@ -33,8 +33,8 @@ index 5204a3d64dc8..e5037f2a9df7 100644
 +        //mUsageAndCrashReporting.setChecked(
 +                //mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
          mUrlKeyedAnonymizedData.setChecked(
-                 UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled());
- 
+                 UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled(
+                         Profile.getLastUsedRegularProfile()));
 -- 
 2.27.0
 
