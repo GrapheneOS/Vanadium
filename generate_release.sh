@@ -5,6 +5,7 @@ set -o errexit -o nounset -o pipefail
 KEYSTORE=$PWD/../vanadium.keystore
 APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/29.0.2/apksigner
 BUNDLETOOL=$PWD/build/android/gyp/bundletool.py
+AAPT2=$PWD/third_party/android_build_tools/aapt2/aapt2
 
 read -p "Enter keystore passphrase: " -s keystore_pass
 echo
@@ -15,7 +16,7 @@ rm -rf release
 mkdir release
 cd release
 
-$BUNDLETOOL build-apks --bundle ../TrichromeChrome6432.aab --output TrichromeChrome.apks --mode=universal --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium <<< $keystore_pass
+$BUNDLETOOL build-apks --aapt2 $AAPT2 --bundle ../TrichromeChrome6432.aab --output TrichromeChrome.apks --mode=universal --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium <<< $keystore_pass
 unzip TrichromeChrome.apks universal.apk
 mv universal.apk TrichromeChrome.apk
 
