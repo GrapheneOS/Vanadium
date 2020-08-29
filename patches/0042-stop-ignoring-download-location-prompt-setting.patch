@@ -1,17 +1,17 @@
-From 80c48991ecee5896d3cf5fa2ca688d4af23d97d8 Mon Sep 17 00:00:00 2001
+From b5927fba090ec7fc24d3326f57c10058c66305b6 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 28 Jun 2019 16:56:37 -0400
-Subject: [PATCH 42/59] stop ignoring download location prompt setting
+Subject: [PATCH 42/58] stop ignoring download location prompt setting
 
 ---
- .../download/DownloadLocationDialogBridge.java    | 15 ---------------
- 1 file changed, 15 deletions(-)
+ .../dialogs/DownloadLocationDialogCoordinator.java  | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-index 0af2e0846796..ea62c98e448c 100644
---- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-+++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationDialogBridge.java
-@@ -111,21 +111,6 @@ public class DownloadLocationDialogBridge implements ModalDialogProperties.Contr
+diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+index 2bb122e2467d..f1c7fae6e040 100644
+--- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
++++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+@@ -120,19 +120,6 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
       * @param dirs An list of available download directories.
       */
      private void onDirectoryOptionsRetrieved(ArrayList<DirectoryOption> dirs) {
@@ -22,10 +22,8 @@ index 0af2e0846796..ea62c98e448c 100644
 -            final DirectoryOption dir = dirs.get(0);
 -            if (dir.type == DirectoryOption.DownloadLocationDirectoryType.DEFAULT) {
 -                assert (!TextUtils.isEmpty(dir.location));
--                setDownloadAndSaveFileDefaultDirectory(dir.location);
--                DownloadLocationDialogBridgeJni.get().onComplete(
--                        mNativeDownloadLocationDialogBridge, DownloadLocationDialogBridge.this,
--                        mSuggestedPath);
+-                DownloadDialogBridge.setDownloadAndSaveFileDefaultDirectory(dir.location);
+-                mController.onDownloadLocationDialogComplete(mSuggestedPath);
 -            }
 -            return;
 -        }

@@ -1,22 +1,22 @@
-From 88994f4441c721bf4fb370601c1ec3c778267300 Mon Sep 17 00:00:00 2001
+From bc6357cc92750f54ca03f46cece70ee863a026d0 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 28 Jun 2019 17:48:49 -0400
-Subject: [PATCH 43/59] show download prompt again by default
+Subject: [PATCH 43/58] show download prompt again by default
 
 ---
- .../chrome/browser/download/DownloadLocationCustomView.java   | 4 ----
+ .../browser/download/dialogs/DownloadLocationCustomView.java  | 4 ----
  1 file changed, 4 deletions(-)
 
-diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
-index f9605b8e95f2..a7c850e5d903 100644
---- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
-+++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/DownloadLocationCustomView.java
-@@ -54,10 +54,6 @@ public class DownloadLocationCustomView
-     void initialize(@DownloadLocationDialogType int dialogType, File suggestedPath) {
+diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java
+index f633d3739285..07853777d5fb 100644
+--- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java
++++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java
+@@ -63,10 +63,6 @@ public class DownloadLocationCustomView
+             CharSequence title) {
          mDialogType = dialogType;
  
 -        // Automatically check "don't show again" the first time the user is seeing the dialog.
--        boolean isInitial = DownloadLocationDialogBridge.getPromptForDownloadAndroid()
+-        boolean isInitial = DownloadDialogBridge.getPromptForDownloadAndroid()
 -                == DownloadPromptStatus.SHOW_INITIAL;
 -        mDontShowAgain.setChecked(isInitial);
          mDontShowAgain.setOnCheckedChangeListener(this);

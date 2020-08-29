@@ -1,14 +1,14 @@
-From eda5687bcba4eeab5d137fdc1e80592ca2a0e33c Mon Sep 17 00:00:00 2001
+From 8356c722bc57698e0c7daead697dca6c3f3e062c Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:12:28 -0400
-Subject: [PATCH 47/59] remove sync preferences
+Subject: [PATCH 47/58] remove sync preferences
 
 ---
  .../res/xml/sync_and_services_preferences.xml |  56 +++----
- .../settings/SyncAndServicesSettings.java     | 140 +++++++++---------
+ .../settings/SyncAndServicesSettings.java     | 144 +++++++++---------
  .../strings/android_chrome_strings.grd        |  18 +--
  .../strings/android/browser_ui_strings.grd    |   6 +-
- 4 files changed, 110 insertions(+), 110 deletions(-)
+ 4 files changed, 112 insertions(+), 112 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 index 86e073e963f7..c4a82cd49635 100644
@@ -82,7 +82,7 @@ index 86e073e963f7..c4a82cd49635 100644
      <PreferenceCategory
          android:key="services_category"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 389cf6c69aad..2a27d501e155 100644
+index 84ccfac4a2c9..c4c27fca9d26 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 @@ -126,14 +126,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
@@ -167,8 +167,8 @@ index 389cf6c69aad..2a27d501e155 100644
 +        //mSigninPreference.registerForUpdates();
  
          if (!mIsFromSigninScreen
-                 || IdentityServicesProvider.get().getIdentityManager().hasPrimaryAccount()) {
-@@ -333,7 +333,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+                 || IdentityServicesProvider.get()
+@@ -335,7 +335,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public void onStop() {
          super.onStop();
  
@@ -177,7 +177,7 @@ index 389cf6c69aad..2a27d501e155 100644
          mProfileSyncService.removeSyncStateChangedListener(this);
      }
  
-@@ -539,7 +539,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -546,7 +546,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      }
  
      private void updatePreferences() {
@@ -186,7 +186,7 @@ index 389cf6c69aad..2a27d501e155 100644
  
          mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
          mNavigationError.setChecked(
-@@ -565,49 +565,49 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -572,51 +572,51 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          }
      }
  
@@ -196,7 +196,9 @@ index 389cf6c69aad..2a27d501e155 100644
 -            closeDialogIfOpen(FRAGMENT_ENTER_PASSPHRASE);
 -        }
 -
--        if (!IdentityServicesProvider.get().getIdentityManager().hasPrimaryAccount()) {
+-        if (!IdentityServicesProvider.get()
+-                        .getIdentityManager(Profile.getLastUsedRegularProfile())
+-                        .hasPrimaryAccount()) {
 -            getPreferenceScreen().removePreference(mManageYourGoogleAccount);
 -            getPreferenceScreen().removePreference(mSyncCategory);
 -            return;
@@ -233,7 +235,9 @@ index 389cf6c69aad..2a27d501e155 100644
 +            //closeDialogIfOpen(FRAGMENT_ENTER_PASSPHRASE);
 +        //}
 +
-+        //if (!IdentityServicesProvider.get().getIdentityManager().hasPrimaryAccount()) {
++        //if (!IdentityServicesProvider.get()
++                        //.getIdentityManager(Profile.getLastUsedRegularProfile())
++                        //.hasPrimaryAccount()) {
 +            //getPreferenceScreen().removePreference(mManageYourGoogleAccount);
 +            //getPreferenceScreen().removePreference(mSyncCategory);
 +            //return;
@@ -278,10 +282,10 @@ index 389cf6c69aad..2a27d501e155 100644
      /**
       * If password leak detection is off and cannot be toggled while safe browsing is disabled, so
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 2d9a525306ef..23882740e70f 100644
+index d7c19fa3cbb1..b511b201417a 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -297,15 +297,15 @@ CHAR-LIMIT guidelines:
+@@ -295,15 +295,15 @@ CHAR-LIMIT guidelines:
        <message name="IDS_SIGN_OUT_AND_TURN_OFF_SYNC" desc="The text for a preferences row that for signs out the user and turns off sync.">
          Sign out and turn off sync
        </message>
@@ -307,10 +311,10 @@ index 2d9a525306ef..23882740e70f 100644
          Manage sync
        </message>
 diff --git a/components/browser_ui/strings/android/browser_ui_strings.grd b/components/browser_ui/strings/android/browser_ui_strings.grd
-index 7f2795e90584..e7ed180b2e75 100644
+index 66257c44a716..b62a49a25320 100644
 --- a/components/browser_ui/strings/android/browser_ui_strings.grd
 +++ b/components/browser_ui/strings/android/browser_ui_strings.grd
-@@ -285,9 +285,9 @@
+@@ -291,9 +291,9 @@
        <message name="IDS_SHOW" desc="Label for a show button. Used in multiple contexts. [CHAR-LIMIT=20]">
          Show
        </message>
