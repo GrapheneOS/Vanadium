@@ -1,0 +1,34 @@
+Date: Sat, 3 Oct 2020 02:55:33 +0000
+Subject: [PATCH] Depreciate Storage permission in Vanadium
+
+---
+ chrome/android/java/AndroidManifest.xml | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index a9b1a61d10cf..30db0e19ea6a 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -48,7 +48,8 @@ by a child template that "extends" this file.
+     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+     <uses-permission android:name="android.permission.NFC"/>
+-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
++    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
++	  android:maxSdkVersion="29"/>
+     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+     <uses-permission android:name="android.permission.READ_SYNC_STATS"/>
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+@@ -58,7 +59,8 @@ by a child template that "extends" this file.
+     <uses-permission-sdk-23 android:name="android.permission.USE_FINGERPRINT"/>
+     <uses-permission android:name="android.permission.VIBRATE"/>
+     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
++	  android:maxSdkVersion="29"/>
+     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+     {% set enable_vr = enable_vr|default(0) %}
+     {% if enable_vr == "true" %}
+-- 
+2.25.1
+
