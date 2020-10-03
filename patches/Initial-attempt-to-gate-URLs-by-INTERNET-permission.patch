@@ -1,0 +1,23 @@
+Date: Sat, 3 Oct 2020 03:07:06 +0000
+Subject: [PATCH] Initial attempt to gate URLs being opened without INTERNET
+ permission
+
+---
+ chrome/android/java/AndroidManifest.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index 30db0e19ea6a..69b84b3a6f4b 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -200,6 +200,7 @@ by a child template that "extends" this file.
+             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize|uiMode|density">
+         </activity>
+         <activity-alias android:name="com.google.android.apps.chrome.IntentDispatcher"
++            android:permission="android.permission.INTERNET"
+             android:targetActivity="org.chromium.chrome.browser.document.ChromeLauncherActivity"
+             android:exported="true">
+             <intent-filter>
+-- 
+2.25.1
+
