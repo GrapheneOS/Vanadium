@@ -3,7 +3,7 @@
 set -o errexit -o nounset -o pipefail
 
 KEYSTORE=$PWD/../vanadium.keystore
-APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/29.0.2/apksigner
+APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/30.0.1/apksigner
 BUNDLETOOL=$PWD/build/android/gyp/bundletool.py
 AAPT2=$PWD/third_party/android_build_tools/aapt2/aapt2
 
