@@ -1,7 +1,7 @@
-From 66d3833f0b00ab700c9093e13b7c82d9b0503382 Mon Sep 17 00:00:00 2001
+From 9feb94b6bf2effb2d3bfabe00b06c9d05fbce7e2 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
-Subject: [PATCH 27/59] disable media router by default
+Subject: [PATCH 27/60] disable media router by default
 
 ---
  .../media/router/media_router_feature.cc      | 19 +++++++++----------
@@ -9,10 +9,10 @@ Subject: [PATCH 27/59] disable media router by default
  2 files changed, 10 insertions(+), 11 deletions(-)
 
 diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
-index 3ff8fee05123..f97825e32e4d 100644
+index e20c545079b9..ff703c873b51 100644
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -44,23 +44,22 @@ const PrefService::Preference* GetMediaRouterPref(
+@@ -56,7 +56,7 @@ const PrefService::Preference* GetMediaRouterPref(
      content::BrowserContext* context) {
    return user_prefs::UserPrefs::Get(context)->FindPreference(
        ::prefs::kEnableMediaRouter);
@@ -21,7 +21,9 @@ index 3ff8fee05123..f97825e32e4d 100644
  }  // namespace
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
  
- bool MediaRouterEnabled(content::BrowserContext* context) {
+@@ -67,17 +67,16 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
+ #endif  // !defined(OFFICIAL_BUILD) && !defined(OS_ANDROID)
+ 
  #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 -  const PrefService::Preference* pref = GetMediaRouterPref(context);
 -  // Only use the pref value if it set from a mandatory policy.
@@ -46,7 +48,7 @@ index 3ff8fee05123..f97825e32e4d 100644
    return false;
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index 2036106ea054..33273a2ba354 100644
+index c42210c37940..090ac4d45834 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
 @@ -413,7 +413,7 @@ void ProfileImpl::RegisterProfilePrefs(

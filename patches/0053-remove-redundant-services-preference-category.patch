@@ -1,13 +1,13 @@
-From 4b77157c9f78a582b89cb197e262c6744a853267 Mon Sep 17 00:00:00 2001
+From 756da6fe9b1134fec50049f15a9b0ee6b8e11558 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 3 Aug 2019 00:34:43 -0400
-Subject: [PATCH 53/59] remove redundant services preference category
+Subject: [PATCH 53/60] remove redundant services preference category
 
 ---
- .../res/xml/sync_and_services_preferences.xml |  8 ++++----
- .../settings/SyncAndServicesSettings.java     | 20 +++++++++----------
- .../strings/android_chrome_strings.grd        |  6 +++---
- 3 files changed, 17 insertions(+), 17 deletions(-)
+ .../res/xml/sync_and_services_preferences.xml |  8 +++---
+ .../settings/SyncAndServicesSettings.java     | 26 +++++++++----------
+ .../strings/android_chrome_strings.grd        |  6 ++---
+ 3 files changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 index c4a82cd49635..c092d646547d 100644
@@ -34,10 +34,10 @@ index c4a82cd49635..c092d646547d 100644
 +    <!--</PreferenceCategory>-->
  </PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 6b30f793b214..15030495cacb 100644
+index 3894c82d2a03..2d442b03de25 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -100,7 +100,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -101,7 +101,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public static final String PREF_SYNC_REQUESTED = "sync_requested";
      private static final String PREF_MANAGE_SYNC = "manage_sync";
  
@@ -45,8 +45,8 @@ index 6b30f793b214..15030495cacb 100644
 +    //private static final String PREF_SERVICES_CATEGORY = "services_category";
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
      private static final String PREF_NAVIGATION_ERROR = "navigation_error";
-     private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -201,13 +201,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+     @VisibleForTesting
+@@ -206,13 +206,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -62,24 +62,38 @@ index 6b30f793b214..15030495cacb 100644
 +        getPreferenceScreen().removePreference(mNavigationError);
          mNavigationError = null;
  
-         mSafeBrowsing = (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING);
-@@ -218,28 +218,28 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
-                 (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
-         //mPasswordLeakDetection.setOnPreferenceChangeListener(this);
-         //mPasswordLeakDetection.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
--        removePreference(servicesCategory, mPasswordLeakDetection);
-+        getPreferenceScreen().removePreference(mPasswordLeakDetection);
-         mPasswordLeakDetection = null;
+         // If security section UI is enabled, Safe Browsing related preferences will be moved to a
+@@ -220,9 +220,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         mIsSecurityPreferenceRemoved =
+                 ChromeFeatureList.isEnabled(ChromeFeatureList.SAFE_BROWSING_SECURITY_SECTION_UI);
+         if (mIsSecurityPreferenceRemoved) {
+-            removePreference(servicesCategory, findPreference(PREF_SAFE_BROWSING));
+-            removePreference(servicesCategory, findPreference(PREF_PASSWORD_LEAK_DETECTION));
+-            removePreference(servicesCategory, findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING));
++            getPreferenceScreen().removePreference(findPreference(PREF_SAFE_BROWSING));
++            getPreferenceScreen().removePreference(findPreference(PREF_PASSWORD_LEAK_DETECTION));
++            getPreferenceScreen().removePreference(findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING));
+             mSafeBrowsing = null;
+             mPasswordLeakDetection = null;
+             mSafeBrowsingReporting = null;
+@@ -235,14 +235,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+                     (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
+             //mPasswordLeakDetection.setOnPreferenceChangeListener(this);
+             //mPasswordLeakDetection.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+-            removePreference(servicesCategory, mPasswordLeakDetection);
++            getPreferenceScreen().removePreference(mPasswordLeakDetection);
+             mPasswordLeakDetection = null;
  
-         mSafeBrowsingReporting =
-                 (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
-         //mSafeBrowsingReporting.setOnPreferenceChangeListener(this);
-         //mSafeBrowsingReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
--        removePreference(servicesCategory, mSafeBrowsingReporting);
-+        getPreferenceScreen().removePreference( mSafeBrowsingReporting);
-         mSafeBrowsingReporting = null;
+             mSafeBrowsingReporting =
+                     (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
+             //mSafeBrowsingReporting.setOnPreferenceChangeListener(this);
+             //mSafeBrowsingReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+-            removePreference(servicesCategory, mSafeBrowsingReporting);
++            getPreferenceScreen().removePreference(mSafeBrowsingReporting);
+             mSafeBrowsingReporting = null;
+         }
  
-         mUsageAndCrashReporting =
+@@ -250,14 +250,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
                  (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
          //mUsageAndCrashReporting.setOnPreferenceChangeListener(this);
          //mUsageAndCrashReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
@@ -96,7 +110,7 @@ index 6b30f793b214..15030495cacb 100644
          mUrlKeyedAnonymizedData = null;
  
          mAutofillAssistant = (ChromeSwitchPreference) findPreference(PREF_AUTOFILL_ASSISTANT);
-@@ -247,13 +247,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -265,13 +265,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
              mAutofillAssistant.setOnPreferenceChangeListener(this);
              mAutofillAssistant.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
          } else {
@@ -113,10 +127,10 @@ index 6b30f793b214..15030495cacb 100644
          }
  
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index b511b201417a..5117eef7702c 100644
+index 72655c72d78a..9e799f202590 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -307,9 +307,9 @@ CHAR-LIMIT guidelines:
+@@ -309,9 +309,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
          Manage sync
        </message>

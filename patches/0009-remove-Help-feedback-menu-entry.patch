@@ -1,19 +1,19 @@
-From 4974d8cf510c5fa74a6bec8f7c37152209688ed6 Mon Sep 17 00:00:00 2001
+From 58a399f9dd5b48da08f4852e740b9d8bede15738 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 6 Jul 2019 05:56:45 -0400
-Subject: [PATCH 09/59] remove Help & feedback menu entry
+Subject: [PATCH 09/60] remove Help & feedback menu entry
 
 ---
  .../java/src/org/chromium/chrome/browser/vr/VrShell.java | 2 +-
- chrome/android/java/res/menu/main_menu.xml               | 2 --
- .../src/org/chromium/chrome/browser/ChromeActivity.java  | 9 ---------
+ chrome/android/java/res/menu/main_menu.xml               | 3 ---
  .../org/chromium/chrome/browser/KeyboardShortcuts.java   | 3 ---
+ .../org/chromium/chrome/browser/app/ChromeActivity.java  | 9 ---------
  .../chrome/browser/customtabs/BaseCustomTabActivity.java | 2 +-
  .../browser/directactions/MenuDirectActionHandler.java   | 2 --
- 6 files changed, 2 insertions(+), 18 deletions(-)
+ 6 files changed, 2 insertions(+), 19 deletions(-)
 
 diff --git a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-index ba75dc9f06f6..de97d460f06c 100644
+index ff322245d7f6..5a0661ae832c 100644
 --- a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
 +++ b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
 @@ -1137,7 +1137,7 @@ public class VrShell extends GvrLayout
@@ -26,23 +26,38 @@ index ba75dc9f06f6..de97d460f06c 100644
  
      private void updateHistoryButtonsVisibility() {
 diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
-index 76f4da80995a..a422f1e1f808 100644
+index ae2c404ad13a..08de10ec8ce6 100644
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -83,8 +83,6 @@
-             android:icon="@drawable/reader_mode_prefs_icon" />
+@@ -108,9 +108,6 @@
          <item android:id="@+id/preferences_id"
-             android:title="@string/menu_settings" />
+             android:title="@string/menu_settings"
+             android:icon="@drawable/settings_cog" />
 -        <item android:id="@+id/help_id"
--            android:title="@string/menu_help" />
+-            android:title="@string/menu_help"
+-            android:icon="@drawable/help_outline" />
          <item android:id="@+id/enter_vr_id"
-             android:title="@string/enter_vr" />
-     </group>
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-index 44ac22fc15a7..d3758c617eb7 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -1937,15 +1937,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+             android:title="@string/enter_vr"
+             android:icon="@drawable/vr_headset" />
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
+index a8759b5dead0..c52ca24395e5 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
+@@ -343,9 +343,6 @@ public class KeyboardShortcuts {
+                     tab = activity.getActivityTab();
+                     if (tab != null && tab.canGoForward()) tab.goForward();
+                     return true;
+-                case CTRL | SHIFT | KeyEvent.KEYCODE_SLASH:  // i.e. Ctrl+?
+-                    activity.onMenuOrKeyboardAction(R.id.help_id, false);
+-                    return true;
+             }
+         }
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+index 7686b05bcfea..4e3d33b3dcd7 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -1915,15 +1915,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
  
          final Tab currentTab = getActivityTab();
  
@@ -58,22 +73,8 @@ index 44ac22fc15a7..d3758c617eb7 100644
          if (id == R.id.open_history_menu_id) {
              // 'currentTab' could only be null when opening history from start surface, which is
              // not available on tablet.
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-index a8e7d3df840d..036b474be024 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-@@ -342,9 +342,6 @@ public class KeyboardShortcuts {
-                     tab = activity.getActivityTab();
-                     if (tab != null && tab.canGoForward()) tab.goForward();
-                     return true;
--                case CTRL | SHIFT | KeyEvent.KEYCODE_SLASH:  // i.e. Ctrl+?
--                    activity.onMenuOrKeyboardAction(R.id.help_id, false);
--                    return true;
-             }
-         }
- 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-index 5c6e617fa02c..4a6b8fe1dfa5 100644
+index 0bd819fd3ffc..5da23f90f5f3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 @@ -533,7 +533,7 @@ public abstract class BaseCustomTabActivity extends ChromeActivity<BaseCustomTab
@@ -86,7 +87,7 @@ index 5c6e617fa02c..4a6b8fe1dfa5 100644
                  || id == R.id.new_tab_menu_id || id == R.id.open_history_menu_id) {
              return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
-index e7f347a113bd..0c3b42157338 100644
+index 3af4f9ccfb59..e6962e44b083 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
 @@ -36,7 +36,6 @@ class MenuDirectActionHandler implements DirectActionHandler {

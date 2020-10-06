@@ -1,14 +1,14 @@
-From 3de6592385a9798fa0b78e4e7ba4a412809c5860 Mon Sep 17 00:00:00 2001
+From 3fe87ca0f826dfad6c99606106eb786692143e49 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 01:23:48 -0400
-Subject: [PATCH 21/59] disable content feed suggestions by default
+Subject: [PATCH 21/60] disable content feed suggestions by default
 
 ---
  components/feed/feed_feature_list.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index f19e413151e0..921f063128a9 100644
+index cbd3d55b13ef..58770c5cdca7 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -7,7 +7,7 @@
@@ -18,8 +18,8 @@ index f19e413151e0..921f063128a9 100644
 -    "InterestFeedContentSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "InterestFeedContentSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
  // InterestFeedV2 takes precedence over InterestFeedContentSuggestions.
- const base::Feature kInterestFeedV2{"InterestFeedV2",
-                                     base::FEATURE_DISABLED_BY_DEFAULT};
+ // InterestFeedV2 is cached in ChromeCachedFlags. If the default value here is
+ // changed, please update the cached one's default value in CachedFeatureFlags.
 -- 
 2.25.4
 

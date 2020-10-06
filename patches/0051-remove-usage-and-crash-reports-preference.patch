@@ -1,17 +1,17 @@
-From 5d4574c4ed541796268f4fa7b135570e36421c1e Mon Sep 17 00:00:00 2001
+From 28bc4f6ebaadd4dc73bc56444d9fa3e27c981b4e Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:49:13 -0400
-Subject: [PATCH 51/59] remove usage and crash reports preference
+Subject: [PATCH 51/60] remove usage and crash reports preference
 
 ---
  .../browser/sync/settings/SyncAndServicesSettings.java | 10 ++++++----
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 38963d56956d..d30e423363c9 100644
+index b4bd0c774a6c..f2f48324ba4d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -230,8 +230,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -248,8 +248,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          mUsageAndCrashReporting =
                  (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
@@ -24,9 +24,9 @@ index 38963d56956d..d30e423363c9 100644
  
          mUrlKeyedAnonymizedData =
                  (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
-@@ -562,8 +564,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
- 
-         updateLeakDetectionAndSafeBrowsingReportingPreferences();
+@@ -580,8 +582,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+             updateLeakDetectionAndSafeBrowsingReportingPreferences();
+         }
  
 -        mUsageAndCrashReporting.setChecked(
 -                mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
@@ -34,7 +34,7 @@ index 38963d56956d..d30e423363c9 100644
 +                //mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
          mUrlKeyedAnonymizedData.setChecked(
                  UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled(
-                         Profile.getLastUsedRegularProfile()));
+                         getProfile()));
 -- 
 2.25.4
 
