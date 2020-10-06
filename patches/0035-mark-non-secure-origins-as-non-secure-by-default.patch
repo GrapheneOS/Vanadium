@@ -1,14 +1,14 @@
-From 07fe79ab5b72d90bd1482dce177d28869e57b774 Mon Sep 17 00:00:00 2001
+From 9fde1d0af51575d6e07c01d62393ee8a7b1c88e5 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 20 Oct 2017 21:20:50 -0400
-Subject: [PATCH 35/59] mark non-secure origins as non-secure by default
+Subject: [PATCH 35/60] mark non-secure origins as non-secure by default
 
 ---
  components/security_state/core/security_state.cc | 8 +++-----
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
-index 85805816ef92..10b322d9221a 100644
+index 88d750d0e825..f2b9860e7ff9 100644
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
 @@ -31,17 +31,15 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
@@ -31,7 +31,7 @@ index 85805816ef92..10b322d9221a 100644
 +  return DANGEROUS;
  }
  
- SecurityLevel GetSecurityLevelForDisplayedMixedContent(bool suppress_warning) {
+ std::string GetHistogramSuffixForSecurityLevel(
 -- 
 2.25.4
 

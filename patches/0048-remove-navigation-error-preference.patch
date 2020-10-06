@@ -1,51 +1,45 @@
-From af0b2ad89654235b16b3202b57a7007fae3ef4a6 Mon Sep 17 00:00:00 2001
+From 311886f73035998e22f25fbe607ab9e8089b68fe Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
-Subject: [PATCH 48/59] remove navigation error preference
+Subject: [PATCH 48/60] remove navigation error preference
 
 ---
- .../sync/settings/SyncAndServicesSettings.java    | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ .../sync/settings/SyncAndServicesSettings.java       | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index c4c27fca9d26..16537cd885e7 100644
+index 4545dd0d61f1..1a778714dce6 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -201,16 +201,19 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -206,13 +206,15 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
-+        PreferenceCategory servicesCategory =
-+                (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
-+
-         mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
+-        mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
 -        mNavigationError.setOnPreferenceChangeListener(this);
 -        mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+-
+         PreferenceCategory servicesCategory =
+                 (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
+ 
++        mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
 +        //mNavigationError.setOnPreferenceChangeListener(this);
 +        //mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
 +        removePreference(servicesCategory, mNavigationError);
 +        mNavigationError = null;
- 
-         mSafeBrowsing = (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING);
-         mSafeBrowsing.setOnPreferenceChangeListener(this);
-         mSafeBrowsing.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
- 
--        PreferenceCategory servicesCategory =
--                (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
-         mPasswordLeakDetection =
-                 (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
-         mPasswordLeakDetection.setOnPreferenceChangeListener(this);
-@@ -549,8 +552,8 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
++
+         // If security section UI is enabled, Safe Browsing related preferences will be moved to a
+         // dedicated "Security" preference page.
+         mIsSecurityPreferenceRemoved =
+@@ -568,7 +570,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
-         mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
--        mNavigationError.setChecked(
--                mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
-+        //mNavigationError.setChecked(
-+                //mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
-         mSafeBrowsing.setChecked(mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED));
- 
-         updateLeakDetectionAndSafeBrowsingReportingPreferences();
+         mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
+-        mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
++        //mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
+         if (!mIsSecurityPreferenceRemoved) {
+             mSafeBrowsing.setChecked(mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+             updateLeakDetectionAndSafeBrowsingReportingPreferences();
 -- 
 2.25.4
 
