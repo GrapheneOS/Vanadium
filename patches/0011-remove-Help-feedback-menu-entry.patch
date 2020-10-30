@@ -1,0 +1,111 @@
+From 1a5c5d98c701b29ebebd7e01c4cf6764ad850d67 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 6 Jul 2019 05:56:45 -0400
+Subject: [PATCH 11/63] remove Help & feedback menu entry
+
+---
+ .../java/src/org/chromium/chrome/browser/vr/VrShell.java | 2 +-
+ chrome/android/java/res/menu/main_menu.xml               | 3 ---
+ .../org/chromium/chrome/browser/KeyboardShortcuts.java   | 3 ---
+ .../org/chromium/chrome/browser/app/ChromeActivity.java  | 9 ---------
+ .../chrome/browser/customtabs/BaseCustomTabActivity.java | 2 +-
+ .../browser/directactions/MenuDirectActionHandler.java   | 2 --
+ 6 files changed, 2 insertions(+), 19 deletions(-)
+
+diff --git a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
+index ff322245d7f6..5a0661ae832c 100644
+--- a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
++++ b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
+@@ -1137,7 +1137,7 @@ public class VrShell extends GvrLayout
+ 
+     @CalledByNative
+     public void openFeedback() {
+-        mActivity.onMenuOrKeyboardAction(R.id.help_id, true);
++        //mActivity.onMenuOrKeyboardAction(R.id.help_id, true);
+     }
+ 
+     private void updateHistoryButtonsVisibility() {
+diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
+index ae2c404ad13a..08de10ec8ce6 100644
+--- a/chrome/android/java/res/menu/main_menu.xml
++++ b/chrome/android/java/res/menu/main_menu.xml
+@@ -108,9 +108,6 @@
+         <item android:id="@+id/preferences_id"
+             android:title="@string/menu_settings"
+             android:icon="@drawable/settings_cog" />
+-        <item android:id="@+id/help_id"
+-            android:title="@string/menu_help"
+-            android:icon="@drawable/help_outline" />
+         <item android:id="@+id/enter_vr_id"
+             android:title="@string/enter_vr"
+             android:icon="@drawable/vr_headset" />
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
+index a8759b5dead0..c52ca24395e5 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
+@@ -343,9 +343,6 @@ public class KeyboardShortcuts {
+                     tab = activity.getActivityTab();
+                     if (tab != null && tab.canGoForward()) tab.goForward();
+                     return true;
+-                case CTRL | SHIFT | KeyEvent.KEYCODE_SLASH:  // i.e. Ctrl+?
+-                    activity.onMenuOrKeyboardAction(R.id.help_id, false);
+-                    return true;
+             }
+         }
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+index 7686b05bcfea..4e3d33b3dcd7 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -1915,15 +1915,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+ 
+         final Tab currentTab = getActivityTab();
+ 
+-        if (id == R.id.help_id) {
+-            String url = currentTab != null ? currentTab.getUrlString() : "";
+-            Profile profile = mTabModelSelector.isIncognitoSelected()
+-                    ? Profile.getLastUsedRegularProfile().getOffTheRecordProfile()
+-                    : Profile.getLastUsedRegularProfile();
+-            startHelpAndFeedback(url, "MobileMenuFeedback", profile);
+-            return true;
+-        }
+-
+         if (id == R.id.open_history_menu_id) {
+             // 'currentTab' could only be null when opening history from start surface, which is
+             // not available on tablet.
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
+index 0bd819fd3ffc..5da23f90f5f3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
+@@ -533,7 +533,7 @@ public abstract class BaseCustomTabActivity extends ChromeActivity<BaseCustomTab
+     @Override
+     public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
+         // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
+-        if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id || id == R.id.help_id
++        if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id
+                 || id == R.id.recent_tabs_menu_id || id == R.id.new_incognito_tab_menu_id
+                 || id == R.id.new_tab_menu_id || id == R.id.open_history_menu_id) {
+             return true;
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
+index 3af4f9ccfb59..e6962e44b083 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
+@@ -36,7 +36,6 @@ class MenuDirectActionHandler implements DirectActionHandler {
+         map.put(ChromeDirectActionIds.RELOAD, R.id.reload_menu_id);
+         map.put(ChromeDirectActionIds.BOOKMARK_THIS_PAGE, R.id.bookmark_this_page_id);
+         map.put(ChromeDirectActionIds.DOWNLOADS, R.id.downloads_menu_id);
+-        map.put(ChromeDirectActionIds.HELP, R.id.help_id);
+         map.put(ChromeDirectActionIds.NEW_TAB, R.id.new_tab_menu_id);
+         map.put(ChromeDirectActionIds.OPEN_HISTORY, R.id.open_history_menu_id);
+         map.put(ChromeDirectActionIds.PREFERENCES, R.id.preferences_id);
+@@ -92,7 +91,6 @@ class MenuDirectActionHandler implements DirectActionHandler {
+         }
+ 
+         availableItemIds.add(R.id.downloads_menu_id);
+-        availableItemIds.add(R.id.help_id);
+         availableItemIds.add(R.id.new_tab_menu_id);
+         availableItemIds.add(R.id.preferences_id);
+ 
+-- 
+2.29.2
+

@@ -1,0 +1,27 @@
+From 493df84b85f09448a9b77f9597c510f9ae962f38 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 21 May 2020 12:27:29 -0400
+Subject: [PATCH 35/63] disable media DRM preprovisioning by default
+
+This switches to fetching on-demand, which can only happen if DRM media
+support is enabled.
+---
+ media/base/media_switches.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/media/base/media_switches.cc b/media/base/media_switches.cc
+index 3a9b0abe7d38..7f48ab5768e7 100644
+--- a/media/base/media_switches.cc
++++ b/media/base/media_switches.cc
+@@ -542,7 +542,7 @@ const base::Feature kMediaDrmPersistentLicense{
+ // MediaDrmBridge. If disabled, MediaDrmBridge will get unprovisioned origin IDs
+ // which will trigger provisioning process after MediaDrmBridge is created.
+ const base::Feature kMediaDrmPreprovisioning{"MediaDrmPreprovisioning",
+-                                             base::FEATURE_ENABLED_BY_DEFAULT};
++                                             base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Determines if MediaDrmOriginIdManager should attempt to pre-provision origin
+ // IDs at startup (whenever a profile is loaded). Also used by tests that
+-- 
+2.29.2
+

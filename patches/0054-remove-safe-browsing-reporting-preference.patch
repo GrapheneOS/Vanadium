@@ -1,0 +1,42 @@
+From 4c1800b1f7a40e88c424e37ecd194e2600f71a76 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 23:48:41 -0400
+Subject: [PATCH 54/63] remove safe browsing reporting preference
+
+---
+ .../sync/settings/SyncAndServicesSettings.java       | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index be49bc224660..b4bd0c774a6c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -240,8 +240,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+ 
+             mSafeBrowsingReporting =
+                     (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
+-            mSafeBrowsingReporting.setOnPreferenceChangeListener(this);
+-            mSafeBrowsingReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++            //mSafeBrowsingReporting.setOnPreferenceChangeListener(this);
++            //mSafeBrowsingReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++            removePreference(servicesCategory, mSafeBrowsingReporting);
++            mSafeBrowsingReporting = null;
+         }
+ 
+         mUsageAndCrashReporting =
+@@ -646,9 +648,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+     private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
+         assert !mIsSecurityPreferenceRemoved;
+         boolean safe_browsing_enabled = mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED);
+-        mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
+-        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
+-                && SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
++        //mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
++        //mSafeBrowsingReporting.setChecked(safe_browsing_enabled
++                //&& SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
+ 
+         if (mPasswordLeakDetection == null) {
+             return;
+-- 
+2.29.2
+

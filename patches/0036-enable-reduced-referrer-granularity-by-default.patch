@@ -1,0 +1,25 @@
+From 3531fb951ee0840d55d748edef27aeab4f450714 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 23 Oct 2020 23:58:16 -0400
+Subject: [PATCH 36/63] enable reduced referrer granularity by default
+
+---
+ third_party/blink/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index fd334600125e..103fe9d28296 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -698,7 +698,7 @@ const base::Feature kCompositingOptimizations{
+ // Reduce the amount of information in the default 'referer' header for
+ // cross-origin requests.
+ const base::Feature kReducedReferrerGranularity{
+-    "ReducedReferrerGranularity", base::FEATURE_DISABLED_BY_DEFAULT};
++    "ReducedReferrerGranularity", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ // Enables the user activated exponential delay in the ContentCapture task.
+ const base::Feature kContentCaptureUserActivatedDelay = {
+-- 
+2.29.2
+

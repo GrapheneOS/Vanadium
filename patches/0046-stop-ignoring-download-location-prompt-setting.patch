@@ -1,0 +1,36 @@
+From 8c878e1ac55ffcd3aebfc470504607a5cf88685f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 28 Jun 2019 16:56:37 -0400
+Subject: [PATCH 46/63] stop ignoring download location prompt setting
+
+---
+ .../dialogs/DownloadLocationDialogCoordinator.java  | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+index 57bb294e828c..7c0315a56b91 100644
+--- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
++++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+@@ -120,19 +120,6 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
+      * @param dirs An list of available download directories.
+      */
+     private void onDirectoryOptionsRetrieved(ArrayList<DirectoryOption> dirs) {
+-        // If there is only one directory available, don't show the default dialog, and set the
+-        // download directory to default. Dialog will still show for other types of dialogs, like
+-        // name conflict or disk error.
+-        if (dirs.size() == 1 && mDialogType == DownloadLocationDialogType.DEFAULT) {
+-            final DirectoryOption dir = dirs.get(0);
+-            if (dir.type == DirectoryOption.DownloadLocationDirectoryType.DEFAULT) {
+-                assert (!TextUtils.isEmpty(dir.location));
+-                DownloadDialogBridge.setDownloadAndSaveFileDefaultDirectory(dir.location);
+-                mController.onDownloadLocationDialogComplete(mSuggestedPath);
+-            }
+-            return;
+-        }
+-
+         // Already showing the dialog.
+         if (mDialogModel != null) return;
+ 
+-- 
+2.29.2
+

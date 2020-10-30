@@ -1,0 +1,68 @@
+From 0c73b3ac74728296f9034ca0b451cb226c48a9f6 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 17 Jun 2019 11:29:21 -0400
+Subject: [PATCH 43/63] stub out the battery status API
+
+Pretend that the device is always plugged in and fully charged.
+---
+ .../modules/battery/battery_manager.cc        | 26 +++----------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
+
+diff --git a/third_party/blink/renderer/modules/battery/battery_manager.cc b/third_party/blink/renderer/modules/battery/battery_manager.cc
+index b929f2cccffe..d71f1ccd1e1b 100644
+--- a/third_party/blink/renderer/modules/battery/battery_manager.cc
++++ b/third_party/blink/renderer/modules/battery/battery_manager.cc
+@@ -45,46 +45,28 @@ ScriptPromise BatteryManager::StartRequest(ScriptState* script_state) {
+ }
+ 
+ bool BatteryManager::charging() {
+-  return battery_status_.Charging();
++  return true;
+ }
+ 
+ double BatteryManager::chargingTime() {
+-  return battery_status_.charging_time();
++  return 0.0;
+ }
+ 
+ double BatteryManager::dischargingTime() {
+-  return battery_status_.discharging_time();
++  return std::numeric_limits<double>::infinity();
+ }
+ 
+ double BatteryManager::level() {
+-  return battery_status_.Level();
++  return 1.0;
+ }
+ 
+ void BatteryManager::DidUpdateData() {
+   DCHECK(battery_property_);
+ 
+-  BatteryStatus old_status = battery_status_;
+-  battery_status_ = *BatteryDispatcher::Instance().LatestData();
+-
+   if (battery_property_->GetState() == BatteryProperty::kPending) {
+     battery_property_->Resolve(this);
+     return;
+   }
+-
+-  DCHECK(GetExecutionContext());
+-  if (GetExecutionContext()->IsContextPaused() ||
+-      GetExecutionContext()->IsContextDestroyed()) {
+-    return;
+-  }
+-
+-  if (battery_status_.Charging() != old_status.Charging())
+-    DispatchEvent(*Event::Create(event_type_names::kChargingchange));
+-  if (battery_status_.charging_time() != old_status.charging_time())
+-    DispatchEvent(*Event::Create(event_type_names::kChargingtimechange));
+-  if (battery_status_.discharging_time() != old_status.discharging_time())
+-    DispatchEvent(*Event::Create(event_type_names::kDischargingtimechange));
+-  if (battery_status_.Level() != old_status.Level())
+-    DispatchEvent(*Event::Create(event_type_names::kLevelchange));
+ }
+ 
+ void BatteryManager::RegisterWithDispatcher() {
+-- 
+2.29.2
+

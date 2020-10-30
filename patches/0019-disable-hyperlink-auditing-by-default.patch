@@ -1,0 +1,25 @@
+From 9b80da19ecf54cd59ed3e00063e9b115ef5893fa Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 26 Nov 2016 14:57:22 -0500
+Subject: [PATCH 19/63] disable hyperlink auditing by default
+
+---
+ chrome/browser/chrome_content_browser_client.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
+index e520e957ddea..c3a9462007f8 100644
+--- a/chrome/browser/chrome_content_browser_client.cc
++++ b/chrome/browser/chrome_content_browser_client.cc
+@@ -1290,7 +1290,7 @@ void ChromeContentBrowserClient::RegisterLocalStatePrefs(
+ void ChromeContentBrowserClient::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* registry) {
+   registry->RegisterBooleanPref(prefs::kDisable3DAPIs, false);
+-  registry->RegisterBooleanPref(prefs::kEnableHyperlinkAuditing, true);
++  registry->RegisterBooleanPref(prefs::kEnableHyperlinkAuditing, false);
+   registry->RegisterListPref(prefs::kEnableDeprecatedWebPlatformFeatures);
+   // Register user prefs for mapping SitePerProcess and IsolateOrigins in
+   // user policy in addition to the same named ones in Local State (which are
+-- 
+2.29.2
+

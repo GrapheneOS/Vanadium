@@ -1,0 +1,25 @@
+From 23405833aed5e691f68b3803ab70b084574ee923 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 12 Jul 2019 05:22:11 -0400
+Subject: [PATCH 33/63] disable safe browsing reporting opt-in by default
+
+---
+ components/safe_browsing/core/common/safe_browsing_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/components/safe_browsing/core/common/safe_browsing_prefs.cc
+index 6d5d7461684b..cee47312f551 100644
+--- a/components/safe_browsing/core/common/safe_browsing_prefs.cc
++++ b/components/safe_browsing/core/common/safe_browsing_prefs.cc
+@@ -205,7 +205,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(
+       prefs::kSafeBrowsingSawInterstitialScoutReporting, false);
+   registry->RegisterBooleanPref(
+-      prefs::kSafeBrowsingExtendedReportingOptInAllowed, true);
++      prefs::kSafeBrowsingExtendedReportingOptInAllowed, false);
+   registry->RegisterBooleanPref(
+       prefs::kSafeBrowsingEnabled, true,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+-- 
+2.29.2
+

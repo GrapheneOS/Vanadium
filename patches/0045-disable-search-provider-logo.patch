@@ -1,0 +1,54 @@
+From d7ec1fd2a97414d9aa25c8d00ce8223ec4d63895 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 17 Jun 2019 12:03:52 -0400
+Subject: [PATCH 45/63] disable search provider logo
+
+---
+ .../template_url_service_factory_android.cc   | 31 +------------------
+ 1 file changed, 1 insertion(+), 30 deletions(-)
+
+diff --git a/chrome/browser/search_engines/template_url_service_factory_android.cc b/chrome/browser/search_engines/template_url_service_factory_android.cc
+index 663cc472008c..4bac01d4fdcf 100644
+--- a/chrome/browser/search_engines/template_url_service_factory_android.cc
++++ b/chrome/browser/search_engines/template_url_service_factory_android.cc
+@@ -24,36 +24,7 @@ JNI_TemplateUrlServiceFactory_GetTemplateUrlService(JNIEnv* env) {
+   return GetTemplateUrlService()->GetJavaObject();
+ }
+ 
+-static jboolean IsDefaultSearchEngineGoogle(JNIEnv* env) {
+-  const TemplateURL* default_search_provider =
+-      GetTemplateUrlService()->GetDefaultSearchProvider();
+-  return default_search_provider &&
+-         default_search_provider->url_ref().HasGoogleBaseURLs(
+-             GetTemplateUrlService()->search_terms_data());
+-}
+-
+ static jboolean JNI_TemplateUrlServiceFactory_DoesDefaultSearchEngineHaveLogo(
+     JNIEnv* env) {
+-  // |kSearchProviderLogoURL| applies to all search engines (Google or
+-  // third-party).
+-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+-          search_provider_logos::switches::kSearchProviderLogoURL)) {
+-    return true;
+-  }
+-
+-  // Google always has a logo.
+-  if (IsDefaultSearchEngineGoogle(env))
+-    return true;
+-
+-  // Third-party search engines can have a doodle specified via the command
+-  // line, or a static logo or doodle from the TemplateURLService.
+-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+-          search_provider_logos::switches::kThirdPartyDoodleURL)) {
+-    return true;
+-  }
+-  const TemplateURL* default_search_provider =
+-      GetTemplateUrlService()->GetDefaultSearchProvider();
+-  return default_search_provider &&
+-         (default_search_provider->doodle_url().is_valid() ||
+-          default_search_provider->logo_url().is_valid());
++  return false;
+ }
+-- 
+2.29.2
+

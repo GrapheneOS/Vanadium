@@ -1,0 +1,25 @@
+From e36a61278f3473aaefb03e03f32bbb4266b71e59 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 17 Jun 2019 13:14:22 -0400
+Subject: [PATCH 44/63] always use local new tab page
+
+---
+ chrome/browser/search/search.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/search/search.cc b/chrome/browser/search/search.cc
+index 0bf37a06101c..ef29e1f0470a 100644
+--- a/chrome/browser/search/search.cc
++++ b/chrome/browser/search/search.cc
+@@ -161,7 +161,7 @@ bool ShouldShowLocalNewTab(Profile* profile) {
+ #if !defined(OS_ANDROID)
+   return DefaultSearchProviderIsGoogle(profile);
+ #else
+-  return false;
++  return true;
+ #endif
+ }
+ 
+-- 
+2.29.2
+

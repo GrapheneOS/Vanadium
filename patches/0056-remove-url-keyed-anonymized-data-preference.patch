@@ -1,0 +1,42 @@
+From 555fb50df56f856858c25ad152fc2c77e1b5ab43 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 23:50:03 -0400
+Subject: [PATCH 56/63] remove url keyed anonymized data preference
+
+---
+ .../sync/settings/SyncAndServicesSettings.java       | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index f2f48324ba4d..3894c82d2a03 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -255,8 +255,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+ 
+         mUrlKeyedAnonymizedData =
+                 (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
+-        mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
+-        mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
++        //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++        removePreference(servicesCategory, mUrlKeyedAnonymizedData);
++        mUrlKeyedAnonymizedData = null;
+ 
+         mAutofillAssistant = (ChromeSwitchPreference) findPreference(PREF_AUTOFILL_ASSISTANT);
+         if (shouldShowAutofillAssistantPreference()) {
+@@ -584,9 +586,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+ 
+         //mUsageAndCrashReporting.setChecked(
+                 //mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
+-        mUrlKeyedAnonymizedData.setChecked(
+-                UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled(
+-                        getProfile()));
++        //mUrlKeyedAnonymizedData.setChecked(
++                //UnifiedConsentServiceBridge.isUrlKeyedAnonymizedDataCollectionEnabled(
++                        //getProfile()));
+ 
+         if (mAutofillAssistant != null) {
+             mAutofillAssistant.setChecked(isAutofillAssistantSwitchOn());
+-- 
+2.29.2
+

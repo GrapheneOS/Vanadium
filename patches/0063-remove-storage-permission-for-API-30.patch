@@ -1,0 +1,36 @@
+From 20f3480b97968c4124c328d78daeb1ca30e41c86 Mon Sep 17 00:00:00 2001
+From: ndsxx6swthntex <72259410+ndsxx6swthntex@users.noreply.github.com>
+Date: Sat, 3 Oct 2020 02:55:33 +0000
+Subject: [PATCH 63/63] remove storage permission for API 30+
+
+---
+ chrome/android/java/AndroidManifest.xml | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index 74dd5f9e6458..ecada16f28af 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -49,7 +49,8 @@ by a child template that "extends" this file.
+     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+     <uses-permission android:name="android.permission.NFC"/>
+-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
++    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
++	  android:maxSdkVersion="29"/>
+     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+     <uses-permission android:name="android.permission.READ_SYNC_STATS"/>
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+@@ -59,7 +60,8 @@ by a child template that "extends" this file.
+     <uses-permission-sdk-23 android:name="android.permission.USE_FINGERPRINT"/>
+     <uses-permission android:name="android.permission.VIBRATE"/>
+     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
++	  android:maxSdkVersion="29"/>
+     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+     {% set enable_vr = enable_vr|default(0) %}
+     {% if enable_vr == "true" %}
+-- 
+2.29.2
+

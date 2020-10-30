@@ -1,0 +1,39 @@
+From e34785527223f4ec1f52cda4bf6987ce5f53f837 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 23 Nov 2016 09:26:51 -0500
+Subject: [PATCH 16/63] disable contextual search by default
+
+---
+ .../browser/contextualsearch/ContextualSearchFieldTrial.java    | 2 +-
+ chrome/browser/profiles/profile.cc                              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java b/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
+index 508ab1db7b7b..d3395d2e0071 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
+@@ -287,7 +287,7 @@ public class ContextualSearchFieldTrial {
+         // Allow disabling the feature remotely.
+         if (getBooleanParam(DISABLED_PARAM)) return false;
+ 
+-        return true;
++        return false;
+     }
+ 
+     /**
+diff --git a/chrome/browser/profiles/profile.cc b/chrome/browser/profiles/profile.cc
+index c3d02b41f530..d7f0cad51588 100644
+--- a/chrome/browser/profiles/profile.cc
++++ b/chrome/browser/profiles/profile.cc
+@@ -262,7 +262,7 @@ void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+ #if defined(OS_ANDROID)
+   registry->RegisterStringPref(
+       prefs::kContextualSearchEnabled,
+-      std::string(),
++      "false",
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ #endif  // defined(OS_ANDROID)
+   registry->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
+-- 
+2.29.2
+

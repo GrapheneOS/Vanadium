@@ -1,0 +1,29 @@
+From fdec47e61c00ab83f3d2fd170650785e79745b1c Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 12 Mar 2020 13:01:02 -0400
+Subject: [PATCH 34/63] disable unused safe browsing option by default
+
+Safe Browsing is currently a no-op due to the lack of Play Services, and
+support for using the local database backend hasn't been implemented.
+Various changes would be needed to make it available and to make sure
+that privacy is preserved.
+---
+ components/safe_browsing/core/common/safe_browsing_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/components/safe_browsing/core/common/safe_browsing_prefs.cc
+index cee47312f551..444bfc73abf5 100644
+--- a/components/safe_browsing/core/common/safe_browsing_prefs.cc
++++ b/components/safe_browsing/core/common/safe_browsing_prefs.cc
+@@ -207,7 +207,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(
+       prefs::kSafeBrowsingExtendedReportingOptInAllowed, false);
+   registry->RegisterBooleanPref(
+-      prefs::kSafeBrowsingEnabled, true,
++      prefs::kSafeBrowsingEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterBooleanPref(prefs::kSafeBrowsingEnhanced, false);
+   registry->RegisterBooleanPref(prefs::kSafeBrowsingProceedAnywayDisabled,
+-- 
+2.29.2
+

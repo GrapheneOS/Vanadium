@@ -1,0 +1,39 @@
+From fbbabc47f98269bd812bca8507c9395412806506 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 12 Jul 2019 04:23:18 -0400
+Subject: [PATCH 31/63] disable browser sign in feature by default
+
+---
+ chrome/browser/signin/account_consistency_mode_manager.cc       | 2 +-
+ .../signin/internal/identity_manager/primary_account_manager.cc | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
+index bee334fbef58..d3217eb87e3f 100644
+--- a/chrome/browser/signin/account_consistency_mode_manager.cc
++++ b/chrome/browser/signin/account_consistency_mode_manager.cc
+@@ -97,7 +97,7 @@ void AccountConsistencyModeManager::RegisterProfilePrefs(
+ #if BUILDFLAG(ENABLE_DICE_SUPPORT)
+   registry->RegisterBooleanPref(kDiceMigrationCompletePref, false);
+ #endif
+-  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, true);
++  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, false);
+ }
+ 
+ // static
+diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
+index 88de9c4238d9..5cb3d4a6f0f2 100644
+--- a/components/signin/internal/identity_manager/primary_account_manager.cc
++++ b/components/signin/internal/identity_manager/primary_account_manager.cc
+@@ -56,7 +56,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(prefs::kGoogleServicesConsentedToSync, false);
+   registry->RegisterBooleanPref(prefs::kAutologinEnabled, true);
+   registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
+-  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
++  registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
+   registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
+ }
+ 
+-- 
+2.29.2
+

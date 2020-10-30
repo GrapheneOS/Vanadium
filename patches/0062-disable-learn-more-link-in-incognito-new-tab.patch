@@ -1,0 +1,46 @@
+From 8af745c92e561fd658df585c83ba552bd8d8768d Mon Sep 17 00:00:00 2001
+From: A Mak <refragable@mailbox.org>
+Date: Sat, 8 Aug 2020 11:17:59 -0700
+Subject: [PATCH 62/63] disable learn more link in incognito new tab
+
+---
+ .../browser/ntp/IncognitoDescriptionView.java      | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
+index c7872ee62a30..0608ba8a1769 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
+@@ -298,14 +298,14 @@ public class IncognitoDescriptionView extends LinearLayout {
+                 getContext().getResources().getString(R.string.new_tab_otr_subtitle);
+         boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
+ 
+-        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
++        mLearnMore.setVisibility(View.GONE);
+ 
+-        if (!learnMoreInSubtitle) {
++        //if (!learnMoreInSubtitle) {
+             // Revert to the original text.
+-            mSubtitle.setText(subtitleText);
+-            mSubtitle.setMovementMethod(null);
+-            return;
+-        }
++            //mSubtitle.setText(subtitleText);
++            //mSubtitle.setMovementMethod(null);
++            //return;
++        //}
+ 
+         // Concatenate the original text with a clickable "Learn more" link.
+         StringBuilder concatenatedText = new StringBuilder();
+@@ -318,7 +318,7 @@ public class IncognitoDescriptionView extends LinearLayout {
+                 getResources(), R.color.modern_blue_300, (view) -> mLearnMore.callOnClick());
+         textWithLearnMoreLink.setSpan(
+                 span, subtitleText.length() + 1, textWithLearnMoreLink.length(), 0 /* flags */);
+-        mSubtitle.setText(textWithLearnMoreLink);
++        mSubtitle.setText(subtitleText);
+         mSubtitle.setMovementMethod(LinkMovementMethod.getInstance());
+     }
+ 
+-- 
+2.29.2
+

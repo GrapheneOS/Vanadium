@@ -1,0 +1,37 @@
+From 786ec1701783d13ccde1fbe517ea71e5c90b7acc Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 20 Oct 2017 21:20:50 -0400
+Subject: [PATCH 39/63] mark non-secure origins as non-secure by default
+
+---
+ components/security_state/core/security_state.cc | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
+index 88d750d0e825..f2b9860e7ff9 100644
+--- a/components/security_state/core/security_state.cc
++++ b/components/security_state/core/security_state.cc
+@@ -31,17 +31,15 @@ SecurityLevel GetSecurityLevelForNonSecureFieldTrial(
+         features::kMarkHttpAsFeature,
+         features::kMarkHttpAsFeatureParameterName);
+ 
+-    if (parameter == features::kMarkHttpAsParameterDangerous) {
+-      return DANGEROUS;
++    if (parameter == features::kMarkHttpAsParameterWarningAndDangerousOnFormEdits) {
++      return WARNING;
+     }
+     if (parameter == features::kMarkHttpAsParameterDangerWarning) {
+       return WARNING;
+     }
+   }
+ 
+-  // Default to dangerous on editing form fields and otherwise
+-  // warning.
+-  return input_events.insecure_field_edited ? DANGEROUS : WARNING;
++  return DANGEROUS;
+ }
+ 
+ std::string GetHistogramSuffixForSecurityLevel(
+-- 
+2.29.2
+
