@@ -1,7 +1,7 @@
-From e9ce3b131f2e36ce4e2199e041bc8227447e86b5 Mon Sep 17 00:00:00 2001
+From 798c6845513d453f571db1ba36d662a9284440b7 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
-Subject: [PATCH 40/63] enable strict site isolation by default on Android
+Subject: [PATCH 40/64] enable strict site isolation by default on Android
 
 ---
  chrome/browser/about_flags.cc    | 20 --------------------
@@ -9,13 +9,13 @@ Subject: [PATCH 40/63] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 26 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 111807a9bdf6..f94b0c51b84d 100644
+index 78bf907f995c..56f8fd3db8b5 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2908,26 +2908,6 @@ const FeatureEntry kFeatureEntries[] = {
-      flag_descriptions::kCreditCardAssistDescription, kOsAndroid,
-      FEATURE_VALUE_TYPE(autofill::features::kAutofillCreditCardAssist)},
- #endif  // OS_ANDROID
+@@ -3132,26 +3132,6 @@ const FeatureEntry kFeatureEntries[] = {
+      FEATURE_VALUE_TYPE(performance_manager::features::kDynamicTcmallocTuning)},
+ #endif  // BUILDFLAG(USE_TCMALLOC)
+ #endif  // OS_CHROMEOS
 -#if defined(OS_ANDROID)
 -    {"enable-site-isolation-for-password-sites",
 -     flag_descriptions::kSiteIsolationForPasswordSitesName,
@@ -40,10 +40,10 @@ index 111807a9bdf6..f94b0c51b84d 100644
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
       ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index d1fd62e264ce..9c26a2fe6155 100644
+index 510f8ace25a9..092dc6eedf28 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -689,12 +689,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
+@@ -723,12 +723,7 @@ const base::Feature kShowTrustedPublisherURL{"ShowTrustedPublisherURL",
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

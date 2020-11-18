@@ -1,25 +1,25 @@
-From d218c22e417df1fcc2dab6c74e4184c609abfd47 Mon Sep 17 00:00:00 2001
+From 8c2626e6ae39f8eaaafb3bf248be013dd7acf42e Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 16 Jun 2019 16:01:31 -0400
-Subject: [PATCH 25/63] disable third party cookies by default
+Subject: [PATCH 25/64] disable third party cookies by default
 
 ---
  components/content_settings/core/browser/cookie_settings.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/content_settings/core/browser/cookie_settings.cc b/components/content_settings/core/browser/cookie_settings.cc
-index b92a1d8431ee..883355c47d75 100644
+index 59fc798b4973..f5961f742bfb 100644
 --- a/components/content_settings/core/browser/cookie_settings.cc
 +++ b/components/content_settings/core/browser/cookie_settings.cc
-@@ -65,7 +65,7 @@ void CookieSettings::GetCookieSettings(
- void CookieSettings::RegisterProfilePrefs(
+@@ -62,7 +62,7 @@ void CookieSettings::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
-   registry->RegisterBooleanPref(
--      prefs::kBlockThirdPartyCookies, false,
-+      prefs::kBlockThirdPartyCookies, true,
-       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
    registry->RegisterIntegerPref(
        prefs::kCookieControlsMode,
+-      static_cast<int>(CookieControlsMode::kIncognitoOnly),
++      static_cast<int>(CookieControlsMode::kBlockThirdParty),
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ }
+ 
 -- 
 2.29.2
 

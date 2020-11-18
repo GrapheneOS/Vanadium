@@ -1,7 +1,7 @@
-From f142fadf2d0de2965d5efca147fe2e9e8885b332 Mon Sep 17 00:00:00 2001
+From 964d97b7cbb68bb95dbc8066da81d9e586a1075d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 22:06:31 -0400
-Subject: [PATCH 49/63] remove data reduction preference
+Subject: [PATCH 49/64] remove data reduction preference
 
 ---
  chrome/android/java/res/xml/main_preferences.xml       | 10 +++++-----
@@ -9,10 +9,10 @@ Subject: [PATCH 49/63] remove data reduction preference
  2 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index e1a4f38fb2a4..9d9ac45ca244 100644
+index 659b46d7aff5..fb12dbdd6e82 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -115,11 +115,11 @@
+@@ -116,11 +116,11 @@
          android:key="languages"
          android:order="21"
          android:title="@string/language_settings"/>
@@ -30,10 +30,10 @@ index e1a4f38fb2a4..9d9ac45ca244 100644
          android:fragment="org.chromium.chrome.browser.download.settings.DownloadSettings"
          android:key="downloads"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 49bcf7e55674..871fb460dde2 100644
+index f2cd84fca088..ec51207bbc5c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -187,7 +187,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -190,7 +190,7 @@ public class MainSettings extends PreferenceFragmentCompat
          updatePasswordsPreference();
  
          setManagedPreferenceDelegateForPreference(PREF_SEARCH_ENGINE);
@@ -42,7 +42,7 @@ index 49bcf7e55674..871fb460dde2 100644
  
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
              // If we are on Android O+ the Notifications preference should lead to the Android
-@@ -300,9 +300,9 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -294,9 +294,9 @@ public class MainSettings extends PreferenceFragmentCompat
              removePreferenceIfPresent(PREF_DEVELOPER);
          }
  

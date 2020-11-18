@@ -1,44 +1,46 @@
-From f2ac8b0bff6d306da90c7d3d428b6080e335faae Mon Sep 17 00:00:00 2001
+From f84bab2c15bfc83bf37b86f5ddf4e835ae0bcea8 Mon Sep 17 00:00:00 2001
 From: inthewaves <inthewaves@pm.me>
 Date: Tue, 6 Oct 2020 14:30:57 -0700
-Subject: [PATCH 58/63] remove more sync preferences
+Subject: [PATCH 58/64] remove more sync preferences
 
 ---
- .../android/java/res/xml/main_preferences.xml | 26 +++++-----
- .../chrome/browser/settings/MainSettings.java | 48 +++++++++----------
- 2 files changed, 37 insertions(+), 37 deletions(-)
+ .../android/java/res/xml/main_preferences.xml |  28 ++---
+ .../chrome/browser/settings/MainSettings.java | 106 +++++++++---------
+ 2 files changed, 67 insertions(+), 67 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index 9d9ac45ca244..18f0964eb54c 100644
+index fb12dbdd6e82..2a921e9fa367 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -31,19 +31,19 @@
+@@ -31,20 +31,20 @@
          android:fragment="org.chromium.chrome.browser.sync.settings.SyncAndServicesSettings"/>
      <!-- manage_sync and google_services replace sync_and_services if MOBILE_IDENTITY_CONSISTENCY
           is enabled. -->
 -    <org.chromium.components.browser_ui.settings.ChromeBasePreference
 -        android:key="manage_sync"
 -        android:order="5"
+-        android:layout="@layout/account_management_account_row"
 -        android:title="@string/sync_category_title"
--        android:fragment="org.chromium.chrome.browser.sync.settings.ManageSyncSettings"
 -        app:isPreferenceVisible="false"/>
 -    <org.chromium.components.browser_ui.settings.ChromeBasePreference
 -        android:key="google_services"
 -        android:order="6"
--        android:title="@string/services_category_title"
+-        android:layout="@layout/account_management_account_row"
+-        android:title="@string/prefs_google_services"
 -        android:icon="@drawable/ic_google_services_48dp"
 -        android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"
 -        app:isPreferenceVisible="false"/>
 +    <!--<org.chromium.components.browser_ui.settings.ChromeBasePreference-->
 +        <!--android:key="manage_sync"-->
 +        <!--android:order="5"-->
++        <!--android:layout="@layout/account_management_account_row"-->
 +        <!--android:title="@string/sync_category_title"-->
-+        <!--android:fragment="org.chromium.chrome.browser.sync.settings.ManageSyncSettings"-->
 +        <!--app:isPreferenceVisible="false"/>-->
 +    <!--<org.chromium.components.browser_ui.settings.ChromeBasePreference-->
 +        <!--android:key="google_services"-->
 +        <!--android:order="6"-->
-+        <!--android:title="@string/services_category_title"-->
++        <!--android:layout="@layout/account_management_account_row"-->
++        <!--android:title="@string/prefs_google_services"-->
 +        <!--android:icon="@drawable/ic_google_services_48dp"-->
 +        <!--android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"-->
 +        <!--app:isPreferenceVisible="false"/>-->
@@ -46,10 +48,10 @@ index 9d9ac45ca244..18f0964eb54c 100644
      <PreferenceCategory
          android:key="basics_section"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 871fb460dde2..f38e7ebfa6cf 100644
+index ec51207bbc5c..34e7e0d22351 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -59,8 +59,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -64,8 +64,8 @@ public class MainSettings extends PreferenceFragmentCompat
              "account_and_google_services_section";
      public static final String PREF_SIGN_IN = "sign_in";
      public static final String PREF_SYNC_AND_SERVICES = "sync_and_services";
@@ -60,7 +62,7 @@ index 871fb460dde2..f38e7ebfa6cf 100644
      public static final String PREF_SEARCH_ENGINE = "search_engine";
      public static final String PREF_PASSWORDS = "passwords";
      public static final String PREF_HOMEPAGE = "homepage";
-@@ -80,7 +80,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -85,7 +85,7 @@ public class MainSettings extends PreferenceFragmentCompat
      private final Map<String, Preference> mAllPreferences = new HashMap<>();
      private SyncPromoPreference mSyncPromoPreference;
      private SignInPreference mSignInPreference;
@@ -69,7 +71,7 @@ index 871fb460dde2..f38e7ebfa6cf 100644
      private @Nullable PasswordCheck mPasswordCheck;
  
      public MainSettings() {
-@@ -239,8 +239,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -242,8 +242,8 @@ public class MainSettings extends PreferenceFragmentCompat
              getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES));
  
              findPreference(PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION).setVisible(true);
@@ -80,7 +82,7 @@ index 871fb460dde2..f38e7ebfa6cf 100644
          }
      }
  
-@@ -256,7 +256,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -259,7 +259,7 @@ public class MainSettings extends PreferenceFragmentCompat
          }
          mSyncPromoPreference = (SyncPromoPreference) mAllPreferences.get(PREF_SYNC_PROMO);
          mSignInPreference = (SignInPreference) mAllPreferences.get(PREF_SIGN_IN);
@@ -89,61 +91,118 @@ index 871fb460dde2..f38e7ebfa6cf 100644
      }
  
      private void setManagedPreferenceDelegateForPreference(String key) {
-@@ -273,16 +273,16 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -276,7 +276,7 @@ public class MainSettings extends PreferenceFragmentCompat
              removePreferenceIfPresent(PREF_SIGN_IN);
          }
  
--        boolean hasPrimaryAccount = IdentityServicesProvider.get()
--                                            .getIdentityManager(Profile.getLastUsedRegularProfile())
--                                            .hasPrimaryAccount();
--        boolean isSyncPromoHidden =
--                mSyncPromoPreference.getState() == SyncPromoPreference.State.PROMO_HIDDEN;
--        mManageSync.setVisible(
--                ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
--                && hasPrimaryAccount && isSyncPromoHidden);
-+        //boolean hasPrimaryAccount = IdentityServicesProvider.get()
-+                                            //.getIdentityManager(Profile.getLastUsedRegularProfile())
-+                                            //.hasPrimaryAccount();
-+        //boolean isSyncPromoHidden =
-+                //mSyncPromoPreference.getState() == SyncPromoPreference.State.PROMO_HIDDEN;
-+        //mManageSync.setVisible(
-+                //ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
-+                //&& hasPrimaryAccount && isSyncPromoHidden);
- 
--        updateSyncAndServicesPreference();
-+        //updateSyncAndServicesPreference();
+-        updateSyncPreference();
++        //updateSyncPreference();
          updateSearchEnginePreference();
  
          Preference homepagePref = addPreferenceIfAbsent(PREF_HOMEPAGE);
-@@ -316,14 +316,14 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -310,51 +310,51 @@ public class MainSettings extends PreferenceFragmentCompat
          if (preference != null) getPreferenceScreen().removePreference(preference);
      }
  
+-    private void updateSyncPreference() {
+-        if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
+-            updateManageSyncPreference();
+-        } else {
+-            updateSyncAndServicesPreference();
+-        }
+-    }
+-
 -    private void updateSyncAndServicesPreference() {
--        ChromeBasePreference preference = findPreference(
--                ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
--                        ? PREF_MANAGE_SYNC
--                        : PREF_SYNC_AND_SERVICES);
+-        ChromeBasePreference preference = findPreference(PREF_SYNC_AND_SERVICES);
 -        preference.setIcon(SyncSettingsUtils.getSyncStatusIcon(getActivity()));
 -        preference.setSummary(SyncSettingsUtils.getSyncStatusSummary(getActivity()));
 -    }
+-
+-    private void updateManageSyncPreference() {
+-        String primaryAccountName = CoreAccountInfo.getEmailFrom(
+-                IdentityServicesProvider.get()
+-                        .getIdentityManager(Profile.getLastUsedRegularProfile())
+-                        .getPrimaryAccountInfo(ConsentLevel.NOT_REQUIRED));
+-        boolean showManageSync =
+-                ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
+-                && primaryAccountName != null;
+-        mManageSync.setVisible(showManageSync);
+-        if (!showManageSync) {
+-            return;
+-        }
+-
+-        boolean isSyncConsentAvailable =
+-                IdentityServicesProvider.get()
+-                        .getIdentityManager(Profile.getLastUsedRegularProfile())
+-                        .getPrimaryAccountInfo(ConsentLevel.SYNC)
+-                != null;
+-        mManageSync.setIcon(SyncSettingsUtils.getSyncStatusIcon(getActivity()));
+-        mManageSync.setSummary(SyncSettingsUtils.getSyncStatusSummary(getActivity()));
+-        mManageSync.setOnPreferenceClickListener(pref -> {
+-            if (isSyncConsentAvailable) {
+-                SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
+-                settingsLauncher.launchSettingsActivity(getContext(), ManageSyncSettings.class);
+-            } else {
+-                SigninActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
+-                        getContext(), SigninAccessPoint.SETTINGS, primaryAccountName);
+-            }
+-            return true;
+-        });
+-    }
++    //private void updateSyncPreference() {
++        //if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
++            //updateManageSyncPreference();
++        //} else {
++            //updateSyncAndServicesPreference();
++        //}
++    //}
++
 +    //private void updateSyncAndServicesPreference() {
-+        //ChromeBasePreference preference = findPreference(
-+                //ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
-+                        //? PREF_MANAGE_SYNC
-+                        //: PREF_SYNC_AND_SERVICES);
++        //ChromeBasePreference preference = findPreference(PREF_SYNC_AND_SERVICES);
 +        //preference.setIcon(SyncSettingsUtils.getSyncStatusIcon(getActivity()));
 +        //preference.setSummary(SyncSettingsUtils.getSyncStatusSummary(getActivity()));
++    //}
++
++    //private void updateManageSyncPreference() {
++        //String primaryAccountName = CoreAccountInfo.getEmailFrom(
++                //IdentityServicesProvider.get()
++                        //.getIdentityManager(Profile.getLastUsedRegularProfile())
++                        //.getPrimaryAccountInfo(ConsentLevel.NOT_REQUIRED));
++        //boolean showManageSync =
++                //ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
++                //&& primaryAccountName != null;
++        //mManageSync.setVisible(showManageSync);
++        //if (!showManageSync) {
++            //return;
++        //}
++
++        //boolean isSyncConsentAvailable =
++                //IdentityServicesProvider.get()
++                        //.getIdentityManager(Profile.getLastUsedRegularProfile())
++                        //.getPrimaryAccountInfo(ConsentLevel.SYNC)
++                //!= null;
++        //mManageSync.setIcon(SyncSettingsUtils.getSyncStatusIcon(getActivity()));
++        //mManageSync.setSummary(SyncSettingsUtils.getSyncStatusSummary(getActivity()));
++        //mManageSync.setOnPreferenceClickListener(pref -> {
++            //if (isSyncConsentAvailable) {
++                //SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
++                //settingsLauncher.launchSettingsActivity(getContext(), ManageSyncSettings.class);
++            //} else {
++                //SigninActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
++                        //getContext(), SigninAccessPoint.SETTINGS, primaryAccountName);
++            //}
++            //return true;
++        //});
 +    //}
  
      private void updateSearchEnginePreference() {
          if (!TemplateUrlServiceFactory.get().isLoaded()) {
-@@ -393,7 +393,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -424,7 +424,7 @@ public class MainSettings extends PreferenceFragmentCompat
  
      @Override
      public void syncStateChanged() {
--        updateSyncAndServicesPreference();
-+        //updateSyncAndServicesPreference();
+-        updateSyncPreference();
++        //updateSyncPreference();
      }
  
      @VisibleForTesting
