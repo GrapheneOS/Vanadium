@@ -1,0 +1,25 @@
+From 4133f7ec68f95de4bd6dbc72fa8f9da9230c2613 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 23 Oct 2020 23:59:13 -0400
+Subject: [PATCH 39/67] enable prefetch privacy changes by default
+
+---
+ third_party/blink/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 6a3d5122b1d1..dd8ba269e080 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -308,7 +308,7 @@ const base::Feature kWebComponentsV0{"WebComponentsV0",
+ // Prefetch request properties are updated to be privacy-preserving. See
+ // crbug.com/988956.
+ const base::Feature kPrefetchPrivacyChanges{"PrefetchPrivacyChanges",
+-                                            base::FEATURE_DISABLED_BY_DEFAULT};
++                                            base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const char kMixedContentAutoupgradeModeParamName[] = "mode";
+ const char kMixedContentAutoupgradeModeAllPassive[] = "all-passive";
+-- 
+2.29.2
+
