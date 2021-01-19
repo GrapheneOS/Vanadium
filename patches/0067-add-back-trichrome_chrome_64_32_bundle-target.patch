@@ -1,0 +1,33 @@
+From 35370e799a6c403345c40c568b3482a1126ce9f4 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 17 Nov 2020 20:12:54 -0500
+Subject: [PATCH 67/74] add back trichrome_chrome_64_32_bundle target
+
+This appears to have been accidentally removed by the revert of the
+change switching to 64-bit by default.
+---
+ chrome/android/BUILD.gn | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index dd9fe36bede0..f6779f1620ca 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -3131,6 +3131,14 @@ if (android_64bit_target_cpu) {
+     static_library_provider = ":trichrome_library_64_apk"
+   }
+ 
++  monochrome_or_trichrome_public_bundle_tmpl("trichrome_chrome_64_32_bundle") {
++    bundle_suffix = "6432"
++    is_64_bit_browser = true
++    include_32_bit_webview = true
++    use_trichrome_library = true
++    static_library_provider = ":trichrome_library_64_32_apk"
++  }
++
+   monochrome_or_trichrome_public_bundle_tmpl("trichrome_chrome_32_bundle") {
+     bundle_suffix = "32"
+     is_64_bit_browser = false
+-- 
+2.30.0
+

@@ -1,0 +1,25 @@
+From 1ec141cca5b5e84d68671363c57c495f96e676fb Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 18 Nov 2020 19:08:58 -0500
+Subject: [PATCH 16/74] disable fetching variations
+
+---
+ .../org/chromium/chrome/browser/init/AsyncInitTaskRunner.java   | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java b/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
+index 017a89155e5c..9c10b32f7ec5 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
+@@ -40,7 +40,7 @@ public abstract class AsyncInitTaskRunner {
+ 
+     @VisibleForTesting
+     boolean shouldFetchVariationsSeedDuringFirstRun() {
+-        return ChromeVersionInfo.isOfficialBuild();
++        return false;
+     }
+ 
+     @VisibleForTesting
+-- 
+2.30.0
+

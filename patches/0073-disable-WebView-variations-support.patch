@@ -1,0 +1,41 @@
+From fcf773fe8532751b5a5e9fef9537aea5b58205c5 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 10 Dec 2020 10:09:18 -0500
+Subject: [PATCH 73/74] disable WebView variations support
+
+---
+ .../com/android/webview/chromium/WebViewChromiumAwInit.java   | 4 ----
+ .../webview/chromium/WebViewChromiumFactoryProvider.java      | 2 --
+ 2 files changed, 6 deletions(-)
+
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
+index f887774d7bf0..05d268062f28 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
+@@ -168,10 +168,6 @@ public class WebViewChromiumAwInit {
+ 
+             AwBrowserProcess.configureChildProcessLauncher();
+ 
+-            // finishVariationsInitLocked() must precede native initialization so the seed is
+-            // available when AwFeatureListCreator::SetUpFieldTrials() runs.
+-            finishVariationsInitLocked();
+-
+             AwBrowserProcess.start();
+             AwBrowserProcess.handleMinidumpsAndSetMetricsConsent(true /* updateMetricsConsent */);
+ 
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index b61631e45b7e..d2f98f1c17f0 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -373,8 +373,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+                 AwContentsStatics.logFlagOverridesWithNative(flagOverrides);
+             }
+ 
+-            mAwInit.startVariationsInit();
+-
+             mShouldDisableThreadChecking = shouldDisableThreadChecking(ctx);
+ 
+             setSingleton(this);
+-- 
+2.30.0
+

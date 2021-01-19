@@ -1,0 +1,25 @@
+From 794b582400e2029c20538642f1524da6cb9d529b Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 23 Nov 2020 15:05:31 -0500
+Subject: [PATCH 41/74] disable deprecated FTP support by default
+
+---
+ third_party/blink/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 0bf2429532cd..f675cace7b83 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -58,7 +58,7 @@ const base::Feature kFreezeUserAgent{"FreezeUserAgent",
+ // Enables support for FTP URLs. When disabled FTP URLs will behave the same as
+ // any other URL scheme that's unknown to the UA. See https://crbug.com/333943
+ const base::Feature kFtpProtocol{"FtpProtocol",
+-                                 base::FEATURE_ENABLED_BY_DEFAULT};
++                                 base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Enable Display Locking JavaScript APIs.
+ const base::Feature kDisplayLocking{"DisplayLocking",
+-- 
+2.30.0
+
