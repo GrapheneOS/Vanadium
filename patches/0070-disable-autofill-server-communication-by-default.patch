@@ -1,0 +1,25 @@
+From 53fe195636e16144c4afa144aaa841c9280a8d85 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 1 Dec 2020 00:56:57 -0500
+Subject: [PATCH 70/72] disable autofill server communication by default
+
+---
+ components/autofill/core/common/autofill_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
+index 7347a18e50c9..23941ed7bd21 100644
+--- a/components/autofill/core/common/autofill_features.cc
++++ b/components/autofill/core/common/autofill_features.cc
+@@ -279,7 +279,7 @@ const base::Feature kAutofillSectionUponRedundantNameInfo{
+ // "upload" resources.
+ // i.e., https://other.autofill.server:port/tbproxy/af/
+ const base::Feature kAutofillServerCommunication{
+-    "AutofillServerCommunication", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillServerCommunication", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Controls attaching the autofill type predictions to their respective
+ // element in the DOM.
+-- 
+2.30.1
+

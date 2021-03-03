@@ -1,7 +1,7 @@
-From 981fea2ae5ff0824c806ac98d8373602c7b0f970 Mon Sep 17 00:00:00 2001
+From 421894f748c43c05bc4563a0859b36a98d41d09d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 12 Jul 2019 04:23:18 -0400
-Subject: [PATCH 33/74] disable browser sign in feature by default
+Subject: [PATCH 33/72] disable browser sign in feature by default
 
 ---
  chrome/browser/signin/account_consistency_mode_manager.cc       | 2 +-
@@ -9,10 +9,10 @@ Subject: [PATCH 33/74] disable browser sign in feature by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
-index 8c0099eef030..33f91be31f5f 100644
+index bdebfdc6807c..2954bfee0da0 100644
 --- a/chrome/browser/signin/account_consistency_mode_manager.cc
 +++ b/chrome/browser/signin/account_consistency_mode_manager.cc
-@@ -118,7 +118,7 @@ void AccountConsistencyModeManager::RegisterProfilePrefs(
+@@ -119,7 +119,7 @@ void AccountConsistencyModeManager::RegisterProfilePrefs(
  #if BUILDFLAG(ENABLE_DICE_SUPPORT)
    registry->RegisterBooleanPref(kDiceMigrationCompletePref, false);
  #endif
@@ -22,10 +22,10 @@ index 8c0099eef030..33f91be31f5f 100644
  
  // static
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index 8f5528f06c98..a07ded2651e9 100644
+index 5c3b9c122124..848671625f63 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -57,7 +57,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -55,7 +55,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(prefs::kGoogleServicesConsentedToSync, false);
    registry->RegisterBooleanPref(prefs::kAutologinEnabled, true);
    registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);

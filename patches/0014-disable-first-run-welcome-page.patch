@@ -1,17 +1,17 @@
-From 9437c6c0d03586fd85278b8b68955586f0c798e8 Mon Sep 17 00:00:00 2001
+From 1606373eddad40b356599557c7bb4ae37919c549 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 24 Nov 2016 08:19:03 -0500
-Subject: [PATCH 14/74] disable first run welcome page
+Subject: [PATCH 14/72] disable first run welcome page
 
 ---
  .../chrome/browser/firstrun/FirstRunActivity.java         | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-index 4d76cb02d121..df105b6ed79b 100644
+index 54469ad0153b..01c44da6b591 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -134,10 +134,10 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
+@@ -128,10 +128,10 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
       * Defines a sequence of pages to be shown (depending on parameters etc).
       */
      private void createPageSequence() {
@@ -20,11 +20,11 @@ index 4d76cb02d121..df105b6ed79b 100644
 -                        : new ToSAndUMAFirstRunFragment.Page());
 -        mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
 +        //mPages.add(shouldCreateEnterpriseCctTosPage()
-+        //                ? new TosAndUmaFirstRunFragmentWithEnterpriseSupport.Page()
-+        //                : new ToSAndUMAFirstRunFragment.Page());
++                        //? new TosAndUmaFirstRunFragmentWithEnterpriseSupport.Page()
++                        //: new ToSAndUMAFirstRunFragment.Page());
 +        //mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
-         // Other pages will be created by createPostNativePageSequence() after
-         // native has been initialized.
+         // Other pages will be created by createPostNativeAndPoliciesPageSequence() after
+         // native and policy service have been initialized.
      }
 -- 
 2.30.1

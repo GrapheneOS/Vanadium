@@ -1,0 +1,25 @@
+From c60865918cbbf5a08425f16ff3864d5153109b48 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 27 Nov 2020 02:43:37 -0500
+Subject: [PATCH 40/72] disable autofill assistant by default
+
+---
+ .../autofill_assistant/AutofillAssistantPreferencesUtil.java    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
+index e796def27968..61938ff289c8 100644
+--- a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
++++ b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
+@@ -23,7 +23,7 @@ public class AutofillAssistantPreferencesUtil {
+     /** Checks whether the Autofill Assistant switch preference in settings is on. */
+     static boolean isAutofillAssistantSwitchOn() {
+         return SharedPreferencesManager.getInstance().readBoolean(
+-                ChromePreferenceKeys.AUTOFILL_ASSISTANT_ENABLED, true);
++                ChromePreferenceKeys.AUTOFILL_ASSISTANT_ENABLED, false);
+     }
+ 
+     /** Checks whether proactive help is enabled. */
+-- 
+2.30.1
+

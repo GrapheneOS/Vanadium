@@ -1,18 +1,18 @@
-From e2a196000daf7f7889fb12398a0e509a90a500f3 Mon Sep 17 00:00:00 2001
+From 9699612eee1878fc97553f5f221a0c3b6dda5d45 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
-Subject: [PATCH 31/74] disable media router by default
+Subject: [PATCH 31/72] disable media router by default
 
 ---
- .../media/router/media_router_feature.cc      | 19 +++++++++----------
+ .../media/router/media_router_feature.cc      | 20 +++++++++----------
  chrome/browser/profiles/profile_impl.cc       |  2 +-
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ 2 files changed, 10 insertions(+), 12 deletions(-)
 
 diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
-index 52716b28a9b6..8108abed0e39 100644
+index 487542297e5f..01030339fec4 100644
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -55,7 +55,7 @@ const PrefService::Preference* GetMediaRouterPref(
+@@ -59,7 +59,7 @@ const PrefService::Preference* GetMediaRouterPref(
      content::BrowserContext* context) {
    return user_prefs::UserPrefs::Get(context)->FindPreference(
        ::prefs::kEnableMediaRouter);
@@ -21,15 +21,16 @@ index 52716b28a9b6..8108abed0e39 100644
  }  // namespace
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
  
-@@ -66,17 +66,16 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
- #endif  // !defined(OFFICIAL_BUILD) && !defined(OS_ANDROID)
+@@ -80,18 +80,16 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
+   if (it != stored_pref_values->end())
+     return it->second;
  
- #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
+-  // Check the enterprise policy.
 -  const PrefService::Preference* pref = GetMediaRouterPref(context);
--  // Only use the pref value if it set from a mandatory policy.
 -  if (pref->IsManaged() && !pref->IsDefaultValue()) {
--    bool allowed = false;
+-    bool allowed;
 -    CHECK(pref->GetValue()->GetAsBoolean(&allowed));
+-    stored_pref_values->insert(std::make_pair(context, allowed));
 -    return allowed;
 -  }
 -
@@ -48,18 +49,18 @@ index 52716b28a9b6..8108abed0e39 100644
    return false;
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index 03953cd006a5..4c021affc85b 100644
+index 4db0fc518259..880bc336b413 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -410,7 +410,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -456,7 +456,7 @@ void ProfileImpl::RegisterProfilePrefs(
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);
 -  registry->RegisterBooleanPref(prefs::kEnableMediaRouter, true);
 +  registry->RegisterBooleanPref(prefs::kEnableMediaRouter, false);
- #if defined(OS_CHROMEOS)
-   registry->RegisterBooleanPref(
-       prefs::kOobeMarketingOptInScreenFinished, false,
+ #if !defined(OS_ANDROID)
+   registry->RegisterBooleanPref(prefs::kShowCastIconInToolbar, false);
+ #endif  // !defined(OS_ANDROID)
 -- 
 2.30.1
 

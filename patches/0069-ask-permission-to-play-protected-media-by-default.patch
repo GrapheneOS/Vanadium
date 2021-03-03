@@ -1,0 +1,33 @@
+From 97e9146fa0b1c4502a4f91e4a502c008f2d80f82 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 1 Dec 2020 00:29:28 -0500
+Subject: [PATCH 69/72] ask permission to play protected media by default
+
+---
+ .../core/browser/content_settings_registry.cc            | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
+index 9281722b906e..018efaff0d62 100644
+--- a/components/content_settings/core/browser/content_settings_registry.cc
++++ b/components/content_settings/core/browser/content_settings_registry.cc
+@@ -78,16 +78,7 @@ std::set<ContentSetting> ValidSettings(ContentSetting setting1,
+ }
+ 
+ ContentSetting GetInitialDefaultContentSettingForProtectedMediaIdentifier() {
+-// On Android, the default value is ALLOW or ASK depending on whether per-origin
+-// provisioning is used (https://crbug.com/854737 and https://crbug.com/904883).
+-// On ChromeOS the default value is always ASK.
+-#if defined(OS_ANDROID)
+-  return media::MediaDrmBridge::IsPerOriginProvisioningSupported()
+-             ? CONTENT_SETTING_ALLOW
+-             : CONTENT_SETTING_ASK;
+-#else
+   return CONTENT_SETTING_ASK;
+-#endif  // defined(OS_ANDROID)
+ }
+ 
+ }  // namespace
+-- 
+2.30.1
+
