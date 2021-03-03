@@ -1,0 +1,25 @@
+From fa08419d4d3fff01adc1ab07f4c6112ee97ef149 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 3 Mar 2021 13:42:41 -0500
+Subject: [PATCH 73/73] enable user agent freeze by default
+
+---
+ third_party/blink/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 3e0a635810b1..e0b59bb9778c 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -53,7 +53,7 @@ const base::Feature kFreezePurgeMemoryAllPagesFrozen{
+ 
+ // Freezes the user-agent as part of https://github.com/WICG/ua-client-hints.
+ const base::Feature kFreezeUserAgent{"FreezeUserAgent",
+-                                     base::FEATURE_DISABLED_BY_DEFAULT};
++                                     base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ // Enables the frequency capping for detecting overlay popups. Overlay-popups
+ // are the interstitials that pop up and block the main content of the page.
+-- 
+2.30.1
+
