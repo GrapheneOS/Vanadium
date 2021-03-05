@@ -1,0 +1,39 @@
+From 64d6291fc7c5b97db476bf7d1dd4a27b91ce5825 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 18 Nov 2020 19:13:27 -0500
+Subject: [PATCH 67/73] disable Omaha update check support
+
+---
+ .../java/src/org/chromium/chrome/browser/omaha/OmahaBase.java   | 2 +-
+ .../org/chromium/chrome/browser/omaha/VersionNumberGetter.java  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
+index 72b6e89b595f..67146486505f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
+@@ -159,7 +159,7 @@ public class OmahaBase {
+ 
+     /** See {@link #sIsDisabled}. */
+     static boolean isDisabled() {
+-        return sIsDisabled;
++        return true;
+     }
+ 
+     /**
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
+index 2b342b05a0c4..26543522257f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
+@@ -43,7 +43,7 @@ public class VersionNumberGetter {
+     private static VersionNumberGetter sInstanceForTests;
+ 
+     /** If false, OmahaClient will never report that a newer version is available. */
+-    private static boolean sEnableUpdateDetection = true;
++    private static boolean sEnableUpdateDetection = false;
+ 
+     protected VersionNumberGetter() { }
+ 
+-- 
+2.30.1
+
