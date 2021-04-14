@@ -1,0 +1,25 @@
+From dcb04c6cfbe5296ad99d9e1daf21d590814c9ddd Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 23 Oct 2020 23:59:13 -0400
+Subject: [PATCH 41/74] enable prefetch privacy changes by default
+
+---
+ third_party/blink/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index cea77cf1289c..953c33f067d5 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -334,7 +334,7 @@ const base::Feature kComputePressure{"ComputePressure",
+ // Prefetch request properties are updated to be privacy-preserving. See
+ // crbug.com/988956.
+ const base::Feature kPrefetchPrivacyChanges{"PrefetchPrivacyChanges",
+-                                            base::FEATURE_DISABLED_BY_DEFAULT};
++                                            base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ // Decodes jpeg 4:2:0 formatted images to YUV instead of RGBX and stores in this
+ // format in the image decode cache. See crbug.com/919627 for details on the
+-- 
+2.31.1
+
