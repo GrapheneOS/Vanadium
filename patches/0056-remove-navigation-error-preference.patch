@@ -1,4 +1,4 @@
-From 3747bedb2093748b70cfd2a6119cbac3dcf94a87 Mon Sep 17 00:00:00 2001
+From 4f2306f01d466c10ac952a9da43d3ace372186a1 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
 Subject: [PATCH 56/74] remove navigation error preference
@@ -8,10 +8,10 @@ Subject: [PATCH 56/74] remove navigation error preference
  1 file changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 705990281032..d1282578799e 100644
+index b9b21052b342..43915274292e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -207,13 +207,15 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -213,13 +213,15 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -31,7 +31,7 @@ index 705990281032..d1282578799e 100644
          // If Safe Browsing section UI is enabled, Safe Browsing related preferences will be moved
          // to a dedicated "Safe Browsing" preference page.
          mIsSafeBrowsingPreferenceRemoved =
-@@ -584,7 +586,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -590,7 +592,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
          mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
@@ -41,5 +41,5 @@ index 705990281032..d1282578799e 100644
              mSafeBrowsing.setChecked(mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED));
              updateLeakDetectionAndSafeBrowsingReportingPreferences();
 -- 
-2.30.2
+2.31.1
 

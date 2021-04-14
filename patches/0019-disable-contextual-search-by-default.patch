@@ -1,4 +1,4 @@
-From 27abf146a8b3fa53460bc0fbafc632e6ed440828 Mon Sep 17 00:00:00 2001
+From 9e435e1a07b30a7c73015979e6a59fa387c6aff6 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 23 Nov 2016 09:26:51 -0500
 Subject: [PATCH 19/74] disable contextual search by default
@@ -22,10 +22,10 @@ index 46bacf442c06..78064663ad4c 100644
  
      /**
 diff --git a/chrome/browser/profiles/profile.cc b/chrome/browser/profiles/profile.cc
-index c5999dc92fdc..b0c5e60edbbc 100644
+index 8e8a7abdcf17..664530390c30 100644
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -253,7 +253,7 @@ void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -252,7 +252,7 @@ void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
  #if defined(OS_ANDROID)
    registry->RegisterStringPref(
        prefs::kContextualSearchEnabled,
@@ -35,5 +35,5 @@ index c5999dc92fdc..b0c5e60edbbc 100644
  #endif  // defined(OS_ANDROID)
    registry->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
 -- 
-2.30.2
+2.31.1
 

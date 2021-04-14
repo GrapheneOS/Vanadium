@@ -1,4 +1,4 @@
-From 930faccb3d716f379f1340ce3ae4de3bbf2af1b8 Mon Sep 17 00:00:00 2001
+From 50aa0618271bf39298e9ec562b0f3e376f206c54 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:48:41 -0400
 Subject: [PATCH 58/74] remove safe browsing reporting preference
@@ -8,10 +8,10 @@ Subject: [PATCH 58/74] remove safe browsing reporting preference
  1 file changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 06b9c1ef78ef..908da28f9483 100644
+index 3a4abd3e4c4b..1a77082e4130 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -241,8 +241,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -247,8 +247,10 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
              mSafeBrowsingReporting =
                      (ChromeSwitchPreference) findPreference(PREF_SAFE_BROWSING_SCOUT_REPORTING);
@@ -24,7 +24,7 @@ index 06b9c1ef78ef..908da28f9483 100644
          }
  
          // If the metrics-settings-android flag is not enabled, remove the corresponding element.
-@@ -662,9 +664,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -668,9 +670,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
          assert !mIsSafeBrowsingPreferenceRemoved;
          boolean safe_browsing_enabled = mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED);
@@ -38,5 +38,5 @@ index 06b9c1ef78ef..908da28f9483 100644
          if (mPasswordLeakDetection == null) {
              return;
 -- 
-2.30.2
+2.31.1
 

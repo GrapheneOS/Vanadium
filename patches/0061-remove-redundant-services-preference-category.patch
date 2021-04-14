@@ -1,4 +1,4 @@
-From b5659c0033485e2487d3b276856709757a9402b5 Mon Sep 17 00:00:00 2001
+From cb7258b2effadec7c652135991dc58d9a8d3afbe Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sat, 3 Aug 2019 00:34:43 -0400
 Subject: [PATCH 61/74] remove redundant services preference category
@@ -34,10 +34,10 @@ index ad143c162b63..482d7ea6a92d 100644
 +    <!--</PreferenceCategory>-->
  </PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 4db5b207c824..caaa0810b67a 100644
+index a953e152568c..212af5bc5faa 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -101,7 +101,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -107,7 +107,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      public static final String PREF_SYNC_REQUESTED = "sync_requested";
      private static final String PREF_MANAGE_SYNC = "manage_sync";
  
@@ -46,7 +46,7 @@ index 4db5b207c824..caaa0810b67a 100644
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
      private static final String PREF_NAVIGATION_ERROR = "navigation_error";
      @VisibleForTesting
-@@ -207,13 +207,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -213,13 +213,13 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -63,7 +63,7 @@ index 4db5b207c824..caaa0810b67a 100644
          mNavigationError = null;
  
          // If Safe Browsing section UI is enabled, Safe Browsing related preferences will be moved
-@@ -221,9 +221,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -227,9 +227,9 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mIsSafeBrowsingPreferenceRemoved =
                  ChromeFeatureList.isEnabled(ChromeFeatureList.SAFE_BROWSING_SECTION_UI);
          if (mIsSafeBrowsingPreferenceRemoved) {
@@ -76,7 +76,7 @@ index 4db5b207c824..caaa0810b67a 100644
              mSafeBrowsing = null;
              mPasswordLeakDetection = null;
              mSafeBrowsingReporting = null;
-@@ -236,34 +236,34 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -242,34 +242,34 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
                      (ChromeSwitchPreference) findPreference(PREF_PASSWORD_LEAK_DETECTION);
              //mPasswordLeakDetection.setOnPreferenceChangeListener(this);
              //mPasswordLeakDetection.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
@@ -116,7 +116,7 @@ index 4db5b207c824..caaa0810b67a 100644
          mUrlKeyedAnonymizedData = null;
  
          mAutofillAssistant = (ChromeSwitchPreference) findPreference(PREF_AUTOFILL_ASSISTANT);
-@@ -272,20 +272,20 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -278,20 +278,20 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          // enabled, then the subsection should show.
          if (ChromeFeatureList.isEnabled(ChromeFeatureList.AUTOFILL_ASSISTANT_PROACTIVE_HELP)
                  || ChromeFeatureList.isEnabled(ChromeFeatureList.OMNIBOX_ASSISTANT_VOICE_SEARCH)) {
@@ -141,10 +141,10 @@ index 4db5b207c824..caaa0810b67a 100644
          }
  
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index eccd241dc791..ebf1744c11bd 100644
+index a2d00e57cfda..09b2b6c89aac 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -318,9 +318,9 @@ CHAR-LIMIT guidelines:
+@@ -321,9 +321,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
          Manage sync
        </message>
@@ -158,5 +158,5 @@ index eccd241dc791..ebf1744c11bd 100644
          Google services
        </message>
 -- 
-2.30.2
+2.31.1
 

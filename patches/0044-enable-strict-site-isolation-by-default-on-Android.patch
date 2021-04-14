@@ -1,4 +1,4 @@
-From 1b7683a3b2e9203e7528868aecc8fd5f916ca5ca Mon Sep 17 00:00:00 2001
+From 8fa1ba362c964f02bf3bb3d19324c624128edf6b Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH 44/74] enable strict site isolation by default on Android
@@ -9,13 +9,14 @@ Subject: [PATCH 44/74] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 26 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 1f7e7ced6a98..59500ebe3749 100644
+index 01dea31dd36b..86b3b33e4da5 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3314,26 +3314,6 @@ const FeatureEntry kFeatureEntries[] = {
-      FEATURE_VALUE_TYPE(performance_manager::features::kDynamicTcmallocTuning)},
- #endif  // BUILDFLAG(USE_TCMALLOC)
- #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
+@@ -3397,26 +3397,6 @@ const FeatureEntry kFeatureEntries[] = {
+      flag_descriptions::kMojoLinuxChannelSharedMemDescription,
+      kOsCrOS | kOsLinux | kOsAndroid,
+      FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
+-#endif
 -#if defined(OS_ANDROID)
 -    {"enable-site-isolation-for-password-sites",
 -     flag_descriptions::kSiteIsolationForPasswordSitesName,
@@ -35,15 +36,14 @@ index 1f7e7ced6a98..59500ebe3749 100644
 -     flag_descriptions::kProcessSharingWithStrictSiteInstancesDescription,
 -     kOsAndroid,
 -     FEATURE_VALUE_TYPE(features::kProcessSharingWithStrictSiteInstances)},
--#endif
+ #endif
      {"isolate-origins", flag_descriptions::kIsolateOriginsName,
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
-      ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index c9691d43174f..7ad84d307244 100644
+index a26a9c95fb1b..489eece1009f 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -816,12 +816,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
+@@ -844,12 +844,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {
@@ -58,5 +58,5 @@ index c9691d43174f..7ad84d307244 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
 -- 
-2.30.2
+2.31.1
 

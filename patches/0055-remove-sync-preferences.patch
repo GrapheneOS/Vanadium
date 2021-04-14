@@ -1,4 +1,4 @@
-From 5a27a8a97afca3cbe6bd9cdc2585de541ffb086f Mon Sep 17 00:00:00 2001
+From 462be5fd0f17032ff1be596a960cc2a26f42858f Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:12:28 -0400
 Subject: [PATCH 55/74] remove sync preferences
@@ -82,10 +82,10 @@ index 3962dbd93ec9..ad143c162b63 100644
      <PreferenceCategory
          android:key="services_category"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index d61e45c19725..705990281032 100644
+index 9651761b73fc..b9b21052b342 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -133,14 +133,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -139,14 +139,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
      private boolean mIsFromSigninScreen;
  
@@ -107,7 +107,7 @@ index d61e45c19725..705990281032 100644
  
      private ChromeSwitchPreference mSearchSuggestions;
      private ChromeSwitchPreference mNavigationError;
-@@ -185,23 +185,23 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -191,23 +191,23 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          SettingsUtils.addPreferencesFromResource(this, R.xml.sync_and_services_preferences);
  
@@ -148,7 +148,7 @@ index d61e45c19725..705990281032 100644
  
          mSearchSuggestions = (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
          mSearchSuggestions.setOnPreferenceChangeListener(this);
-@@ -290,16 +290,16 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -296,16 +296,16 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          super.onDestroy();
          // The user might also sign out from this page. Check to see if the user is signed in
          // before going through this flow.
@@ -175,7 +175,7 @@ index d61e45c19725..705990281032 100644
          mSyncSetupInProgressHandle.close();
      }
  
-@@ -581,7 +581,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -587,7 +587,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      }
  
      private void updatePreferences() {
@@ -184,7 +184,7 @@ index d61e45c19725..705990281032 100644
  
          mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
          mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
-@@ -607,49 +607,49 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -613,49 +613,49 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          }
      }
  
@@ -278,10 +278,10 @@ index d61e45c19725..705990281032 100644
      /**
       * If password leak detection is off and cannot be toggled while safe browsing is disabled, so
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 912077edfc56..eccd241dc791 100644
+index 7f7bc69b9ed0..a2d00e57cfda 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -312,9 +312,9 @@ CHAR-LIMIT guidelines:
+@@ -315,9 +315,9 @@ CHAR-LIMIT guidelines:
        <message name="IDS_SYNC_CATEGORY_TITLE" desc="Title for the group of Sync-related entries in Settings. This group contains preferences for data tied to user's Google Account.">
          Sync
        </message>
@@ -295,7 +295,7 @@ index 912077edfc56..eccd241dc791 100644
          Manage sync
        </message>
 diff --git a/components/browser_ui/strings/android/browser_ui_strings.grd b/components/browser_ui/strings/android/browser_ui_strings.grd
-index 94aa21e941c1..46c11698e72b 100644
+index 88f967873d6e..0b04164d337a 100644
 --- a/components/browser_ui/strings/android/browser_ui_strings.grd
 +++ b/components/browser_ui/strings/android/browser_ui_strings.grd
 @@ -288,9 +288,9 @@
@@ -312,5 +312,5 @@ index 94aa21e941c1..46c11698e72b 100644
          Move up
        </message>
 -- 
-2.30.2
+2.31.1
 
