@@ -1,12 +1,12 @@
-From 6b61d73ef3815ebf70e8b46ced8b09a6619f70ef Mon Sep 17 00:00:00 2001
+From 6e16e80226c5d47aa1438a4b46832861c3995064 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 27 Nov 2020 02:43:37 -0500
 Subject: [PATCH 47/76] disable autofill assistant by default
 
 ---
- .../autofill_assistant/AutofillAssistantPreferencesUtil.java    | 2 +-
- components/autofill_assistant/browser/features.cc               | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ .../autofill_assistant/AutofillAssistantPreferencesUtil.java  | 2 +-
+ components/autofill_assistant/browser/features.cc             | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
 index 59d1ea6a35ab..d1ac8a844d50 100644
@@ -22,7 +22,7 @@ index 59d1ea6a35ab..d1ac8a844d50 100644
  
      /** Checks whether proactive help is enabled. */
 diff --git a/components/autofill_assistant/browser/features.cc b/components/autofill_assistant/browser/features.cc
-index 3b91c5fc4648..ad75e44cb7a7 100644
+index 3b91c5fc4648..605d8c07b5cf 100644
 --- a/components/autofill_assistant/browser/features.cc
 +++ b/components/autofill_assistant/browser/features.cc
 @@ -10,7 +10,7 @@ namespace autofill_assistant {
@@ -34,6 +34,15 @@ index 3b91c5fc4648..ad75e44cb7a7 100644
  
  // Controls whether to enable Assistant Autofill in a normal Chrome tab.
  const base::Feature kAutofillAssistantChromeEntry{
+@@ -33,7 +33,7 @@ const base::Feature kAutofillAssistantFeedbackChip{
+     "AutofillAssistantFeedbackChip", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kAutofillAssistantProactiveHelp{
+-    "AutofillAssistantProactiveHelp", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillAssistantProactiveHelp", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Use Chrome's TabHelper system to deal with the life cycle of WebContent's
+ // depending Autofill Assistant objects.
 -- 
 2.31.1
 
