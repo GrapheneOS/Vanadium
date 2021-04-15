@@ -1,125 +1,24 @@
-From f9433d0e05f4608422d0ec0d1593405d2016fbe6 Mon Sep 17 00:00:00 2001
+From 67a1128aec4e0c32d1bdf47f67c840aae5c8710a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
-Date: Sat, 6 Jul 2019 05:56:45 -0400
+Date: Thu, 15 Apr 2021 02:14:37 -0400
 Subject: [PATCH 13/76] remove Help & feedback menu entry
 
 ---
- .../java/src/org/chromium/chrome/browser/vr/VrShell.java | 2 +-
- chrome/android/java/res/menu/main_menu.xml               | 3 ---
- chrome/android/java/res/menu/main_menu_regroup.xml       | 3 ---
- .../org/chromium/chrome/browser/KeyboardShortcuts.java   | 3 ---
- .../org/chromium/chrome/browser/app/ChromeActivity.java  | 9 ---------
- .../chrome/browser/customtabs/BaseCustomTabActivity.java | 2 +-
- .../browser/directactions/MenuDirectActionHandler.java   | 2 --
- 7 files changed, 2 insertions(+), 22 deletions(-)
+ .../browser/app/appmenu/AppMenuPropertiesDelegateImpl.java      | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-index 2a9904043d1d..57370623becb 100644
---- a/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-+++ b/chrome/android/features/vr/java/src/org/chromium/chrome/browser/vr/VrShell.java
-@@ -1137,7 +1137,7 @@ public class VrShell extends GvrLayout
- 
-     @CalledByNative
-     public void openFeedback() {
--        mActivity.onMenuOrKeyboardAction(R.id.help_id, true);
-+        //mActivity.onMenuOrKeyboardAction(R.id.help_id, true);
-     }
- 
-     private void updateHistoryButtonsVisibility() {
-diff --git a/chrome/android/java/res/menu/main_menu.xml b/chrome/android/java/res/menu/main_menu.xml
-index 69632c9b0ab5..eae8eab91777 100644
---- a/chrome/android/java/res/menu/main_menu.xml
-+++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -114,9 +114,6 @@
-         <item android:id="@+id/preferences_id"
-             android:title="@string/menu_settings"
-             android:icon="@drawable/settings_cog" />
--        <item android:id="@+id/help_id"
--            android:title="@string/menu_help"
--            android:icon="@drawable/help_outline" />
-         <item android:id="@+id/enter_vr_id"
-             android:title="@string/enter_vr"
-             android:icon="@drawable/vr_headset" />
-diff --git a/chrome/android/java/res/menu/main_menu_regroup.xml b/chrome/android/java/res/menu/main_menu_regroup.xml
-index 737b73dc2319..b2e307ba9af9 100644
---- a/chrome/android/java/res/menu/main_menu_regroup.xml
-+++ b/chrome/android/java/res/menu/main_menu_regroup.xml
-@@ -176,9 +176,6 @@
-         <item android:id="@+id/info_id"
-             android:title="@string/menu_page_info"
-             android:icon="@drawable/btn_info" />
--        <item android:id="@+id/help_id"
--            android:title="@string/menu_help"
--            android:icon="@drawable/help_outline" />
-         <item android:id="@+id/enter_vr_id"
-             android:title="@string/enter_vr"
-             android:icon="@drawable/vr_headset" />
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-index a8759b5dead0..c52ca24395e5 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java
-@@ -343,9 +343,6 @@ public class KeyboardShortcuts {
-                     tab = activity.getActivityTab();
-                     if (tab != null && tab.canGoForward()) tab.goForward();
-                     return true;
--                case CTRL | SHIFT | KeyEvent.KEYCODE_SLASH:  // i.e. Ctrl+?
--                    activity.onMenuOrKeyboardAction(R.id.help_id, false);
--                    return true;
-             }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
+index f7735b72934a..0e6a8807dc68 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
+@@ -546,6 +546,8 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
+             infoMenuItem.setVisible(shouldShowInfoInMenu());
          }
  
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-index 4d17e48b5e5e..6d8eef977657 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -2207,15 +2207,6 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
- 
-         final Tab currentTab = getActivityTab();
- 
--        if (id == R.id.help_id) {
--            String url = currentTab != null ? currentTab.getUrlString() : "";
--            Profile profile = getTabModelSelector().isIncognitoSelected()
--                    ? Profile.getLastUsedRegularProfile().getPrimaryOTRProfile()
--                    : Profile.getLastUsedRegularProfile();
--            startHelpAndFeedback(url, "MobileMenuFeedback", profile);
--            return true;
--        }
--
-         if (id == R.id.open_history_menu_id) {
-             // 'currentTab' could only be null when opening history from start surface, which is
-             // not available on tablet.
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-index f90d1cef0ce6..e41e1472d83c 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-@@ -497,7 +497,7 @@ public abstract class BaseCustomTabActivity extends ChromeActivity<BaseCustomTab
-     @Override
-     public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
-         // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
--        if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id || id == R.id.help_id
-+        if (id == R.id.focus_url_bar || id == R.id.all_bookmarks_menu_id
-                 || id == R.id.recent_tabs_menu_id || id == R.id.new_incognito_tab_menu_id
-                 || id == R.id.new_tab_menu_id || id == R.id.open_history_menu_id) {
-             return true;
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
-index 3af4f9ccfb59..e6962e44b083 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java
-@@ -36,7 +36,6 @@ class MenuDirectActionHandler implements DirectActionHandler {
-         map.put(ChromeDirectActionIds.RELOAD, R.id.reload_menu_id);
-         map.put(ChromeDirectActionIds.BOOKMARK_THIS_PAGE, R.id.bookmark_this_page_id);
-         map.put(ChromeDirectActionIds.DOWNLOADS, R.id.downloads_menu_id);
--        map.put(ChromeDirectActionIds.HELP, R.id.help_id);
-         map.put(ChromeDirectActionIds.NEW_TAB, R.id.new_tab_menu_id);
-         map.put(ChromeDirectActionIds.OPEN_HISTORY, R.id.open_history_menu_id);
-         map.put(ChromeDirectActionIds.PREFERENCES, R.id.preferences_id);
-@@ -92,7 +91,6 @@ class MenuDirectActionHandler implements DirectActionHandler {
-         }
- 
-         availableItemIds.add(R.id.downloads_menu_id);
--        availableItemIds.add(R.id.help_id);
-         availableItemIds.add(R.id.new_tab_menu_id);
-         availableItemIds.add(R.id.preferences_id);
++        menu.findItem(R.id.help_id).setVisible(false);
++
+         // Only display the Enter VR button if VR Shell Dev environment is enabled.
+         menu.findItem(R.id.enter_vr_id).setVisible(shouldShowEnterVr());
  
 -- 
 2.31.1
