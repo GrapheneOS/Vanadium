@@ -1,0 +1,50 @@
+From ff59adaa33c98c4bd2daf9bbf6ef95f4fabfa353 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 8 Mar 2021 16:53:47 -0500
+Subject: [PATCH 45/75] enable partitioning connections by default
+
+---
+ net/base/features.cc | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 0fda76e36fd6..94ee7fc03497 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -74,27 +74,27 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
+     "SplitCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kSplitHostCacheByNetworkIsolationKey{
+-    "SplitHostCacheByNetworkIsolationKey", base::FEATURE_DISABLED_BY_DEFAULT};
++    "SplitHostCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kPartitionConnectionsByNetworkIsolationKey{
+     "PartitionConnectionsByNetworkIsolationKey",
+-    base::FEATURE_DISABLED_BY_DEFAULT};
++    base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kPartitionHttpServerPropertiesByNetworkIsolationKey{
+     "PartitionHttpServerPropertiesByNetworkIsolationKey",
+-    base::FEATURE_DISABLED_BY_DEFAULT};
++    base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kPartitionSSLSessionsByNetworkIsolationKey{
+     "PartitionSSLSessionsByNetworkIsolationKey",
+-    base::FEATURE_DISABLED_BY_DEFAULT};
++    base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kPartitionExpectCTStateByNetworkIsolationKey{
+     "PartitionExpectCTStateByNetworkIsolationKey",
+-    base::FEATURE_DISABLED_BY_DEFAULT};
++    base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kPartitionNelAndReportingByNetworkIsolationKey{
+     "PartitionNelAndReportingByNetworkIsolationKey",
+-    base::FEATURE_DISABLED_BY_DEFAULT};
++    base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kExpectCTPruning{"ExpectCTPruning",
+                                      base::FEATURE_ENABLED_BY_DEFAULT};
+-- 
+2.31.1
+

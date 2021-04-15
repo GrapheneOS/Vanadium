@@ -1,0 +1,25 @@
+From 7961edc351e79bc1986e7384d274312fe1876b7d Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 15 Apr 2021 01:06:12 -0400
+Subject: [PATCH 42/75] disable speculative service worker start by default
+
+---
+ components/omnibox/common/omnibox_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/omnibox/common/omnibox_features.cc b/components/omnibox/common/omnibox_features.cc
+index 2f25cc4b6280..02296f7e75cb 100644
+--- a/components/omnibox/common/omnibox_features.cc
++++ b/components/omnibox/common/omnibox_features.cc
+@@ -100,7 +100,7 @@ const base::Feature kUIExperimentSwapTitleAndUrl{
+ // query.
+ const base::Feature kSpeculativeServiceWorkerStartOnQueryInput{
+     "OmniboxSpeculativeServiceWorkerStartOnQueryInput",
+-    base::FEATURE_ENABLED_BY_DEFAULT};
++    base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Feature used to fetch document suggestions.
+ const base::Feature kDocumentProvider{"OmniboxDocumentProvider",
+-- 
+2.31.1
+
