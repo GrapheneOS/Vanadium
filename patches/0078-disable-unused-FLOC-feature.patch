@@ -1,0 +1,25 @@
+From f17061ebc1df958595f5c72a8a3fbe9c09db0f83 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 17 Apr 2021 12:27:00 -0400
+Subject: [PATCH 78/78] disable unused FLOC feature
+
+---
+ components/federated_learning/features/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/federated_learning/features/features.cc b/components/federated_learning/features/features.cc
+index 0ca6994fc253..07406bd3f5c9 100644
+--- a/components/federated_learning/features/features.cc
++++ b/components/federated_learning/features/features.cc
+@@ -24,7 +24,7 @@ const base::Feature kFlocIdSortingLshBasedComputation{
+ // required.
+ // TODO(yaoxia): merge other floc features into this one.
+ const base::Feature kFederatedLearningOfCohorts{
+-    "FederatedLearningOfCohorts", base::FEATURE_ENABLED_BY_DEFAULT};
++    "FederatedLearningOfCohorts", base::FEATURE_DISABLED_BY_DEFAULT};
+ constexpr base::FeatureParam<base::TimeDelta> kFlocIdScheduledUpdateInterval{
+     &kFederatedLearningOfCohorts, "update_interval",
+     base::TimeDelta::FromDays(7)};
+-- 
+2.31.1
+
