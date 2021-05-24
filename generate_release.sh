@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[[ $# -eq 1 ]] || exit 1
+
 set -o errexit -o nounset -o pipefail
 
 KEYSTORE=$PWD/../vanadium.keystore
@@ -10,7 +12,7 @@ AAPT2=$PWD/third_party/android_build_tools/aapt2/aapt2
 read -p "Enter keystore passphrase: " -s keystore_pass
 echo
 
-cd out/Default/apks
+cd "$1/Default/apks"
 
 rm -rf release
 mkdir release
