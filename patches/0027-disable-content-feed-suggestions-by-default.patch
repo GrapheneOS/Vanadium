@@ -1,7 +1,7 @@
-From b3c4a905645c07f4b5ba3b12746a49c748781e41 Mon Sep 17 00:00:00 2001
+From b6d12abf153ee5022b4d2836ef14750544a10bed Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 01:23:48 -0400
-Subject: [PATCH 27/79] disable content feed suggestions by default
+Subject: [PATCH 27/77] disable content feed suggestions by default
 
 ---
  .../org/chromium/chrome/browser/flags/CachedFeatureFlags.java | 2 +-
@@ -9,20 +9,20 @@ Subject: [PATCH 27/79] disable content feed suggestions by default
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
-index 7c30f52a1545..8f834ee92b76 100644
+index 6dd03aab562c..cf5d6bfbc25a 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
-@@ -78,7 +78,7 @@ public class CachedFeatureFlags {
+@@ -76,7 +76,7 @@ public class CachedFeatureFlags {
+             put(ChromeFeatureList.TAB_TO_GTS_ANIMATION, true);
              put(ChromeFeatureList.TEST_DEFAULT_DISABLED, false);
              put(ChromeFeatureList.TEST_DEFAULT_ENABLED, true);
-             put(ChromeFeatureList.REPORT_FEED_USER_ACTIONS, false);
 -            put(ChromeFeatureList.INTEREST_FEED_V2, true);
 +            put(ChromeFeatureList.INTEREST_FEED_V2, false);
-             put(ChromeFeatureList.TABBED_APP_OVERFLOW_MENU_ICONS, false);
-             put(ChromeFeatureList.TABBED_APP_OVERFLOW_MENU_REGROUP, false);
-             put(ChromeFeatureList.TABBED_APP_OVERFLOW_MENU_THREE_BUTTON_ACTIONBAR, false);
+             put(ChromeFeatureList.THEME_REFACTOR_ANDROID, false);
+             put(ChromeFeatureList.USE_CHIME_ANDROID_SDK, false);
+             put(ChromeFeatureList.CCT_INCOGNITO_AVAILABLE_TO_THIRD_PARTY, false);
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index d3c1ae78d6be..27d8ae2e230c 100644
+index 6a0ec02664c5..9af39543b3b9 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -11,12 +11,12 @@
@@ -38,8 +38,8 @@ index d3c1ae78d6be..27d8ae2e230c 100644
 -                                    base::FEATURE_ENABLED_BY_DEFAULT};
 +                                    base::FEATURE_DISABLED_BY_DEFAULT};
  
- const base::Feature kInterestFeedV2Hearts{"InterestFeedV2Hearts",
-                                           base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::Feature kInterestFeedV2Autoplay{"InterestFeedV2Autoplay",
+                                             base::FEATURE_DISABLED_BY_DEFAULT};
 -- 
 2.31.1
 

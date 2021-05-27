@@ -1,7 +1,7 @@
-From c84040241f5d272e4cfca780b4d9abc0a9e61d23 Mon Sep 17 00:00:00 2001
+From 6c5aa54f079e356df0c273cb7a7456c3ac4e8b8c Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 8 Mar 2018 22:43:12 -0500
-Subject: [PATCH 25/79] disable article suggestions feature by default
+Subject: [PATCH 25/77] disable article suggestions feature by default
 
 ---
  components/feed/core/shared_prefs/pref_names.cc | 4 ++--
@@ -9,20 +9,20 @@ Subject: [PATCH 25/79] disable article suggestions feature by default
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/components/feed/core/shared_prefs/pref_names.cc b/components/feed/core/shared_prefs/pref_names.cc
-index 7f4f7a91413b..eb527a275e83 100644
+index 57a65895fbde..511f7a2b500e 100644
 --- a/components/feed/core/shared_prefs/pref_names.cc
 +++ b/components/feed/core/shared_prefs/pref_names.cc
-@@ -19,8 +19,8 @@ const char kEnableSnippets[] = "ntp_snippets.enable";
- const char kArticlesListVisible[] = "ntp_snippets.list_visible";
+@@ -20,8 +20,8 @@ const char kArticlesListVisible[] = "ntp_snippets.list_visible";
+ const char kVideoPreviewsType[] = "ntp_snippets.video_previews_type";
  
  void RegisterFeedSharedProfilePrefs(PrefRegistrySimple* registry) {
 -  registry->RegisterBooleanPref(kEnableSnippets, true);
 -  registry->RegisterBooleanPref(kArticlesListVisible, true);
 +  registry->RegisterBooleanPref(kEnableSnippets, false);
 +  registry->RegisterBooleanPref(kArticlesListVisible, false);
+   registry->RegisterIntegerPref(kVideoPreviewsType, 1);
  }
  
- }  // namespace prefs
 diff --git a/components/ntp_snippets/features.cc b/components/ntp_snippets/features.cc
 index 226d09dcb96a..50234b43c032 100644
 --- a/components/ntp_snippets/features.cc

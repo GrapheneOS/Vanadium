@@ -1,0 +1,25 @@
+From d0dbeb585544cbf402a01c44976d6c82cdef3f06 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 25 May 2021 16:43:39 -0400
+Subject: [PATCH 73/77] remove safety check menu
+
+---
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index 3b44746a74ef..92e98c0530ef 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -198,6 +198,8 @@ public class MainSettings extends PreferenceFragmentCompat
+             TemplateUrlServiceFactory.get().load();
+         }
+ 
++        getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
++
+         // Replace the account section header, replace SyncAndServicesSettings with
+         // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
+         if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
+-- 
+2.31.1
+

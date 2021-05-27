@@ -1,17 +1,17 @@
-From 2d8edcd5f319733a03824539cb9bc3108e03f313 Mon Sep 17 00:00:00 2001
+From 166d26428506da4b7ebd396a8a99a3781d07da40 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 23:46:41 -0400
-Subject: [PATCH 63/79] remove navigation error preference
+Subject: [PATCH 63/77] remove navigation error preference
 
 ---
- .../sync/settings/SyncAndServicesSettings.java       | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ .../browser/sync/settings/SyncAndServicesSettings.java    | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index b9b21052b342..43915274292e 100644
+index aa5a7e1061d0..47fc4dd49c94 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -213,13 +213,15 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -199,13 +199,11 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          mSearchSuggestions.setOnPreferenceChangeListener(this);
          mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -22,24 +22,20 @@ index b9b21052b342..43915274292e 100644
          PreferenceCategory servicesCategory =
                  (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
  
-+        mNavigationError = (ChromeSwitchPreference) findPreference(PREF_NAVIGATION_ERROR);
-+        //mNavigationError.setOnPreferenceChangeListener(this);
-+        //mNavigationError.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
-+        removePreference(servicesCategory, mNavigationError);
-+        mNavigationError = null;
++        removePreference(servicesCategory, findPreference(PREF_NAVIGATION_ERROR));
 +
-         // If Safe Browsing section UI is enabled, Safe Browsing related preferences will be moved
-         // to a dedicated "Safe Browsing" preference page.
-         mIsSafeBrowsingPreferenceRemoved =
-@@ -590,7 +592,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         // If the metrics-settings-android flag is not enabled, remove the corresponding element.
+         if (!ChromeFeatureList.isEnabled(ChromeFeatureList.METRICS_SETTINGS_ANDROID)) {
+             removePreference(servicesCategory, findPreference(PREF_METRICS_SETTINGS));
+@@ -535,7 +533,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          //updateSyncPreferences();
  
          mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
 -        mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
 +        //mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
-         if (!mIsSafeBrowsingPreferenceRemoved) {
-             mSafeBrowsing.setChecked(mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED));
-             updateLeakDetectionAndSafeBrowsingReportingPreferences();
+ 
+         mUsageAndCrashReporting.setChecked(
+                 mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
 -- 
 2.31.1
 

@@ -1,0 +1,127 @@
+From f0701d04b750eef4b9e7cb0cf39e52cfb665438d Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 3 Aug 2019 00:34:43 -0400
+Subject: [PATCH 66/77] remove redundant services preference category
+
+---
+ .../res/xml/sync_and_services_preferences.xml |  8 ++++----
+ .../settings/SyncAndServicesSettings.java     | 20 +++++++++----------
+ .../strings/android_chrome_strings.grd        |  6 +++---
+ 3 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+index 323e2ac73e0c..70b0ae4d869b 100644
+--- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
++++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+@@ -42,9 +42,9 @@
+             <!--android:fragment="org.chromium.chrome.browser.sync.settings.ManageSyncSettings"/>-->
+     <!--</PreferenceCategory>-->
+ 
+-    <PreferenceCategory
+-        android:key="services_category"
+-        android:title="@string/services_category_title">
++    <!--<PreferenceCategory-->
++        <!--android:key="services_category"-->
++        <!--android:title="@string/services_category_title">-->
+ 
+         <!-- Only shown when metrics-settings-android flag is on. -->
+         <org.chromium.components.browser_ui.settings.ChromeBasePreference
+@@ -87,5 +87,5 @@
+             android:key="contextual_search"
+             android:title="@string/contextual_search_title"
+             android:fragment="org.chromium.chrome.browser.contextualsearch.ContextualSearchPreferenceFragment"/>
+-    </PreferenceCategory>
++    <!--</PreferenceCategory>-->
+ </PreferenceScreen>
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+index fc83212c2df6..6915cda7597f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
+@@ -104,7 +104,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+     public static final String PREF_SYNC_REQUESTED = "sync_requested";
+     private static final String PREF_MANAGE_SYNC = "manage_sync";
+ 
+-    private static final String PREF_SERVICES_CATEGORY = "services_category";
++    //private static final String PREF_SERVICES_CATEGORY = "services_category";
+     private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
+     private static final String PREF_NAVIGATION_ERROR = "navigation_error";
+     private static final String PREF_USAGE_AND_CRASH_REPORTING = "usage_and_crash_reports";
+@@ -199,28 +199,28 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         mSearchSuggestions.setOnPreferenceChangeListener(this);
+         mSearchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
+-        PreferenceCategory servicesCategory =
+-                (PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
++        //PreferenceCategory servicesCategory =
++                //(PreferenceCategory) findPreference(PREF_SERVICES_CATEGORY);
+ 
+-        removePreference(servicesCategory, findPreference(PREF_NAVIGATION_ERROR));
++        getPreferenceScreen().removePreference(findPreference(PREF_NAVIGATION_ERROR));
+ 
+         // If the metrics-settings-android flag is not enabled, remove the corresponding element.
+         if (!ChromeFeatureList.isEnabled(ChromeFeatureList.METRICS_SETTINGS_ANDROID)) {
+-            removePreference(servicesCategory, findPreference(PREF_METRICS_SETTINGS));
++            getPreferenceScreen().removePreference(findPreference(PREF_METRICS_SETTINGS));
+         }
+ 
+         mUsageAndCrashReporting =
+                 (ChromeSwitchPreference) findPreference(PREF_USAGE_AND_CRASH_REPORTING);
+         //mUsageAndCrashReporting.setOnPreferenceChangeListener(this);
+         //mUsageAndCrashReporting.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+-        removePreference(servicesCategory, mUsageAndCrashReporting);
++        getPreferenceScreen().removePreference(mUsageAndCrashReporting);
+         mUsageAndCrashReporting = null;
+ 
+         mUrlKeyedAnonymizedData =
+                 (ChromeSwitchPreference) findPreference(PREF_URL_KEYED_ANONYMIZED_DATA);
+         //mUrlKeyedAnonymizedData.setOnPreferenceChangeListener(this);
+         //mUrlKeyedAnonymizedData.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+-        removePreference(servicesCategory, mUrlKeyedAnonymizedData);
++        getPreferenceScreen().removePreference(mUrlKeyedAnonymizedData);
+         mUrlKeyedAnonymizedData = null;
+ 
+         mAutofillAssistant = (ChromeSwitchPreference) findPreference(PREF_AUTOFILL_ASSISTANT);
+@@ -229,20 +229,20 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+         // enabled, then the subsection should show.
+         if (ChromeFeatureList.isEnabled(ChromeFeatureList.AUTOFILL_ASSISTANT_PROACTIVE_HELP)
+                 || ChromeFeatureList.isEnabled(ChromeFeatureList.OMNIBOX_ASSISTANT_VOICE_SEARCH)) {
+-            removePreference(servicesCategory, mAutofillAssistant);
++            getPreferenceScreen().removePreference(mAutofillAssistant);
+             mAutofillAssistant = null;
+             autofillAssistantSubsection.setVisible(true);
+         } else if (shouldShowAutofillAssistantPreference()) {
+             mAutofillAssistant.setOnPreferenceChangeListener(this);
+             mAutofillAssistant.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+         } else {
+-            removePreference(servicesCategory, mAutofillAssistant);
++            getPreferenceScreen().removePreference(mAutofillAssistant);
+             mAutofillAssistant = null;
+         }
+ 
+         mContextualSearch = findPreference(PREF_CONTEXTUAL_SEARCH);
+         if (!ContextualSearchFieldTrial.isEnabled()) {
+-            removePreference(servicesCategory, mContextualSearch);
++            getPreferenceScreen().removePreference(mContextualSearch);
+             mContextualSearch = null;
+         }
+ 
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 1ebbc0b82d0a..0a0fbf7873c6 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -321,9 +321,9 @@ CHAR-LIMIT guidelines:
+       <message name="IDS_MANAGE_SYNC_TITLE" desc="Title for the preference row that opens the screen that allows configuring separate data types. Displayed in 'Sync and Google services' screen.">
+         Manage sync
+       </message>
+-      <message name="IDS_SERVICES_CATEGORY_TITLE" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account.">
+-        Other Google services
+-      </message>
++      <!--<message name="IDS_SERVICES_CATEGORY_TITLE" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account.">-->
++        <!--Other Google services-->
++      <!--</message>-->
+       <message name="IDS_PREFS_GOOGLE_SERVICES" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account. [CHAR-LIMIT=40]">
+         Google services
+       </message>
+-- 
+2.31.1
+

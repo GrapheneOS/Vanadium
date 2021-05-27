@@ -1,7 +1,7 @@
-From a67ea37fc340cca464aac306e56cc5f0b1db5547 Mon Sep 17 00:00:00 2001
+From df1b471896a3dce9e934ec1332cf85113e3de5b8 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 27 Nov 2020 02:43:37 -0500
-Subject: [PATCH 47/79] disable autofill assistant by default
+Subject: [PATCH 47/77] disable autofill assistant by default
 
 ---
  .../autofill_assistant/AutofillAssistantPreferencesUtil.java  | 2 +-
@@ -9,7 +9,7 @@ Subject: [PATCH 47/79] disable autofill assistant by default
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
-index 59d1ea6a35ab..d1ac8a844d50 100644
+index 9be42a44bc28..a8937c2652ca 100644
 --- a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
 +++ b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
 @@ -23,7 +23,7 @@ public class AutofillAssistantPreferencesUtil {
@@ -22,7 +22,7 @@ index 59d1ea6a35ab..d1ac8a844d50 100644
  
      /** Checks whether proactive help is enabled. */
 diff --git a/components/autofill_assistant/browser/features.cc b/components/autofill_assistant/browser/features.cc
-index 3b91c5fc4648..605d8c07b5cf 100644
+index 8ab1acdd21b2..a82f3022126f 100644
 --- a/components/autofill_assistant/browser/features.cc
 +++ b/components/autofill_assistant/browser/features.cc
 @@ -10,7 +10,7 @@ namespace autofill_assistant {
@@ -34,8 +34,8 @@ index 3b91c5fc4648..605d8c07b5cf 100644
  
  // Controls whether to enable Assistant Autofill in a normal Chrome tab.
  const base::Feature kAutofillAssistantChromeEntry{
-@@ -33,7 +33,7 @@ const base::Feature kAutofillAssistantFeedbackChip{
-     "AutofillAssistantFeedbackChip", base::FEATURE_ENABLED_BY_DEFAULT};
+@@ -53,7 +53,7 @@ const base::Feature kAutofillAssistantLoadDFMForTriggerScripts{
+     base::FEATURE_DISABLED_BY_DEFAULT};
  
  const base::Feature kAutofillAssistantProactiveHelp{
 -    "AutofillAssistantProactiveHelp", base::FEATURE_ENABLED_BY_DEFAULT};

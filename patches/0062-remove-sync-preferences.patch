@@ -1,7 +1,7 @@
-From bebd59e0739ae554ac61470faf7ef76700c3a7d2 Mon Sep 17 00:00:00 2001
+From 307e318f5877e63e642271aea5b32f711c58b324 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:12:28 -0400
-Subject: [PATCH 62/79] remove sync preferences
+Subject: [PATCH 62/77] remove sync preferences
 
 ---
  .../res/xml/sync_and_services_preferences.xml |  56 +++----
@@ -11,7 +11,7 @@ Subject: [PATCH 62/79] remove sync preferences
  4 files changed, 112 insertions(+), 112 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
-index 3962dbd93ec9..ad143c162b63 100644
+index f64779bf4e95..323e2ac73e0c 100644
 --- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
 +++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
 @@ -9,38 +9,38 @@
@@ -82,10 +82,10 @@ index 3962dbd93ec9..ad143c162b63 100644
      <PreferenceCategory
          android:key="services_category"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-index 9651761b73fc..b9b21052b342 100644
+index 43186aa3972f..aa5a7e1061d0 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -139,14 +139,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -130,14 +130,14 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
      private boolean mIsFromSigninScreen;
  
@@ -107,7 +107,7 @@ index 9651761b73fc..b9b21052b342 100644
  
      private ChromeSwitchPreference mSearchSuggestions;
      private ChromeSwitchPreference mNavigationError;
-@@ -191,23 +191,23 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -177,23 +177,23 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
  
          SettingsUtils.addPreferencesFromResource(this, R.xml.sync_and_services_preferences);
  
@@ -148,7 +148,7 @@ index 9651761b73fc..b9b21052b342 100644
  
          mSearchSuggestions = (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
          mSearchSuggestions.setOnPreferenceChangeListener(this);
-@@ -296,16 +296,16 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -255,16 +255,16 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          super.onDestroy();
          // The user might also sign out from this page. Check to see if the user is signed in
          // before going through this flow.
@@ -175,7 +175,7 @@ index 9651761b73fc..b9b21052b342 100644
          mSyncSetupInProgressHandle.close();
      }
  
-@@ -587,7 +587,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -532,7 +532,7 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
      }
  
      private void updatePreferences() {
@@ -184,7 +184,7 @@ index 9651761b73fc..b9b21052b342 100644
  
          mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
          mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
-@@ -613,49 +613,49 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
+@@ -554,49 +554,49 @@ public class SyncAndServicesSettings extends PreferenceFragmentCompat
          }
      }
  
@@ -275,10 +275,10 @@ index 9651761b73fc..b9b21052b342 100644
 +        //mSyncRequested.setEnabled(canDisableSync());
 +    //}
  
-     /**
-      * If password leak detection is off and cannot be toggled while safe browsing is disabled, so
+     private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
+         return preference -> {
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 7f7bc69b9ed0..a2d00e57cfda 100644
+index b097f902fefc..1ebbc0b82d0a 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -315,9 +315,9 @@ CHAR-LIMIT guidelines:
@@ -295,7 +295,7 @@ index 7f7bc69b9ed0..a2d00e57cfda 100644
          Manage sync
        </message>
 diff --git a/components/browser_ui/strings/android/browser_ui_strings.grd b/components/browser_ui/strings/android/browser_ui_strings.grd
-index 88f967873d6e..0b04164d337a 100644
+index 57a516b30c6d..90c0d6255ff7 100644
 --- a/components/browser_ui/strings/android/browser_ui_strings.grd
 +++ b/components/browser_ui/strings/android/browser_ui_strings.grd
 @@ -288,9 +288,9 @@
