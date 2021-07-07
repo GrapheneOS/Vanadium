@@ -1,0 +1,88 @@
+From: frkt3m <frkt3m@users.noreply.github.com>
+Date: Wed, 7 Jul 2021 08:00:00 +0000
+Subject: Move search_suggestions to Privacy and security
+
+---
+ .../android/java/res/xml/privacy_preferences.xml  |  5 +++++
+ .../res/xml/sync_and_services_preferences.xml     |  5 -----
+ .../browser/privacy/settings/PrivacySettings.java | 15 +++++++++++++++
+ 3 files changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
+--- a/chrome/android/java/res/xml/privacy_preferences.xml
++++ b/chrome/android/java/res/xml/privacy_preferences.xml
+@@ -20,6 +20,11 @@
+         android:key="can_make_payment"
+         android:title="@string/can_make_payment_title"
+         android:summary="@string/settings_can_make_payment_toggle_label"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="search_suggestions"
++        android:title="@string/autocomplete_searches_and_urls_title"
++        android:summary="@string/autocomplete_searches_and_urls_summary"
++        android:persistent="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
+         android:key="preload_pages"
+         android:title="@string/preload_pages_title"
+diff --git a/chrome/android/java/res/xml/sync_and_services_preferences.xml b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+--- a/chrome/android/java/res/xml/sync_and_services_preferences.xml
++++ b/chrome/android/java/res/xml/sync_and_services_preferences.xml
+@@ -51,11 +51,6 @@
+             android:key="metrics_settings"
+             android:title="@string/manage_metrics_settings"
+             android:fragment="org.chromium.chrome.browser.metrics_settings.MetricsSettingsFragment"/>
+-        <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
+-            android:key="search_suggestions"
+-            android:title="@string/autocomplete_searches_and_urls_title"
+-            android:summary="@string/autocomplete_searches_and_urls_summary"
+-            android:persistent="false"/>
+         <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
+             android:key="navigation_error"
+             android:title="@string/navigation_error_suggestions_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -58,6 +58,7 @@ public class PrivacySettings
+     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
+     private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
+     private static final String PREF_FORCE_NO_JIT = "force_no_jit";
++    private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
+ 
+     private ManagedPreferenceDelegate mManagedPreferenceDelegate;
+ 
+@@ -98,6 +99,11 @@ public class PrivacySettings
+ 
+         mManagedPreferenceDelegate = createManagedPreferenceDelegate();
+ 
++        ChromeSwitchPreference searchSuggestions =
++                (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
++        searchSuggestions.setOnPreferenceChangeListener(this);
++        searchSuggestions.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++
+         ChromeSwitchPreference canMakePaymentPref =
+                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
+         canMakePaymentPref.setOnPreferenceChangeListener(this);
+@@ -148,6 +154,9 @@ public class PrivacySettings
+         if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
+             UserPrefs.get(Profile.getLastUsedRegularProfile())
+                     .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
++        } else if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
++            UserPrefs.get(Profile.getLastUsedRegularProfile())
++                    .setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
+         } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
+             PrivacyPreferencesManagerImpl.getInstance().setNetworkPredictionEnabled(
+                     (boolean) newValue);
+@@ -177,6 +186,12 @@ public class PrivacySettings
+             canMakePaymentPref.setChecked(prefService.getBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED));
+         }
+ 
++        ChromeSwitchPreference searchSuggestions =
++                (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
++        if (searchSuggestions != null) {
++            searchSuggestions.setChecked(prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
++        }
++
+         Preference doNotTrackPref = findPreference(PREF_DO_NOT_TRACK);
+         if (doNotTrackPref != null) {
+             doNotTrackPref.setSummary(prefService.getBoolean(Pref.ENABLE_DO_NOT_TRACK)
+-- 
+2.32.0
