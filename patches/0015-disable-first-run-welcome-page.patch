@@ -1,31 +1,25 @@
-From 17e7946f490bcd097d0fd07db1a0e552c3f9e11a Mon Sep 17 00:00:00 2001
+From 68311c58dd28ff4ddbc70b889837dbfcc6ef4926 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 24 Nov 2016 08:19:03 -0500
-Subject: [PATCH 15/80] disable first run welcome page
+Subject: [PATCH 15/79] disable first run welcome page
 
 ---
- .../chrome/browser/firstrun/FirstRunActivity.java         | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-index e9ad90daa167..e833eb6aa22a 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -152,10 +152,10 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
-      * Defines a sequence of pages to be shown (depending on parameters etc).
-      */
-     private void createPageSequence() {
--        mPages.add(shouldCreateEnterpriseCctTosPage()
--                        ? new TosAndUmaFirstRunFragmentWithEnterpriseSupport.Page()
--                        : new ToSAndUMAFirstRunFragment.Page());
--        mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
-+        //mPages.add(shouldCreateEnterpriseCctTosPage()
-+                        //? new TosAndUmaFirstRunFragmentWithEnterpriseSupport.Page()
-+                        //: new ToSAndUMAFirstRunFragment.Page());
-+        //mFreProgressStates.add(FRE_PROGRESS_WELCOME_SHOWN);
-         // Other pages will be created by createPostNativeAndPoliciesPageSequence() after
-         // native and policy service have been initialized.
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
+index 6ca453f89dabf..b785cee5074b6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
+@@ -63,7 +63,7 @@ public class FirstRunStatus {
+     */
+     public static boolean shouldSkipWelcomePage() {
+         return SharedPreferencesManager.getInstance().readBoolean(
+-                ChromePreferenceKeys.FIRST_RUN_SKIP_WELCOME_PAGE, false);
++                ChromePreferenceKeys.FIRST_RUN_SKIP_WELCOME_PAGE, true);
      }
+ 
+     /**
 -- 
 2.32.0
 

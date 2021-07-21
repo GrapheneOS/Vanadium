@@ -1,0 +1,25 @@
+From 057cc4a1fd1eeba95b91289ba8c129c6db0d8726 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 28 May 2021 09:08:01 -0400
+Subject: [PATCH 77/79] disable mobile identity consistency by default
+
+---
+ components/signin/public/base/account_consistency_method.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/signin/public/base/account_consistency_method.cc b/components/signin/public/base/account_consistency_method.cc
+index 1e706d0d9928b..a4ef7051c81ff 100644
+--- a/components/signin/public/base/account_consistency_method.cc
++++ b/components/signin/public/base/account_consistency_method.cc
+@@ -11,7 +11,7 @@ namespace signin {
+ // Experiments for MICE will be run independently per platform (Android, iOS).
+ #if defined(OS_ANDROID)
+ const base::Feature kMobileIdentityConsistency{
+-    "MobileIdentityConsistency", base::FEATURE_ENABLED_BY_DEFAULT};
++    "MobileIdentityConsistency", base::FEATURE_DISABLED_BY_DEFAULT};
+ // This feature flag is used to run experiments of different variations
+ // of MICE on Android.
+ const base::Feature kMobileIdentityConsistencyVar{
+-- 
+2.32.0
+

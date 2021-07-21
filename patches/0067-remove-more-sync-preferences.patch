@@ -1,7 +1,7 @@
-From 21f89d49ff0ac58f9f4fb02fe11b3f5cb1610510 Mon Sep 17 00:00:00 2001
+From 75cb2537d7b8975bc7990faef2920ba409d87125 Mon Sep 17 00:00:00 2001
 From: inthewaves <inthewaves@pm.me>
 Date: Tue, 6 Oct 2020 14:30:57 -0700
-Subject: [PATCH 67/80] remove more sync preferences
+Subject: [PATCH 67/79] remove more sync preferences
 
 ---
  .../android/java/res/xml/main_preferences.xml |  28 ++---
@@ -9,7 +9,7 @@ Subject: [PATCH 67/80] remove more sync preferences
  2 files changed, 70 insertions(+), 70 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index ebb3afdc5c04..f664546d1520 100644
+index 371e759a4af70..6933cd8cc96c0 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
 @@ -31,20 +31,20 @@
@@ -48,10 +48,10 @@ index ebb3afdc5c04..f664546d1520 100644
      <PreferenceCategory
          android:key="basics_section"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index f33b32e97aea..3b44746a74ef 100644
+index 7eabe0e4215ab..fb573022e1c31 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -66,8 +66,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -67,8 +67,8 @@ public class MainSettings extends PreferenceFragmentCompat
              "account_and_google_services_section";
      public static final String PREF_SIGN_IN = "sign_in";
      public static final String PREF_SYNC_AND_SERVICES = "sync_and_services";
@@ -62,7 +62,7 @@ index f33b32e97aea..3b44746a74ef 100644
      public static final String PREF_SEARCH_ENGINE = "search_engine";
      public static final String PREF_PASSWORDS = "passwords";
      public static final String PREF_HOMEPAGE = "homepage";
-@@ -87,7 +87,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -89,7 +89,7 @@ public class MainSettings extends PreferenceFragmentCompat
      private final Map<String, Preference> mAllPreferences = new HashMap<>();
      private SyncPromoPreference mSyncPromoPreference;
      private SignInPreference mSignInPreference;
@@ -71,7 +71,7 @@ index f33b32e97aea..3b44746a74ef 100644
      private @Nullable PasswordCheck mPasswordCheck;
  
      public MainSettings() {
-@@ -205,8 +205,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -204,8 +204,8 @@ public class MainSettings extends PreferenceFragmentCompat
              getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES));
  
              findPreference(PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION).setVisible(true);
@@ -80,9 +80,9 @@ index f33b32e97aea..3b44746a74ef 100644
 +            //mManageSync.setVisible(true);
 +            //findPreference(PREF_GOOGLE_SERVICES).setVisible(true);
          }
-     }
  
-@@ -222,7 +222,7 @@ public class MainSettings extends PreferenceFragmentCompat
+         new AdaptiveToolbarStatePredictor().recomputeUiState(uiState -> {
+@@ -229,7 +229,7 @@ public class MainSettings extends PreferenceFragmentCompat
          }
          mSyncPromoPreference = (SyncPromoPreference) mAllPreferences.get(PREF_SYNC_PROMO);
          mSignInPreference = (SignInPreference) mAllPreferences.get(PREF_SIGN_IN);
@@ -91,7 +91,7 @@ index f33b32e97aea..3b44746a74ef 100644
      }
  
      private void setManagedPreferenceDelegateForPreference(String key) {
-@@ -239,7 +239,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -246,7 +246,7 @@ public class MainSettings extends PreferenceFragmentCompat
              removePreferenceIfPresent(PREF_SIGN_IN);
          }
  
@@ -100,7 +100,7 @@ index f33b32e97aea..3b44746a74ef 100644
          updateSearchEnginePreference();
  
          Preference homepagePref = addPreferenceIfAbsent(PREF_HOMEPAGE);
-@@ -271,54 +271,54 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -278,54 +278,54 @@ public class MainSettings extends PreferenceFragmentCompat
          if (preference != null) getPreferenceScreen().removePreference(preference);
      }
  
@@ -146,7 +146,7 @@ index f33b32e97aea..3b44746a74ef 100644
 -                SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
 -                settingsLauncher.launchSettingsActivity(context, ManageSyncSettings.class);
 -            } else {
--                SigninActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
+-                SyncConsentActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
 -                        context, SigninAccessPoint.SETTINGS, primaryAccountName);
 -            }
 -            return true;
@@ -194,7 +194,7 @@ index f33b32e97aea..3b44746a74ef 100644
 +                //SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
 +                //settingsLauncher.launchSettingsActivity(context, ManageSyncSettings.class);
 +            //} else {
-+                //SigninActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
++                //SyncConsentActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
 +                        //context, SigninAccessPoint.SETTINGS, primaryAccountName);
 +            //}
 +            //return true;
@@ -203,7 +203,7 @@ index f33b32e97aea..3b44746a74ef 100644
  
      private void updateSearchEnginePreference() {
          if (!TemplateUrlServiceFactory.get().isLoaded()) {
-@@ -384,7 +384,7 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -391,7 +391,7 @@ public class MainSettings extends PreferenceFragmentCompat
  
      @Override
      public void syncStateChanged() {
