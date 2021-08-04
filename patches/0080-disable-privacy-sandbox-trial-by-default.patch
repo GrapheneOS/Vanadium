@@ -1,0 +1,34 @@
+From f89da29eeac0d0892de77ded3b950c8094f95a4b Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 4 Aug 2021 03:29:04 -0400
+Subject: [PATCH 80/80] disable privacy sandbox trial by default
+
+---
+ components/privacy_sandbox/privacy_sandbox_prefs.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
+index f6094c3d70091..6df947ac2311a 100644
+--- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
++++ b/components/privacy_sandbox/privacy_sandbox_prefs.cc
+@@ -31,7 +31,7 @@ namespace privacy_sandbox {
+ 
+ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(
+-      prefs::kPrivacySandboxApisEnabled, true,
++      prefs::kPrivacySandboxApisEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterBooleanPref(
+       prefs::kPrivacySandboxManuallyControlled, false,
+@@ -42,7 +42,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterTimePref(prefs::kPrivacySandboxFlocDataAccessibleSince,
+                              base::Time());
+   registry->RegisterBooleanPref(
+-      prefs::kPrivacySandboxFlocEnabled, true,
++      prefs::kPrivacySandboxFlocEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ }
+ 
+-- 
+2.32.0
+
