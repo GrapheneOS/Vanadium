@@ -1,4 +1,4 @@
-From 7d4afc480cddd27f80c27cf20cb53684b0bb6f5e Mon Sep 17 00:00:00 2001
+From ccc46d4d9eda9ed2a5b8ac582d6f01f83700d352 Mon Sep 17 00:00:00 2001
 From: inthewaves <inthewaves@pm.me>
 Date: Tue, 6 Oct 2020 14:30:57 -0700
 Subject: [PATCH 67/79] remove more sync preferences
@@ -48,7 +48,7 @@ index 371e759a4af70..6933cd8cc96c0 100644
      <PreferenceCategory
          android:key="basics_section"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 7eabe0e4215ab..fb573022e1c31 100644
+index 6fe58ca7d34a6..56a0fe2f14937 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 @@ -67,8 +67,8 @@ public class MainSettings extends PreferenceFragmentCompat
@@ -81,7 +81,7 @@ index 7eabe0e4215ab..fb573022e1c31 100644
 +            //findPreference(PREF_GOOGLE_SERVICES).setVisible(true);
          }
  
-         new AdaptiveToolbarStatePredictor().recomputeUiState(uiState -> {
+         new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
 @@ -229,7 +229,7 @@ public class MainSettings extends PreferenceFragmentCompat
          }
          mSyncPromoPreference = (SyncPromoPreference) mAllPreferences.get(PREF_SYNC_PROMO);
