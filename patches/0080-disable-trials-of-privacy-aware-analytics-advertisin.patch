@@ -1,12 +1,27 @@
-From f89da29eeac0d0892de77ded3b950c8094f95a4b Mon Sep 17 00:00:00 2001
+From 02bb8230fcf20e91f92d93d8895b0e925bc73620 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 4 Aug 2021 03:29:04 -0400
-Subject: [PATCH 80/81] disable privacy sandbox trial by default
+Subject: [PATCH 80/81] disable trials of privacy-aware analytics/advertising
+ APIs
 
 ---
+ chrome/common/chrome_features.cc                    | 2 +-
  components/privacy_sandbox/privacy_sandbox_prefs.cc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
+index bbce13ff65e91..58dab33d6723b 100644
+--- a/chrome/common/chrome_features.cc
++++ b/chrome/common/chrome_features.cc
+@@ -771,7 +771,7 @@ const base::Feature kPrivacyAdvisor{"PrivacyAdvisor",
+ 
+ // Enables the privacy sandbox settings page.
+ const base::Feature kPrivacySandboxSettings{"PrivacySandboxSettings",
+-                                            base::FEATURE_ENABLED_BY_DEFAULT};
++                                            base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::FeatureParam<std::string> kPrivacySandboxSettingsURL{
+     &kPrivacySandboxSettings, "website-url", "https://www.privacysandbox.com"};
+ 
 diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
 index f6094c3d70091..6df947ac2311a 100644
 --- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
