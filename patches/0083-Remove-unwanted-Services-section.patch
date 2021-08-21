@@ -1,0 +1,25 @@
+From fc9729f51adf0bca61dd0a41bf63eaa5dfbc5add Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 20 Aug 2021 16:13:42 +0000
+Subject: [PATCH 83/83] Remove unwanted Services section
+
+---
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index 7c30e66e26368..9c14059a37692 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -198,6 +198,8 @@ public class MainSettings extends PreferenceFragmentCompat
+         }
+ 
+         getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
++        getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES));
++        getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_SECTION);
+ 
+         // Replace the account section header, replace SyncAndServicesSettings with
+         // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
+-- 
+2.33.0
+
