@@ -1,25 +1,25 @@
-From 0bb3bc9250fb7d5de8a9e5d3a845840ccf66bbcc Mon Sep 17 00:00:00 2001
-From: Daniel Micay <danielmicay@gmail.com>
-Date: Tue, 25 May 2021 16:43:39 -0400
-Subject: [PATCH 72/83] remove safety check menu
+From a3c37cfc078eb245c99575055e960f83e3976fad Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 20 Aug 2021 16:13:42 +0000
+Subject: [PATCH 82/82] Remove unwanted Services section
 
 ---
  .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 56a0fe2f14937..7c30e66e26368 100644
+index 7c30e66e26368..ac3cff07acb51 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -197,6 +197,8 @@ public class MainSettings extends PreferenceFragmentCompat
-             TemplateUrlServiceFactory.get().load();
+@@ -198,6 +198,8 @@ public class MainSettings extends PreferenceFragmentCompat
          }
  
-+        getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
-+
+         getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
++        getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES));
++        getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_SECTION));
+ 
          // Replace the account section header, replace SyncAndServicesSettings with
          // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
-         if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
 -- 
 2.33.0
 
