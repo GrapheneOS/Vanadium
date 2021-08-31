@@ -1,25 +1,25 @@
-From 2f259f5cb09942b4d34bd50b1ebcd3c8008e9dad Mon Sep 17 00:00:00 2001
+From 3830363ed9c8780a972c79911a188337db4e714d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 25 May 2021 16:43:39 -0400
-Subject: [PATCH 71/82] remove safety check menu
+Subject: [PATCH 66/75] remove safety check menu
 
 ---
  .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 56a0fe2f14937..7c30e66e26368 100644
+index 989a1e8c5aef7..8382638ca1abb 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -197,6 +197,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -194,6 +194,8 @@ public class MainSettings extends PreferenceFragmentCompat
              TemplateUrlServiceFactory.get().load();
          }
  
 +        getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
 +
-         // Replace the account section header, replace SyncAndServicesSettings with
-         // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
-         if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
+         new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
+             // We don't show the toolbar shortcut settings page if disabled from finch.
+             // Note, we can still have the old data collection experiment running for which
 -- 
 2.33.0
 

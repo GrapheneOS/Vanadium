@@ -1,49 +1,31 @@
-From 407bb300bfc2f0a3f5960cf844991314611620a1 Mon Sep 17 00:00:00 2001
+From 9f3c5977967dec731de06e14f8b95adce0f5ec1d Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
-Subject: [PATCH 34/82] disable media router by default
+Subject: [PATCH 34/75] disable media router by default
 
 ---
- .../media/router/media_router_feature.cc       | 18 ++++++++----------
- chrome/browser/profiles/profile_impl.cc        |  2 +-
- 2 files changed, 9 insertions(+), 11 deletions(-)
+ chrome/browser/media/router/media_router_feature.cc | 2 +-
+ chrome/browser/profiles/profile_impl.cc             | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
-index 65f96dfee7270..f247dc6c66e4b 100644
+index aa6a3dfdc6ce4..822aee8a4c735 100644
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -79,18 +79,16 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
-   if (it != stored_pref_values->end())
-     return it->second;
+@@ -88,7 +88,7 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
+     pref_values.insert(std::make_pair(context, allowed));
+     return allowed;
+   }
+-  return true;
++  return false;
+ }
  
--  // Check the enterprise policy.
--  const PrefService::Preference* pref = GetMediaRouterPref(context);
--  if (pref->IsManaged() && !pref->IsDefaultValue()) {
--    CHECK(pref->GetValue()->is_bool());
--    bool allowed = pref->GetValue()->GetBool();
--    stored_pref_values->insert(std::make_pair(context, allowed));
--    return allowed;
--  }
--
-   // The component extension cannot be loaded in guest sessions.
-   // TODO(crbug.com/756243): Figure out why.
--  return !Profile::FromBrowserContext(context)->IsGuestSession();
-+  if (Profile::FromBrowserContext(context)->IsGuestSession()) {
-+    return false;
-+  }
-+
-+  const PrefService::Preference* pref = GetMediaRouterPref(context);
-+  bool allowed = false;
-+  pref->GetValue()->GetAsBoolean(&allowed);
-+  return allowed;
- #else   // !(defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS))
-   return false;
- #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
+ #if !defined(OS_ANDROID)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index 0f051ffa90eb2..22936e1f5743c 100644
+index 9a6b9dd9fe3c9..faf29c3cc5bf6 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -456,7 +456,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -423,7 +423,7 @@ void ProfileImpl::RegisterProfilePrefs(
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

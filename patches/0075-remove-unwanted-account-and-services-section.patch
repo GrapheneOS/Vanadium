@@ -1,25 +1,25 @@
-From a3c37cfc078eb245c99575055e960f83e3976fad Mon Sep 17 00:00:00 2001
+From f234cf39f77b74311f7f4e4bc7830fc879c3bf70 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
-Subject: [PATCH 82/82] Remove unwanted Services section
+Subject: [PATCH 75/75] remove unwanted account and services section
 
 ---
  .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 7c30e66e26368..ac3cff07acb51 100644
+index 8382638ca1abb..2e3fd251fa0e4 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -198,6 +198,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -195,6 +195,8 @@ public class MainSettings extends PreferenceFragmentCompat
          }
  
          getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
-+        getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES));
-+        getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_SECTION));
++        getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION));
++        getPreferenceScreen().removePreference(findPreference(PREF_GOOGLE_SERVICES));
  
-         // Replace the account section header, replace SyncAndServicesSettings with
-         // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
+         new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
+             // We don't show the toolbar shortcut settings page if disabled from finch.
 -- 
 2.33.0
 
