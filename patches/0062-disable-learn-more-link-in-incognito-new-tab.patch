@@ -1,0 +1,54 @@
+From 6c234c2100b3ff4aa09386db080369926dce8f8f Mon Sep 17 00:00:00 2001
+From: A Mak <refragable@mailbox.org>
+Date: Sat, 8 Aug 2020 11:17:59 -0700
+Subject: [PATCH 62/76] disable learn more link in incognito new tab
+
+---
+ .../chrome/browser/ntp/LegacyIncognitoDescriptionView.java  | 6 +++---
+ .../browser/ntp/RevampedIncognitoDescriptionView.java       | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
+index e46be671efb6e..5e04447a9d628 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
+@@ -297,9 +297,9 @@ public class LegacyIncognitoDescriptionView
+         final String subtitleText = getContext().getResources().getString(readLaterEnabled
+                         ? R.string.new_tab_otr_subtitle_with_reading_list
+                         : R.string.new_tab_otr_subtitle);
+-        boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
++        boolean learnMoreInSubtitle = false;
+ 
+-        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
++        mLearnMore.setVisibility(View.GONE);
+ 
+         if (!learnMoreInSubtitle) {
+             // Revert to the original text.
+@@ -319,7 +319,7 @@ public class LegacyIncognitoDescriptionView
+                 getResources(), R.color.modern_blue_300, (view) -> mLearnMore.callOnClick());
+         textWithLearnMoreLink.setSpan(
+                 span, subtitleText.length() + 1, textWithLearnMoreLink.length(), 0 /* flags */);
+-        mSubtitle.setText(textWithLearnMoreLink);
++        mSubtitle.setText(subtitleText);
+         mSubtitle.setMovementMethod(LinkMovementMethod.getInstance());
+     }
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java
+index dfbfa2efc4d1f..0dcf38dcb58c3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java
+@@ -266,9 +266,9 @@ public class RevampedIncognitoDescriptionView
+         final String subtitleText = getContext().getResources().getString(readLaterEnabled
+                         ? org.chromium.chrome.R.string.new_tab_otr_subtitle_with_reading_list
+                         : org.chromium.chrome.R.string.new_tab_otr_subtitle);
+-        boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
++        boolean learnMoreInSubtitle = false;
+ 
+-        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
++        mLearnMore.setVisibility(View.GONE);
+ 
+         if (!learnMoreInSubtitle) {
+             // Revert to the original text.
+-- 
+2.33.0
+
