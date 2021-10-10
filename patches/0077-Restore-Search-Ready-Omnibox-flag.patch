@@ -1,0 +1,164 @@
+From f0a1d308e47fcc825c315ac2c6953d1c52860818 Mon Sep 17 00:00:00 2001
+From: csagan5 <32685696+csagan5@users.noreply.github.com>
+Date: Thu, 10 Oct 2019 23:30:16 +0200
+Subject: [PATCH 77/77] Restore Search Ready Omnibox flag
+
+Revert "Cleanup Search Ready Omnibox flag since it has launched"
+This reverts commit ae458edcc8422d0815d0e82261e71fe10d7d6fc2.
+
+Disable search-ready omnibox by default
+---
+ chrome/browser/about_flags.cc                          |  3 +++
+ chrome/browser/flag-metadata.json                      |  5 +++++
+ chrome/browser/flag_descriptions.cc                    |  5 +++++
+ chrome/browser/flag_descriptions.h                     |  3 +++
+ chrome/browser/flags/android/chrome_feature_list.cc    |  4 ++++
+ chrome/browser/flags/android/chrome_feature_list.h     |  1 +
+ .../chrome/browser/flags/ChromeFeatureList.java        |  1 +
+ .../suggestions/DropdownItemViewInfoListBuilder.java   | 10 ++++++++--
+ 8 files changed, 30 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
+index e2439adb1b0fe..e73cc2e38e32b 100644
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -3204,6 +3204,9 @@ const FeatureEntry kFeatureEntries[] = {
+      flag_descriptions::kUseLookalikesForNavigationSuggestionsDescription,
+      kOsAll,
+      FEATURE_VALUE_TYPE(net::features::kUseLookalikesForNavigationSuggestions)},
++    {"enable-search-ready-omnibox", flag_descriptions::kSearchReadyOmniboxName,
++     flag_descriptions::kSearchReadyOmniboxDescription, kOsAndroid,
++     FEATURE_VALUE_TYPE(chrome::android::kSearchReadyOmniboxFeature)},
+     {"username-first-flow", flag_descriptions::kUsernameFirstFlowName,
+      flag_descriptions::kUsernameFirstFlowDescription, kOsAll,
+      FEATURE_VALUE_TYPE(password_manager::features::kUsernameFirstFlow)},
+diff --git a/chrome/browser/flag-metadata.json b/chrome/browser/flag-metadata.json
+index a670bf1f6a828..49f2be1997d54 100644
+--- a/chrome/browser/flag-metadata.json
++++ b/chrome/browser/flag-metadata.json
+@@ -2291,6 +2291,11 @@
+     //  with neural net palm detection.
+     "expiry_milestone": 90
+   },
++  {
++    "name": "enable-search-ready-omnibox",
++    "owners": [ "mdjones" ],
++    "expiry_milestone": -1
++  },
+   {
+     "name": "enable-parallel-downloading",
+     "owners": [ "qinmin", "xingliu", "dtrainor" ],
+diff --git a/chrome/browser/flag_descriptions.cc b/chrome/browser/flag_descriptions.cc
+index d41f7a9563b5a..55c6585f7093f 100644
+--- a/chrome/browser/flag_descriptions.cc
++++ b/chrome/browser/flag_descriptions.cc
+@@ -3391,6 +3391,11 @@ const char kScrollCaptureName[] = "Scroll Capture";
+ const char kScrollCaptureDescription[] =
+     "Enables scrolling screenshot capture for web contents.";
+ 
++const char kSearchReadyOmniboxName[] = "Search Ready Omnibox";
++const char kSearchReadyOmniboxDescription[] =
++    "Clears the omnibox and adds a suggestion item to share, copy, or edit the "
++    "URL.";
++
+ const char kSetMarketUrlForTestingName[] = "Set market URL for testing";
+ const char kSetMarketUrlForTestingDescription[] =
+     "When enabled, sets the market URL for use in testing the update menu "
+diff --git a/chrome/browser/flag_descriptions.h b/chrome/browser/flag_descriptions.h
+index 1078cced42c52..bba5286f42cba 100644
+--- a/chrome/browser/flag_descriptions.h
++++ b/chrome/browser/flag_descriptions.h
+@@ -1938,6 +1938,9 @@ extern const char kSafeBrowsingUseLocalBlacklistsV2Description[];
+ extern const char kScrollCaptureName[];
+ extern const char kScrollCaptureDescription[];
+ 
++extern const char kSearchReadyOmniboxName[];
++extern const char kSearchReadyOmniboxDescription[];
++
+ extern const char kSetMarketUrlForTestingName[];
+ extern const char kSetMarketUrlForTestingDescription[];
+ 
+diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
+index 19cf18901df22..a40af00c7e5bd 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -240,6 +240,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &kReachedCodeProfiler,
+     &kReaderModeInCCT,
+     &kReengagementNotification,
++    &kSearchReadyOmniboxFeature,
+     &kRelatedSearches,
+     &kRelatedSearchesAlternateUx,
+     &kRelatedSearchesInBar,
+@@ -679,6 +680,9 @@ const base::Feature kRelatedSearchesSimplifiedUx{
+ const base::Feature kRelatedSearchesUi{"RelatedSearchesUi",
+                                        base::FEATURE_DISABLED_BY_DEFAULT};
+ 
++const base::Feature kSearchReadyOmniboxFeature{
++    "SearchReadyOmnibox", base::FEATURE_DISABLED_BY_DEFAULT};
++
+ const base::Feature kServiceManagerForBackgroundPrefetch{
+     "ServiceManagerForBackgroundPrefetch", base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+diff --git a/chrome/browser/flags/android/chrome_feature_list.h b/chrome/browser/flags/android/chrome_feature_list.h
+index 44dc79dd72822..f3576da19f8e0 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.h
++++ b/chrome/browser/flags/android/chrome_feature_list.h
+@@ -120,6 +120,7 @@ extern const base::Feature kRelatedSearchesSimplifiedUx;
+ extern const base::Feature kRelatedSearchesUi;
+ extern const base::Feature kSearchEnginePromoExistingDevice;
+ extern const base::Feature kSearchEnginePromoNewDevice;
++extern const base::Feature kSearchReadyOmniboxFeature;
+ extern const base::Feature kServiceManagerForBackgroundPrefetch;
+ extern const base::Feature kServiceManagerForDownload;
+ extern const base::Feature kShareButtonInTopToolbar;
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 88c228fdba065..06e07f0e2e56a 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -421,6 +421,7 @@ public abstract class ChromeFeatureList {
+     public static final String OMNIBOX_ADAPTIVE_SUGGESTIONS_COUNT =
+             "OmniboxAdaptiveSuggestionsCount";
+     public static final String OMNIBOX_ASSISTANT_VOICE_SEARCH = "OmniboxAssistantVoiceSearch";
++    public static final String SEARCH_READY_OMNIBOX = "SearchReadyOmnibox";
+     public static final String OMNIBOX_COMPACT_SUGGESTIONS = "OmniboxCompactSuggestions";
+     public static final String OMNIBOX_ENABLE_CLIPBOARD_PROVIDER_IMAGE_SUGGESTIONS =
+             "OmniboxEnableClipboardProviderImageSuggestions";
+diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java
+index 8be324544eba6..a80fe939b1910 100644
+--- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java
++++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java
+@@ -65,6 +65,7 @@ class DropdownItemViewInfoListBuilder {
+     private int mDropdownHeight;
+     private boolean mEnableAdaptiveSuggestionsCount;
+     private boolean mBuiltListHasFullyConcealedElements;
++    private EditUrlSuggestionProcessor mEditUrlSuggestionProcessor;
+ 
+     DropdownItemViewInfoListBuilder(@NonNull Supplier<Tab> tabSupplier, BookmarkState bookmarkState,
+             @NonNull ExploreIconProvider exploreIconProvider) {
+@@ -95,8 +96,9 @@ class DropdownItemViewInfoListBuilder {
+                 () -> mShareDelegateSupplier == null ? null : mShareDelegateSupplier.get();
+ 
+         mHeaderProcessor = new HeaderProcessor(context, host, delegate);
+-        registerSuggestionProcessor(new EditUrlSuggestionProcessor(
+-                context, host, delegate, iconBridgeSupplier, mActivityTabSupplier, shareSupplier));
++        mEditUrlSuggestionProcessor = new EditUrlSuggestionProcessor(
++                context, host, delegate, iconBridgeSupplier, mActivityTabSupplier, shareSupplier);
++        registerSuggestionProcessor(mEditUrlSuggestionProcessor);
+         registerSuggestionProcessor(
+                 new AnswerSuggestionProcessor(context, host, textProvider, imageFetcherSupplier));
+         registerSuggestionProcessor(
+@@ -218,6 +220,10 @@ class DropdownItemViewInfoListBuilder {
+ 
+     /** Signals that native initialization has completed. */
+     void onNativeInitialized() {
++        if (ChromeFeatureList.isEnabled(ChromeFeatureList.SEARCH_READY_OMNIBOX) == false) {
++            mPriorityOrderedSuggestionProcessors.remove(mEditUrlSuggestionProcessor);
++        }
++
+         mEnableAdaptiveSuggestionsCount =
+                 ChromeFeatureList.isEnabled(ChromeFeatureList.OMNIBOX_ADAPTIVE_SUGGESTIONS_COUNT);
+ 
+-- 
+2.31.1
+
