@@ -1,17 +1,17 @@
-From f0a9036f086b496fef65b0192f3a78505e15cc3c Mon Sep 17 00:00:00 2001
+From c5da486f7a7c787a10ecf8ae8b68d8b62c948659 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 27 May 2021 07:30:02 -0400
-Subject: [PATCH 67/76] add back trichrome_chrome_apk targets
+Subject: [PATCH 67/77] add back trichrome_chrome_apk targets
 
 ---
  chrome/android/BUILD.gn | 46 ++++++++++++++++++++++++++++++++++++++++-
  1 file changed, 45 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index a7f0f8079601b..f99c2b217e25f 100644
+index 0ce403ecb6457..fe434958c2961 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2103,6 +2103,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2164,6 +2164,10 @@ if (current_toolchain == default_toolchain) {
      is_monochrome = true
      is_bundle_module = true
    }
@@ -22,7 +22,7 @@ index a7f0f8079601b..f99c2b217e25f 100644
    resource_packaging("trichrome_chrome_bundle_module_pak_assets") {
      is_monochrome = false
      is_trichrome = true
-@@ -2657,7 +2661,7 @@ if (android_64bit_target_cpu && skip_secondary_abi_for_cq) {
+@@ -2718,7 +2722,7 @@ if (android_64bit_target_cpu && skip_secondary_abi_for_cq) {
  
      if (trichrome_synchronized_proguard) {
        webview_target = "//android_webview:trichrome_webview_apk"
@@ -31,7 +31,7 @@ index a7f0f8079601b..f99c2b217e25f 100644
      }
  
      if (_enable_manifest_verification) {
-@@ -2713,6 +2717,46 @@ android_resources("trichrome_dummy_resources") {
+@@ -2774,6 +2778,46 @@ android_resources("trichrome_dummy_resources") {
    sources = [ "trichrome/res_dummy/values/strings.xml" ]
  }
  
@@ -75,9 +75,9 @@ index a7f0f8079601b..f99c2b217e25f 100644
 +  }
 +}
 +
+ chrome_public_unit_test_apk_manifest =
+     "$root_gen_dir/chrome_public_unit_test_apk_manifest/AndroidManifest.xml"
  chrome_public_test_apk_manifest =
-     "$root_gen_dir/chrome_public_test_apk_manifest/AndroidManifest.xml"
- chrome_public_test_vr_apk_manifest =
 -- 
-2.33.0
+2.33.1
 

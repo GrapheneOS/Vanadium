@@ -1,0 +1,28 @@
+From 231728954432d997231477bf3f6078abf90a384b Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 15 Oct 2021 13:49:33 +0000
+Subject: [PATCH 77/77] Remove privacy trials preference
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettings.java     | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index 80efec408693b..24e424687b788 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -83,9 +83,8 @@ public class PrivacySettings
+             return true;
+         });
+ 
+-        if (!ChromeFeatureList.isEnabled(ChromeFeatureList.PRIVACY_REVIEW)) {
+-            getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_REVIEW));
+-        }
++        getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_REVIEW));
++        getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_SANDBOX));
+ 
+         Preference safeBrowsingPreference = findPreference(PREF_SAFE_BROWSING);
+         safeBrowsingPreference.setSummary(
+-- 
+2.33.1
+

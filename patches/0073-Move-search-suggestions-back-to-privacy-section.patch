@@ -1,7 +1,7 @@
-From 2f3865c1200e4cf416e02159885762d7a1ce7bfd Mon Sep 17 00:00:00 2001
+From 26bf7e6bef864992a3837f3f6e43aa6b2244b89a Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
-Subject: [PATCH 73/76] Move search suggestions back to privacy section.
+Subject: [PATCH 73/77] Move search suggestions back to privacy section.
 
 ---
  .../java/res/xml/privacy_preferences.xml        |  5 +++++
@@ -9,10 +9,10 @@ Subject: [PATCH 73/76] Move search suggestions back to privacy section.
  2 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 74f020bfb3849..d923f2167e27a 100644
+index eadf05069df8d..78c55ff6b5efb 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -20,6 +20,11 @@
+@@ -24,6 +24,11 @@
          android:key="https_first_mode"
          android:title="@string/settings_https_first_mode_title"
          android:summary="@string/settings_https_first_mode_summary"/>
@@ -25,18 +25,18 @@ index 74f020bfb3849..d923f2167e27a 100644
          android:key="can_make_payment"
          android:title="@string/can_make_payment_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index e0e06dbf90c91..9f4af0bfbd6c0 100644
+index b4e5bdfa0b47d..80efec408693b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -60,6 +60,7 @@ public class PrivacySettings
-     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
-     private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
+@@ -49,6 +49,7 @@ import org.chromium.ui.text.SpanApplier;
+ public class PrivacySettings
+         extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
      private static final String PREF_FORCE_NO_JIT = "force_no_jit";
 +    private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
- 
-     private ManagedPreferenceDelegate mManagedPreferenceDelegate;
- 
-@@ -100,6 +101,11 @@ public class PrivacySettings
+     private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
+     private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
+     private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+@@ -99,6 +100,11 @@ public class PrivacySettings
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
  
@@ -48,7 +48,7 @@ index e0e06dbf90c91..9f4af0bfbd6c0 100644
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -155,7 +161,10 @@ public class PrivacySettings
+@@ -154,7 +160,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -59,9 +59,9 @@ index e0e06dbf90c91..9f4af0bfbd6c0 100644
 +        } else if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
-         } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
-@@ -184,6 +193,12 @@ public class PrivacySettings
-     public void updateSummaries() {
+         } else if (PREF_FORCE_NO_JIT.equals(key)) {
+@@ -189,6 +198,12 @@ public class PrivacySettings
+ 
          PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
  
 +        ChromeSwitchPreference searchSuggestionsPref =
@@ -74,5 +74,5 @@ index e0e06dbf90c91..9f4af0bfbd6c0 100644
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          if (canMakePaymentPref != null) {
 -- 
-2.33.0
+2.33.1
 

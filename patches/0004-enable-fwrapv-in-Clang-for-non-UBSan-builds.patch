@@ -1,17 +1,17 @@
-From c98f2542c510ddf6660f9f2998037f120ce4747e Mon Sep 17 00:00:00 2001
+From 1e1b175766600d403d58ae2eaff7fd540819ae78 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 22 Dec 2016 07:15:34 -0500
-Subject: [PATCH 04/76] enable -fwrapv in Clang for non-UBSan builds
+Subject: [PATCH 04/77] enable -fwrapv in Clang for non-UBSan builds
 
 ---
  build/config/compiler/BUILD.gn | 4 ++++
  1 file changed, 4 insertions(+)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index c6b72a7894d9b..7d48076798362 100644
+index 5e9d9df4be186..e86b68cec1660 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -349,6 +349,10 @@ config("compiler") {
+@@ -350,6 +350,10 @@ config("compiler") {
        }
      }
  
@@ -23,5 +23,5 @@ index c6b72a7894d9b..7d48076798362 100644
      if (fatal_linker_warnings && !is_apple && current_os != "aix") {
        ldflags += [ "-Wl,--fatal-warnings" ]
 -- 
-2.33.0
+2.33.1
 

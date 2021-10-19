@@ -1,7 +1,7 @@
-From f74d2413f7e8a6115e7bdaef9ff5da044924f12e Mon Sep 17 00:00:00 2001
+From f4b1ede3f8a31e4bbd3493064f4061a713058ef2 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 12 Jul 2019 04:23:18 -0400
-Subject: [PATCH 36/76] disable browser sign in feature by default
+Subject: [PATCH 36/77] disable browser sign in feature by default
 
 ---
  chrome/browser/signin/account_consistency_mode_manager.cc       | 2 +-
@@ -22,7 +22,7 @@ index b967496c7e181..4a8ee779baf5b 100644
  
  // static
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index 8e380c5b5a919..826d640099636 100644
+index b476a904a1b1b..5eb20771f8092 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
 @@ -55,7 +55,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
@@ -31,9 +31,9 @@ index 8e380c5b5a919..826d640099636 100644
    registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
 -  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
 +  registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
-   registry->RegisterBooleanPref(prefs::kSigninAllowedByPolicy, true);
    registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
  }
+ 
 -- 
-2.33.0
+2.33.1
 

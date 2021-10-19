@@ -1,21 +1,21 @@
-From 81b4c835652e1b15a2f81c45486ad7f011d53ae8 Mon Sep 17 00:00:00 2001
+From d826d04ea0adb42842491bec717330a0e0ede1d3 Mon Sep 17 00:00:00 2001
 From: hardenedfuchsiaoswhen <hardenedfuchsiaoswhen@protonmail.com>
 Date: Fri, 18 Jun 2021 03:34:20 +0000
-Subject: [PATCH 69/76] JIT-less toggle
+Subject: [PATCH 69/77] JIT-less toggle
 
 ---
- .../android/java/res/xml/privacy_preferences.xml   |  5 +++++
- .../browser/privacy/settings/PrivacySettings.java  | 14 +++++++++++++-
- .../ui/android/strings/android_chrome_strings.grd  |  7 +++++++
- .../browser/BrowserStartupControllerImpl.java      |  1 +
- .../chromium/content/browser/DeviceUtilsImpl.java  |  6 ++++++
- 5 files changed, 32 insertions(+), 1 deletion(-)
+ chrome/android/java/res/xml/privacy_preferences.xml  |  5 +++++
+ .../browser/privacy/settings/PrivacySettings.java    | 12 ++++++++++++
+ .../ui/android/strings/android_chrome_strings.grd    |  7 +++++++
+ .../browser/BrowserStartupControllerImpl.java        |  1 +
+ .../chromium/content/browser/DeviceUtilsImpl.java    |  6 ++++++
+ 5 files changed, 31 insertions(+)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 5d2c6cc80b8dc..74f020bfb3849 100644
+index 654d517cfeadd..eadf05069df8d 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -29,6 +29,11 @@
+@@ -33,6 +33,11 @@
          android:title="@string/preload_pages_title"
          android:summary="@string/preload_pages_summary"
          android:persistent="false"/>
@@ -28,7 +28,7 @@ index 5d2c6cc80b8dc..74f020bfb3849 100644
          android:key="usage_stats_reporting"
          android:title="@string/usage_stats_setting_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 69bcd7e5e3857..3e77e75739628 100644
+index 9b051d977a1a4..7be7014ceb789 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -4,6 +4,7 @@
@@ -47,45 +47,42 @@ index 69bcd7e5e3857..3e77e75739628 100644
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
-@@ -57,6 +59,7 @@ public class PrivacySettings
-     private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
-     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
-     private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
+@@ -46,6 +48,7 @@ import org.chromium.ui.text.SpanApplier;
+  */
+ public class PrivacySettings
+         extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
 +    private static final String PREF_FORCE_NO_JIT = "force_no_jit";
- 
-     private ManagedPreferenceDelegate mManagedPreferenceDelegate;
- 
-@@ -162,8 +165,11 @@ public class PrivacySettings
-         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
+     private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
+     private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
+     private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+@@ -155,6 +158,10 @@ public class PrivacySettings
+         if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
-                     .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
+                     .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
 +        } else if (PREF_FORCE_NO_JIT.equals(key)) {
 +            SharedPreferences.Editor sharedPreferenceEditor = ContextUtils.getAppSharedPreferences().edit();
 +            sharedPreferenceEditor.putBoolean(PREF_FORCE_NO_JIT, (boolean) newValue);
 +            sharedPreferenceEditor.apply();
-         }
--
-         return true;
-     }
- 
-@@ -228,6 +234,12 @@ public class PrivacySettings
-             privacySandboxPreference.setSummary(
-                     PrivacySandboxSettingsFragment.getStatusString(getContext()));
-         }
-+
+         } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
+             PrivacyPreferencesManagerImpl.getInstance().setNetworkPredictionEnabled(
+                     (boolean) newValue);
+@@ -176,6 +183,11 @@ public class PrivacySettings
+      * Updates the summaries for several preferences.
+      */
+     public void updateSummaries() {
 +        ChromeSwitchPreference forceNoJit =
 +                (ChromeSwitchPreference) findPreference(PREF_FORCE_NO_JIT);
 +        forceNoJit.setOnPreferenceChangeListener(this);
 +        forceNoJit.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
 +
-     }
+         PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
  
-     private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
+         ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 7a4139b29cd9c..49d0cd9522dff 100644
+index 84b9d71ef6cc6..eb225f64dbf69 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -878,6 +878,13 @@ Privacy Sandbox trials are still in active development and are available in sele
+@@ -893,6 +893,13 @@ Privacy Sandbox trials are still in active development and are available in sele
          Please verify that this is a valid provider or try again later
        </message>
  
@@ -134,5 +131,5 @@ index 0c2ef1d8413ac..3b20f70657ffe 100644
 +    }
  }
 -- 
-2.33.0
+2.33.1
 

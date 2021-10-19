@@ -1,14 +1,14 @@
-From 4c35e5e9a71b7789bdae4fed3ccef2fa385e85f9 Mon Sep 17 00:00:00 2001
+From 0a04521152c851d9c6b9b08c98a8ff675f0b879a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 03:07:08 -0400
-Subject: [PATCH 37/76] disable browser autologin by default
+Subject: [PATCH 37/77] disable browser autologin by default
 
 ---
  .../signin/internal/identity_manager/primary_account_manager.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index 826d640099636..2951c9b0edcbc 100644
+index 5eb20771f8092..8c5ca8dfa3e12 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
 @@ -53,7 +53,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
@@ -19,7 +19,7 @@ index 826d640099636..2951c9b0edcbc 100644
 +  registry->RegisterBooleanPref(prefs::kAutologinEnabled, false);
    registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
    registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
-   registry->RegisterBooleanPref(prefs::kSigninAllowedByPolicy, true);
+   registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
 -- 
-2.33.0
+2.33.1
 

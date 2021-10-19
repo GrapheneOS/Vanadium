@@ -1,25 +1,25 @@
-From 5c1f7ae2405ea1b07be8b6b32359801d284f1abd Mon Sep 17 00:00:00 2001
+From 4f9d7a795c018751567aa09626253599e359d0e3 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 28 May 2021 09:08:01 -0400
-Subject: [PATCH 68/76] disable mobile identity consistency by default
+Subject: [PATCH 68/77] disable mobile identity consistency by default
 
 ---
  components/signin/public/base/account_consistency_method.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/signin/public/base/account_consistency_method.cc b/components/signin/public/base/account_consistency_method.cc
-index 05a44eba653d4..b5e69777fb212 100644
+index d090d2a355b4c..6b7f88c19eca8 100644
 --- a/components/signin/public/base/account_consistency_method.cc
 +++ b/components/signin/public/base/account_consistency_method.cc
-@@ -11,7 +11,7 @@ namespace signin {
- // Experiments for MICE will be run independently per platform (Android, iOS).
- #if defined(OS_ANDROID)
- const base::Feature kMobileIdentityConsistency{
--    "MobileIdentityConsistency", base::FEATURE_ENABLED_BY_DEFAULT};
-+    "MobileIdentityConsistency", base::FEATURE_DISABLED_BY_DEFAULT};
- // Feature flag for FRE related changes as part of MICE.
+@@ -14,7 +14,7 @@ namespace signin {
  const base::Feature kMobileIdentityConsistencyFRE{
      "MobileIdentityConsistencyFRE", base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::Feature kMobileIdentityConsistencyPromos{
+-    "MobileIdentityConsistencyPromos", base::FEATURE_ENABLED_BY_DEFAULT};
++    "MobileIdentityConsistencyPromos", base::FEATURE_DISABLED_BY_DEFAULT};
+ #endif
+ 
+ #if defined(OS_IOS)
 -- 
-2.33.0
+2.33.1
 
