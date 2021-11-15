@@ -1,27 +1,13 @@
-From 257afa3e6f6d9ab9489a21c5889bde8dbf5d21d6 Mon Sep 17 00:00:00 2001
+From d9091eac0ef9f52372bcd4ad00d201ed517e6800 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 4 Aug 2021 03:29:04 -0400
 Subject: [PATCH 71/78] disable trials of privacy-aware analytics/advertising
  APIs
 
 ---
- chrome/common/chrome_features.cc                    | 2 +-
  components/privacy_sandbox/privacy_sandbox_prefs.cc | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index ce53d7cc47a51..87d15f11eb036 100644
---- a/chrome/common/chrome_features.cc
-+++ b/chrome/common/chrome_features.cc
-@@ -789,7 +789,7 @@ const base::Feature kPrivacyReview{"PrivacyReview",
- 
- // Enables additional control set 2 on the privacy sandbox settings page.
- const base::Feature kPrivacySandboxSettings2{"PrivacySandboxSettings2",
--                                             base::FEATURE_ENABLED_BY_DEFAULT};
-+                                             base::FEATURE_DISABLED_BY_DEFAULT};
- const base::FeatureParam<std::string> kPrivacySandboxSettings2FlocURL{
-     &kPrivacySandboxSettings2, "floc-website-url",
-     "https://privacysandbox.com/proposals/floc"};
 diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
 index f6094c3d70091..6df947ac2311a 100644
 --- a/components/privacy_sandbox/privacy_sandbox_prefs.cc

@@ -1,4 +1,4 @@
-From 22d0c0f88be64f20297e99ec9af82f12abfed21f Mon Sep 17 00:00:00 2001
+From 9dc07e87da320f3af711a9a262ae8eeb2602a53a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 15 Apr 2021 02:14:37 -0400
 Subject: [PATCH 13/78] remove Help & feedback menu entry
@@ -8,17 +8,17 @@ Subject: [PATCH 13/78] remove Help & feedback menu entry
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-index adf42467c76eb..95a9c3ca49b9f 100644
+index 4457f4e8b71b9..8f6b2fdc8fd01 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-@@ -359,6 +359,8 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
-         // Only display reader mode settings menu option if the current page is in reader mode.
-         menu.findItem(R.id.reader_mode_prefs_id).setVisible(shouldShowReaderModePrefs(currentTab));
+@@ -518,6 +518,8 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
+         menu.findItem(R.id.reader_mode_prefs_id)
+                 .setVisible(isCurrentTabNotNull && shouldShowReaderModePrefs(currentTab));
  
 +        menu.findItem(R.id.help_id).setVisible(false);
 +
          // Only display the Enter VR button if VR Shell Dev environment is enabled.
-         menu.findItem(R.id.enter_vr_id).setVisible(shouldShowEnterVr());
+         menu.findItem(R.id.enter_vr_id).setVisible(isCurrentTabNotNull && shouldShowEnterVr());
  
 -- 
 2.33.1

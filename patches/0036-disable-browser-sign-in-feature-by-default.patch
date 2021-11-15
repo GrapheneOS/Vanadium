@@ -1,4 +1,4 @@
-From 91d8a787070b3158e6473145af07ce3005d8f4b6 Mon Sep 17 00:00:00 2001
+From f19077e1dfa2a36fea49f12c7ca915c20d8c3e28 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 12 Jul 2019 04:23:18 -0400
 Subject: [PATCH 36/78] disable browser sign in feature by default
@@ -9,20 +9,20 @@ Subject: [PATCH 36/78] disable browser sign in feature by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
-index b967496c7e181..4a8ee779baf5b 100644
+index 559f167b42f46..c9d90d90f1e65 100644
 --- a/chrome/browser/signin/account_consistency_mode_manager.cc
 +++ b/chrome/browser/signin/account_consistency_mode_manager.cc
-@@ -127,7 +127,7 @@ void AccountConsistencyModeManager::RegisterProfilePrefs(
- #if BUILDFLAG(ENABLE_DICE_SUPPORT)
-   registry->RegisterBooleanPref(kDiceMigrationCompletePref, false);
- #endif
+@@ -113,7 +113,7 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() {}
+ // static
+ void AccountConsistencyModeManager::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* registry) {
 -  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, true);
 +  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, false);
  }
  
  // static
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index b476a904a1b1b..5eb20771f8092 100644
+index 51ca2abc2b158..160c45365126a 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
 @@ -55,7 +55,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {

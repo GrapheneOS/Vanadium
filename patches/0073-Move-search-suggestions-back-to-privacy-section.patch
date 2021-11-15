@@ -1,4 +1,4 @@
-From cf9a4e12a91005a2700fdc16eca3c03712238b8c Mon Sep 17 00:00:00 2001
+From ccd7e22bfffd42490168014a419e875311b01bc3 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH 73/78] Move search suggestions back to privacy section.
@@ -9,7 +9,7 @@ Subject: [PATCH 73/78] Move search suggestions back to privacy section.
  2 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index eadf05069df8d..78c55ff6b5efb 100644
+index c38435dfc24c7..11eaca1817553 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -24,6 +24,11 @@
@@ -21,14 +21,14 @@ index eadf05069df8d..78c55ff6b5efb 100644
 +        android:title="@string/autocomplete_searches_and_urls_title"
 +        android:summary="@string/autocomplete_searches_and_urls_summary"
 +        android:persistent="false"/>
-     <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
-         android:key="can_make_payment"
-         android:title="@string/can_make_payment_title"
+      <org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference
+         android:key="incognito_lock"
+         android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index b4e5bdfa0b47d..80efec408693b 100644
+index dcdeedb791fdd..c0d10a607cddc 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -49,6 +49,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -52,6 +52,7 @@ import org.chromium.ui.text.SpanApplier;
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
      private static final String PREF_FORCE_NO_JIT = "force_no_jit";
@@ -36,7 +36,7 @@ index b4e5bdfa0b47d..80efec408693b 100644
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -99,6 +100,11 @@ public class PrivacySettings
+@@ -112,6 +113,11 @@ public class PrivacySettings
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
  
@@ -48,7 +48,7 @@ index b4e5bdfa0b47d..80efec408693b 100644
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -154,7 +160,10 @@ public class PrivacySettings
+@@ -196,7 +202,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -60,7 +60,7 @@ index b4e5bdfa0b47d..80efec408693b 100644
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_FORCE_NO_JIT.equals(key)) {
-@@ -189,6 +198,12 @@ public class PrivacySettings
+@@ -234,6 +243,12 @@ public class PrivacySettings
  
          PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
  

@@ -1,18 +1,18 @@
-From 1c3567bc4b79b32f2a22a6450a6ec3880425f8dd Mon Sep 17 00:00:00 2001
+From 0f88c174fd9c56bf55088b05d16ba5d8aa75fbfa Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH 50/78] enable strict site isolation by default on Android
 
 ---
- chrome/browser/about_flags.cc    | 20 --------------------
- chrome/common/chrome_features.cc |  7 +------
- 2 files changed, 1 insertion(+), 26 deletions(-)
+ chrome/browser/about_flags.cc    | 10 ----------
+ chrome/common/chrome_features.cc |  8 +-------
+ 2 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 0b850b717a0d9..7b84066628d3f 100644
+index 97f7f268553b9..f3d9f392fb885 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3626,26 +3626,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3589,16 +3589,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -26,37 +26,28 @@ index 0b850b717a0d9..7b84066628d3f 100644
 -    {"enable-site-per-process", flag_descriptions::kStrictSiteIsolationName,
 -     flag_descriptions::kStrictSiteIsolationDescription, kOsAndroid,
 -     SINGLE_VALUE_TYPE(switches::kSitePerProcess)},
--    {"enable-process-sharing-with-default-site-instances",
--     flag_descriptions::kProcessSharingWithDefaultSiteInstancesName,
--     flag_descriptions::kProcessSharingWithDefaultSiteInstancesDescription,
--     kOsAndroid,
--     FEATURE_VALUE_TYPE(features::kProcessSharingWithDefaultSiteInstances)},
--    {"enable-process-sharing-with-strict-site-instances",
--     flag_descriptions::kProcessSharingWithStrictSiteInstancesName,
--     flag_descriptions::kProcessSharingWithStrictSiteInstancesDescription,
--     kOsAndroid,
--     FEATURE_VALUE_TYPE(features::kProcessSharingWithStrictSiteInstances)},
  #endif
      {"isolate-origins", flag_descriptions::kIsolateOriginsName,
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index aac450f4fee76..ce53d7cc47a51 100644
+index afffbd98c5f29..b5ff357f3b31c 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -888,12 +888,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
+@@ -921,13 +921,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {
--  "site-per-process",
+-  "SitePerProcess",
 -#if defined(OS_ANDROID)
 -      base::FEATURE_DISABLED_BY_DEFAULT
 -#else
 -      base::FEATURE_ENABLED_BY_DEFAULT
 -#endif
-+  "site-per-process", base::FEATURE_ENABLED_BY_DEFAULT
- };
+-};
++  "SitePerProcess",  base::FEATURE_ENABLED_BY_DEFAULT};
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
+ // Enables or disables SmartDim on Chrome OS.
 -- 
 2.33.1
 

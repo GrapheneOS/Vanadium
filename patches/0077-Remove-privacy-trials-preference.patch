@@ -1,28 +1,25 @@
-From d7e4f06cef082e29c0f6bfe58d539f2711e177d7 Mon Sep 17 00:00:00 2001
+From dac5980aadeb4c75b4c87b5fe475d91912dce7c4 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 15 Oct 2021 13:49:33 +0000
 Subject: [PATCH 77/78] Remove privacy trials preference
 
 ---
- .../chrome/browser/privacy/settings/PrivacySettings.java     | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ .../chrome/browser/privacy/settings/PrivacySettings.java       | 2 ++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 80efec408693b..24e424687b788 100644
+index c0d10a607cddc..f06e84658bbee 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -83,9 +83,8 @@ public class PrivacySettings
-             return true;
-         });
+@@ -100,6 +100,8 @@ public class PrivacySettings
  
--        if (!ChromeFeatureList.isEnabled(ChromeFeatureList.PRIVACY_REVIEW)) {
--            getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_REVIEW));
--        }
-+        getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_REVIEW));
+         setUpIncognitoReauthPreference();
+ 
 +        getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_SANDBOX));
- 
++
          Preference safeBrowsingPreference = findPreference(PREF_SAFE_BROWSING);
          safeBrowsingPreference.setSummary(
+                 SafeBrowsingSettingsFragment.getSafeBrowsingSummaryString(getContext()));
 -- 
-2.33.1
+2.33.
 

@@ -1,6 +1,6 @@
-From a896301484f27bda547818edc24d073a3473abaa Mon Sep 17 00:00:00 2001
-From: hardenedfuchsiaoswhen <hardenedfuchsiaoswhen@protonmail.com>
-Date: Fri, 18 Jun 2021 03:34:20 +0000
+From faee4ee19da1bab09904b5e22785bf202a1e5a22 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 15 Nov 2021 11:17:06 +0000
 Subject: [PATCH 69/78] JIT-less toggle
 
 ---
@@ -8,16 +8,16 @@ Subject: [PATCH 69/78] JIT-less toggle
  .../browser/privacy/settings/PrivacySettings.java    | 12 ++++++++++++
  .../ui/android/strings/android_chrome_strings.grd    |  7 +++++++
  .../browser/BrowserStartupControllerImpl.java        |  1 +
- .../chromium/content/browser/DeviceUtilsImpl.java    |  6 ++++++
- 5 files changed, 31 insertions(+)
+ .../chromium/content/browser/DeviceUtilsImpl.java    |  7 +++++++
+ 5 files changed, 32 insertions(+)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 654d517cfeadd..eadf05069df8d 100644
+index ed124c1b3e772..c38435dfc24c7 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -33,6 +33,11 @@
-         android:title="@string/preload_pages_title"
-         android:summary="@string/preload_pages_summary"
+@@ -42,6 +42,11 @@
+         android:key="usage_stats_reporting"
+         android:title="@string/usage_stats_setting_title"
          android:persistent="false"/>
 +    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
 +        android:key="force_no_jit"
@@ -25,10 +25,10 @@ index 654d517cfeadd..eadf05069df8d 100644
 +        android:summary="@string/force_no_jit_summary"
 +        android:defaultValue="false" />
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
-         android:key="usage_stats_reporting"
-         android:title="@string/usage_stats_setting_title"
+         android:key="secure_dns"
+         android:title="@string/settings_secure_dns_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 9b051d977a1a4..7be7014ceb789 100644
+index 0fe4867b22dbb..5b54b48ae3214 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -4,6 +4,7 @@
@@ -47,7 +47,7 @@ index 9b051d977a1a4..7be7014ceb789 100644
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
-@@ -46,6 +48,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -49,6 +51,7 @@ import org.chromium.ui.text.SpanApplier;
   */
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
@@ -55,7 +55,7 @@ index 9b051d977a1a4..7be7014ceb789 100644
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -155,6 +158,10 @@ public class PrivacySettings
+@@ -197,6 +200,10 @@ public class PrivacySettings
          if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
@@ -66,10 +66,10 @@ index 9b051d977a1a4..7be7014ceb789 100644
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
              PrivacyPreferencesManagerImpl.getInstance().setNetworkPredictionEnabled(
                      (boolean) newValue);
-@@ -176,6 +183,11 @@ public class PrivacySettings
-      * Updates the summaries for several preferences.
+@@ -221,6 +228,11 @@ public class PrivacySettings
+      * Updates the preferences.
       */
-     public void updateSummaries() {
+     public void updatePreferences() {
 +        ChromeSwitchPreference forceNoJit =
 +                (ChromeSwitchPreference) findPreference(PREF_FORCE_NO_JIT);
 +        forceNoJit.setOnPreferenceChangeListener(this);
@@ -79,10 +79,10 @@ index 9b051d977a1a4..7be7014ceb789 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 84b9d71ef6cc6..eb225f64dbf69 100644
+index a8ca475b99d92..2f8da141df1d7 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -893,6 +893,13 @@ Privacy Sandbox trials are still in active development and are available in sele
+@@ -895,6 +895,13 @@ Privacy Sandbox trials are still in active development and are available in sele
          Please verify that this is a valid provider or try again later
        </message>
  
@@ -109,7 +109,7 @@ index 615c785a83a28..fa169c26c7f7b 100644
              BrowserStartupControllerImplJni.get().setCommandLineFlags(singleProcess);
          }
 diff --git a/content/public/android/java/src/org/chromium/content/browser/DeviceUtilsImpl.java b/content/public/android/java/src/org/chromium/content/browser/DeviceUtilsImpl.java
-index 0c2ef1d8413ac..3b20f70657ffe 100644
+index 0c2ef1d8413ac..d601895bc9743 100644
 --- a/content/public/android/java/src/org/chromium/content/browser/DeviceUtilsImpl.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/DeviceUtilsImpl.java
 @@ -5,6 +5,7 @@
@@ -120,14 +120,15 @@ index 0c2ef1d8413ac..3b20f70657ffe 100644
  import org.chromium.base.StrictModeContext;
  import org.chromium.content_public.common.ContentSwitches;
  import org.chromium.ui.base.DeviceFormFactor;
-@@ -22,4 +23,9 @@ public class DeviceUtilsImpl {
+@@ -22,4 +23,10 @@ public class DeviceUtilsImpl {
              }
          }
      }
++
 +    public static void addJitlessSwitch() {
-+	if (ContextUtils.getAppSharedPreferences().getBoolean("force_no_jit", false)) {
-+	    CommandLine.getInstance().appendSwitchWithValue("js-flags", "--jitless");
-+	}
++        if (ContextUtils.getAppSharedPreferences().getBoolean("force_no_jit", false)) {
++            CommandLine.getInstance().appendSwitchWithValue("js-flags", "--jitless");
++        }
 +    }
  }
 -- 
