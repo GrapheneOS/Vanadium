@@ -1,4 +1,4 @@
-From 8aab4ae9bffb21ada77a052febc89123d0031074 Mon Sep 17 00:00:00 2001
+From cd5ce1fb6948e17fd3a4a4e04394c15e72907f6b Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Mon, 15 Nov 2021 11:17:06 +0000
 Subject: [PATCH 69/78] JIT-less toggle
@@ -28,7 +28,7 @@ index ed124c1b3e772..c38435dfc24c7 100644
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 0fe4867b22dbb..5b54b48ae3214 100644
+index 7d445841efdc9..38b50072d79b7 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -4,6 +4,7 @@
@@ -47,7 +47,7 @@ index 0fe4867b22dbb..5b54b48ae3214 100644
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
-@@ -49,6 +51,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -48,6 +50,7 @@ import org.chromium.ui.text.SpanApplier;
   */
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
@@ -55,7 +55,7 @@ index 0fe4867b22dbb..5b54b48ae3214 100644
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -197,6 +200,10 @@ public class PrivacySettings
+@@ -171,6 +174,10 @@ public class PrivacySettings
          if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
@@ -66,7 +66,7 @@ index 0fe4867b22dbb..5b54b48ae3214 100644
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
              PrivacyPreferencesManagerImpl.getInstance().setNetworkPredictionEnabled(
                      (boolean) newValue);
-@@ -221,6 +228,11 @@ public class PrivacySettings
+@@ -191,6 +198,11 @@ public class PrivacySettings
       * Updates the preferences.
       */
      public void updatePreferences() {
@@ -79,10 +79,10 @@ index 0fe4867b22dbb..5b54b48ae3214 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index a8ca475b99d92..2f8da141df1d7 100644
+index dda9db2eb67ff..3eb322667cc5f 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -895,6 +895,13 @@ Privacy Sandbox trials are still in active development and are available in sele
+@@ -901,6 +901,13 @@ Privacy Sandbox trials are still in active development and are available in sele
          Please verify that this is a valid provider or try again later
        </message>
  

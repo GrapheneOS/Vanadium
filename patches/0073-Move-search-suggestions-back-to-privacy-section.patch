@@ -1,4 +1,4 @@
-From 7e39af63794f9257f8a79943313e0d2b3a3bf0e4 Mon Sep 17 00:00:00 2001
+From 7450835ae3a5e9368ff05d32dd9c3f4eb74ff065 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH 73/78] Move search suggestions back to privacy section.
@@ -25,10 +25,10 @@ index c38435dfc24c7..11eaca1817553 100644
          android:key="incognito_lock"
          android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index dcdeedb791fdd..c0d10a607cddc 100644
+index 8c00fd7217ea2..09fa3a3598c88 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -52,6 +52,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -51,6 +51,7 @@ import org.chromium.ui.text.SpanApplier;
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
      private static final String PREF_FORCE_NO_JIT = "force_no_jit";
@@ -36,7 +36,7 @@ index dcdeedb791fdd..c0d10a607cddc 100644
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -112,6 +113,11 @@ public class PrivacySettings
+@@ -115,6 +116,11 @@ public class PrivacySettings
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
  
@@ -48,7 +48,7 @@ index dcdeedb791fdd..c0d10a607cddc 100644
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -196,7 +202,10 @@ public class PrivacySettings
+@@ -170,7 +176,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -60,7 +60,7 @@ index dcdeedb791fdd..c0d10a607cddc 100644
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_FORCE_NO_JIT.equals(key)) {
-@@ -234,6 +243,12 @@ public class PrivacySettings
+@@ -204,6 +213,12 @@ public class PrivacySettings
  
          PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
  

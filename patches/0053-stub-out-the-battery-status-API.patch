@@ -1,4 +1,4 @@
-From 9babccc29568d4f0638c2296e5f5c4ee6a6e6838 Mon Sep 17 00:00:00 2001
+From 3acfc3393724af66edb9ff4a1e2c77c3c2cb1feb Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 17 Jun 2019 11:29:21 -0400
 Subject: [PATCH 53/78] stub out the battery status API
@@ -9,7 +9,7 @@ Pretend that the device is always plugged in and fully charged.
  1 file changed, 4 insertions(+), 22 deletions(-)
 
 diff --git a/third_party/blink/renderer/modules/battery/battery_manager.cc b/third_party/blink/renderer/modules/battery/battery_manager.cc
-index ff9a33d51dc88..7879bdb4e0c1e 100644
+index 840da4b66f623..7879bdb4e0c1e 100644
 --- a/third_party/blink/renderer/modules/battery/battery_manager.cc
 +++ b/third_party/blink/renderer/modules/battery/battery_manager.cc
 @@ -70,46 +70,28 @@ ScriptPromise BatteryManager::StartRequest(ScriptState* script_state) {
@@ -21,12 +21,12 @@ index ff9a33d51dc88..7879bdb4e0c1e 100644
  }
  
  double BatteryManager::chargingTime() {
--  return battery_status_.charging_time();
+-  return battery_status_.charging_time().InSecondsF();
 +  return 0.0;
  }
  
  double BatteryManager::dischargingTime() {
--  return battery_status_.discharging_time();
+-  return battery_status_.discharging_time().InSecondsF();
 +  return std::numeric_limits<double>::infinity();
  }
  

@@ -1,16 +1,16 @@
-From 3e2294034ba77bd26579f42214d4bb192fba3a2b Mon Sep 17 00:00:00 2001
+From 9c40bace48036a4304762a7a82ae75078b90dd0a Mon Sep 17 00:00:00 2001
 From: csagan5 <32685696+csagan5@users.noreply.github.com>
 Date: Sun, 26 Nov 2017 22:51:43 +0100
 Subject: [PATCH 15/78] disable first run welcome page
 
 ---
- .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java | 3 ---
- .../chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java  | 6 ------
- .../chromium/chrome/browser/firstrun/FirstRunStatus.java    | 5 ++++-
- 3 files changed, 4 insertions(+), 10 deletions(-)
+ .../chrome/browser/firstrun/FirstRunUtils.java      |  3 ---
+ .../browser/firstrun/ToSAndUMAFirstRunFragment.java | 13 -------------
+ .../chrome/browser/firstrun/FirstRunStatus.java     |  6 +++++-
+ 3 files changed, 5 insertions(+), 17 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-index bdb19e7c20ffb..ae29235275e4d 100644
+index df973d0cfe8cf..1669531359f5d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 @@ -43,15 +43,12 @@ public class FirstRunUtils {
@@ -30,35 +30,43 @@ index bdb19e7c20ffb..ae29235275e4d 100644
  
      /**
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java
-index c2786ff120f8f..62ddd4130360e 100644
+index 042f7dc3124cb..53557e535c727 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java
-@@ -85,12 +85,6 @@ public class ToSAndUMAFirstRunFragment extends Fragment implements FirstRunFragm
+@@ -92,19 +92,6 @@ public class ToSAndUMAFirstRunFragment
  
          mAcceptButton.setOnClickListener((v) -> onTosButtonClicked());
  
--        mSendReportCheckBox.setChecked(getUmaCheckBoxInitialState());
+-        mSendReportCheckBox.setChecked(mAllowCrashUpload);
+-        mSendReportCheckBox.setOnCheckedChangeListener(
+-                ((compoundButton, isChecked) -> mAllowCrashUpload = isChecked));
 -        if (!canShowUmaCheckBox()) {
+-            if (!FREMobileIdentityConsistencyFieldTrial.shouldShowOldFreWithUmaDialog()) {
+-                mAllowCrashUpload =
+-                        sShowUmaCheckBoxForTesting || ChromeVersionInfo.isOfficialBuild();
+-            }
 -            mSendReportCheckBox.setVisibility(View.GONE);
 -        }
 -
 -        mTosAndPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
- 
+-
          Resources resources = getResources();
-         NoUnderlineClickableSpan clickableGoogleTermsSpan =
+         final boolean showUmaDialog =
+                 FREMobileIdentityConsistencyFieldTrial.shouldShowOldFreWithUmaDialog();
 diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-index 13bec9f270f5b..ac3a3c0f7caf2 100644
+index 13bec9f270f5b..ed940dd77727d 100644
 --- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
 +++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-@@ -43,8 +43,11 @@ public class FirstRunStatus {
+@@ -43,8 +43,12 @@ public class FirstRunStatus {
       * includes ToS and Sign In pages if necessary.
       */
      public static boolean getFirstRunFlowComplete() {
 -        return SharedPreferencesManager.getInstance().readBoolean(
 +        boolean complete = SharedPreferencesManager.getInstance().readBoolean(
                  ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
-+        if (!complete)
++        if (!complete) {
 +           setFirstRunFlowComplete(true);
++        }
 +        return true;
      }
  
