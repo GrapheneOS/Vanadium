@@ -1,0 +1,23 @@
+From 90420571834b8546a57424caf6ce73bbd917054e Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 7 Aug 2021 15:01:54 -0400
+Subject: [PATCH] remove unwanted sync and services link
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettings.java       | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index eb0e0040ddef7..b97e5e5f54794 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -136,8 +136,7 @@ public class PrivacySettings
+         Preference secureDnsPref = findPreference(PREF_SECURE_DNS);
+         secureDnsPref.setVisible(SecureDnsSettings.isUiEnabled());
+ 
+-        Preference syncAndServicesLink = findPreference(PREF_SYNC_AND_SERVICES_LINK);
+-        syncAndServicesLink.setSummary(buildSyncAndServicesLink());
++        getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES_LINK));
+ 
+         updatePreferences();
+     }
