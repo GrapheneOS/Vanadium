@@ -1,22 +1,22 @@
-From 17e875b3572a597f4f8b2311e562ebdc08eb9e10 Mon Sep 17 00:00:00 2001
+From b35606362cb43b113938baa66bc8be57e5908f5a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 23 Nov 2016 08:31:44 -0500
 Subject: [PATCH] disable network prediction by default
 
 ---
- chrome/browser/net/prediction_options.h | 2 +-
+ chrome/browser/prefetch/prefetch_prefs.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/chrome/browser/net/prediction_options.h b/chrome/browser/net/prediction_options.h
-index 2ae6a1093090d..7fc83de1aa0fa 100644
---- a/chrome/browser/net/prediction_options.h
-+++ b/chrome/browser/net/prediction_options.h
-@@ -22,7 +22,7 @@ enum NetworkPredictionOptions {
-   NETWORK_PREDICTION_ALWAYS,
-   NETWORK_PREDICTION_WIFI_ONLY,
-   NETWORK_PREDICTION_NEVER,
--  NETWORK_PREDICTION_DEFAULT = NETWORK_PREDICTION_WIFI_ONLY,
-+  NETWORK_PREDICTION_DEFAULT = NETWORK_PREDICTION_NEVER,
+diff --git a/chrome/browser/prefetch/prefetch_prefs.h b/chrome/browser/prefetch/prefetch_prefs.h
+index 77e3601c57cf2..a33eacc9ab679 100644
+--- a/chrome/browser/prefetch/prefetch_prefs.h
++++ b/chrome/browser/prefetch/prefetch_prefs.h
+@@ -22,7 +22,7 @@ enum class NetworkPredictionOptions {
+   kWifiOnlyDeprecated = 1,
+   kDisabled = 2,
+   kExtended = 3,
+-  kDefault = kWifiOnlyDeprecated,
++  kDefault = kDisabled,
  };
  
- enum class NetworkPredictionStatus {
+ // Enum representing possible values of the Preload Pages opt-in state.  Since

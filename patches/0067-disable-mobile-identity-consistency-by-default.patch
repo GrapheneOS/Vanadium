@@ -1,0 +1,22 @@
+From bafd3586e44c7c1a4b28714694f402b27c16e47c Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 28 May 2021 09:08:01 -0400
+Subject: [PATCH] disable mobile identity consistency by default
+
+---
+ components/signin/public/base/account_consistency_method.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/signin/public/base/account_consistency_method.cc b/components/signin/public/base/account_consistency_method.cc
+index dbd69e50bf892..2439f86d6b847 100644
+--- a/components/signin/public/base/account_consistency_method.cc
++++ b/components/signin/public/base/account_consistency_method.cc
+@@ -14,7 +14,7 @@ namespace signin {
+ const base::Feature kMobileIdentityConsistencyFRE{
+     "MobileIdentityConsistencyFRE", base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::Feature kMobileIdentityConsistencyPromos{
+-    "MobileIdentityConsistencyPromos", base::FEATURE_ENABLED_BY_DEFAULT};
++    "MobileIdentityConsistencyPromos", base::FEATURE_DISABLED_BY_DEFAULT};
+ #endif
+ 
+ }  // namespace signin
