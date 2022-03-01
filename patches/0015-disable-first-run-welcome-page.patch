@@ -1,13 +1,13 @@
-From 6194f920ca07ba160c465715fdf4466f7ce55bbf Mon Sep 17 00:00:00 2001
+From 58534748ec3f31ea4932a3deeb66a2e07e316892 Mon Sep 17 00:00:00 2001
 From: csagan5 <32685696+csagan5@users.noreply.github.com>
 Date: Sun, 26 Nov 2017 22:51:43 +0100
 Subject: [PATCH] disable first run welcome page
 
 ---
  .../chrome/browser/firstrun/FirstRunUtils.java      |  3 ---
- .../browser/firstrun/ToSAndUMAFirstRunFragment.java | 13 -------------
+ .../browser/firstrun/ToSAndUMAFirstRunFragment.java | 12 ------------
  .../chrome/browser/firstrun/FirstRunStatus.java     |  6 +++++-
- 3 files changed, 5 insertions(+), 17 deletions(-)
+ 3 files changed, 5 insertions(+), 16 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 index df973d0cfe8cf..1669531359f5d 100644
@@ -30,10 +30,10 @@ index df973d0cfe8cf..1669531359f5d 100644
  
      /**
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java
-index 042f7dc3124cb..53557e535c727 100644
+index 3650798158c68..642e3c80d18c9 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/ToSAndUMAFirstRunFragment.java
-@@ -92,19 +92,6 @@ public class ToSAndUMAFirstRunFragment
+@@ -92,18 +92,6 @@ public class ToSAndUMAFirstRunFragment
  
          mAcceptButton.setOnClickListener((v) -> onTosButtonClicked());
  
@@ -42,8 +42,7 @@ index 042f7dc3124cb..53557e535c727 100644
 -                ((compoundButton, isChecked) -> mAllowCrashUpload = isChecked));
 -        if (!canShowUmaCheckBox()) {
 -            if (!FREMobileIdentityConsistencyFieldTrial.shouldShowOldFreWithUmaDialog()) {
--                mAllowCrashUpload =
--                        sShowUmaCheckBoxForTesting || ChromeVersionInfo.isOfficialBuild();
+-                mAllowCrashUpload = sShowUmaCheckBoxForTesting || VersionInfo.isOfficialBuild();
 -            }
 -            mSendReportCheckBox.setVisibility(View.GONE);
 -        }
