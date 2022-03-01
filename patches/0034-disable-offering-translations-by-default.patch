@@ -1,0 +1,22 @@
+From ea484dc8a348f7beca6d157e4e783f201ea9dc18 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 12 Jul 2019 03:58:01 -0400
+Subject: [PATCH] disable offering translations by default
+
+---
+ chrome/browser/ui/browser_ui_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_ui_prefs.cc
+index e2fb6a2638740..e955e29e7c812 100644
+--- a/chrome/browser/ui/browser_ui_prefs.cc
++++ b/chrome/browser/ui/browser_ui_prefs.cc
+@@ -77,7 +77,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+   registry->RegisterBooleanPref(prefs::kWebAppCreateInAppsMenu, true);
+   registry->RegisterBooleanPref(prefs::kWebAppCreateInQuickLaunchBar, true);
+   registry->RegisterBooleanPref(
+-      translate::prefs::kOfferTranslateEnabled, true,
++      translate::prefs::kOfferTranslateEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterStringPref(prefs::kCloudPrintEmail, std::string());
+   registry->RegisterBooleanPref(prefs::kCloudPrintProxyEnabled, true);
