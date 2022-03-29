@@ -1,4 +1,4 @@
-From 657249341fc8c2c6daeb422b2004dc3533456b94 Mon Sep 17 00:00:00 2001
+From c61995dbbdd2ccb7075bca352b5d4a58a6ab8986 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 3 Mar 2021 13:42:41 -0500
 Subject: [PATCH] enable user agent freeze by default
@@ -8,15 +8,15 @@ Subject: [PATCH] enable user agent freeze by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index e4b11d0d0d18d..f880735623e29 100644
+index 7ce83d822a3dd..3a7ba58b43c96 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -99,7 +99,7 @@ const base::Feature kFreezePurgeMemoryAllPagesFrozen{
+@@ -103,7 +103,7 @@ const base::Feature kFreezePurgeMemoryAllPagesFrozen{
  
  // Freezes the user-agent as part of https://github.com/WICG/ua-client-hints.
  const base::Feature kReduceUserAgent{"ReduceUserAgent",
 -                                     base::FEATURE_DISABLED_BY_DEFAULT};
 +                                     base::FEATURE_ENABLED_BY_DEFAULT};
  
- // Enables the frequency capping for detecting overlay popups. Overlay-popups
- // are the interstitials that pop up and block the main content of the page.
+ // Enables the `sec-ch-ua-full` client hint to be sent along with the full user
+ // agent string in the HTTP request headers, as well as surfacing the full user

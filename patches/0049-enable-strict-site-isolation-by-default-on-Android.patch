@@ -1,4 +1,4 @@
-From 53f1db27dbb97f3a3997b2ea889506f163777e3b Mon Sep 17 00:00:00 2001
+From 344c166a8cc3fc6cc117922fbe1566bb7bbc5151 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH] enable strict site isolation by default on Android
@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 2825190b68c3c..6ef75dc5e02ea 100644
+index 81876b3c1a157..18e2a492927c2 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3618,16 +3618,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3808,16 +3808,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -30,10 +30,10 @@ index 2825190b68c3c..6ef75dc5e02ea 100644
      {"isolate-origins", flag_descriptions::kIsolateOriginsName,
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index b06ec6c1b0134..a904651e4bd44 100644
+index e9c636bcb54c8..94466bf4fab3a 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -975,13 +975,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
+@@ -958,13 +958,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

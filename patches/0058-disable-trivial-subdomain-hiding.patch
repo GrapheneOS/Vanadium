@@ -1,0 +1,23 @@
+From c3ea1e1914b29761ea426ec86fe1ad8cc9931c1a Mon Sep 17 00:00:00 2001
+From: JTL <jtl@teamclassified.ca>
+Date: Sat, 21 Dec 2019 04:04:24 +0000
+Subject: [PATCH] disable trivial subdomain hiding
+
+---
+ components/url_formatter/url_formatter.cc | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/components/url_formatter/url_formatter.cc b/components/url_formatter/url_formatter.cc
+index db6a38b413e9f..0b7c4922d41cd 100644
+--- a/components/url_formatter/url_formatter.cc
++++ b/components/url_formatter/url_formatter.cc
+@@ -616,8 +616,7 @@ std::u16string FormatUrlWithAdjustments(
+     *prefix_end = static_cast<size_t>(url_string.length());
+ 
+   // Host.
+-  bool trim_trivial_subdomains =
+-      (format_types & kFormatUrlOmitTrivialSubdomains) != 0;
++  bool trim_trivial_subdomains = false;
+   AppendFormattedComponent(spec, parsed.host,
+                            HostComponentTransform(trim_trivial_subdomains),
+                            &url_string, &new_parsed->host, adjustments);
