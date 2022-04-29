@@ -1,7 +1,7 @@
-From 6ca5074073f31fae77a2a3d13f4137562364f0b1 Mon Sep 17 00:00:00 2001
+From 4248141c93400485459b069d9392ce18fa0d5883 Mon Sep 17 00:00:00 2001
 From: qua3k <cliffmaceyak@gmail.com>
 Date: Thu, 21 Oct 2021 00:00:00 +0000
-Subject: [PATCH 77/83] Enable strict origin isolation by default
+Subject: [PATCH] Enable strict origin isolation by default
 
 Upstream is in the process of enabling origin isolation by default
 in the process of deprecating `document.domain`. An insignificant
@@ -15,10 +15,10 @@ for more detail.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
-index da8785d234366..9350850b278cd 100644
+index e2dae408a5a61..7dd8a5c6a6e4e 100644
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -936,7 +936,7 @@ const base::Feature kStorageServiceOutOfProcess{
+@@ -949,7 +949,7 @@ const base::Feature kStorageServiceOutOfProcess{
  // Controls whether site isolation should use origins instead of scheme and
  // eTLD+1.
  const base::Feature kStrictOriginIsolation{"StrictOriginIsolation",
@@ -27,6 +27,3 @@ index da8785d234366..9350850b278cd 100644
  
  // Enables subresource loading with Web Bundles.
  const base::Feature kSubresourceWebBundles{"SubresourceWebBundles",
--- 
-2.36.0
-

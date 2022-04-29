@@ -1,28 +1,28 @@
-From 500c38fe16c4dd3d3342b3452ef7e20ce9905655 Mon Sep 17 00:00:00 2001
+From caaff4a14b61bf164c2904a756f36f001d1e3f4e Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 27 Nov 2020 02:43:37 -0500
-Subject: [PATCH 45/83] disable autofill assistant by default
+Subject: [PATCH] disable autofill assistant by default
 
 ---
  .../autofill_assistant/AutofillAssistantPreferencesUtil.java  | 2 +-
  components/autofill_assistant/browser/features.cc             | 4 ++--
  2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
-index 4a59b0bf75e1e..44c5afc38eaaf 100644
---- a/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
-+++ b/chrome/android/features/autofill_assistant/public/java/src/org/chromium/chrome/browser/autofill_assistant/AutofillAssistantPreferencesUtil.java
+diff --git a/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java b/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java
+index 834529ab0ae04..eff59a1e07269 100644
+--- a/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java
++++ b/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java
 @@ -32,7 +32,7 @@ public class AutofillAssistantPreferencesUtil {
  
      /** Checks whether the Autofill Assistant switch preference in settings is on. */
-     static boolean isAutofillAssistantSwitchOn() {
+     public static boolean isAutofillAssistantSwitchOn() {
 -        return getAssistantEnabledPreference(true);
 +        return getAssistantEnabledPreference(false);
      }
  
      /** Checks whether proactive help is enabled. */
 diff --git a/components/autofill_assistant/browser/features.cc b/components/autofill_assistant/browser/features.cc
-index 8e69cc7dea38d..43ff85a0758ef 100644
+index bdf2155febd88..f9cddfd434eb7 100644
 --- a/components/autofill_assistant/browser/features.cc
 +++ b/components/autofill_assistant/browser/features.cc
 @@ -11,7 +11,7 @@ namespace features {
@@ -34,7 +34,7 @@ index 8e69cc7dea38d..43ff85a0758ef 100644
  
  // Controls whether to enable Autofill Assistant's way of annotating DOM. If
  // enabled will create an |AnnotateDomModelService|.
-@@ -86,7 +86,7 @@ const base::Feature kAutofillAssistantLoadDFMForTriggerScripts{
+@@ -103,7 +103,7 @@ const base::Feature kAutofillAssistantLoadDFMForTriggerScripts{
      base::FEATURE_DISABLED_BY_DEFAULT};
  
  const base::Feature kAutofillAssistantProactiveHelp{
@@ -43,6 +43,3 @@ index 8e69cc7dea38d..43ff85a0758ef 100644
  
  // Used to configure the start heuristics for
  // |kAutofillAssistantInCctTriggering| and/or
--- 
-2.36.0
-

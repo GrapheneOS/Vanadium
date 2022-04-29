@@ -1,10 +1,10 @@
-From 4cb5b12c6b269767eb306f67aca3b8022230e099 Mon Sep 17 00:00:00 2001
+From 986f9f42446ac1d2f6832715f2a1c8c2e4b51644 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 16 Mar 2022 04:15:59 -0400
-Subject: [PATCH 82/83] update dependencies
+Subject: [PATCH] update dependencies
 
 ---
- DEPS                                          |    6 +-
+ DEPS                                          |    4 +-
  third_party/android_deps/BUILD.gn             |    6 +-
  third_party/android_deps/build.gradle         |    4 +-
  .../LICENSE                                   | 3056 ++++++++++++-
@@ -17,44 +17,35 @@ Subject: [PATCH 82/83] update dependencies
  .../README.chromium                           |    2 +-
  .../cipd.yaml                                 |    4 +-
  ...oogle_android_gms_play_services_tasks.info |    2 +-
- 13 files changed, 9832 insertions(+), 139 deletions(-)
+ 13 files changed, 9831 insertions(+), 138 deletions(-)
 
 diff --git a/DEPS b/DEPS
-index dc34106850b42..34d267ebfd328 100644
+index 46bd2226c1e75..6597847715640 100644
 --- a/DEPS
 +++ b/DEPS
-@@ -2476,7 +2476,7 @@ deps = {
-       'packages': [
-           {
-               'package': 'chromium/third_party/android_deps/libs/com_google_android_gms_play_services_base',
--              'version': 'version:2@17.5.0.cr0',
-+              'version': 'version:2@18.0.1.cr0',
-           },
-       ],
-       'condition': 'checkout_android',
-@@ -2487,7 +2487,7 @@ deps = {
+@@ -2471,7 +2471,7 @@ deps = {
        'packages': [
            {
                'package': 'chromium/third_party/android_deps/libs/com_google_android_gms_play_services_basement',
--              'version': 'version:2@17.5.0.cr0',
+-              'version': 'version:2@17.5.0.cr1',
 +              'version': 'version:2@18.0.0.cr0',
            },
        ],
        'condition': 'checkout_android',
-@@ -2641,7 +2641,7 @@ deps = {
+@@ -2625,7 +2625,7 @@ deps = {
        'packages': [
            {
                'package': 'chromium/third_party/android_deps/libs/com_google_android_gms_play_services_tasks',
--              'version': 'version:2@17.2.0.cr0',
+-              'version': 'version:2@17.2.0.cr1',
 +              'version': 'version:2@18.0.1.cr0',
            },
        ],
        'condition': 'checkout_android',
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
-index 28ed0e983520e..61c8a246032c6 100644
+index 042444db4e8b4..8b4bf5d0ca37d 100644
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1064,7 +1064,7 @@ if (!limit_android_deps) {
+@@ -1027,7 +1027,7 @@ if (!limit_android_deps) {
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("google_play_services_base_java") {
@@ -63,7 +54,7 @@ index 28ed0e983520e..61c8a246032c6 100644
      info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
      deps = [
        ":google_play_services_basement_java",
-@@ -1079,7 +1079,7 @@ if (!limit_android_deps) {
+@@ -1042,7 +1042,7 @@ if (!limit_android_deps) {
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("google_play_services_basement_java") {
@@ -72,7 +63,7 @@ index 28ed0e983520e..61c8a246032c6 100644
      info_path = "libs/com_google_android_gms_play_services_basement/com_google_android_gms_play_services_basement.info"
      deps = [
        "//third_party/androidx:androidx_collection_collection_java",
-@@ -1199,7 +1199,7 @@ if (!limit_android_deps) {
+@@ -1162,7 +1162,7 @@ if (!limit_android_deps) {
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("google_play_services_tasks_java") {
@@ -82,7 +73,7 @@ index 28ed0e983520e..61c8a246032c6 100644
      deps = [ ":google_play_services_basement_java" ]
    }
 diff --git a/third_party/android_deps/build.gradle b/third_party/android_deps/build.gradle
-index 8da34272cfb85..a96efe980503a 100644
+index c84216ea0fb91..4f167fd45edf7 100644
 --- a/third_party/android_deps/build.gradle
 +++ b/third_party/android_deps/build.gradle
 @@ -55,9 +55,9 @@ dependencies {
@@ -3234,14 +3225,14 @@ index 183a4cf687414..6ac89e61cd358 100644
  License File: LICENSE
  Security Critical: yes
 diff --git a/third_party/android_deps/libs/com_google_android_gms_play_services_base/cipd.yaml b/third_party/android_deps/libs/com_google_android_gms_play_services_base/cipd.yaml
-index 1990104f28cfd..3b0d9cd47ebfd 100644
+index 8bad9a7e30ab2..3b0d9cd47ebfd 100644
 --- a/third_party/android_deps/libs/com_google_android_gms_play_services_base/cipd.yaml
 +++ b/third_party/android_deps/libs/com_google_android_gms_play_services_base/cipd.yaml
 @@ -3,8 +3,8 @@
  # found in the LICENSE file.
  
  # To create CIPD package run the following command.
--# cipd create --pkg-def cipd.yaml -tag version:2@17.5.0.cr0
+-# cipd create --pkg-def cipd.yaml -tag version:2@17.5.0.cr1
 +# cipd create --pkg-def cipd.yaml -tag version:2@18.0.1.cr0
  package: chromium/third_party/android_deps/libs/com_google_android_gms_play_services_base
  description: "play-services-base"
@@ -6385,14 +6376,14 @@ index 94ae5650ca7fa..a8ee8879e54d0 100644
  License File: LICENSE
  Security Critical: yes
 diff --git a/third_party/android_deps/libs/com_google_android_gms_play_services_basement/cipd.yaml b/third_party/android_deps/libs/com_google_android_gms_play_services_basement/cipd.yaml
-index aa4164d74a7bf..7d7ceea42dc6c 100644
+index 11b63167dda27..7d7ceea42dc6c 100644
 --- a/third_party/android_deps/libs/com_google_android_gms_play_services_basement/cipd.yaml
 +++ b/third_party/android_deps/libs/com_google_android_gms_play_services_basement/cipd.yaml
 @@ -3,8 +3,8 @@
  # found in the LICENSE file.
  
  # To create CIPD package run the following command.
--# cipd create --pkg-def cipd.yaml -tag version:2@17.5.0.cr0
+-# cipd create --pkg-def cipd.yaml -tag version:2@17.5.0.cr1
 +# cipd create --pkg-def cipd.yaml -tag version:2@18.0.0.cr0
  package: chromium/third_party/android_deps/libs/com_google_android_gms_play_services_basement
  description: "play-services-basement"
@@ -10300,14 +10291,14 @@ index fabdcbf01b9c1..d07dc8200d39b 100644
  License File: LICENSE
  Security Critical: yes
 diff --git a/third_party/android_deps/libs/com_google_android_gms_play_services_tasks/cipd.yaml b/third_party/android_deps/libs/com_google_android_gms_play_services_tasks/cipd.yaml
-index 294b609d0b9f6..2d693726e5abd 100644
+index 12f8450f79e68..2d693726e5abd 100644
 --- a/third_party/android_deps/libs/com_google_android_gms_play_services_tasks/cipd.yaml
 +++ b/third_party/android_deps/libs/com_google_android_gms_play_services_tasks/cipd.yaml
 @@ -3,8 +3,8 @@
  # found in the LICENSE file.
  
  # To create CIPD package run the following command.
--# cipd create --pkg-def cipd.yaml -tag version:2@17.2.0.cr0
+-# cipd create --pkg-def cipd.yaml -tag version:2@17.2.0.cr1
 +# cipd create --pkg-def cipd.yaml -tag version:2@18.0.1.cr0
  package: chromium/third_party/android_deps/libs/com_google_android_gms_play_services_tasks
  description: "play-services-tasks"
@@ -10327,6 +10318,3 @@ index aa8527dd51331..a21a9e7887b81 100644
  has_r_text_file = false
  is_manifest_empty = true
  manifest_package = "com.google.android.gms.tasks"
--- 
-2.36.0
-

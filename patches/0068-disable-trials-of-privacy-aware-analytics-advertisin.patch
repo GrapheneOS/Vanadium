@@ -1,18 +1,17 @@
-From 7d1098c9380dd12ecad7c154112b8af0dd3b5a77 Mon Sep 17 00:00:00 2001
+From a464f980426a1aa1c5991931340abe991dc28018 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 4 Aug 2021 03:29:04 -0400
-Subject: [PATCH 68/83] disable trials of privacy-aware analytics/advertising
- APIs
+Subject: [PATCH] disable trials of privacy-aware analytics/advertising APIs
 
 ---
  components/privacy_sandbox/privacy_sandbox_prefs.cc | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-index ef5155700fb67..bd6fd981d2a41 100644
+index 393bb02a426f2..cace522fec0a1 100644
 --- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-@@ -48,7 +48,7 @@ namespace privacy_sandbox {
+@@ -71,7 +71,7 @@ namespace privacy_sandbox {
  
  void RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(
@@ -20,16 +19,13 @@ index ef5155700fb67..bd6fd981d2a41 100644
 +      prefs::kPrivacySandboxApisEnabled, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
    registry->RegisterBooleanPref(prefs::kPrivacySandboxApisEnabledV2, false);
-   registry->RegisterBooleanPref(
-@@ -60,7 +60,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
-   registry->RegisterTimePref(prefs::kPrivacySandboxFlocDataAccessibleSince,
+   registry->RegisterBooleanPref(prefs::kPrivacySandboxApisEnabledV2Init, false);
+@@ -88,7 +88,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterTimePref(prefs::kPrivacySandboxTopicsDataAccessibleSince,
                               base::Time());
    registry->RegisterBooleanPref(
 -      prefs::kPrivacySandboxFlocEnabled, true,
 +      prefs::kPrivacySandboxFlocEnabled, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterListPref(prefs::kPrivacySandboxBlockedTopics);
    registry->RegisterDictionaryPref(prefs::kPrivacySandboxFledgeJoinBlocked);
-   registry->RegisterBooleanPref(prefs::kPrivacySandboxNoticeDisplayed, false);
--- 
-2.36.0
-

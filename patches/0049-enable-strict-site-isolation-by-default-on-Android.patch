@@ -1,7 +1,7 @@
-From 3041d1b0988e87c927fb4fe7b9d18204c2ce422b Mon Sep 17 00:00:00 2001
+From 62cbfc130d4249f40d574971212529bc6b2b99eb Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
-Subject: [PATCH 49/83] enable strict site isolation by default on Android
+Subject: [PATCH] enable strict site isolation by default on Android
 
 ---
  chrome/browser/about_flags.cc    | 10 ----------
@@ -9,10 +9,10 @@ Subject: [PATCH 49/83] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 7540a4823c30c..ef73e1eabf542 100644
+index ad19de513c785..1c6f72b6c8c68 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3809,16 +3809,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3908,16 +3908,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -30,10 +30,10 @@ index 7540a4823c30c..ef73e1eabf542 100644
      {"isolate-origins", flag_descriptions::kIsolateOriginsName,
       flag_descriptions::kIsolateOriginsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index e9c636bcb54c8..94466bf4fab3a 100644
+index 2ce4816f70b85..52b1500593bc5 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -958,13 +958,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
+@@ -937,13 +937,7 @@ const base::Feature kShow10_10ObsoleteInfobar{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {
@@ -48,6 +48,3 @@ index e9c636bcb54c8..94466bf4fab3a 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  // Enables or disables SmartDim on Chrome OS.
--- 
-2.36.0
-

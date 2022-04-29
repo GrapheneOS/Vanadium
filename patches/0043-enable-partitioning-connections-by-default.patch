@@ -1,17 +1,17 @@
-From b1f1f3e8ba58f0146e948e13961eb48c69067ab8 Mon Sep 17 00:00:00 2001
+From 6b4cb92894127e59fe03d936b14dcb03efa6be7a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 8 Mar 2021 16:53:47 -0500
-Subject: [PATCH 43/83] enable partitioning connections by default
+Subject: [PATCH] enable partitioning connections by default
 
 ---
  net/base/features.cc | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index cd79c0b7415bc..b9da19d5df78c 100644
+index b0cca595e567b..9368b40f12686 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -105,27 +105,27 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
+@@ -105,11 +105,11 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
      "SplitCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kSplitHostCacheByNetworkIsolationKey{
@@ -22,6 +22,10 @@ index cd79c0b7415bc..b9da19d5df78c 100644
      "PartitionConnectionsByNetworkIsolationKey",
 -    base::FEATURE_DISABLED_BY_DEFAULT};
 +    base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
+     "ForceIsolationInfoFrameOriginToTopLevelFrame",
+@@ -117,19 +117,19 @@ const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
  
  const base::Feature kPartitionHttpServerPropertiesByNetworkIsolationKey{
      "PartitionHttpServerPropertiesByNetworkIsolationKey",
@@ -45,6 +49,3 @@ index cd79c0b7415bc..b9da19d5df78c 100644
  
  const base::Feature kExpectCTPruning{"ExpectCTPruning",
                                       base::FEATURE_ENABLED_BY_DEFAULT};
--- 
-2.36.0
-

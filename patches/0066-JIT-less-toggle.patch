@@ -1,7 +1,7 @@
-From 72d70b8596fff698af55481ab7bb1775568ad30b Mon Sep 17 00:00:00 2001
+From 537ebe4ebece8d715101fd98194cbec43975eb18 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Mon, 15 Nov 2021 11:17:06 +0000
-Subject: [PATCH 66/83] JIT-less toggle
+Subject: [PATCH] JIT-less toggle
 
 ---
  chrome/android/java/res/xml/privacy_preferences.xml  |  5 +++++
@@ -28,7 +28,7 @@ index 31c384b2ef3f2..837650e80c5b5 100644
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index c0ae26c326118..e941a11dac2f7 100644
+index 5b4d0dd6f6451..4c89f970e46e0 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -4,6 +4,7 @@
@@ -47,7 +47,7 @@ index c0ae26c326118..e941a11dac2f7 100644
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference;
-@@ -52,6 +54,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -53,6 +55,7 @@ import org.chromium.ui.text.SpanApplier;
   */
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
@@ -55,7 +55,7 @@ index c0ae26c326118..e941a11dac2f7 100644
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_PRELOAD_PAGES = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -174,6 +177,10 @@ public class PrivacySettings
+@@ -181,6 +184,10 @@ public class PrivacySettings
          if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
@@ -66,7 +66,7 @@ index c0ae26c326118..e941a11dac2f7 100644
          } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
-@@ -191,6 +198,11 @@ public class PrivacySettings
+@@ -198,6 +205,11 @@ public class PrivacySettings
       * Updates the preferences.
       */
      public void updatePreferences() {
@@ -79,10 +79,10 @@ index c0ae26c326118..e941a11dac2f7 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 9bf9bfbe052a7..a6d73f489a044 100644
+index f571e30697d25..5fbbe084f34b5 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1081,6 +1081,13 @@ Trust tokens improve privacy on the web and can’t be used to find out who you
+@@ -1077,6 +1077,13 @@ Trust tokens improve privacy on the web and can’t be used to find out who you
          Please verify that this is a valid provider or try again later
        </message>
  
@@ -97,7 +97,7 @@ index 9bf9bfbe052a7..a6d73f489a044 100644
          Clear browsing data
        </message>
 diff --git a/content/public/android/java/src/org/chromium/content/browser/BrowserStartupControllerImpl.java b/content/public/android/java/src/org/chromium/content/browser/BrowserStartupControllerImpl.java
-index 7548beb36d020..65de604c01b5b 100644
+index 4b82e587e56aa..cb85191f71485 100644
 --- a/content/public/android/java/src/org/chromium/content/browser/BrowserStartupControllerImpl.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/BrowserStartupControllerImpl.java
 @@ -451,6 +451,7 @@ public class BrowserStartupControllerImpl implements BrowserStartupController {
@@ -132,6 +132,3 @@ index 0c2ef1d8413ac..4c2300ac8ff19 100644
 +        }
 +    }
  }
--- 
-2.36.0
-

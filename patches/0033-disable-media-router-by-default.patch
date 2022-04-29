@@ -1,7 +1,7 @@
-From 131cdc77b3336f4741eb6ffc149c8163f3199aea Mon Sep 17 00:00:00 2001
+From 8ea785cfff3ae53bddf21cbe66b98cfaa4c819b5 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
-Subject: [PATCH 33/83] disable media router by default
+Subject: [PATCH] disable media router by default
 
 ---
  chrome/browser/media/router/media_router_feature.cc | 2 +-
@@ -22,10 +22,10 @@ index 84003676e2bb7..f010e413517ec 100644
  
  #if !BUILDFLAG(IS_ANDROID)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index 7a216c9ffb4d7..4647f6adee03e 100644
+index fca66c2bf16ec..55143c9d96339 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -416,7 +416,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -419,7 +419,7 @@ void ProfileImpl::RegisterProfilePrefs(
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);
@@ -34,6 +34,3 @@ index 7a216c9ffb4d7..4647f6adee03e 100644
  #if !BUILDFLAG(IS_ANDROID)
    registry->RegisterBooleanPref(prefs::kShowCastIconInToolbar, false);
  #endif  // !BUILDFLAG(IS_ANDROID)
--- 
-2.36.0
-

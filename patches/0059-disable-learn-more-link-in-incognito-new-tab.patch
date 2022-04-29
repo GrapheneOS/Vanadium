@@ -1,7 +1,7 @@
-From 529c3771e059b732120960ec9056acd03922e339 Mon Sep 17 00:00:00 2001
+From 2b285762890deb90f4af3f4e43039c25ade9d200 Mon Sep 17 00:00:00 2001
 From: A Mak <refragable@mailbox.org>
 Date: Sat, 8 Aug 2020 11:17:59 -0700
-Subject: [PATCH 59/83] disable learn more link in incognito new tab
+Subject: [PATCH] disable learn more link in incognito new tab
 
 ---
  .../chrome/browser/ntp/LegacyIncognitoDescriptionView.java  | 6 +++---
@@ -9,10 +9,10 @@ Subject: [PATCH 59/83] disable learn more link in incognito new tab
  2 files changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
-index 323f386d759aa..c8cba2fd7672b 100644
+index 1da43bc11761c..47ae2baec3a31 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
-@@ -291,9 +291,9 @@ public class LegacyIncognitoDescriptionView
+@@ -289,9 +289,9 @@ public class LegacyIncognitoDescriptionView
          final String subtitleText = getContext().getResources().getString(readLaterEnabled
                          ? R.string.new_tab_otr_subtitle_with_reading_list
                          : R.string.new_tab_otr_subtitle);
@@ -24,8 +24,8 @@ index 323f386d759aa..c8cba2fd7672b 100644
  
          if (!learnMoreInSubtitle) {
              // Revert to the original text.
-@@ -313,7 +313,7 @@ public class LegacyIncognitoDescriptionView
-                 getResources(), R.color.modern_blue_300, (view) -> mLearnMore.callOnClick());
+@@ -311,7 +311,7 @@ public class LegacyIncognitoDescriptionView
+                 getContext(), R.color.modern_blue_300, (view) -> mLearnMore.callOnClick());
          textWithLearnMoreLink.setSpan(
                  span, subtitleText.length() + 1, textWithLearnMoreLink.length(), 0 /* flags */);
 -        mSubtitle.setText(textWithLearnMoreLink);
@@ -34,7 +34,7 @@ index 323f386d759aa..c8cba2fd7672b 100644
      }
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java
-index 92f04af2dee1f..ce3a83e6e89be 100644
+index 0cd2cfd7095c5..9dd283ee46788 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/RevampedIncognitoDescriptionView.java
 @@ -264,6 +264,7 @@ public class RevampedIncognitoDescriptionView
@@ -45,6 +45,3 @@ index 92f04af2dee1f..ce3a83e6e89be 100644
      }
  
      private boolean isNarrowScreen() {
--- 
-2.36.0
-

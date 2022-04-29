@@ -1,17 +1,17 @@
-From 9a0ea4b90ea1d96bc98587ff24c4a6bdea50f842 Mon Sep 17 00:00:00 2001
+From 28b3f665f38fdc6bdc7a6da3dfd6f2a6d9771e74 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 03:07:08 -0400
-Subject: [PATCH 36/83] disable browser autologin by default
+Subject: [PATCH] disable browser autologin by default
 
 ---
  .../signin/internal/identity_manager/primary_account_manager.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index 47429881852dd..49d3cecd8caf1 100644
+index 0c34ecd781499..db19cce11a8aa 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -53,7 +53,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -54,7 +54,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
                                 std::string());
    registry->RegisterStringPref(prefs::kGoogleServicesAccountId, std::string());
    registry->RegisterBooleanPref(prefs::kGoogleServicesConsentedToSync, false);
@@ -20,6 +20,3 @@ index 47429881852dd..49d3cecd8caf1 100644
    registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
    registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
    registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
--- 
-2.36.0
-

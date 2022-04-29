@@ -1,13 +1,13 @@
-From 2445406eab10c1b7a611841f6d8b1efe6f054e49 Mon Sep 17 00:00:00 2001
+From a3edfb5dce14d4f7a3702bb2f29ac8d424656b21 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Tue, 19 Oct 2021 02:21:18 +0000
-Subject: [PATCH 07/83] Vanadium branding
+Subject: [PATCH] Vanadium branding
 
 Current incantation of the recolor command:
 
     find -iname '*.png' -exec gm convert {} -colorspace Gray -gamma 0.5 {} \;
 ---
- chrome/android/BUILD.gn                       | 108 +++++++++---------
+ chrome/android/BUILD.gn                       | 112 +++++++++---------
  .../mipmap-hdpi/app_icon.png                  | Bin 2435 -> 2221 bytes
  .../mipmap-hdpi/layered_app_icon.png          | Bin 1836 -> 2245 bytes
  .../layered_app_icon_background.png           | Bin 1487 -> 2159 bytes
@@ -49,8 +49,8 @@ Current incantation of the recolor command:
  .../mipmap-xxxhdpi/app_icon.png               | Bin 0 -> 8814 bytes
  .../mipmap-xxxhdpi/layered_app_icon.png       | Bin 0 -> 6014 bytes
  .../layered_app_icon_background.png           | Bin 0 -> 5870 bytes
- .../values/channel_constants.xml              |  13 +++
- 43 files changed, 75 insertions(+), 54 deletions(-)
+ .../values/channel_constants.xml              |  13 ++
+ 43 files changed, 77 insertions(+), 56 deletions(-)
  create mode 100644 chrome/android/java/res_vanadium/drawable-hdpi/fre_product_logo.png
  create mode 100644 chrome/android/java/res_vanadium/drawable-hdpi/product_logo_name.png
  create mode 100644 chrome/android/java/res_vanadium/drawable-mdpi/fre_product_logo.png
@@ -80,13 +80,14 @@ Current incantation of the recolor command:
  create mode 100644 chrome/android/java/res_vanadium_base/values/channel_constants.xml
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 4c9affbf42d33..4b3e671efb690 100644
+index 616c88364d599..c82bd7adebd57 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -176,23 +176,23 @@ android_resources("chrome_base_module_resources") {
+@@ -176,24 +176,24 @@ android_resources("chrome_base_module_resources") {
      "java/res_base/values/ic_launcher_round_alias.xml",
      "java/res_base/values/values.xml",
      "java/res_base/xml/network_security_config.xml",
+-    "java/res_chromium_base/drawable/themed_app_icon.xml",
 -    "java/res_chromium_base/mipmap-hdpi/app_icon.png",
 -    "java/res_chromium_base/mipmap-hdpi/layered_app_icon.png",
 -    "java/res_chromium_base/mipmap-hdpi/layered_app_icon_background.png",
@@ -104,6 +105,7 @@ index 4c9affbf42d33..4b3e671efb690 100644
 -    "java/res_chromium_base/mipmap-xxxhdpi/layered_app_icon.png",
 -    "java/res_chromium_base/mipmap-xxxhdpi/layered_app_icon_background.png",
 -    "java/res_chromium_base/values/channel_constants.xml",
++    "java/res_vanadium_base/drawable/themed_app_icon.xml",
 +    "java/res_vanadium_base/mipmap-hdpi/app_icon.png",
 +    "java/res_vanadium_base/mipmap-hdpi/layered_app_icon.png",
 +    "java/res_vanadium_base/mipmap-hdpi/layered_app_icon_background.png",
@@ -124,7 +126,7 @@ index 4c9affbf42d33..4b3e671efb690 100644
    ]
  }
  
-@@ -200,16 +200,16 @@ android_resources("chrome_app_java_resources") {
+@@ -201,16 +201,16 @@ android_resources("chrome_app_java_resources") {
    sources = chrome_java_resources
    sources += [
      "//chrome/android/java/res_app/layout/main.xml",
@@ -151,7 +153,7 @@ index 4c9affbf42d33..4b3e671efb690 100644
    ]
  
    deps = [
-@@ -1872,16 +1872,16 @@ if (enable_vr || enable_arcore) {
+@@ -1885,16 +1885,16 @@ if (enable_vr || enable_arcore) {
  android_resources("chrome_public_apk_resources") {
    resource_overlay = true
    sources = [
@@ -178,10 +180,11 @@ index 4c9affbf42d33..4b3e671efb690 100644
    ]
  
    # Dep needed to ensure override works properly.
-@@ -1892,23 +1892,23 @@ android_resources("chrome_public_apk_resources") {
+@@ -1905,24 +1905,24 @@ android_resources("chrome_public_apk_resources") {
  android_resources("chrome_public_apk_base_module_resources") {
    resource_overlay = true
    sources = [
+-    "java/res_chromium_base/drawable/themed_app_icon.xml",
 -    "java/res_chromium_base/mipmap-hdpi/app_icon.png",
 -    "java/res_chromium_base/mipmap-hdpi/layered_app_icon.png",
 -    "java/res_chromium_base/mipmap-hdpi/layered_app_icon_background.png",
@@ -199,6 +202,7 @@ index 4c9affbf42d33..4b3e671efb690 100644
 -    "java/res_chromium_base/mipmap-xxxhdpi/layered_app_icon.png",
 -    "java/res_chromium_base/mipmap-xxxhdpi/layered_app_icon_background.png",
 -    "java/res_chromium_base/values/channel_constants.xml",
++    "java/res_vanadium_base/drawable/themed_app_icon.xml",
 +    "java/res_vanadium_base/mipmap-hdpi/app_icon.png",
 +    "java/res_vanadium_base/mipmap-hdpi/layered_app_icon.png",
 +    "java/res_vanadium_base/mipmap-hdpi/layered_app_icon_background.png",
@@ -5833,6 +5837,3 @@ index 0000000000000..4fd77a8db6bc4
 +    <string name="quick_action_search_widget_title" translatable="false">Vanadium quick action search</string>
 +    <string name="dino_widget_title" translatable="false">Vanadium dino</string>
 +</resources>
--- 
-2.36.0
-
