@@ -1,0 +1,32 @@
+From b72e65b26cddcc46f45d7ec86c4ce81631917933 Mon Sep 17 00:00:00 2001
+From: June <june@eridan.me>
+Date: Sun, 8 May 2022 01:36:58 +0000
+Subject: [PATCH] build with full LTO
+
+Signed-off-by: June <june@eridan.me>
+---
+ build/config/compiler/BUILD.gn | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index c219f78bdfb99..61c8b0cfd7b9e 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -660,7 +660,7 @@ config("compiler") {
+   if (!is_debug && use_thin_lto && is_a_target_toolchain) {
+     assert(use_lld, "LTO is only supported with lld")
+ 
+-    cflags += [ "-flto=thin" ]
++    cflags += [ "-flto=full" ]
+     if (!is_mac) {
+       # TODO(lgrey): Enable unit splitting for Mac when supported.
+       cflags += [ "-fsplit-lto-unit" ]
+@@ -683,7 +683,7 @@ config("compiler") {
+         "/lldltocachepolicy:$cache_policy",
+       ]
+     } else {
+-      ldflags += [ "-flto=thin" ]
++      ldflags += [ "-flto=full" ]
+ 
+       # Enabling ThinLTO on Chrome OS too, in an effort to reduce the memory
+       # usage in crbug.com/1038040. Note this will increase build time in
