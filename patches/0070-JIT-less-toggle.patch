@@ -1,4 +1,4 @@
-From 537ebe4ebece8d715101fd98194cbec43975eb18 Mon Sep 17 00:00:00 2001
+From 8295ae8eaa5457ee471e43e684c68dfde9fc4df1 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Mon, 15 Nov 2021 11:17:06 +0000
 Subject: [PATCH] JIT-less toggle
@@ -12,10 +12,10 @@ Subject: [PATCH] JIT-less toggle
  5 files changed, 33 insertions(+)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 31c384b2ef3f2..837650e80c5b5 100644
+index b214c54e0ff91..bebeb36cc28d2 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -42,6 +42,11 @@
+@@ -47,6 +47,11 @@
          android:key="usage_stats_reporting"
          android:title="@string/usage_stats_setting_title"
          android:persistent="false"/>
@@ -28,7 +28,7 @@ index 31c384b2ef3f2..837650e80c5b5 100644
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 5b4d0dd6f6451..4c89f970e46e0 100644
+index c775cbe7dc9aa..f659758649363 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -4,6 +4,7 @@
@@ -39,14 +39,14 @@ index 5b4d0dd6f6451..4c89f970e46e0 100644
  import android.os.Build;
  import android.os.Bundle;
  import android.text.SpannableString;
-@@ -17,6 +18,7 @@ import androidx.preference.PreferenceFragmentCompat;
+@@ -16,6 +17,7 @@ import androidx.preference.Preference;
+ import androidx.preference.PreferenceFragmentCompat;
  import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
  
- import org.chromium.chrome.R;
 +import org.chromium.base.ContextUtils;
+ import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
- import org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference;
 @@ -53,6 +55,7 @@ import org.chromium.ui.text.SpanApplier;
   */
  public class PrivacySettings
@@ -55,18 +55,18 @@ index 5b4d0dd6f6451..4c89f970e46e0 100644
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_PRELOAD_PAGES = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -181,6 +184,10 @@ public class PrivacySettings
-         if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
+@@ -192,6 +195,10 @@ public class PrivacySettings
+         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
-                     .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
+                     .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
 +        } else if (PREF_FORCE_NO_JIT.equals(key)) {
 +            SharedPreferences.Editor sharedPreferenceEditor = ContextUtils.getAppSharedPreferences().edit();
 +            sharedPreferenceEditor.putBoolean(PREF_FORCE_NO_JIT, (boolean) newValue);
 +            sharedPreferenceEditor.apply();
-         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
-             UserPrefs.get(Profile.getLastUsedRegularProfile())
-                     .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
-@@ -198,6 +205,11 @@ public class PrivacySettings
+         }
+         return true;
+     }
+@@ -206,6 +213,11 @@ public class PrivacySettings
       * Updates the preferences.
       */
      public void updatePreferences() {

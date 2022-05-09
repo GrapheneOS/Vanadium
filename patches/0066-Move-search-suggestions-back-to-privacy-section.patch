@@ -1,15 +1,15 @@
-From 21514e7aeb6ba905235cce9a9c5bdde6d14221e5 Mon Sep 17 00:00:00 2001
+From 8ca7495af2dcc98d535ffb1a815e3959319015d0 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH] Move search suggestions back to privacy section.
 
 ---
- .../java/res/xml/privacy_preferences.xml        |  5 +++++
- .../privacy/settings/PrivacySettings.java       | 17 ++++++++++++++++-
- 2 files changed, 21 insertions(+), 1 deletion(-)
+ .../java/res/xml/privacy_preferences.xml       |  5 +++++
+ .../privacy/settings/PrivacySettings.java      | 18 +++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 837650e80c5b5..bebeb36cc28d2 100644
+index 31c384b2ef3f2..b214c54e0ff91 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -24,6 +24,11 @@
@@ -25,18 +25,18 @@ index 837650e80c5b5..bebeb36cc28d2 100644
          android:key="incognito_lock"
          android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 9b48194d29c99..41ce3b9a66d33 100644
+index 5b4d0dd6f6451..a47ec6ae1e141 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -56,6 +56,7 @@ import org.chromium.ui.text.SpanApplier;
- public class PrivacySettings
-         extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
-     private static final String PREF_FORCE_NO_JIT = "force_no_jit";
-+    private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
-     private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
+@@ -57,6 +57,7 @@ public class PrivacySettings
      private static final String PREF_PRELOAD_PAGES = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
-@@ -128,6 +129,11 @@ public class PrivacySettings
+     private static final String PREF_SECURE_DNS = "secure_dns";
++    private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
+     private static final String PREF_USAGE_STATS = "usage_stats_reporting";
+     private static final String PREF_DO_NOT_TRACK = "do_not_track";
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+@@ -125,6 +126,11 @@ public class PrivacySettings
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
  
@@ -48,7 +48,7 @@ index 9b48194d29c99..41ce3b9a66d33 100644
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -180,7 +186,10 @@ public class PrivacySettings
+@@ -178,7 +184,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -59,10 +59,10 @@ index 9b48194d29c99..41ce3b9a66d33 100644
 +        } else if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
-         } else if (PREF_FORCE_NO_JIT.equals(key)) {
-@@ -211,6 +220,12 @@ public class PrivacySettings
- 
-         PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
+         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
+@@ -206,6 +215,13 @@ public class PrivacySettings
+             canMakePaymentPref.setChecked(prefService.getBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED));
+         }
  
 +        ChromeSwitchPreference searchSuggestionsPref =
 +                (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
@@ -70,6 +70,7 @@ index 9b48194d29c99..41ce3b9a66d33 100644
 +            searchSuggestionsPref.setChecked(prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
 +        }
 +
-         ChromeSwitchPreference canMakePaymentPref =
-                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
-         if (canMakePaymentPref != null) {
++
+         Preference doNotTrackPref = findPreference(PREF_DO_NOT_TRACK);
+         if (doNotTrackPref != null) {
+             doNotTrackPref.setSummary(prefService.getBoolean(Pref.ENABLE_DO_NOT_TRACK)
