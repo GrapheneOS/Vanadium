@@ -1,0 +1,24 @@
+From 2695d52a935c1cb5d32c57e7379407973a406aa2 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 8 Feb 2022 03:04:20 +0000
+Subject: [PATCH] Disable detailed language settings by default
+
+---
+ components/language/core/common/language_experiments.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/language/core/common/language_experiments.cc b/components/language/core/common/language_experiments.cc
+index 1c920b632fe8f..2c7451a0f348d 100644
+--- a/components/language/core/common/language_experiments.cc
++++ b/components/language/core/common/language_experiments.cc
+@@ -26,8 +26,8 @@ const base::Feature kForceAppLanguagePrompt{"ForceAppLanguagePrompt",
+                                             base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::Feature kNotifySyncOnLanguageDetermined{
+     "NotifySyncOnLanguageDetermined", base::FEATURE_ENABLED_BY_DEFAULT};
+-const base::Feature kDetailedLanguageSettings{"DetailedLanguageSettings",
+-                                              base::FEATURE_ENABLED_BY_DEFAULT};
++const base::Feature kDetailedLanguageSettings{
++    "DetailedLanguageSettings", base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::Feature kDesktopRestructuredLanguageSettings{
+     "DesktopRestructuredLanguageSettings", base::FEATURE_DISABLED_BY_DEFAULT};
+ const base::Feature kDesktopDetailedLanguageSettings{
