@@ -1,0 +1,22 @@
+From 9a1eb96b6a0bb2b969d607c2a03f7e7ca624b840 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 25 Apr 2022 06:19:32 -0400
+Subject: [PATCH] disable fetching optimization guides by default
+
+---
+ .../optimization_guide/core/optimization_guide_features.cc      | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
+index 82b84160de677..cddc690ae356c 100644
+--- a/components/optimization_guide/core/optimization_guide_features.cc
++++ b/components/optimization_guide/core/optimization_guide_features.cc
+@@ -88,7 +88,7 @@ const base::Feature kOptimizationHintsFieldTrials{
+ 
+ // Enables fetching from a remote Optimization Guide Service.
+ const base::Feature kRemoteOptimizationGuideFetching{
+-    "OptimizationHintsFetching", base::FEATURE_ENABLED_BY_DEFAULT};
++    "OptimizationHintsFetching", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kRemoteOptimizationGuideFetchingAnonymousDataConsent {
+   "OptimizationHintsFetchingAnonymousDataConsent",

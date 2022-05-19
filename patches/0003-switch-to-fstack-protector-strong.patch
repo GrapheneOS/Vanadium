@@ -1,4 +1,4 @@
-From 6033ea2e86f44d566a311fe1bccd912488db34da Mon Sep 17 00:00:00 2001
+From 9b380dc124f74496411ea550e71d5a9735793f88 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 26 Dec 2018 10:20:24 -0500
 Subject: [PATCH] switch to -fstack-protector-strong
@@ -8,13 +8,13 @@ Subject: [PATCH] switch to -fstack-protector-strong
  1 file changed, 1 insertion(+), 7 deletions(-)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index 60165f14531c4..be887bb80f893 100644
+index d40843b44f9ee..a3b23f6a54c18 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -334,18 +334,12 @@ config("compiler") {
+@@ -329,18 +329,12 @@ config("compiler") {
          cflags += [ "-fstack-protector" ]
        }
-     } else if ((is_posix && !is_chromeos_ash && !is_nacl) || is_fuchsia) {
+     } else if ((is_posix && !is_chromeos && !is_nacl) || is_fuchsia) {
 -      # TODO(phajdan.jr): Use -fstack-protector-strong when our gcc supports it.
 -      # See also https://crbug.com/533294
 -      if (current_os != "zos") {
