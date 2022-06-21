@@ -1,4 +1,4 @@
-From 2b99698c097d4df0514e726e3d0f5bf66f1d95e9 Mon Sep 17 00:00:00 2001
+From 6a0a77797b16d8581f6943af7dc66947003613ad Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH] Move search suggestions back to privacy section.
@@ -25,7 +25,7 @@ index 31c384b2ef3f2..b214c54e0ff91 100644
          android:key="incognito_lock"
          android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 5b4d0dd6f6451..a47ec6ae1e141 100644
+index ea4b2becf283a..df23e3ae68b2a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -57,6 +57,7 @@ public class PrivacySettings
@@ -36,7 +36,7 @@ index 5b4d0dd6f6451..a47ec6ae1e141 100644
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -125,6 +126,11 @@ public class PrivacySettings
+@@ -124,6 +125,11 @@ public class PrivacySettings
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
  
@@ -48,7 +48,7 @@ index 5b4d0dd6f6451..a47ec6ae1e141 100644
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -178,7 +184,10 @@ public class PrivacySettings
+@@ -173,7 +179,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -60,7 +60,7 @@ index 5b4d0dd6f6451..a47ec6ae1e141 100644
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
-@@ -206,6 +215,13 @@ public class PrivacySettings
+@@ -201,6 +210,13 @@ public class PrivacySettings
              canMakePaymentPref.setChecked(prefService.getBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED));
          }
  
