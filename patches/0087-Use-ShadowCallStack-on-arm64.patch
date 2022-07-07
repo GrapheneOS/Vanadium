@@ -1,0 +1,25 @@
+From c7d76c8a3415cdf95d52b3c732b0367f49d740dd Mon Sep 17 00:00:00 2001
+From: loryeam <loryeam@gmail.com>
+Date: Thu, 7 Jul 2022 06:04:07 +0000
+Subject: [PATCH] Use ShadowCallStack on arm64
+
+---
+ build/config/compiler/BUILD.gn | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 655fcd09071e2..2643d1455dbba 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -293,6 +293,11 @@ config("compiler") {
+     ":compiler_deterministic",
+   ]
+ 
++  if (is_official_build && is_clang && current_cpu == "arm64") {
++    cflags += [ "-fsanitize=shadow-call-stack" ]
++    ldflags += [ "-fsanitize=shadow-call-stack" ]
++  }
++
+   # Here we enable -fno-delete-null-pointer-checks, which makes various nullptr
+   # operations (e.g. dereferencing) into defined behavior. This avoids deletion
+   # of some security-critical code: see https://crbug.com/1139129.
