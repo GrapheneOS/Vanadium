@@ -1,0 +1,530 @@
+From 618d2302ec801dbf658bdb7eaccd4241399e749f Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 26 Aug 2021 04:25:54 +0000
+Subject: [PATCH] Support for INTERNET enforcement
+
+Do not automatically open URLs launched by external apps in Vanadium.
+To achieve this, use a SadTab to prevent the user from proceeding,
+and set the URL to either a blank or dino page. The URL choice is by
+design to prevent automatic light/dark theme changes from reloading the
+tab and loading the original url itself without the user being able to
+decide whether to open the url or go back from the redirected SadTab.
+
+---
+ chrome/android/chrome_java_sources.gni        |   1 +
+ .../chrome/browser/ChromeTabbedActivity.java  |  27 +++--
+ .../browser/LaunchIntentDispatcher.java       |   6 +-
+ .../browser/NetworkEnforcementHelper.java     | 120 ++++++++++++++++++
+ ...CustomTabActivityNavigationController.java |  20 ++-
+ chrome/browser/tab/BUILD.gn                   |   2 +
+ .../browser/tab/java/res/layout/sad_tab.xml   |   2 +-
+ .../tab/java/res/values-night/colors.xml      |   8 ++
+ chrome/browser/tab/java/res/values/colors.xml |   8 ++
+ .../chromium/chrome/browser/tab/SadTab.java   |  33 +++--
+ .../strings/android_chrome_strings.grd        |   3 +
+ components/new_or_sad_tab_strings.grdp        |  21 +++
+ 12 files changed, 229 insertions(+), 23 deletions(-)
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/NetworkEnforcementHelper.java
+ create mode 100644 chrome/browser/tab/java/res/values-night/colors.xml
+ create mode 100644 chrome/browser/tab/java/res/values/colors.xml
+
+diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
+index 16e094e8ba578..533b892198741 100644
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -39,6 +39,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java",
+   "java/src/org/chromium/chrome/browser/LauncherShortcutActivity.java",
+   "java/src/org/chromium/chrome/browser/NearOomMonitor.java",
++  "java/src/org/chromium/chrome/browser/NetworkEnforcementHelper.java",
+   "java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java",
+   "java/src/org/chromium/chrome/browser/PowerBroadcastReceiver.java",
+   "java/src/org/chromium/chrome/browser/ServiceTabLauncher.java",
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index 89af85b06e6b5..753e7dc049e78 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -1438,9 +1438,12 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+                     Tab tabToBeClobbered = tabModel.getTabAt(tabToBeClobberedIndex);
+                     if (tabToBeClobbered != null) {
+                         TabModelUtils.setIndex(tabModel, tabToBeClobberedIndex, false);
+-                        tabToBeClobbered.reload();
++                        NetworkEnforcementHelper.enforce(tabToBeClobbered, loadUrlParams, intent,
++                                () -> { sendToBackground(tabToBeClobbered); });
+                     } else {
+-                        launchIntent(loadUrlParams, externalAppId, true, intent);
++                        Tab tab = launchIntent(loadUrlParams, externalAppId, true, intent);
++                        NetworkEnforcementHelper.enforce(tab, loadUrlParams, intent,
++                                () -> { sendToBackground(tab); } );
+                     }
+                     int shortcutSource = intent.getIntExtra(
+                             WebappConstants.EXTRA_SOURCE, ShortcutSource.UNKNOWN);
+@@ -1474,13 +1477,18 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+                     Tab currentTab = getActivityTab();
+                     if (currentTab != null) {
+                         RedirectHandlerTabHelper.updateIntentInTab(currentTab, intent);
+-                        currentTab.loadUrl(loadUrlParams);
++                        NetworkEnforcementHelper.enforce(currentTab, loadUrlParams, intent,
++                                () -> { sendToBackground(currentTab); });
+                     } else {
+-                        launchIntent(loadUrlParams, externalAppId, true, intent);
++                        Tab tab = launchIntent(loadUrlParams, externalAppId, true, intent);
++                        NetworkEnforcementHelper.enforce(tab, loadUrlParams, intent,
++                                () -> { sendToBackground(tab); } );
+                     }
+                     break;
+                 case TabOpenType.REUSE_APP_ID_MATCHING_TAB_ELSE_NEW_TAB:
+-                    launchIntent(loadUrlParams, externalAppId, false, intent);
++                    Tab matchTab = launchIntent(loadUrlParams, externalAppId, false, intent);
++                    NetworkEnforcementHelper.enforce(matchTab, loadUrlParams, intent,
++                            () -> { sendToBackground(matchTab); } );
+                     break;
+                 case TabOpenType.REUSE_TAB_MATCHING_ID_ELSE_NEW_TAB:
+                     int tabId = IntentUtils.safeGetIntExtra(
+@@ -1496,12 +1504,15 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+                                             intent, TabOpenType.REUSE_TAB_ORIGINAL_URL_STRING))) {
+                                 tabModel.setIndex(
+                                         matchingTabIndex, TabSelectionType.FROM_USER, false);
+-                                tab.loadUrl(loadUrlParams);
++                                NetworkEnforcementHelper.enforce(tab, loadUrlParams, intent,
++                                        () -> { sendToBackground(tab); });
+                                 loaded = true;
+                             }
+                         }
+                         if (!loaded) {
+-                            launchIntent(loadUrlParams, externalAppId, false, intent);
++                            Tab tab = launchIntent(loadUrlParams, externalAppId, false, intent);
++                            NetworkEnforcementHelper.enforce(tab, loadUrlParams, intent,
++                                    () -> { sendToBackground(tab); } );
+                         }
+                     }
+                     break;
+@@ -1511,7 +1522,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+                         reportNewTabShortcutUsed(false);
+                     }
+ 
+-                    launchIntent(loadUrlParams, externalAppId, true, intent);
++                    Tab openNewTab = launchIntent(loadUrlParams, externalAppId, true, intent);
++                    NetworkEnforcementHelper.enforce(openNewTab, loadUrlParams, intent,
++                            () -> { sendToBackground(openNewTab); } );
+                     break;
+                 case TabOpenType.OPEN_NEW_INCOGNITO_TAB:
+                     if (!TextUtils.equals(externalAppId, getPackageName())) {
+@@ -1577,8 +1590,10 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+                         @TabLaunchType
+                         Integer launchType = IntentHandler.getTabLaunchType(intent);
+                         if (launchType == null) launchType = TabLaunchType.FROM_LINK;
+-                        getTabCreator(true).launchUrl(
++                        Tab incogTab = getTabCreator(true).launchUrl(
+                                 url, launchType, intent, mIntentHandlingTimeMs);
++                        NetworkEnforcementHelper.enforce(incogTab, loadUrlParams, intent,
++                                () -> { sendToBackground(incogTab); });
+                     }
+                     break;
+                 default:
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 201336c0ba778..d7e59790ddb49 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -74,6 +74,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+     private static final String TAG = "ActivitiyDispatcher";
+ 
+     private final Activity mActivity;
++    private final boolean mIsGranted;
+     private Intent mIntent;
+ 
+     @IntDef({Action.CONTINUE, Action.FINISH_ACTIVITY, Action.FINISH_ACTIVITY_REMOVE_TASK})
+@@ -124,7 +125,8 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+ 
+     private LaunchIntentDispatcher(Activity activity, Intent intent) {
+         mActivity = activity;
+-        mIntent = IntentUtils.sanitizeIntent(intent);
++        mIsGranted = NetworkEnforcementHelper.isNetworkPermissionGranted(activity, intent);
++        mIntent = NetworkEnforcementHelper.appendNetworkEnforcementExtra(intent, mIsGranted);
+ 
+         // Needs to be called as early as possible, to accurately capture the
+         // time at which the intent was received.
+@@ -247,7 +249,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+ 
+     /** When started with an intent, maybe pre-resolve the domain. */
+     private void maybePrefetchDnsInBackground() {
+-        if (mIntent != null && Intent.ACTION_VIEW.equals(mIntent.getAction())) {
++        if (mIsGranted && mIntent != null && Intent.ACTION_VIEW.equals(mIntent.getAction())) {
+             String maybeUrl = IntentHandler.getUrlFromIntent(mIntent);
+             if (maybeUrl != null) {
+                 WarmupManager.getInstance().maybePrefetchDnsForUrlInBackground(mActivity, maybeUrl);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/NetworkEnforcementHelper.java b/chrome/android/java/src/org/chromium/chrome/browser/NetworkEnforcementHelper.java
+new file mode 100644
+index 0000000000000..d258ec312efba
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/NetworkEnforcementHelper.java
+@@ -0,0 +1,120 @@
++package org.chromium.chrome.browser;
++
++import static android.Manifest.permission.INTERNET;
++import static android.content.pm.PackageManager.PERMISSION_GRANTED;
++import static org.chromium.components.embedder_support.util.UrlConstants.CHROME_DINO_URL;;
++import static org.chromium.content_public.common.ContentUrlConstants.ABOUT_BLANK_DISPLAY_URL;;
++
++import android.content.Context;
++import android.content.Intent;
++import android.net.Uri;
++
++import org.chromium.base.IntentUtils;
++import org.chromium.chrome.browser.ApplicationLifetime;
++import org.chromium.chrome.browser.tab.SadTab;
++import org.chromium.chrome.browser.tab.Tab;
++import org.chromium.components.embedder_support.util.UrlUtilities;
++import org.chromium.content_public.browser.LoadUrlParams;
++
++/**
++ * Class for appending extras to intents and maybe showing SadTabs
++ * depending if calling app has granted INTERNET permission.
++ */
++public class NetworkEnforcementHelper {
++
++    /**
++     * Extra to check whenever the calling app has INTERNET permission.
++     */
++    private static final String EXTRA_INTERNET_PERMISSION = "app.vanadium.browser.INTERNET";
++
++    /**
++     * Extra to use and load if INTERNET permission of calling app is granted,
++     * or the user chose to navigate to a URL regardless.
++     */
++    private static final String EXTRA_ORIGINAL_URL = "app.vanadium.browser.ORIGINAL_URL";
++
++    /**
++     * Append extras to intent from external apps, to be utilized
++     * at {@link #enforce(Tab, LoadUrlParams, Intent, Runnable)}
++     * @param intent The intent to be appended with Network permission related extras.
++     * @param isGranted Whether the calling app has granted Network permission.
++     * @return The intent with necessary extras to be used later.
++     */
++    static Intent appendNetworkEnforcementExtra(Intent intent, boolean isGranted) {
++        Intent newIntent = IntentUtils.sanitizeIntent(intent);
++        String oldUrl = IntentHandler.getUrlFromIntent(newIntent);
++        isGranted |= UrlUtilities.isCanonicalizedNTPUrl(oldUrl);
++        isGranted |= oldUrl == null;
++        String url = isGranted ? oldUrl : CHROME_DINO_URL;
++        newIntent.setData(Uri.parse(url)); // Sanity check to verify that the intent url is set, even if null, or new tab page url
++        newIntent.putExtra(EXTRA_INTERNET_PERMISSION, isGranted);
++        newIntent.putExtra(EXTRA_ORIGINAL_URL, oldUrl);
++
++        return newIntent;
++    }
++
++    /**
++     * Check whether the calling app has INTERNET permission granted,
++     * and only fetch from extra if the intent is trusted and
++     * the extra for INTERNET permission is present.
++     * @param context The context to check the calling app's permission against
++     * @param intent The intent to check the necessary extras
++     * @return The calling app's INTERNET permission state if granted.
++     */
++    static boolean isNetworkPermissionGranted(Context context, Intent intent) {
++        if (context == null || intent == null) return false;
++        if (!IntentHandler.wasIntentSenderChrome(intent)
++                || !IntentUtils.safeHasExtra(intent, EXTRA_INTERNET_PERMISSION)) {
++            return context.checkCallingPermission(INTERNET) == PERMISSION_GRANTED;
++        }
++        return isNetworkGrantedFromExtras(intent);
++    }
++
++    public static boolean isNetworkGrantedFromExtras(Intent intent) {
++        return IntentUtils.safeGetBooleanExtra(intent, EXTRA_INTERNET_PERMISSION, false);
++    }
++
++    public static String getOriginalUrlFromExtras(Intent intent) {
++        return IntentUtils.safeGetStringExtra(intent, EXTRA_ORIGINAL_URL);
++    }
++
++    /**
++     * This intercepts any tab from loading, then either use the correct
++     * url from {@link #getOriginalUrlFromExtras(Intent)} extra to load, or show a
++     * {@link SadTab#from} when {@link #isNetworkGrantedFromExtras(Intent)}
++     * is false.
++     */
++    public static void enforce(Tab tab, LoadUrlParams params, Intent intent,
++            Runnable buttonAction) {
++        // Workaround for custom tabs crashing when using dino url
++        // when opening to a browser.
++        if (tab.isCustomTab()) {
++            tab.loadUrl(new LoadUrlParams(ABOUT_BLANK_DISPLAY_URL));
++        }
++        tab.stopLoading();
++        boolean fromExternal = IntentUtils.safeHasExtra(intent, EXTRA_INTERNET_PERMISSION)
++                && IntentUtils.safeHasExtra(intent, EXTRA_ORIGINAL_URL);
++        boolean isGranted = isNetworkGrantedFromExtras(intent);
++        String urlToLoad = fromExternal ? getOriginalUrlFromExtras(intent)
++                                        : IntentHandler.getUrlFromIntent(intent);
++        Runnable loadUrlAction = () -> {
++            params.setUrl(urlToLoad);
++            tab.loadUrl(params);
++            SadTab sadTab = SadTab.get(tab);
++            if (sadTab != null) sadTab.removeIfPresent();
++        };
++        if (isGranted || !fromExternal) {
++            loadUrlAction.run();
++            return;
++        }
++        SadTab sadTab = SadTab.from(tab);
++        sadTab.show(tab.getContext(), loadUrlAction,
++                () -> {
++                    buttonAction.run();
++                    ApplicationLifetime.terminate(false);
++                }, true);
++    }
++
++    private NetworkEnforcementHelper() {}
++
++}
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/content/CustomTabActivityNavigationController.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/content/CustomTabActivityNavigationController.java
+index cdacea7d42a83..464e8176a74c6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/content/CustomTabActivityNavigationController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/content/CustomTabActivityNavigationController.java
+@@ -23,6 +23,7 @@ import org.chromium.base.metrics.RecordUserAction;
+ import org.chromium.base.task.PostTask;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.IntentHandler;
++import org.chromium.chrome.browser.NetworkEnforcementHelper;
+ import org.chromium.chrome.browser.browserservices.intents.BrowserServicesIntentDataProvider;
+ import org.chromium.chrome.browser.customtabs.CloseButtonNavigator;
+ import org.chromium.chrome.browser.customtabs.CustomTabObserver;
+@@ -201,7 +202,8 @@ public class CustomTabActivityNavigationController implements StartStopWithNativ
+         params.setTransitionType(IntentHandler.getTransitionTypeFromIntent(
+                 mIntentDataProvider.getIntent(), transition));
+ 
+-        tab.loadUrl(params);
++        NetworkEnforcementHelper.enforce(tab, params, mIntentDataProvider.getIntent(),
++                () -> { if (!navigateOnBack()) navigateOnClose(); });
+     }
+ 
+     /**
+@@ -256,11 +258,15 @@ public class CustomTabActivityNavigationController implements StartStopWithNativ
+         Tab tab = mTabProvider.getTab();
+         if (tab == null) return false;
+ 
++        Intent oldIntent = mIntentDataProvider.getIntent();
++        String originalUrl = NetworkEnforcementHelper.getOriginalUrlFromExtras(oldIntent);
+         GURL gurl = tab.getUrl();
+         if (DomDistillerUrlUtils.isDistilledPage(gurl)) {
+             gurl = DomDistillerUrlUtils.getOriginalUrlFromDistillerUrl(gurl);
+         }
+-        String url = gurl.getSpec();
++        String oldUrl = gurl.getSpec();
++        boolean wasSadTab = !NetworkEnforcementHelper.isNetworkGrantedFromExtras(oldIntent);
++        String url = oldUrl.equals("about:blank") && wasSadTab ? originalUrl : oldUrl;
+         if (TextUtils.isEmpty(url)) url = mIntentDataProvider.getUrlToLoad();
+         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+@@ -288,7 +294,10 @@ public class CustomTabActivityNavigationController implements StartStopWithNativ
+         Bundle startActivityOptions = ActivityOptionsCompat.makeCustomAnimation(
+                 mActivity, R.anim.abc_fade_in, R.anim.abc_fade_out).toBundle();
+ 
+-        if (canFinishActivity && willChromeHandleIntent || forceReparenting) {
++        // Needed to be able to remove sad tab upon opening in browser.
++        if (wasSadTab) {
++            mActivity.startActivity(intent, startActivityOptions);
++        } else if (canFinishActivity && willChromeHandleIntent || forceReparenting) {
+             // Remove observer to not trigger finishing in onAllTabsClosed() callback - we'll use
+             // reparenting finish callback instead.
+             mTabProvider.removeObserver(mTabObserver);
+diff --git a/chrome/browser/tab/BUILD.gn b/chrome/browser/tab/BUILD.gn
+index 7209e7df46ab0..2ba12fa2ee1b0 100644
+--- a/chrome/browser/tab/BUILD.gn
++++ b/chrome/browser/tab/BUILD.gn
+@@ -119,6 +119,8 @@ android_resources("java_resources") {
+     "java/res/drawable-xxhdpi/sad_tab.png",
+     "java/res/drawable-xxxhdpi/sad_tab.png",
+     "java/res/layout/sad_tab.xml",
++    "java/res/values/colors.xml",
++    "java/res/values-night/colors.xml",
+   ]
+   deps = [ "//ui/android:ui_java_resources" ]
+ }
+diff --git a/chrome/browser/tab/java/res/layout/sad_tab.xml b/chrome/browser/tab/java/res/layout/sad_tab.xml
+index 040818de198ff..eae0e941dcb24 100644
+--- a/chrome/browser/tab/java/res/layout/sad_tab.xml
++++ b/chrome/browser/tab/java/res/layout/sad_tab.xml
+@@ -11,7 +11,7 @@
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+     tools:ignore="Overdraw"
+-    android:background="@color/modern_grey_100"
++    android:background="@color/sad_tab_background"
+     android:fillViewport="true"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+diff --git a/chrome/browser/tab/java/res/values-night/colors.xml b/chrome/browser/tab/java/res/values-night/colors.xml
+new file mode 100644
+index 0000000000000..b851f003b69ab
+--- /dev/null
++++ b/chrome/browser/tab/java/res/values-night/colors.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright 2022 The Chromium Authors. All rights reserved.
++     Use of this source code is governed by a BSD-style license that can be
++     found in the LICENSE file. -->
++
++<resources xmlns:tools="http://schemas.android.com/tools">
++    <color name="sad_tab_background">@color/modern_grey_900</color>
++</resources>
+diff --git a/chrome/browser/tab/java/res/values/colors.xml b/chrome/browser/tab/java/res/values/colors.xml
+new file mode 100644
+index 0000000000000..a57c78cd7e74f
+--- /dev/null
++++ b/chrome/browser/tab/java/res/values/colors.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright 2022 The Chromium Authors. All rights reserved.
++     Use of this source code is governed by a BSD-style license that can be
++     found in the LICENSE file. -->
++
++<resources xmlns:tools="http://schemas.android.com/tools">
++    <color name="sad_tab_background">@color/modern_grey_100</color>
++</resources>
+diff --git a/chrome/browser/tab/java/src/org/chromium/chrome/browser/tab/SadTab.java b/chrome/browser/tab/java/src/org/chromium/chrome/browser/tab/SadTab.java
+index bcf58851c5e7e..52bb1734ff078 100644
+--- a/chrome/browser/tab/java/src/org/chromium/chrome/browser/tab/SadTab.java
++++ b/chrome/browser/tab/java/src/org/chromium/chrome/browser/tab/SadTab.java
+@@ -73,13 +73,17 @@ public class SadTab extends EmptyTabObserver implements UserData, TabViewProvide
+      * Constructs and shows a sad tab (Aw, Snap!).
+      */
+     public void show(Context context, Runnable suggestionAction, Runnable buttonAction) {
+-        if (mTab.getWebContents() == null) return;
++        show(context, suggestionAction, buttonAction, false);
++    }
+ 
++    public void show(Context context, Runnable suggestionAction, Runnable buttonAction,
++            boolean isCausedByNetwork) {
++        if (mTab.getWebContents() == null) return;
+         // Make sure we are not adding the "Aw, snap" view over an existing one.
+         assert mView == null;
+         mSadTabSuccessiveRefreshCounter++;
+         mView = createView(context, suggestionAction, buttonAction, showSendFeedbackView(),
+-                mTab.isIncognito());
++                mTab.isIncognito(), isCausedByNetwork);
+ 
+         mTab.getTabViewManager().addTabViewProvider(this);
+     }
+@@ -146,7 +150,8 @@ public class SadTab extends EmptyTabObserver implements UserData, TabViewProvide
+      * @return A {@link View} instance which is used in place of a crashed renderer.
+      */
+     protected View createView(Context context, final Runnable suggestionAction,
+-            Runnable buttonAction, boolean showSendFeedbackView, boolean isIncognito) {
++            Runnable buttonAction, boolean showSendFeedbackView, boolean isIncognito,
++            boolean isCausedByNetwork) {
+         // Inflate Sad tab and initialize.
+         LayoutInflater inflater =
+                 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+@@ -157,17 +162,23 @@ public class SadTab extends EmptyTabObserver implements UserData, TabViewProvide
+         TextView titleText = (TextView) sadTabView.findViewById(R.id.sad_tab_title);
+         int titleTextId =
+                 showSendFeedbackView ? R.string.sad_tab_reload_title : R.string.sad_tab_title;
++        titleTextId = isCausedByNetwork ? R.string.sad_tab_perm_title : titleTextId;
+         titleText.setText(titleTextId);
+ 
+-        if (showSendFeedbackView) intializeSuggestionsViews(context, sadTabView, isIncognito);
++        if (showSendFeedbackView && !isCausedByNetwork) intializeSuggestionsViews(context, sadTabView, isIncognito);
+ 
+         TextView messageText = (TextView) sadTabView.findViewById(R.id.sad_tab_message);
+-        messageText.setText(getHelpMessage(context, suggestionAction, showSendFeedbackView));
++        messageText.setText(getHelpMessage(context, suggestionAction, showSendFeedbackView, isCausedByNetwork));
+         messageText.setMovementMethod(LinkMovementMethod.getInstance());
+ 
+         Button button = (Button) sadTabView.findViewById(R.id.sad_tab_button);
+-        int buttonTextId = showSendFeedbackView ? R.string.sad_tab_send_feedback_label
++
++        int buttonTextId = R.string.sad_tab_go_back_label;
++        if (!isCausedByNetwork) {
++            buttonTextId = showSendFeedbackView ? R.string.sad_tab_send_feedback_label
+                                                 : R.string.sad_tab_reload_label;
++        }
++
+         button.setText(buttonTextId);
+         button.setOnClickListener(new OnClickListener() {
+             @Override
+@@ -190,13 +201,19 @@ public class SadTab extends EmptyTabObserver implements UserData, TabViewProvide
+      * @return Help message to be displayed on R.id.sad_tab_message.
+      */
+     private static CharSequence getHelpMessage(
+-            Context context, final Runnable suggestionAction, final boolean showSendFeedback) {
++            Context context, final Runnable suggestionAction, final boolean showSendFeedback,
++            boolean isCausedByNetwork) {
+         NoUnderlineClickableSpan linkSpan = new NoUnderlineClickableSpan(context, (view) -> {
+             recordEvent(showSendFeedback, SadTabEvent.HELP_LINK_CLICKED);
+             suggestionAction.run();
+         });
+ 
+-        if (showSendFeedback) {
++        if (isCausedByNetwork) {
++            String helpMessage = context.getString(R.string.sad_tab_perm_message) + "\n\n"
++                    + context.getString(R.string.sad_tab_perm_suggestions);
++            return SpanApplier.applySpans(helpMessage, new SpanInfo("<link>", "</link>", linkSpan));
++
++        } else if (showSendFeedback) {
+             SpannableString learnMoreLink =
+                     new SpannableString(context.getString(R.string.sad_tab_reload_learn_more));
+             learnMoreLink.setSpan(linkSpan, 0, learnMoreLink.length(), 0);
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 33458dd67b32f..1ef1011096ed1 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -2509,6 +2509,9 @@ To change this setting, <ph name="BEGIN_LINK">&lt;resetlink&gt;</ph>reset sync<p
+       <message name="IDS_SAD_TAB_SUGGESTIONS" desc="The help message displayed on the sad tab page after a tab crashes.">
+         If you’re seeing this frequently, try these <ph name="BEGIN_LINK">&lt;link&gt;</ph>suggestions<ph name="END_LINK">&lt;/link&gt;</ph>.
+       </message>
++      <message name="IDS_SAD_TAB_PERM_SUGGESTIONS" desc="The help message displayed on the sad tab page when caused by an Activity received from an app without Network permission.">
++        If this was intentional, either grant the app with Network permission when applicable or <ph name="BEGIN_LINK">&lt;link&gt;</ph>proceed<ph name="END_LINK">&lt;/link&gt;</ph> with the request here.
++      </message>
+ 
+       <!-- Web Notifications API -->
+       <message name="IDS_NOTIFICATION_HIDDEN_TEXT" desc="Text shown in place of notification contents when the notification's contents have been hidden on a secure lockscreen [CHAR_LIMIT=32]">
+diff --git a/components/new_or_sad_tab_strings.grdp b/components/new_or_sad_tab_strings.grdp
+index ae2adc845f6c9..cf66c8a837445 100644
+--- a/components/new_or_sad_tab_strings.grdp
++++ b/components/new_or_sad_tab_strings.grdp
+@@ -9,21 +9,42 @@
+       </message>
+ 
+       <!-- Sad Tab Strings -->
++      <if expr="is_android">
++        <message name="IDS_SAD_TAB_PERM_TITLE" desc="The title displayed on the sad tab page triggered by intent that is thrown by an app wihout Network permission granted." formatter_data="android_java">
++          Refused to open this page
++        </message>
++      </if>
+       <message name="IDS_SAD_TAB_TITLE" desc="The title of the sad tab page that is shown when a tab crashes. This is intended to be a humorous exclamation of dismay." formatter_data="android_java">
+         Aw, Snap!
+       </message>
+       <message name="IDS_SAD_TAB_MESSAGE" desc="The message displayed on the sad tab page." formatter_data="android_java">
+         Something went wrong while displaying this webpage.
+       </message>
++      <if expr="is_android">
++        <message name="IDS_SAD_TAB_PERM_MESSAGE" desc="The message displayed on the sad tab page triggered by intent that is thrown by an app wihout Network permission granted." formatter_data="android_java">
++          This connection attempt has been refused because the calling app that attempted to open this site doesn't have the Network permission granted.
++        </message>
++      </if>
+       <message name="IDS_SAD_TAB_HELP_MESSAGE" desc="The help message displayed on the sad tab page, with IDS_SAD_TAB_HELP_LINK embedded as a link to help.">
+         If you're seeing this frequently, try these <ph name="HELP_LINK">$1<ex>suggestions</ex></ph>.
+       </message>
+       <message name="IDS_SAD_TAB_HELP_LINK" desc="The link text displayed on the sad tab page linking the user to a help article.">
+         suggestions
+       </message>
++      <message name="IDS_SAD_TAB_PROCEED_MESSAGE" desc="The message displayed on the sad tab page, with IDS_SAD_TAB_HELP_LINK embedded as a link to proceed to the site the app has opened." formatter_data="android_java">
++        If you decided to continue instead, <ph name="PROCEED_LINK">$1<ex>proceed</ex></ph> here.
++      </message>
++      <message name="IDS_SAD_TAB_PROCEED_LINK" desc="The link text displayed on the sad tab page linking the user to the site opened by an app blocked by sad tab." formatter_data="android_java">
++        proceed
++      </message>
+       <message name="IDS_SAD_TAB_RELOAD_LABEL" desc="Button label in the sad tab page for reloading a page." formatter_data="android_java">
+         Reload
+       </message>
++      <if expr="is_android">
++        <message name="IDS_SAD_TAB_GO_BACK_LABEL" desc="Button label in the sad tab page for going back to Android app that opened the link." formatter_data="android_java">
++          Go back
++        </message>
++      </if>
+       <if expr="is_android or is_ios">
+         <message name="IDS_SAD_TAB_SEND_FEEDBACK_LABEL" desc="Button label in the sad tab page for sending feedback. This label replaces the reload button after a crash happens twice in a row." formatter_data="android_java">
+           Send Feedback
