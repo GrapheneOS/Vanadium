@@ -1,18 +1,95 @@
-From 5718c1d9a6cf6b884de9bd5b6a800c089c169587 Mon Sep 17 00:00:00 2001
+From b08c1dc915f692453c3459bdd348eba0af699079 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Sun, 19 Jun 2022 06:39:48 +0000
 Subject: [PATCH] Toggle for navigating external URL in incognito
 
+Now uses a different pending intent token for non-trusted intents, as
+well as opening custom tabs and web search intents in incognito.
 ---
- .../android/java/res/xml/privacy_preferences.xml  |  5 +++++
- .../chrome/browser/ChromeTabbedActivity.java      |  8 ++++++--
- .../chromium/chrome/browser/IntentHandler.java    | 11 +++++++++--
- .../chrome/browser/LaunchIntentDispatcher.java    |  7 +++++++
- .../browser/privacy/settings/PrivacySettings.java | 15 +++++++++++++++
- .../browser/preferences/ChromePreferenceKeys.java |  2 ++
- .../ui/android/strings/android_chrome_strings.grd |  7 +++++++
- 7 files changed, 51 insertions(+), 4 deletions(-)
+ .../src/org/chromium/base/IntentUtils.java    | 50 +++++++++++++++++++
+ .../java/res/xml/privacy_preferences.xml      |  5 ++
+ .../chrome/browser/ChromeTabbedActivity.java  |  8 ++-
+ .../chrome/browser/IntentHandler.java         | 18 +++++--
+ .../browser/LaunchIntentDispatcher.java       | 11 ++++
+ .../IncognitoCustomTabIntentDataProvider.java |  6 ++-
+ .../privacy/settings/PrivacySettings.java     | 15 ++++++
+ .../browser/searchwidget/SearchActivity.java  |  7 +++
+ .../preferences/ChromePreferenceKeys.java     |  2 +
+ .../strings/android_chrome_strings.grd        |  7 +++
+ 10 files changed, 122 insertions(+), 7 deletions(-)
 
+diff --git a/base/android/java/src/org/chromium/base/IntentUtils.java b/base/android/java/src/org/chromium/base/IntentUtils.java
+index 0cd7f79871086..c3c3ad4d7f955 100644
+--- a/base/android/java/src/org/chromium/base/IntentUtils.java
++++ b/base/android/java/src/org/chromium/base/IntentUtils.java
+@@ -51,10 +51,16 @@ public class IntentUtils {
+      */
+     public static final String TRUSTED_APPLICATION_CODE_EXTRA = "trusted_application_code_extra";
+ 
++    /**
++     * Intent extra used to determine if an externally opened site should be in incognito.
++     */
++    public static final String DEFAULT_INCOGNITO_EXTRA = "default_incognito_extra";
++
+     /**
+      * Fake ComponentName used in constructing TRUSTED_APPLICATION_CODE_EXTRA.
+      */
+     private static ComponentName sFakeComponentName;
++    private static ComponentName sFakeIncogComponentName;
+     private static final Object COMPONENT_NAME_LOCK = new Object();
+ 
+     private static boolean sForceTrustedIntentForTesting;
+@@ -613,6 +619,50 @@ public class IntentUtils {
+         return pending.equals(token);
+     }
+ 
++    private static ComponentName getDefaultIncognitoFakeComponentName(String packageName) {
++        synchronized (COMPONENT_NAME_LOCK) {
++            if (sFakeIncogComponentName == null) {
++                sFakeIncogComponentName = new ComponentName(packageName, "IClass");
++            }
++        }
++        return sFakeIncogComponentName;
++    }
++
++    private static PendingIntent getDefaultIncognitoAuthenticationToken() {
++        Intent fakeIntent = new Intent();
++        Context appContext = ContextUtils.getApplicationContext();
++        fakeIntent.setComponent(getDefaultIncognitoFakeComponentName(appContext.getPackageName()));
++        return PendingIntent.getActivity(
++                appContext, 0, fakeIntent, getPendingIntentMutabilityFlag(false));
++    }
++
++    public static void addDefaultIncognitoIntentExtras(Intent intent) {
++        // It is crucial that we never leak the authentication token to other packages, because
++        // then the other package could be used to impersonate us/do things as us.
++        boolean toSelf =
++                IntentUtils.intentTargetsSelf(ContextUtils.getApplicationContext(), intent);
++        assert toSelf;
++        // For security reasons we have to check the asserted condition anyways.
++        if (!toSelf) return;
++        intent.putExtra(DEFAULT_INCOGNITO_EXTRA, getDefaultIncognitoAuthenticationToken());
++    }
++
++    public static boolean isDefaultIncognitoIntent(@Nullable Intent intent) {
++        if (intent == null) return false;
++
++        // Fetch the authentication token (a PendingIntent) created by
++        // addDefaultIncognitoIntentExtras, if any. If anything goes wrong trying to retrieve the
++        // token (examples include BadParcelableException or ClassNotFoundException), fail closed.
++        PendingIntent token =
++                IntentUtils.safeGetParcelableExtra(intent, DEFAULT_INCOGNITO_EXTRA);
++        if (token == null) return false;
++
++        // Fetch what should be a matching token. If the PendingIntents are equal, we know that the
++        // it was set to default incognito.
++        PendingIntent pending = getDefaultIncognitoAuthenticationToken();
++        return pending.equals(token);
++    }
++
+     public static void setForceIsTrustedIntentForTesting(boolean isTrusted) {
+         sForceTrustedIntentForTesting = isTrusted;
+     }
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 index 80a3f3acd9df3..8bd39e753d939 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
@@ -54,10 +131,27 @@ index 365fe8eccbe3c..89af85b06e6b5 100644
              if (shouldCloseTab) {
                  sendToBackground(currentTab);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 85b55c090d526..3dbb41a7f8547 100644
+index 85b55c090d526..d9aa774f861b3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -1434,9 +1434,16 @@ public class IntentHandler {
+@@ -914,6 +914,7 @@ public class IntentHandler {
+             // first party applications).
+             boolean isInternal = notSecureIsIntentChromeOrFirstParty(intent);
+             boolean isFromChrome = wasIntentSenderChrome(intent);
++            boolean isDefaultIncognito = IntentUtils.isDefaultIncognitoIntent(intent);
+ 
+             // "Open new incognito tab" is currently limited to Chrome.
+             //
+@@ -922,7 +923,7 @@ public class IntentHandler {
+             // from the list.  In this case, we do not apply our Chrome token as the user has the
+             // option to select apps outside of our control, so we rely on this in memory check
+             // instead.
+-            if (!isFromChrome
++            if (!isFromChrome && !isDefaultIncognito
+                     && IntentUtils.safeGetBooleanExtra(
+                             intent, EXTRA_OPEN_NEW_INCOGNITO_TAB, false)
+                     && (getPendingIncognitoUrl() == null
+@@ -1434,14 +1435,23 @@ public class IntentHandler {
       * @return The {@link Intent} to launch.
       */
      public static Intent createTrustedOpenNewTabIntent(Context context, boolean incognito) {
@@ -65,19 +159,27 @@ index 85b55c090d526..3dbb41a7f8547 100644
 +        return createTrustedTabIntent(context, incognito, new Intent());
 +    }
 +
-+    static Intent createTrustedTabIntent(Context context, boolean incognito, Intent newIntent) {
++    static Intent createTrustedTabIntent(Context context, boolean incognito, Intent intent) {
++        Intent newIntent = new Intent(intent);
          newIntent.setAction(Intent.ACTION_VIEW);
 -        newIntent.setData(Uri.parse(UrlConstants.NTP_URL));
 +        if (newIntent.getData() == null) {
 +            newIntent.setData(Uri.parse(UrlConstants.NTP_URL));
++            IntentUtils.addTrustedIntentExtras(newIntent);
 +        } else {
 +            setTabLaunchType(newIntent, TabLaunchType.FROM_EXTERNAL_APP);
++            IntentUtils.addDefaultIncognitoIntentExtras(newIntent);
 +        }
          newIntent.setClass(context, ChromeLauncherActivity.class);
          newIntent.putExtra(Browser.EXTRA_CREATE_NEW_TAB, true);
          newIntent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+         newIntent.putExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, incognito);
+-        IntentUtils.addTrustedIntentExtras(newIntent);
+ 
+         return newIntent;
+     }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index cda122dca03b4..ca9870eedddf8 100644
+index cda122dca03b4..201336c0ba778 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -4,6 +4,8 @@
@@ -97,7 +199,18 @@ index cda122dca03b4..ca9870eedddf8 100644
  import org.chromium.chrome.browser.searchwidget.SearchActivity;
  import org.chromium.chrome.browser.tab.Tab;
  import org.chromium.chrome.browser.translate.TranslateIntentHandler;
-@@ -411,6 +414,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -292,6 +295,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+         newIntent.setData(uri);
+         newIntent.setClassName(context, CustomTabActivity.class.getName());
+ 
++        if (SharedPreferencesManager.getInstance().readBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, false)) {
++            newIntent.putExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, true);
++        }
++
+         // Since configureIntentForResizableCustomTab() might change the componenet/class
+         // associated with the passed intent, it needs to be called after #setClassName(context,
+         // CustomTabActivity.class.getName());
+@@ -411,6 +418,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {
@@ -108,6 +221,37 @@ index cda122dca03b4..ca9870eedddf8 100644
              long time = SystemClock.elapsedRealtime();
              if (!chromeTabbedTaskExists()) {
                  newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
+index cb0e6243a8937..ee8098370c510 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
+@@ -9,6 +9,7 @@ import static org.chromium.chrome.browser.customtabs.CustomTabIntentDataProvider
+ import static org.chromium.chrome.browser.customtabs.CustomTabIntentDataProvider.BUNDLE_PACKAGE_NAME;
+ import static org.chromium.chrome.browser.customtabs.CustomTabIntentDataProvider.EXTRA_UI_TYPE;
+ import static org.chromium.chrome.browser.customtabs.CustomTabIntentDataProvider.isTrustedCustomTab;
++import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_OPEN_LINKS_IN_INCOGNITO;
+ 
+ import android.app.PendingIntent;
+ import android.content.Context;
+@@ -31,6 +32,7 @@ import org.chromium.chrome.browser.browserservices.intents.ColorProvider;
+ import org.chromium.chrome.browser.flags.ActivityType;
+ import org.chromium.chrome.browser.flags.CachedFeatureFlags;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
++import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.components.browser_ui.widget.TintedDrawable;
+ 
+ import java.util.ArrayList;
+@@ -110,7 +112,9 @@ public class IncognitoCustomTabIntentDataProvider extends BrowserServicesIntentD
+ 
+     private static boolean isIntentFromThirdPartyAllowed() {
+         return CachedFeatureFlags.isEnabled(
+-                ChromeFeatureList.CCT_INCOGNITO_AVAILABLE_TO_THIRD_PARTY);
++                ChromeFeatureList.CCT_INCOGNITO_AVAILABLE_TO_THIRD_PARTY)
++                || SharedPreferencesManager.getInstance()
++                        .readBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, false);
+     }
+ 
+     private static boolean isIntentFromFirstParty(Intent intent) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 index 06d78361ce281..ad71ffa91b280 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
@@ -155,6 +299,38 @@ index 06d78361ce281..ad71ffa91b280 100644
          PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
  
          ChromeSwitchPreference canMakePaymentPref =
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index 818e3d81418a5..86e636ce64614 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -4,6 +4,8 @@
+ 
+ package org.chromium.chrome.browser.searchwidget;
+ 
++import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_OPEN_LINKS_IN_INCOGNITO;
++
+ import android.app.Activity;
+ import android.app.SearchManager;
+ import android.content.Intent;
+@@ -44,6 +46,7 @@ import org.chromium.chrome.browser.omnibox.OverrideUrlLoadingDelegate;
+ import org.chromium.chrome.browser.omnibox.SearchEngineLogoUtils;
+ import org.chromium.chrome.browser.omnibox.UrlFocusChangeListener;
+ import org.chromium.chrome.browser.omnibox.voice.VoiceRecognitionHandler;
++import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManagerImpl;
+ import org.chromium.chrome.browser.profiles.Profile;
+ import org.chromium.chrome.browser.tab.Tab;
+@@ -483,6 +486,10 @@ public class SearchActivity extends AsyncInitializationActivity
+         }
+         intent.putExtra(EXTRA_FROM_SEARCH_ACTIVITY, true);
+         IntentUtils.addTrustedIntentExtras(intent);
++        if (SharedPreferencesManager.getInstance().readBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, false)) {
++            intent.putExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, true);
++            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        }
+ 
+         return intent;
+     }
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 index 88a2b30f0bcfe..7063ab76dbfef 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
@@ -176,7 +352,7 @@ index 88a2b30f0bcfe..7063ab76dbfef 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 0762e5901e130..0fdf16fe3c648 100644
+index 080f8bb08a6ed..81c9f5fe3297a 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1229,6 +1229,13 @@ Your Google account may have other forms of browsing history like searches and a
