@@ -1,4 +1,4 @@
-From f82dd20515a04d74504bec10fe144294706f13aa Mon Sep 17 00:00:00 2001
+From 8624de14115c7f6e39255e16e3398aa862552368 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 17 Jun 2022 10:15:43 +0000
 Subject: [PATCH] Toggle for closing tabs on exit
@@ -28,10 +28,10 @@ index b214c54e0ff91..80a3f3acd9df3 100644
          android:key="preload_pages"
          android:title="@string/preload_pages_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 250df7aad61fe..365fe8eccbe3c 100644
+index 04cb82a78c7c4..1d4e9d9fef926 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1240,7 +1240,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1269,7 +1269,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
              boolean noRestoreState =
@@ -100,7 +100,7 @@ index 21546893967c1..06d78361ce281 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index 6721a2e9b67e7..88a2b30f0bcfe 100644
+index 0acf1d8157cc6..08045c3305ae9 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 @@ -100,6 +100,10 @@ public final class ChromePreferenceKeys {
@@ -114,7 +114,7 @@ index 6721a2e9b67e7..88a2b30f0bcfe 100644
      /**
       * Whether Chrome is set as the default browser.
       * Default value is false.
-@@ -1109,6 +1113,7 @@ public final class ChromePreferenceKeys {
+@@ -1043,6 +1047,7 @@ public final class ChromePreferenceKeys {
                  OPEN_RECENT_TABS_COUNT,
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
@@ -123,7 +123,7 @@ index 6721a2e9b67e7..88a2b30f0bcfe 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 442782a6c5a01..080f8bb08a6ed 100644
+index 6d3b8a1257b48..819b03b6fd154 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1111,6 +1111,13 @@ Trust tokens improve privacy on the web and can’t be used to find out who you
