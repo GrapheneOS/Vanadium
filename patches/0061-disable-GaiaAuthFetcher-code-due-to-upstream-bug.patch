@@ -1,4 +1,4 @@
-From 183c97dfaaeadfa7bbc09d89d328b0d280e8eb85 Mon Sep 17 00:00:00 2001
+From adb341453d8f0a1c26724b88b73ff0bea23d9b7e Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 19 Nov 2020 07:59:29 -0500
 Subject: [PATCH] disable GaiaAuthFetcher code due to upstream bug
@@ -9,7 +9,7 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=1150817
  1 file changed, 4 insertions(+)
 
 diff --git a/google_apis/gaia/gaia_auth_fetcher.cc b/google_apis/gaia/gaia_auth_fetcher.cc
-index 5c29db8eff5b5..5b1bae29261f8 100644
+index 11454f055f1e0..05670e46a675c 100644
 --- a/google_apis/gaia/gaia_auth_fetcher.cc
 +++ b/google_apis/gaia/gaia_auth_fetcher.cc
 @@ -40,7 +40,9 @@
@@ -30,7 +30,7 @@ index 5c29db8eff5b5..5b1bae29261f8 100644
    auto resource_request = std::make_unique<network::ResourceRequest>();
    resource_request->url = gaia_gurl;
    original_url_ = gaia_gurl;
-@@ -351,6 +354,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -350,6 +353,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
        base::BindOnce(&GaiaAuthFetcher::OnURLLoadComplete,
                       base::Unretained(this)),
        kMaxMessageSize);

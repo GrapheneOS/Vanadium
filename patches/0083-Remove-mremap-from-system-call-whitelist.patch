@@ -1,4 +1,4 @@
-From d729a5fa3710a62e9d804c09511ed350dd72b069 Mon Sep 17 00:00:00 2001
+From 63d75c6c48d6aa18ea649323b0c124c6efbbc437 Mon Sep 17 00:00:00 2001
 From: qua3k <qua3kr@gmail.com>
 Date: Fri, 19 Nov 2021 00:00:00 +0000
 Subject: [PATCH] Remove mremap from system call whitelist
@@ -9,7 +9,7 @@ It's not used in PartitionAlloc and should be removed.
  1 file changed, 1 deletion(-)
 
 diff --git a/sandbox/linux/seccomp-bpf-helpers/baseline_policy_android.cc b/sandbox/linux/seccomp-bpf-helpers/baseline_policy_android.cc
-index 1dd0bf9f9a233..1eeac635f362b 100644
+index acb5e8507952e..ec61956493db6 100644
 --- a/sandbox/linux/seccomp-bpf-helpers/baseline_policy_android.cc
 +++ b/sandbox/linux/seccomp-bpf-helpers/baseline_policy_android.cc
 @@ -160,7 +160,6 @@ ResultExpr BaselinePolicyAndroid::EvaluateSyscall(int sysno) const {
