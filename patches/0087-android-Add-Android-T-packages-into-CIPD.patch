@@ -1,0 +1,186 @@
+From c362bff7e22fb596a9dab8c00538c2dcb461b02b Mon Sep 17 00:00:00 2001
+From: "Torne (Richard Coles)" <torne@google.com>
+Date: Fri, 24 Jun 2022 19:06:08 +0000
+Subject: [PATCH] android: Add Android T packages into CIPD.
+
+Add the SDK 33 packages to the chromium packager, and remove SDK 29 and
+30 which are obsolete.
+
+Bug: 1339376
+Change-Id: Ibabbd02022c07eae57ed48a9fb0a659754308d7c
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/3722367
+Reviewed-by: Garrett Beaty <gbeaty@google.com>
+Reviewed-by: Andrew Grieve <agrieve@chromium.org>
+Commit-Queue: Richard Coles <torne@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1017751}
+---
+ .../android_sdk/cipd/build-tools/30.0.1.yaml        | 13 -------------
+ .../cipd/build-tools/{29.0.2.yaml => 33.0.0.yaml}   |  6 +++---
+ .../android_sdk/cipd/platforms/android-30.yaml      | 13 -------------
+ .../platforms/{android-29.yaml => android-33.yaml}  |  6 +++---
+ .../android_sdk/cipd/sources/android-29.yaml        | 13 -------------
+ .../android_sdk/cipd/sources/android-30.yaml        | 13 -------------
+ .../android-33/google_apis/x86_64.yaml              |  9 +++++++++
+ .../android-33/google_apis_playstore/x86_64.yaml    |  9 +++++++++
+ 8 files changed, 24 insertions(+), 58 deletions(-)
+ delete mode 100644 third_party/android_sdk/cipd/build-tools/30.0.1.yaml
+ rename third_party/android_sdk/cipd/build-tools/{29.0.2.yaml => 33.0.0.yaml} (70%)
+ delete mode 100644 third_party/android_sdk/cipd/platforms/android-30.yaml
+ rename third_party/android_sdk/cipd/platforms/{android-29.yaml => android-33.yaml} (82%)
+ delete mode 100644 third_party/android_sdk/cipd/sources/android-29.yaml
+ delete mode 100644 third_party/android_sdk/cipd/sources/android-30.yaml
+ create mode 100644 third_party/android_sdk/cipd/system_images/android-33/google_apis/x86_64.yaml
+ create mode 100644 third_party/android_sdk/cipd/system_images/android-33/google_apis_playstore/x86_64.yaml
+
+diff --git a/third_party/android_sdk/cipd/build-tools/30.0.1.yaml b/third_party/android_sdk/cipd/build-tools/30.0.1.yaml
+deleted file mode 100644
+index 09833e603ee6b..0000000000000
+--- a/third_party/android_sdk/cipd/build-tools/30.0.1.yaml
++++ /dev/null
+@@ -1,13 +0,0 @@
+-# Copyright 2020 The Chromium Authors. All rights reserved.
+-# Use of this source code is governed by a BSD-style license that can be
+-# found in the LICENSE file.
+-
+-package: chromium/third_party/android_sdk/public/build-tools/30.0.1
+-description: build-tools Android SDK Build Tools
+-root: ../../public/
+-data:
+-  - dir: build-tools/30.0.1
+-# Some tools inspect their argv0 and don't handle CIPD's symlink structure
+-# correctly. Install in copy mode so that they can find the other directories
+-# relative to themselves.
+-install_mode: copy
+diff --git a/third_party/android_sdk/cipd/build-tools/29.0.2.yaml b/third_party/android_sdk/cipd/build-tools/33.0.0.yaml
+similarity index 70%
+rename from third_party/android_sdk/cipd/build-tools/29.0.2.yaml
+rename to third_party/android_sdk/cipd/build-tools/33.0.0.yaml
+index 36198d5949d62..42936170de286 100644
+--- a/third_party/android_sdk/cipd/build-tools/29.0.2.yaml
++++ b/third_party/android_sdk/cipd/build-tools/33.0.0.yaml
+@@ -1,12 +1,12 @@
+-# Copyright 2019 The Chromium Authors. All rights reserved.
++# Copyright 2022 The Chromium Authors. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-package: chromium/third_party/android_sdk/public/build-tools/29.0.2
++package: chromium/third_party/android_sdk/public/build-tools/33.0.0
+ description: build-tools Android SDK Build Tools
+ root: ../../public/
+ data:
+-  - dir: build-tools/29.0.2
++  - dir: build-tools/33.0.0
+ # Some tools inspect their argv0 and don't handle CIPD's symlink structure
+ # correctly. Install in copy mode so that they can find the other directories
+ # relative to themselves.
+diff --git a/third_party/android_sdk/cipd/platforms/android-30.yaml b/third_party/android_sdk/cipd/platforms/android-30.yaml
+deleted file mode 100644
+index 2c99289cfbc0d..0000000000000
+--- a/third_party/android_sdk/cipd/platforms/android-30.yaml
++++ /dev/null
+@@ -1,13 +0,0 @@
+-# Copyright 2020 The Chromium Authors. All rights reserved.
+-# Use of this source code is governed by a BSD-style license that can be
+-# found in the LICENSE file.
+-
+-package: chromium/third_party/android_sdk/public/platforms/android-30
+-description: platforms Android SDK Platforms library
+-root: ../../public/
+-data:
+-  - dir: platforms/android-30
+-# Some tools inspect their argv0 and don't handle CIPD's symlink structure
+-# correctly. Install in copy mode so that they can find the other directories
+-# relative to themselves.
+-install_mode: copy
+diff --git a/third_party/android_sdk/cipd/platforms/android-29.yaml b/third_party/android_sdk/cipd/platforms/android-33.yaml
+similarity index 82%
+rename from third_party/android_sdk/cipd/platforms/android-29.yaml
+rename to third_party/android_sdk/cipd/platforms/android-33.yaml
+index 78e170c6a23cb..7b792faaa7944 100644
+--- a/third_party/android_sdk/cipd/platforms/android-29.yaml
++++ b/third_party/android_sdk/cipd/platforms/android-33.yaml
+@@ -1,12 +1,12 @@
+-# Copyright 2019 The Chromium Authors. All rights reserved.
++# Copyright 2022 The Chromium Authors. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-package: chromium/third_party/android_sdk/public/platforms/android-29
++package: chromium/third_party/android_sdk/public/platforms/android-33
+ description: platforms Android SDK Platforms library
+ root: ../../public/
+ data:
+-  - dir: platforms/android-29
++  - dir: platforms/android-33
+ # Some tools inspect their argv0 and don't handle CIPD's symlink structure
+ # correctly. Install in copy mode so that they can find the other directories
+ # relative to themselves.
+diff --git a/third_party/android_sdk/cipd/sources/android-29.yaml b/third_party/android_sdk/cipd/sources/android-29.yaml
+deleted file mode 100644
+index 39863492c015c..0000000000000
+--- a/third_party/android_sdk/cipd/sources/android-29.yaml
++++ /dev/null
+@@ -1,13 +0,0 @@
+-# Copyright 2019 The Chromium Authors. All rights reserved.
+-# Use of this source code is governed by a BSD-style license that can be
+-# found in the LICENSE file.
+-
+-package: chromium/third_party/android_sdk/public/sources/android-29
+-description: sources Android SDK Sources library
+-root: ../../public/
+-data:
+-  - dir: sources/android-29
+-# Some tools inspect their argv0 and don't handle CIPD's symlink structure
+-# correctly. Install in copy mode so that they can find the other directories
+-# relative to themselves.
+-install_mode: copy
+diff --git a/third_party/android_sdk/cipd/sources/android-30.yaml b/third_party/android_sdk/cipd/sources/android-30.yaml
+deleted file mode 100644
+index 55e2ffd06490e..0000000000000
+--- a/third_party/android_sdk/cipd/sources/android-30.yaml
++++ /dev/null
+@@ -1,13 +0,0 @@
+-# Copyright 2020 The Chromium Authors. All rights reserved.
+-# Use of this source code is governed by a BSD-style license that can be
+-# found in the LICENSE file.
+-
+-package: chromium/third_party/android_sdk/public/sources/android-30
+-description: sources Android SDK Sources library
+-root: ../../public/
+-data:
+-  - dir: sources/android-30
+-# Some tools inspect their argv0 and don't handle CIPD's symlink structure
+-# correctly. Install in copy mode so that they can find the other directories
+-# relative to themselves.
+-install_mode: copy
+diff --git a/third_party/android_sdk/cipd/system_images/android-33/google_apis/x86_64.yaml b/third_party/android_sdk/cipd/system_images/android-33/google_apis/x86_64.yaml
+new file mode 100644
+index 0000000000000..cf7da7f24d861
+--- /dev/null
++++ b/third_party/android_sdk/cipd/system_images/android-33/google_apis/x86_64.yaml
+@@ -0,0 +1,9 @@
++# Copyright 2022 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++package: chromium/third_party/android_sdk/public/system-images/android-33/google_apis/x86_64
++description: system_images;android-33;google_apis;x86_64
++root: ../../../../public/
++data:
++  - dir: system-images/android-33/google_apis/x86_64
+diff --git a/third_party/android_sdk/cipd/system_images/android-33/google_apis_playstore/x86_64.yaml b/third_party/android_sdk/cipd/system_images/android-33/google_apis_playstore/x86_64.yaml
+new file mode 100644
+index 0000000000000..a533a1d6f76cf
+--- /dev/null
++++ b/third_party/android_sdk/cipd/system_images/android-33/google_apis_playstore/x86_64.yaml
+@@ -0,0 +1,9 @@
++# Copyright 2022 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++package: chromium/third_party/android_sdk/public/system-images/android-33/google_apis_playstore/x86_64
++description: system_images;android-33;google_apis_playstore;x86_64
++root: ../../../../public/
++data:
++  - dir: system-images/android-33/google_apis_playstore/x86_64
