@@ -1,4 +1,4 @@
-From 30848a57637372e525b0387d9bb001508c387954 Mon Sep 17 00:00:00 2001
+From dce9756b6ead41fc17da6b461e9f2eedcd00453a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 27 May 2021 07:30:02 -0400
 Subject: [PATCH] add back trichrome_chrome_apk targets
@@ -8,10 +8,10 @@ Subject: [PATCH] add back trichrome_chrome_apk targets
  1 file changed, 45 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index a5b08f1ee9e9d..02d9d28b854b6 100644
+index 3e14e757c242a..1d8e4bbb339a0 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2319,6 +2319,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2320,6 +2320,10 @@ if (current_toolchain == default_toolchain) {
      is_monochrome = true
      is_bundle_module = true
    }
@@ -22,7 +22,7 @@ index a5b08f1ee9e9d..02d9d28b854b6 100644
    resource_packaging("trichrome_chrome_bundle_module_pak_assets") {
      is_monochrome = false
      is_trichrome = true
-@@ -2886,7 +2890,7 @@ if (android_64bit_target_cpu && skip_secondary_abi_for_cq) {
+@@ -2887,7 +2891,7 @@ if (android_64bit_target_cpu && skip_secondary_abi_for_cq) {
  
      if (trichrome_synchronized_proguard) {
        webview_target = "//android_webview:trichrome_webview_apk"
@@ -31,7 +31,7 @@ index a5b08f1ee9e9d..02d9d28b854b6 100644
      }
  
      if (_enable_manifest_verification) {
-@@ -2948,6 +2952,46 @@ android_resources("trichrome_dummy_resources") {
+@@ -2949,6 +2953,46 @@ android_resources("trichrome_dummy_resources") {
    sources = [ "trichrome/res_dummy/values/strings.xml" ]
  }
  
@@ -61,7 +61,7 @@ index a5b08f1ee9e9d..02d9d28b854b6 100644
 +    apk_name = "TrichromeChrome6432"
 +    target_type = "android_apk"
 +    use_trichrome_library = true
-+    static_library_provider = ":trichrome_library_64_32_apk"
++    static_library_provider = ":trichrome_library_apk"
 +    if (!is_java_debug) {
 +      static_library_synchronized_proguard = trichrome_synchronized_proguard
 +      if (trichrome_synchronized_proguard) {
