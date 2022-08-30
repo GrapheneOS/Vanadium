@@ -1,4 +1,4 @@
-From f42a620e35e261e785756027dd49be32f8c5c0bd Mon Sep 17 00:00:00 2001
+From 15c0983c9c47cc3e468fa265d68de63ca4f11726 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 27 Nov 2020 02:43:37 -0500
 Subject: [PATCH] disable autofill assistant by default
@@ -22,7 +22,7 @@ index 834529ab0ae04..eff59a1e07269 100644
  
      /** Checks whether proactive help is enabled. */
 diff --git a/components/autofill_assistant/browser/features.cc b/components/autofill_assistant/browser/features.cc
-index 49ba0b0c06d4f..66289715f15ae 100644
+index 48dafce912386..fa395238eae08 100644
 --- a/components/autofill_assistant/browser/features.cc
 +++ b/components/autofill_assistant/browser/features.cc
 @@ -11,7 +11,7 @@ namespace features {
@@ -41,5 +41,5 @@ index 49ba0b0c06d4f..66289715f15ae 100644
 -    "AutofillAssistantProactiveHelp", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "AutofillAssistantProactiveHelp", base::FEATURE_DISABLED_BY_DEFAULT};
  
- // Used to configure the start heuristics for
- // |kAutofillAssistantInCctTriggering| and/or
+ // Used to configure URL heuristics for upcoming new features.
+ extern const base::Feature kAutofillAssistantUrlHeuristic1{

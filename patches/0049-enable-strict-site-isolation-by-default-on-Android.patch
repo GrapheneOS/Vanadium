@@ -1,4 +1,4 @@
-From 6dd5cf208891f3b7b5a2e98dc3fe1dee658c874d Mon Sep 17 00:00:00 2001
+From e2b5942bbf1426552595b4c58d1f746308b47288 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH] enable strict site isolation by default on Android
@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index f70e3c7f3924f..79fe6c5ad9382 100644
+index 099742e548f61..bd5df6565731b 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4236,16 +4236,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4285,16 +4285,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsLacros | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -27,13 +27,13 @@ index f70e3c7f3924f..79fe6c5ad9382 100644
 -     flag_descriptions::kStrictSiteIsolationDescription, kOsAndroid,
 -     SINGLE_VALUE_TYPE(switches::kSitePerProcess)},
  #endif
-     {"install-isolated-apps-at-startup",
-      flag_descriptions::kInstallIssolatedAppsAtStartup,
+     {"enable-isolated-web-apps", flag_descriptions::kEnableIsolatedWebAppsName,
+      flag_descriptions::kEnableIsolatedWebAppsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 978848be2d624..6e0b414d3a304 100644
+index dcbd5b9d65495..c835ae8b8a5ae 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -908,13 +908,7 @@ const base::Feature kSharesheetCopyToClipboard{
+@@ -869,13 +869,7 @@ const base::Feature kSharesheetCopyToClipboard{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

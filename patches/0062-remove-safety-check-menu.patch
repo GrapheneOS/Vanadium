@@ -1,4 +1,4 @@
-From 4ad0e9ad0cafffe416a7566c4b221368e5e6db46 Mon Sep 17 00:00:00 2001
+From 9165a8569fcb4569171cfc1c7404ca2e79f7aadd Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 25 May 2021 16:43:39 -0400
 Subject: [PATCH] remove safety check menu
@@ -8,10 +8,10 @@ Subject: [PATCH] remove safety check menu
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index f4ad1137ac11f..215ebb050e05d 100644
+index 2a107a4c2923b..a307531a36c39 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -210,6 +210,8 @@ public class MainSettings extends PreferenceFragmentCompat
+@@ -209,6 +209,8 @@ public class MainSettings extends PreferenceFragmentCompat
              TemplateUrlServiceFactory.get().load();
          }
  
@@ -19,4 +19,4 @@ index f4ad1137ac11f..215ebb050e05d 100644
 +
          new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
              // We don't show the toolbar shortcut settings page if disabled from finch.
-             // Note, we can still have the old data collection experiment running for which
+             if (uiState.canShowUi) return;
