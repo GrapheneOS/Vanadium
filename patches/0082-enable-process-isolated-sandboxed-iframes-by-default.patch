@@ -1,4 +1,4 @@
-From 3b38de60648e987debc8f6fd4a8afc2526f5c37d Mon Sep 17 00:00:00 2001
+From 002ab5337e7185f0757eaebadb38e14d158e03a2 Mon Sep 17 00:00:00 2001
 From: June <june@eridan.me>
 Date: Sun, 8 May 2022 01:34:58 +0000
 Subject: [PATCH] enable process isolated sandboxed iframes by default
@@ -9,15 +9,15 @@ Signed-off-by: June <june@eridan.me>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
-index b891f77aa99c5..bc1d049878330 100644
+index ddd904eb2038a..4122071c9c9ae 100644
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -457,7 +457,7 @@ const char kIsolateOriginsFieldTrialParamName[] = "OriginsList";
+@@ -481,7 +481,7 @@ const char kIsolateOriginsFieldTrialParamName[] = "OriginsList";
  // the attribute. Note: At present, only iframes with origin-restricted
  // sandboxes are isolated.
  const base::Feature kIsolateSandboxedIframes{"IsolateSandboxedIframes",
 -                                             base::FEATURE_DISABLED_BY_DEFAULT};
 +                                             base::FEATURE_ENABLED_BY_DEFAULT};
- 
- const base::Feature kLazyFrameLoading{"LazyFrameLoading",
-                                       base::FEATURE_ENABLED_BY_DEFAULT};
+ const base::FeatureParam<IsolateSandboxedIframesGrouping>::Option
+     isolated_sandboxed_iframes_grouping_types[] = {
+         {IsolateSandboxedIframesGrouping::kPerSite, "per-site"},

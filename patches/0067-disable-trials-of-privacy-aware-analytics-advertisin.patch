@@ -1,17 +1,17 @@
-From 7f81dcc27d6b7f14848eb90f95f9ac3feacbe933 Mon Sep 17 00:00:00 2001
+From a3b7af38401b0f8c855420c3ac30d586e53c3454 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 4 Aug 2021 03:29:04 -0400
 Subject: [PATCH] disable trials of privacy-aware analytics/advertising APIs
 
 ---
- components/privacy_sandbox/privacy_sandbox_prefs.cc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ components/privacy_sandbox/privacy_sandbox_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-index 393bb02a426f2..cace522fec0a1 100644
+index 1814169d06914..0386a2b9b4d1e 100644
 --- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-@@ -71,7 +71,7 @@ namespace privacy_sandbox {
+@@ -60,7 +60,7 @@ namespace privacy_sandbox {
  
  void RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(
@@ -19,13 +19,4 @@ index 393bb02a426f2..cace522fec0a1 100644
 +      prefs::kPrivacySandboxApisEnabled, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
    registry->RegisterBooleanPref(prefs::kPrivacySandboxApisEnabledV2, false);
-   registry->RegisterBooleanPref(prefs::kPrivacySandboxApisEnabledV2Init, false);
-@@ -88,7 +88,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
-   registry->RegisterTimePref(prefs::kPrivacySandboxTopicsDataAccessibleSince,
-                              base::Time());
    registry->RegisterBooleanPref(
--      prefs::kPrivacySandboxFlocEnabled, true,
-+      prefs::kPrivacySandboxFlocEnabled, false,
-       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-   registry->RegisterListPref(prefs::kPrivacySandboxBlockedTopics);
-   registry->RegisterDictionaryPref(prefs::kPrivacySandboxFledgeJoinBlocked);
