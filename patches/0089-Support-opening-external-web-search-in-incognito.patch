@@ -1,0 +1,47 @@
+From dbb2f439c324b2a5ae775abc84907bc52fa2a0bf Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sat, 3 Sep 2022 08:15:59 +0200
+Subject: [PATCH] Support opening external web search in incognito
+
+---
+ .../chrome/browser/searchwidget/SearchActivity.java       | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index 0dc357fefe4e0..1d5fb516fb03f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -4,11 +4,14 @@
+ 
+ package org.chromium.chrome.browser.searchwidget;
+ 
++import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_OPEN_LINKS_IN_INCOGNITO;
++
+ import android.app.Activity;
+ import android.app.SearchManager;
+ import android.content.Intent;
+ import android.graphics.Rect;
+ import android.net.Uri;
++import android.provider.Browser;
+ import android.text.TextUtils;
+ import android.view.LayoutInflater;
+ import android.view.View;
+@@ -45,6 +48,7 @@ import org.chromium.chrome.browser.omnibox.OverrideUrlLoadingDelegate;
+ import org.chromium.chrome.browser.omnibox.SearchEngineLogoUtils;
+ import org.chromium.chrome.browser.omnibox.UrlFocusChangeListener;
+ import org.chromium.chrome.browser.omnibox.voice.VoiceRecognitionHandler;
++import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManagerImpl;
+ import org.chromium.chrome.browser.profiles.Profile;
+ import org.chromium.chrome.browser.tab.Tab;
+@@ -486,6 +490,10 @@ public class SearchActivity extends AsyncInitializationActivity
+         }
+         if (isFromSearchWidget()) {
+             intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
++        } else if (SharedPreferencesManager.getInstance().readBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, false)) {
++            intent.putExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, true);
++            intent.putExtra(Browser.EXTRA_APPLICATION_ID, getPackageName());
++            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+         }
+         intent.putExtra(EXTRA_FROM_SEARCH_ACTIVITY, true);
+         IntentUtils.addTrustedIntentExtras(intent);
