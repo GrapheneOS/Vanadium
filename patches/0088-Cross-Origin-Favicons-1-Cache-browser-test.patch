@@ -1,0 +1,113 @@
+From 06cf2e06386a29906f069f3328becf446b7d5172 Mon Sep 17 00:00:00 2001
+From: Ari Chivukula <arichiv@chromium.org>
+Date: Wed, 10 Aug 2022 22:19:28 +0000
+Subject: [PATCH] [Cross-Origin Favicons] (1) Cache browser test
+
+Currently, if a.com is loaded and has a favicon at a.com/icon.png and
+then b.com is loaded and has the exact same favicon, the cache entry is
+shared which permits b.com to notice that a.com was visited. The end
+goal of this task is to prevent cross-origin cache leaks.
+
+This CL adds a test so that (when this is blocked in the future) we can
+detect the fix.
+
+This CL is part of a series:
+(1) Cache browser test
+(2) Add new cache check function
+(3) Stop cross-origin cache hits
+
+Bug: 1300214
+Change-Id: I92c930d127648d3a3eca226ff7b58951657f4a6f
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/3820104
+Reviewed-by: Scott Violet <sky@chromium.org>
+Auto-Submit: Ari Chivukula <arichiv@chromium.org>
+Commit-Queue: Ari Chivukula <arichiv@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1033741}
+---
+ .../content_favicon_driver_browsertest.cc     | 76 +++++++++++++++++++
+ 1 file changed, 76 insertions(+)
+
+diff --git a/chrome/browser/favicon/content_favicon_driver_browsertest.cc b/chrome/browser/favicon/content_favicon_driver_browsertest.cc
+index 64aca7b3b53ff..d1abc154f787b 100644
+--- a/chrome/browser/favicon/content_favicon_driver_browsertest.cc
++++ b/chrome/browser/favicon/content_favicon_driver_browsertest.cc
+@@ -1114,3 +1114,79 @@ IN_PROC_BROWSER_TEST_F(ContentFaviconDriverTest,
+   ASSERT_TRUE(url_loader_interceptor.was_loaded(icon_url));
+   url_loader_interceptor.Reset();
+ }
++
++// TODO(crbug.com/1300214): Different origins should not share the same cache.
++// Test that different origins share the underlying favicon cache over http.
++IN_PROC_BROWSER_TEST_F(ContentFaviconDriverTest, CrossOriginCacheHTTP) {
++  ASSERT_TRUE(embedded_test_server()->Start());
++  TestURLLoaderInterceptor url_loader_interceptor;
++  GURL icon_url = embedded_test_server()->GetURL("a.com", "/favicon/icon.png");
++  GURL url_a = embedded_test_server()->GetURL(
++      "a.com", "/favicon/page_with_favicon_by_url.html?url=" + icon_url.spec());
++  GURL url_b = embedded_test_server()->GetURL(
++      "b.com", "/favicon/page_with_favicon_by_url.html?url=" + icon_url.spec());
++
++  // Initial visit to a.com in order to populate the cache.
++  {
++    PendingTaskWaiter waiter(web_contents());
++    ui_test_utils::NavigateToURLWithDisposition(
++        browser(), url_a, WindowOpenDisposition::CURRENT_TAB,
++        ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
++    waiter.Wait();
++  }
++  EXPECT_TRUE(url_loader_interceptor.was_loaded(icon_url));
++  EXPECT_FALSE(url_loader_interceptor.did_bypass_cache(icon_url));
++  EXPECT_EQ(network::mojom::RequestDestination::kImage,
++            url_loader_interceptor.destination(icon_url));
++  url_loader_interceptor.Reset();
++
++  // Initial visit to b.com should reuse the existing cache.
++  {
++    PendingTaskWaiter waiter(web_contents());
++    ui_test_utils::NavigateToURLWithDisposition(
++        browser(), url_b, WindowOpenDisposition::CURRENT_TAB,
++        ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
++    waiter.Wait();
++  }
++  EXPECT_FALSE(url_loader_interceptor.was_loaded(icon_url));
++  EXPECT_FALSE(url_loader_interceptor.did_bypass_cache(icon_url));
++}
++
++// TODO(crbug.com/1300214): Different origins should not share the same cache.
++// Test that different origins share the underlying favicon cache over https.
++IN_PROC_BROWSER_TEST_F(ContentFaviconDriverTest, CrossOriginCacheHTTPS) {
++  net::EmbeddedTestServer ssl_server(net::EmbeddedTestServer::TYPE_HTTPS);
++  ssl_server.AddDefaultHandlers(GetChromeTestDataDir());
++  ASSERT_TRUE(ssl_server.Start());
++  TestURLLoaderInterceptor url_loader_interceptor;
++  GURL icon_url = ssl_server.GetURL("a.com", "/favicon/icon.png");
++  GURL url_a = ssl_server.GetURL(
++      "a.com", "/favicon/page_with_favicon_by_url.html?url=" + icon_url.spec());
++  GURL url_b = ssl_server.GetURL(
++      "b.com", "/favicon/page_with_favicon_by_url.html?url=" + icon_url.spec());
++
++  // Initial visit to a.com in order to populate the cache.
++  {
++    PendingTaskWaiter waiter(web_contents());
++    ui_test_utils::NavigateToURLWithDisposition(
++        browser(), url_a, WindowOpenDisposition::CURRENT_TAB,
++        ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
++    waiter.Wait();
++  }
++  EXPECT_TRUE(url_loader_interceptor.was_loaded(icon_url));
++  EXPECT_FALSE(url_loader_interceptor.did_bypass_cache(icon_url));
++  EXPECT_EQ(network::mojom::RequestDestination::kImage,
++            url_loader_interceptor.destination(icon_url));
++  url_loader_interceptor.Reset();
++
++  // Initial visit to b.com should reuse the existing cache.
++  {
++    PendingTaskWaiter waiter(web_contents());
++    ui_test_utils::NavigateToURLWithDisposition(
++        browser(), url_b, WindowOpenDisposition::CURRENT_TAB,
++        ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
++    waiter.Wait();
++  }
++  EXPECT_FALSE(url_loader_interceptor.was_loaded(icon_url));
++  EXPECT_FALSE(url_loader_interceptor.did_bypass_cache(icon_url));
++}
