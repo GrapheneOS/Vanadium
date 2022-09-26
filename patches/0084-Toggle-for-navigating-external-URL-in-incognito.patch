@@ -1,4 +1,4 @@
-From ec791d34ccda60ebc16ea1a072cfbed468929174 Mon Sep 17 00:00:00 2001
+From 3835fed6adfc8f46ac12f0b32d0f923066ee2817 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Sun, 19 Jun 2022 06:39:48 +0000
 Subject: [PATCH] Toggle for navigating external URL in incognito
@@ -14,10 +14,10 @@ Subject: [PATCH] Toggle for navigating external URL in incognito
  7 files changed, 51 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 80a3f3acd9df3..8bd39e753d939 100644
+index 52c26cd3f331f..c82e21fda9a80 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -48,6 +48,11 @@
+@@ -49,6 +49,11 @@
          android:title="@string/preload_pages_title"
          android:summary="@string/preload_pages_summary"
          android:fragment="org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsFragment"/>
@@ -30,10 +30,10 @@ index 80a3f3acd9df3..8bd39e753d939 100644
          android:key="usage_stats_reporting"
          android:title="@string/usage_stats_setting_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index ac17f13adf4fe..06d5b6ea30088 100644
+index 7e98020d04636..75d14e2a44dd5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -2323,13 +2323,17 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2307,13 +2307,17 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
          }
  
          final boolean shouldCloseTab = backShouldCloseTab(currentTab);
@@ -54,10 +54,10 @@ index ac17f13adf4fe..06d5b6ea30088 100644
          if (minimizeApp) {
              if (shouldCloseTab) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 56aa67b998c02..544a555fe895c 100644
+index 3930016242b77..dbd98aa7fb64e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -1416,9 +1416,16 @@ public class IntentHandler {
+@@ -1443,9 +1443,16 @@ public class IntentHandler {
       * @return The {@link Intent} to launch.
       */
      public static Intent createTrustedOpenNewTabIntent(Context context, boolean incognito) {
@@ -77,7 +77,7 @@ index 56aa67b998c02..544a555fe895c 100644
          newIntent.putExtra(Browser.EXTRA_CREATE_NEW_TAB, true);
          newIntent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 3381564719b37..0e8f7c46e4d65 100644
+index 1a5c75428d414..388364a855bf4 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -4,6 +4,8 @@
@@ -97,7 +97,7 @@ index 3381564719b37..0e8f7c46e4d65 100644
  import org.chromium.chrome.browser.searchwidget.SearchActivity;
  import org.chromium.chrome.browser.tab.Tab;
  import org.chromium.chrome.browser.translate.TranslateIntentHandler;
-@@ -413,6 +416,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -421,6 +424,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {
@@ -109,7 +109,7 @@ index 3381564719b37..0e8f7c46e4d65 100644
              if (!chromeTabbedTaskExists()) {
                  newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 06d78361ce281..ad71ffa91b280 100644
+index a7b650dc8dce2..cfe77891019dd 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -5,6 +5,7 @@
@@ -120,7 +120,7 @@ index 06d78361ce281..ad71ffa91b280 100644
  
  import android.os.Build;
  import android.os.Bundle;
-@@ -144,6 +145,11 @@ public class PrivacySettings
+@@ -131,6 +132,11 @@ public class PrivacySettings
          closeTabsOnExitPref.setOnPreferenceChangeListener(this);
          closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
  
@@ -132,7 +132,7 @@ index 06d78361ce281..ad71ffa91b280 100644
          Preference preloadPagesPreference = findPreference(PREF_PRELOAD_PAGES);
          preloadPagesPreference.setSummary(
                  PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
-@@ -205,6 +211,9 @@ public class PrivacySettings
+@@ -192,6 +198,9 @@ public class PrivacySettings
          } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
              SharedPreferencesManager.getInstance()
                      .writeBoolean(PREF_CLOSE_TABS_ON_EXIT, (boolean) newValue);
@@ -142,7 +142,7 @@ index 06d78361ce281..ad71ffa91b280 100644
          }
          return true;
      }
-@@ -226,6 +235,12 @@ public class PrivacySettings
+@@ -213,6 +222,12 @@ public class PrivacySettings
              closeTabsOnExitPref.setChecked(sharedPrefMgr.readBoolean(PREF_CLOSE_TABS_ON_EXIT, false));
          }
  
@@ -156,7 +156,7 @@ index 06d78361ce281..ad71ffa91b280 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index ba0004e6ae838..0427a8c22f1f6 100644
+index 2070093a3b02d..53209f8f6c879 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 @@ -101,6 +101,7 @@ public final class ChromePreferenceKeys {
@@ -167,7 +167,7 @@ index ba0004e6ae838..0427a8c22f1f6 100644
  
      // Add SharedPreference keys with ChromeSwitchPreference a line above this one.
  
-@@ -1074,6 +1075,7 @@ public final class ChromePreferenceKeys {
+@@ -1095,6 +1096,7 @@ public final class ChromePreferenceKeys {
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
                  PREF_CLOSE_TABS_ON_EXIT,
@@ -176,7 +176,7 @@ index ba0004e6ae838..0427a8c22f1f6 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 9e14fb50269dc..f5651e12ac1f3 100644
+index b3ff3aa946c5d..3bb4766e953cb 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1257,6 +1257,13 @@ Your Google account may have other forms of browsing history like searches and a
@@ -190,6 +190,6 @@ index 9e14fb50269dc..f5651e12ac1f3 100644
 +        Open links navigated by external apps in incognito tabs
 +      </message>
 +
-       <!-- Privacy Review -->
-       <message name="IDS_PREFS_PRIVACY_REVIEW_TITLE" desc="The title of the privacy review menu item.">
+       <!-- Privacy Guide -->
+       <message name="IDS_PREFS_PRIVACY_GUIDE_TITLE" desc="The title of the privacy guide menu item.">
          Privacy guide

@@ -1,4 +1,4 @@
-From a9264c98a346187951e4d20b20934af5952ea348 Mon Sep 17 00:00:00 2001
+From 7416cdc1cabd32db133bafe3dec950e4cf2131e8 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 24 Nov 2016 11:41:00 -0500
 Subject: [PATCH] disable metrics by default
@@ -8,15 +8,15 @@ Subject: [PATCH] disable metrics by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-index 0c177fb7d3c78..17fb8910fa8e9 100644
+index 2d85e3dbc329f..69e084e2f11d9 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-@@ -48,7 +48,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity {
+@@ -49,7 +49,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity {
      static final String SHOW_SEARCH_ENGINE_PAGE = "ShowSearchEnginePage";
      static final String SHOW_SYNC_CONSENT_PAGE = "ShowSyncConsent";
  
 -    public static final boolean DEFAULT_METRICS_AND_CRASH_REPORTING = true;
 +    public static final boolean DEFAULT_METRICS_AND_CRASH_REPORTING = false;
  
-     private boolean mNativeInitialized;
+     private static PolicyLoadListenerFactory sPolicyLoadListenerFactory;
  

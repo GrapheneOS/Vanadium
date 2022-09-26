@@ -1,4 +1,4 @@
-From 78229612c78869e7ca51ff2c26054b8da62f397e Mon Sep 17 00:00:00 2001
+From 335826850684d0cf0c674b7313c8158a170da0ae Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH] Move search suggestions back to privacy section.
@@ -9,10 +9,10 @@ Subject: [PATCH] Move search suggestions back to privacy section.
  2 files changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 31c384b2ef3f2..b214c54e0ff91 100644
+index c12fc12a5f7a0..27459447b482d 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -24,6 +24,11 @@
+@@ -25,6 +25,11 @@
          android:key="https_first_mode"
          android:title="@string/settings_https_first_mode_title"
          android:summary="@string/settings_https_first_mode_summary"/>
@@ -25,10 +25,10 @@ index 31c384b2ef3f2..b214c54e0ff91 100644
          android:key="incognito_lock"
          android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index ea4b2becf283a..df23e3ae68b2a 100644
+index 5322bb6380b13..7961d9ef2e708 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -57,6 +57,7 @@ public class PrivacySettings
+@@ -54,6 +54,7 @@ public class PrivacySettings
      private static final String PREF_PRELOAD_PAGES = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
      private static final String PREF_SECURE_DNS = "secure_dns";
@@ -36,7 +36,7 @@ index ea4b2becf283a..df23e3ae68b2a 100644
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -124,6 +125,11 @@ public class PrivacySettings
+@@ -111,6 +112,11 @@ public class PrivacySettings
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
  
@@ -48,7 +48,7 @@ index ea4b2becf283a..df23e3ae68b2a 100644
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -173,7 +179,10 @@ public class PrivacySettings
+@@ -160,7 +166,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -60,7 +60,7 @@ index ea4b2becf283a..df23e3ae68b2a 100644
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
-@@ -201,6 +210,13 @@ public class PrivacySettings
+@@ -188,6 +197,13 @@ public class PrivacySettings
              canMakePaymentPref.setChecked(prefService.getBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED));
          }
  
