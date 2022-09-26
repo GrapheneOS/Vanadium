@@ -1,4 +1,4 @@
-From c9aa1af17938ea633bcf4c0d3cf84c6fbc67272a Mon Sep 17 00:00:00 2001
+From 259b1c798ce89cf1b52d69cf5ade2f5b38099c2c Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 8 Mar 2021 16:53:47 -0500
 Subject: [PATCH] enable partitioning connections by default
@@ -8,10 +8,10 @@ Subject: [PATCH] enable partitioning connections by default
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 74c90d3324ddb..15c13a3bdd665 100644
+index c15860b5bf432..166b073e8e40b 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -124,11 +124,11 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
+@@ -121,11 +121,11 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
      "SplitCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kSplitHostCacheByNetworkIsolationKey{
@@ -25,7 +25,7 @@ index 74c90d3324ddb..15c13a3bdd665 100644
  
  const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
      "ForceIsolationInfoFrameOriginToTopLevelFrame",
-@@ -136,19 +136,19 @@ const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
+@@ -133,19 +133,19 @@ const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
  
  const base::Feature kPartitionHttpServerPropertiesByNetworkIsolationKey{
      "PartitionHttpServerPropertiesByNetworkIsolationKey",
@@ -47,5 +47,5 @@ index 74c90d3324ddb..15c13a3bdd665 100644
 -    base::FEATURE_DISABLED_BY_DEFAULT};
 +    base::FEATURE_ENABLED_BY_DEFAULT};
  
- const base::Feature kExpectCTPruning{"ExpectCTPruning",
-                                      base::FEATURE_ENABLED_BY_DEFAULT};
+ const base::Feature kEnableDoubleKeyNetworkAnonymizationKey{
+     "EnableDoubleKeyNetworkAnonymizationKey",

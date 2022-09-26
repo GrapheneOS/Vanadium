@@ -1,4 +1,4 @@
-From 93dd6d90f127c46fbbdd8cc5ef1d2529f2d2e686 Mon Sep 17 00:00:00 2001
+From fdaf03a6b6543e25e81332d8ab45e8b0da1f59d0 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH] enable strict site isolation by default on Android
@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 099742e548f61..bd5df6565731b 100644
+index 9a0c47ab605d7..91b87e334bb27 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4285,16 +4285,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4340,16 +4340,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsLacros | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -30,10 +30,10 @@ index 099742e548f61..bd5df6565731b 100644
      {"enable-isolated-web-apps", flag_descriptions::kEnableIsolatedWebAppsName,
       flag_descriptions::kEnableIsolatedWebAppsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index dcbd5b9d65495..c835ae8b8a5ae 100644
+index 6ed1cf63871a4..3d8b7fa207093 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -869,13 +869,7 @@ const base::Feature kSharesheetCopyToClipboard{
+@@ -872,13 +872,7 @@ const base::Feature kSecurityKeyAttestationPrompt{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

@@ -1,4 +1,4 @@
-From 0ede4b856bbe87fbd290b0ab0b1f881b9c920650 Mon Sep 17 00:00:00 2001
+From 5dde8060da582cbe7f170c5bb364ee0d80c0e445 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Thu, 23 Jun 2022 16:38:51 +0000
 Subject: [PATCH] Implement UI for WebRTC toggle
@@ -25,10 +25,10 @@ PrefService for the said policy.
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
 
 diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
-index 7e3ed53eff59f..ccca567c19a00 100644
+index e550f100baa85..fce1ec2480688 100644
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -613,6 +613,7 @@ chrome_java_resources = [
+@@ -615,6 +615,7 @@ chrome_java_resources = [
    "java/res/layout/virtual_card_enrollment_dialog.xml",
    "java/res/layout/webapk_icon_name_update_dialog.xml",
    "java/res/layout/webapk_update_report_abuse_custom_view.xml",
@@ -36,17 +36,17 @@ index 7e3ed53eff59f..ccca567c19a00 100644
    "java/res/menu/bookmark_action_bar_menu.xml",
    "java/res/menu/custom_tabs_menu.xml",
    "java/res/menu/history_manager_menu.xml",
-@@ -668,4 +669,5 @@ chrome_java_resources = [
+@@ -670,4 +671,5 @@ chrome_java_resources = [
    "java/res/xml/privacy_preferences.xml",
    "java/res/xml/search_widget_info.xml",
    "java/res/xml/tracing_preferences.xml",
 +  "java/res/xml/webrtc_policy_preferences.xml",
  ]
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
-index 8631d3871c94a..0972445161dcb 100644
+index ef7662c465e3b..b65039403024d 100644
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1220,5 +1220,8 @@ chrome_java_sources = [
+@@ -1224,5 +1224,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/webapps/launchpad/LaunchpadUtils.java",
    "java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticatorActivity.java",
    "java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticatorUSBActivity.java",
@@ -116,10 +116,10 @@ index 0000000000000..8addab2ecf1e1
 +
 +</LinearLayout>
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 8bd39e753d939..f3b8789a13c3f 100644
+index c82e21fda9a80..d70d17d77a441 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -61,6 +61,10 @@
+@@ -62,6 +62,10 @@
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
          android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"/>
@@ -146,26 +146,26 @@ index 0000000000000..f90f9d7231ff9
 +        android:key="webrtc_policy" />
 +</PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index ad71ffa91b280..cd23ab5c35678 100644
+index cfe77891019dd..06ac7131eab97 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -41,6 +41,7 @@ import org.chromium.chrome.browser.signin.services.IdentityServicesProvider;
+@@ -39,6 +39,7 @@ import org.chromium.chrome.browser.signin.services.IdentityServicesProvider;
  import org.chromium.chrome.browser.sync.settings.GoogleServicesSettings;
  import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
  import org.chromium.chrome.browser.usage_stats.UsageStatsConsentDialog;
 +import org.chromium.chrome.browser.webrtc.settings.WebRtcPolicySettings;
- import org.chromium.components.browser_ui.bottomsheet.BottomSheetController;
  import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
  import org.chromium.components.browser_ui.settings.ManagedPreferenceDelegate;
-@@ -70,6 +71,7 @@ public class PrivacySettings
+ import org.chromium.components.browser_ui.settings.SettingsLauncher;
+@@ -67,6 +68,7 @@ public class PrivacySettings
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
-     private static final String PREF_PRIVACY_REVIEW = "privacy_review";
+     private static final String PREF_PRIVACY_GUIDE = "privacy_guide";
      private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
 +    private static final String PREF_WEBRTC_POLICY = "webrtc_policy";
  
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
      private IncognitoLockSettings mIncognitoLockSettings;
-@@ -274,6 +276,12 @@ public class PrivacySettings
+@@ -261,6 +263,12 @@ public class PrivacySettings
              secureDnsPref.setSummary(SecureDnsSettings.getSummary(getContext()));
          }
  
@@ -440,7 +440,7 @@ index 0000000000000..5fefabd83a821
 +    private WebRtcPolicyUtils() {}
 +}
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index f5651e12ac1f3..5e4f593d910fd 100644
+index 3bb4766e953cb..a7e7aebc381ba 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1404,6 +1404,23 @@ Your Google account may have other forms of browsing history like searches and a
