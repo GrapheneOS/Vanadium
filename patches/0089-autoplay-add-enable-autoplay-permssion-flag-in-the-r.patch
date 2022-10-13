@@ -1,0 +1,167 @@
+From bdc7c2049ee15d2e096e0a0462b43a4d7367dee3 Mon Sep 17 00:00:00 2001
+From: octocorvus <loryeam@gmail.com>
+Date: Wed, 26 Oct 2022 13:20:53 +0000
+Subject: [PATCH] [autoplay] add enable-autoplay-permssion flag in the
+ renderer...
+
+... and expose it through Java ChromeFeatureList and
+SiteSettingsFeatureList API. The permission will only be visible and
+effective when this flag is enabled.
+---
+ chrome/browser/about_flags.cc                              | 4 ++++
+ chrome/browser/flag-metadata.json                          | 7 +++++++
+ chrome/browser/flag_descriptions.cc                        | 4 ++++
+ chrome/browser/flag_descriptions.h                         | 3 +++
+ chrome/browser/flags/android/chrome_feature_list.cc        | 1 +
+ .../chromium/chrome/browser/flags/ChromeFeatureList.java   | 1 +
+ .../browser_ui/site_settings/SiteSettingsFeatureList.java  | 1 +
+ .../site_settings/android/site_settings_feature_list.cc    | 2 ++
+ third_party/blink/common/features.cc                       | 3 +++
+ third_party/blink/public/common/features.h                 | 2 ++
+ 10 files changed, 28 insertions(+)
+
+diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
+index 5fe29951b44d4..5bb2f3eb38e49 100644
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -6285,6 +6285,10 @@ const FeatureEntry kFeatureEntries[] = {
+      flag_descriptions::kDisableProcessReuseDescription, kOsDesktop,
+      FEATURE_VALUE_TYPE(features::kDisableProcessReuse)},
+ 
++    {"enable-autoplay-permission", flag_descriptions::kEnableAutoplayPermission,
++     flag_descriptions::kEnableAutoplayPermissionDescription, kOsAndroid,
++     FEATURE_VALUE_TYPE(blink::features::kEnableAutoplayPermission)},
++
+ #if !BUILDFLAG(IS_ANDROID)
+     {"enable-accessibility-live-caption",
+      flag_descriptions::kEnableAccessibilityLiveCaptionName,
+diff --git a/chrome/browser/flag-metadata.json b/chrome/browser/flag-metadata.json
+index c74df3b8e7cab..4560f9a892a8d 100644
+--- a/chrome/browser/flag-metadata.json
++++ b/chrome/browser/flag-metadata.json
+@@ -1415,6 +1415,13 @@
+       "yangsharon@google.com", "alexmos@google.com", "creis@google.com" ],
+     "expiry_milestone": 110
+   },
++  {
++    "name": "enable-autoplay-permission",
++    "owners": [
++      "loryeam@gmail.com"
++    ],
++    "expiry_milestone": -1
++  },
+   {
+     "name": "disable-quick-answers-v2-translation",
+     "owners": [ "croissant-eng" ],
+diff --git a/chrome/browser/flag_descriptions.cc b/chrome/browser/flag_descriptions.cc
+index 66d1a897618f4..c904493b32250 100644
+--- a/chrome/browser/flag_descriptions.cc
++++ b/chrome/browser/flag_descriptions.cc
+@@ -821,6 +821,10 @@ const char kDisableProcessReuseDescription[] =
+     "unrelated tabs. This is an experimental mode that will result in more "
+     "processes being created.";
+ 
++const char kEnableAutoplayPermission[] = "Enable autoplay permission";
++const char kEnableAutoplayPermissionDescription[] =
++    "Enable autoplay permission.";
++
+ const char kDisallowDocWrittenScriptsUiName[] =
+     "Block scripts loaded via document.write";
+ const char kDisallowDocWrittenScriptsUiDescription[] =
+diff --git a/chrome/browser/flag_descriptions.h b/chrome/browser/flag_descriptions.h
+index 1d94a553737be..832ef6c238ec6 100644
+--- a/chrome/browser/flag_descriptions.h
++++ b/chrome/browser/flag_descriptions.h
+@@ -405,6 +405,9 @@ extern const char kChromeWhatsNewInMainMenuNewBadgeDescription[];
+ extern const char kDisableProcessReuse[];
+ extern const char kDisableProcessReuseDescription[];
+ 
++extern const char kEnableAutoplayPermission[];
++extern const char kEnableAutoplayPermissionDescription[];
++
+ extern const char kDiscountConsentV2Name[];
+ extern const char kDiscountConsentV2Description[];
+ 
+diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
+index f6791e43511cc..abd0c42c66994 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -99,6 +99,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &autofill::features::kAutofillEnableUpdateVirtualCardEnrollment,
+     &autofill::features::kAutofillEnableVirtualCardMetadata,
+     &blink::features::kPrerender2,
++    &blink::features::kEnableAutoplayPermission,
+     &blink::features::kForceWebContentsDarkMode,
+     &commerce::kCommerceMerchantViewer,
+     &commerce::kCommercePriceTracking,
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 9500d2d9026d3..b0ea15800a1a8 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -347,6 +347,7 @@ public abstract class ChromeFeatureList {
+     public static final String EARLY_LIBRARY_LOAD = "EarlyLibraryLoad";
+     public static final String ELIDE_PRIORITIZATION_OF_PRE_NATIVE_BOOTSTRAP_TASKS =
+             "ElidePrioritizationOfPreNativeBootstrapTasks";
++    public static final String ENABLE_AUTOPLAY_PERMISSION = "EnableAutoplayPermission";
+     public static final String ENABLE_AUTOMATIC_SNOOZE = "EnableAutomaticSnooze";
+     public static final String ENABLE_FAMILY_INFO_FEEDBACK = "EnableFamilyInfoFeedback";
+     public static final String ELASTIC_OVERSCROLL = "ElasticOverscroll";
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsFeatureList.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsFeatureList.java
+index 1f72fd6058239..fd80fe51829f9 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsFeatureList.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsFeatureList.java
+@@ -16,6 +16,7 @@ import org.chromium.build.annotations.MainDex;
+ @JNINamespace("browser_ui")
+ @MainDex
+ public class SiteSettingsFeatureList {
++    public static final String ENABLE_AUTOPLAY_PERMISSION = "EnableAutoplayPermission";
+     public static final String SITE_DATA_IMPROVEMENTS = "SiteDataImprovements";
+     public static final String REQUEST_DESKTOP_SITE_EXCEPTIONS_DOWNGRADE =
+             "RequestDesktopSiteExceptionsDowngrade";
+diff --git a/components/browser_ui/site_settings/android/site_settings_feature_list.cc b/components/browser_ui/site_settings/android/site_settings_feature_list.cc
+index 48343f2ed9241..2ac2050950102 100644
+--- a/components/browser_ui/site_settings/android/site_settings_feature_list.cc
++++ b/components/browser_ui/site_settings/android/site_settings_feature_list.cc
+@@ -7,6 +7,7 @@
+ #include "base/notreached.h"
+ #include "components/browser_ui/site_settings/android/features.h"
+ #include "components/browser_ui/site_settings/android/site_settings_jni_headers/SiteSettingsFeatureList_jni.h"
++#include "third_party/blink/public/common/features.h"
+ 
+ using base::android::ConvertJavaStringToUTF8;
+ using base::android::JavaParamRef;
+@@ -19,6 +20,7 @@ namespace {
+ // this array may either refer to features defined in the header of this file or
+ // in other locations in the code base (e.g. content_features.h).
+ const base::Feature* const kFeaturesExposedToJava[] = {
++    &blink::features::kEnableAutoplayPermission,
+     &kSiteDataImprovements,
+     &kRequestDesktopSiteExceptionsDowngrade,
+ };
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index b26d392e51c9d..fb34216855940 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -505,6 +505,9 @@ const base::Feature kLightweightNoStatePrefetch {
+ const base::Feature kForceWebContentsDarkMode{
+     "WebContentsForceDark", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
++const base::Feature kEnableAutoplayPermission{
++    "EnableAutoplayPermission", base::FEATURE_DISABLED_BY_DEFAULT};
++
+ // A feature to enable using the smallest image specified within image srcset
+ // for users with Save Data enabled.
+ const base::Feature kSaveDataImgSrcset{"SaveDataImgSrcset",
+diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
+index ac637219f5808..201b144753da6 100644
+--- a/third_party/blink/public/common/features.h
++++ b/third_party/blink/public/common/features.h
+@@ -241,6 +241,8 @@ BLINK_COMMON_EXPORT extern const base::Feature kLightweightNoStatePrefetch;
+ 
+ BLINK_COMMON_EXPORT extern const base::Feature kSaveDataImgSrcset;
+ 
++BLINK_COMMON_EXPORT extern const base::Feature kEnableAutoplayPermission;
++
+ BLINK_COMMON_EXPORT extern const base::Feature kForceWebContentsDarkMode;
+ BLINK_COMMON_EXPORT extern const base::FeatureParam<ForceDarkInversionMethod>
+     kForceDarkInversionMethodParam;
