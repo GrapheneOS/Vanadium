@@ -1,14 +1,14 @@
-From 2dac746caaecc88b45a1cde661bba8419d341440 Mon Sep 17 00:00:00 2001
+From 2dc5a85ddba482970c224c3de6d5ade276d09ba0 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 27 May 2021 07:30:02 -0400
-Subject: [PATCH] add trichrome_chrome_64_apk target
+Subject: [PATCH] add trichrome browser apk targets
 
 ---
- chrome/android/BUILD.gn | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ chrome/android/BUILD.gn | 61 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 60 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 4e24d0789fd37..2aaded3e69fee 100644
+index 4e24d0789fd37..f98bdb5fe9aa1 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
 @@ -2435,6 +2435,10 @@ if (current_toolchain == default_toolchain) {
@@ -31,11 +31,47 @@ index 4e24d0789fd37..2aaded3e69fee 100644
      }
  
      if (_enable_manifest_verification) {
-@@ -3074,6 +3078,25 @@ if (android_64bit_target_cpu) {
+@@ -3074,6 +3078,61 @@ if (android_64bit_target_cpu) {
    }
  }
  
++monochrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
++  version_code = trichrome_version_code
++  version_name = chrome_version_name
++  apk_name = "TrichromeChrome"
++  target_type = "android_apk"
++  use_trichrome_library = true
++  static_library_provider = ":trichrome_library_apk"
++  if (!is_java_debug) {
++    static_library_synchronized_proguard = trichrome_synchronized_proguard
++    if (trichrome_synchronized_proguard) {
++      resource_ids_provider_dep = "//android_webview:trichrome_webview_apk"
++    }
++  }
++  if (android_64bit_target_cpu) {
++    is_64_bit_browser = false
++    include_64_bit_webview = true
++  }
++}
++
 +if (android_64bit_target_cpu) {
++  monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
++    version_code = trichrome_version_code
++    version_name = chrome_version_name
++    apk_name = "TrichromeChrome6432"
++    target_type = "android_apk"
++    use_trichrome_library = true
++    static_library_provider = ":trichrome_library_64_32_apk"
++    if (!is_java_debug) {
++      static_library_synchronized_proguard = trichrome_synchronized_proguard
++      if (trichrome_synchronized_proguard) {
++        resource_ids_provider_dep = "//android_webview:trichrome_webview_apk"
++      }
++    }
++    is_64_bit_browser = true
++    include_32_bit_webview = true
++  }
++
 +  monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
 +    version_code = trichrome_version_code
 +    version_name = chrome_version_name
