@@ -1,4 +1,4 @@
-From c7ee7d7890863004e6733575209074bbe460d30b Mon Sep 17 00:00:00 2001
+From a02ca99f14cd3a04b4cb4e5da1720c79910b53ef Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Wed, 28 Sep 2022 05:37:00 +0200
 Subject: [PATCH] Handle web search action in browser
@@ -11,7 +11,7 @@ Subject: [PATCH] Handle web search action in browser
  4 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/base/android/java/src/org/chromium/base/PackageManagerUtils.java b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
-index 562b33aec7a3f..efd2058dd28f1 100644
+index 2d1661ee534f6..2c983646ab42b 100644
 --- a/base/android/java/src/org/chromium/base/PackageManagerUtils.java
 +++ b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
 @@ -85,6 +85,16 @@ public class PackageManagerUtils {
@@ -32,10 +32,10 @@ index 562b33aec7a3f..efd2058dd28f1 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index a3b0ac4f93818..ea9119a8d9a08 100644
+index ec150499fd92d..1b0a63fc942a0 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -324,6 +324,10 @@ by a child template that "extends" this file.
+@@ -326,6 +326,10 @@ by a child template that "extends" this file.
              <intent-filter>
                  <action android:name="android.intent.action.SEARCH" />
              </intent-filter>
@@ -47,10 +47,10 @@ index a3b0ac4f93818..ea9119a8d9a08 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index dbd98aa7fb64e..2fb79a31a019e 100644
+index 7ed725005b251..cf9c208d0b527 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -747,6 +747,7 @@ public class IntentHandler {
+@@ -753,6 +753,7 @@ public class IntentHandler {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -59,10 +59,10 @@ index dbd98aa7fb64e..2fb79a31a019e 100644
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 388364a855bf4..c1fdd48cd45af 100644
+index 753c6aadac9bb..b7dfd0cd19f5c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -206,7 +206,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -207,7 +207,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
          searchIntent.putExtra(SearchManager.QUERY, query);
  
          try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {

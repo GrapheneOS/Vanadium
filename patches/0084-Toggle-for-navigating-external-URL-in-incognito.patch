@@ -1,4 +1,4 @@
-From 55118cde9fd7284536a0b5a4624d7e3622190946 Mon Sep 17 00:00:00 2001
+From 1b482596b4f41b39156570cb8785ccae3a46d0d3 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Sun, 19 Jun 2022 06:39:48 +0000
 Subject: [PATCH] Toggle for navigating external URL in incognito
@@ -14,10 +14,10 @@ Subject: [PATCH] Toggle for navigating external URL in incognito
  7 files changed, 51 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 52c26cd3f331f..c82e21fda9a80 100644
+index c2664e95afc6b..c0764dafbd152 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -49,6 +49,11 @@
+@@ -51,6 +51,11 @@ found in the LICENSE file.
          android:title="@string/preload_pages_title"
          android:summary="@string/preload_pages_summary"
          android:fragment="org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsFragment"/>
@@ -30,10 +30,10 @@ index 52c26cd3f331f..c82e21fda9a80 100644
          android:key="usage_stats_reporting"
          android:title="@string/usage_stats_setting_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 7e98020d04636..75d14e2a44dd5 100644
+index b6aa59d8aa20a..937e5fbda0559 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -2307,13 +2307,17 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2319,13 +2319,17 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
          }
  
          final boolean shouldCloseTab = backShouldCloseTab(currentTab);
@@ -54,10 +54,10 @@ index 7e98020d04636..75d14e2a44dd5 100644
          if (minimizeApp) {
              if (shouldCloseTab) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 3930016242b77..dbd98aa7fb64e 100644
+index aa1a44506d6f0..7ed725005b251 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -1443,9 +1443,16 @@ public class IntentHandler {
+@@ -1449,9 +1449,16 @@ public class IntentHandler {
       * @return The {@link Intent} to launch.
       */
      public static Intent createTrustedOpenNewTabIntent(Context context, boolean incognito) {
@@ -77,7 +77,7 @@ index 3930016242b77..dbd98aa7fb64e 100644
          newIntent.putExtra(Browser.EXTRA_CREATE_NEW_TAB, true);
          newIntent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 1a5c75428d414..388364a855bf4 100644
+index 424384097ed21..753c6aadac9bb 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -4,6 +4,8 @@
@@ -89,7 +89,7 @@ index 1a5c75428d414..388364a855bf4 100644
  import android.annotation.SuppressLint;
  import android.app.Activity;
  import android.app.ActivityManager.RecentTaskInfo;
-@@ -42,6 +44,7 @@ import org.chromium.chrome.browser.flags.ChromeSwitches;
+@@ -43,6 +45,7 @@ import org.chromium.chrome.browser.flags.ChromeSwitches;
  import org.chromium.chrome.browser.multiwindow.MultiWindowUtils;
  import org.chromium.chrome.browser.notifications.NotificationPlatformBridge;
  import org.chromium.chrome.browser.partnercustomizations.PartnerBrowserCustomizations;
@@ -97,7 +97,7 @@ index 1a5c75428d414..388364a855bf4 100644
  import org.chromium.chrome.browser.searchwidget.SearchActivity;
  import org.chromium.chrome.browser.tab.Tab;
  import org.chromium.chrome.browser.translate.TranslateIntentHandler;
-@@ -421,6 +424,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -431,6 +434,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {
@@ -109,7 +109,7 @@ index 1a5c75428d414..388364a855bf4 100644
              if (!chromeTabbedTaskExists()) {
                  newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index a7b650dc8dce2..cfe77891019dd 100644
+index f17af2c38f9c3..53e45a757d4c7 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -5,6 +5,7 @@
@@ -156,10 +156,10 @@ index a7b650dc8dce2..cfe77891019dd 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index 2070093a3b02d..53209f8f6c879 100644
+index 69e11ac7ea87a..42d491cc7ac2c 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -101,6 +101,7 @@ public final class ChromePreferenceKeys {
+@@ -102,6 +102,7 @@ public final class ChromePreferenceKeys {
              "enhanced_bookmark_last_used_parent_folder";
  
      public static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
@@ -167,7 +167,7 @@ index 2070093a3b02d..53209f8f6c879 100644
  
      // Add SharedPreference keys with ChromeSwitchPreference a line above this one.
  
-@@ -1095,6 +1096,7 @@ public final class ChromePreferenceKeys {
+@@ -1125,6 +1126,7 @@ public final class ChromePreferenceKeys {
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
                  PREF_CLOSE_TABS_ON_EXIT,
@@ -176,10 +176,10 @@ index 2070093a3b02d..53209f8f6c879 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index b3ff3aa946c5d..3bb4766e953cb 100644
+index 6a86923b8e50f..cd55c908d23fa 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1257,6 +1257,13 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1263,6 +1263,13 @@ Your Google account may have other forms of browsing history like searches and a
          <ph name="NUMBER_OF_ITEMS">%1$s<ex>3</ex></ph> items deleted
        </message>
  
