@@ -1,4 +1,4 @@
-From 69e388d949d0b65545a60525b5a6283a0da7eae2 Mon Sep 17 00:00:00 2001
+From 6d10746b5c8ea9786974cdd4e2530f9d38232170 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 27 Nov 2020 02:43:37 -0500
 Subject: [PATCH] disable autofill assistant by default
@@ -9,7 +9,7 @@ Subject: [PATCH] disable autofill assistant by default
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java b/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java
-index 834529ab0ae04..eff59a1e07269 100644
+index 8ebe5f9b775d3..00610fd81a1d5 100644
 --- a/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java
 +++ b/components/autofill_assistant/android/public/java/src/org/chromium/components/autofill_assistant/AutofillAssistantPreferencesUtil.java
 @@ -32,7 +32,7 @@ public class AutofillAssistantPreferencesUtil {
@@ -22,7 +22,7 @@ index 834529ab0ae04..eff59a1e07269 100644
  
      /** Checks whether proactive help is enabled. */
 diff --git a/components/autofill_assistant/browser/features.cc b/components/autofill_assistant/browser/features.cc
-index 48dafce912386..fa395238eae08 100644
+index fe00e67f68584..f014559552ab3 100644
 --- a/components/autofill_assistant/browser/features.cc
 +++ b/components/autofill_assistant/browser/features.cc
 @@ -11,7 +11,7 @@ namespace features {
@@ -34,12 +34,12 @@ index 48dafce912386..fa395238eae08 100644
  
  // Controls whether to enable Autofill Assistant's way of annotating DOM. If
  // enabled will create an |AnnotateDomModelService|.
-@@ -103,7 +103,7 @@ const base::Feature kAutofillAssistantLoadDFMForTriggerScripts{
+@@ -123,7 +123,7 @@ const base::Feature kAutofillAssistantLoadDFMForTriggerScripts{
      base::FEATURE_DISABLED_BY_DEFAULT};
  
  const base::Feature kAutofillAssistantProactiveHelp{
 -    "AutofillAssistantProactiveHelp", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "AutofillAssistantProactiveHelp", base::FEATURE_DISABLED_BY_DEFAULT};
  
- // Used to configure URL heuristics for upcoming new features.
- extern const base::Feature kAutofillAssistantUrlHeuristic1{
+ // Enables assistant UI (once the feature is enabled, scripts need to use the
+ // USE_ASSISTANT_UI=true flag to use the assistant UI).

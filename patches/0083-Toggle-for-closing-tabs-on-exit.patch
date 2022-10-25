@@ -1,4 +1,4 @@
-From afb3c10379ae9c0f9b20efd9395555c0495679be Mon Sep 17 00:00:00 2001
+From f4c338eb29276019c1ab55fd29d24c7c89550534 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 17 Jun 2022 10:15:43 +0000
 Subject: [PATCH] Toggle for closing tabs on exit
@@ -12,10 +12,10 @@ Subject: [PATCH] Toggle for closing tabs on exit
  5 files changed, 38 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 27459447b482d..52c26cd3f331f 100644
+index 860dde01cc01e..c2664e95afc6b 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -39,6 +39,11 @@
+@@ -41,6 +41,11 @@ found in the LICENSE file.
          android:key="can_make_payment"
          android:title="@string/can_make_payment_title"
          android:summary="@string/settings_can_make_payment_toggle_label"/>
@@ -28,10 +28,10 @@ index 27459447b482d..52c26cd3f331f 100644
          android:key="preload_pages"
          android:title="@string/preload_pages_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 419cbde4e1cdf..7e98020d04636 100644
+index 6df71fa44b611..b6aa59d8aa20a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1317,7 +1317,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1321,7 +1321,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
              boolean noRestoreState =
@@ -43,7 +43,7 @@ index 419cbde4e1cdf..7e98020d04636 100644
                  // Clear the state files because they are inconsistent and useless from now on.
                  mTabModelOrchestrator.clearState();
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 72726870c721c..a7b650dc8dce2 100644
+index 6934df96714c7..f17af2c38f9c3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -4,6 +4,8 @@
@@ -100,10 +100,10 @@ index 72726870c721c..a7b650dc8dce2 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index 8128a2e4f9515..2070093a3b02d 100644
+index 337c13f2ffc1f..69e11ac7ea87a 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -100,6 +100,10 @@ public final class ChromePreferenceKeys {
+@@ -101,6 +101,10 @@ public final class ChromePreferenceKeys {
      public static final String BOOKMARKS_LAST_USED_PARENT =
              "enhanced_bookmark_last_used_parent_folder";
  
@@ -114,7 +114,7 @@ index 8128a2e4f9515..2070093a3b02d 100644
      /**
       * Whether Chrome is set as the default browser.
       * Default value is false.
-@@ -1090,6 +1094,7 @@ public final class ChromePreferenceKeys {
+@@ -1120,6 +1124,7 @@ public final class ChromePreferenceKeys {
                  OPEN_RECENT_TABS_COUNT,
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
@@ -123,10 +123,10 @@ index 8128a2e4f9515..2070093a3b02d 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 0f5a0a7c4ae99..b3ff3aa946c5d 100644
+index 486c6a263a320..6a86923b8e50f 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1136,6 +1136,13 @@ Trust tokens improve privacy on the web and can’t be used to find out who you
+@@ -1142,6 +1142,13 @@ Trust tokens improve privacy on the web and can’t be used to find out who you
          Please verify that this is a valid provider or try again later
        </message>
  

@@ -1,4 +1,4 @@
-From 071dbb77a5936c01cce17f90b884379423bd0ff5 Mon Sep 17 00:00:00 2001
+From a3075ce5a97e34cacc298d6b144dc9d8df16ac98 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
 Subject: [PATCH] disable media router by default
@@ -9,7 +9,7 @@ Subject: [PATCH] disable media router by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
-index d733f8dbe7a9c..f36e3676491ae 100644
+index 312583af868b5..78ed7e72390bc 100644
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
 @@ -99,7 +99,7 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
@@ -22,10 +22,10 @@ index d733f8dbe7a9c..f36e3676491ae 100644
  
  #if !BUILDFLAG(IS_ANDROID)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index c0a48974dacea..6566b3eb4dd76 100644
+index 9f2ccdfbc8e55..f7f42d2943f72 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -414,7 +414,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -419,7 +419,7 @@ void ProfileImpl::RegisterProfilePrefs(
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

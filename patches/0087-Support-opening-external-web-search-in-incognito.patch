@@ -1,4 +1,4 @@
-From bb9688c57b9bda7f6f47ec9b7c90ed886c1b55d8 Mon Sep 17 00:00:00 2001
+From 6ac3c2dab687efa9654d76b5eaba8e1b6f714631 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Sat, 3 Sep 2022 08:15:59 +0200
 Subject: [PATCH] Support opening external web search in incognito
@@ -8,10 +8,10 @@ Subject: [PATCH] Support opening external web search in incognito
  1 file changed, 8 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 7487203feac87..6b840abef1d01 100644
+index 6043749bd77ad..2159cfe1b6a6e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -4,11 +4,14 @@
+@@ -4,12 +4,15 @@
  
  package org.chromium.chrome.browser.searchwidget;
  
@@ -21,12 +21,13 @@ index 7487203feac87..6b840abef1d01 100644
  import android.app.SearchManager;
  import android.content.Intent;
  import android.graphics.Rect;
+ import android.graphics.drawable.ColorDrawable;
  import android.net.Uri;
 +import android.provider.Browser;
  import android.text.TextUtils;
  import android.view.LayoutInflater;
  import android.view.View;
-@@ -46,6 +49,7 @@ import org.chromium.chrome.browser.omnibox.OverrideUrlLoadingDelegate;
+@@ -47,6 +50,7 @@ import org.chromium.chrome.browser.omnibox.OverrideUrlLoadingDelegate;
  import org.chromium.chrome.browser.omnibox.SearchEngineLogoUtils;
  import org.chromium.chrome.browser.omnibox.UrlFocusChangeListener;
  import org.chromium.chrome.browser.omnibox.voice.VoiceRecognitionHandler;
@@ -34,7 +35,7 @@ index 7487203feac87..6b840abef1d01 100644
  import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManagerImpl;
  import org.chromium.chrome.browser.profiles.Profile;
  import org.chromium.chrome.browser.tab.Tab;
-@@ -487,6 +491,10 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -488,6 +492,10 @@ public class SearchActivity extends AsyncInitializationActivity
          }
          if (isFromSearchWidget()) {
              intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
