@@ -1,4 +1,4 @@
-From 55f5d801b7fa98a362ef451b47e247802a243350 Mon Sep 17 00:00:00 2001
+From 2e055de36d77f8ef255bf48b8adf9bae13778f88 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 01:23:48 -0400
 Subject: [PATCH] disable content feed suggestions by default
@@ -9,7 +9,7 @@ Subject: [PATCH] disable content feed suggestions by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
-index f2dcbdef718df..9e9e2fd5fce07 100644
+index a4efd60024847..35b3ca107081d 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
 @@ -78,7 +78,7 @@ public class CachedFeatureFlags {
@@ -22,15 +22,15 @@ index f2dcbdef718df..9e9e2fd5fce07 100644
                      .put(ChromeFeatureList.NEW_WINDOW_APP_MENU, true)
                      .put(ChromeFeatureList.OMAHA_MIN_SDK_VERSION_ANDROID, false)
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index 0d1ed3e375384..282c55688b9c1 100644
+index 198b24c5c9b5d..72c52bcb64c28 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
-@@ -21,7 +21,7 @@ const base::Feature kInterestFeedContentSuggestions{
- // InterestFeedV2 is cached in ChromeCachedFlags. If the default value here is
+@@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,
  // changed, please update the cached one's default value in CachedFeatureFlags.
- const base::Feature kInterestFeedV2{"InterestFeedV2",
--                                    base::FEATURE_ENABLED_BY_DEFAULT};
-+                                    base::FEATURE_DISABLED_BY_DEFAULT};
+ BASE_FEATURE(kInterestFeedV2,
+              "InterestFeedV2",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
  
- const base::Feature kInterestFeedV2Autoplay{"InterestFeedV2Autoplay",
-                                             base::FEATURE_DISABLED_BY_DEFAULT};
+ BASE_FEATURE(kInterestFeedV2Autoplay,
+              "InterestFeedV2Autoplay",

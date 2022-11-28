@@ -1,4 +1,4 @@
-From dad9dff41cb2f675484e01d96ac7edbd600e23e7 Mon Sep 17 00:00:00 2001
+From 75254bbd0a5f9909bf375941bf51a7d44f35d74a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 23 Oct 2020 23:59:13 -0400
 Subject: [PATCH] enable prefetch privacy changes by default
@@ -8,15 +8,15 @@ Subject: [PATCH] enable prefetch privacy changes by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index d6af75216001d..b26d392e51c9d 100644
+index 7a62f556156c2..8e432603e2157 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -460,7 +460,7 @@ const base::Feature kAllowSyncXHRInPageDismissal{
- // Prefetch request properties are updated to be privacy-preserving. See
+@@ -510,7 +510,7 @@ BASE_FEATURE(kAllowSyncXHRInPageDismissal,
  // crbug.com/988956.
- const base::Feature kPrefetchPrivacyChanges{"PrefetchPrivacyChanges",
--                                            base::FEATURE_DISABLED_BY_DEFAULT};
-+                                            base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kPrefetchPrivacyChanges,
+              "PrefetchPrivacyChanges",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
  // Decodes jpeg 4:2:0 formatted images to YUV instead of RGBX and stores in this
  // format in the image decode cache. See crbug.com/919627 for details on the

@@ -1,4 +1,4 @@
-From f01c89870f9bce63c6abc4c498105e0219c8c479 Mon Sep 17 00:00:00 2001
+From 73c54d9f29b9a3ed1ed3af2f698bad18d874d8b2 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Thu, 23 Jun 2022 16:38:51 +0000
 Subject: [PATCH] Implement UI for WebRTC toggle
@@ -25,10 +25,10 @@ PrefService for the said policy.
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
 
 diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
-index a2eaadf3e87a8..e83c7a77f5387 100644
+index 3d20247cf7fb4..9563f0cc22b6e 100644
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -611,6 +611,7 @@ chrome_java_resources = [
+@@ -609,6 +609,7 @@ chrome_java_resources = [
    "java/res/layout/virtual_card_enrollment_dialog.xml",
    "java/res/layout/webapk_icon_name_update_dialog.xml",
    "java/res/layout/webapk_update_report_abuse_custom_view.xml",
@@ -36,17 +36,17 @@ index a2eaadf3e87a8..e83c7a77f5387 100644
    "java/res/menu/bookmark_action_bar_menu.xml",
    "java/res/menu/custom_tabs_menu.xml",
    "java/res/menu/history_manager_menu.xml",
-@@ -666,4 +667,5 @@ chrome_java_resources = [
+@@ -664,4 +665,5 @@ chrome_java_resources = [
    "java/res/xml/privacy_preferences.xml",
    "java/res/xml/search_widget_info.xml",
    "java/res/xml/tracing_preferences.xml",
 +  "java/res/xml/webrtc_policy_preferences.xml",
  ]
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
-index 3885315993c0c..0528f5b14d2e4 100644
+index 6cdd0540f5df6..3885fe7dd8496 100644
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1225,5 +1225,8 @@ chrome_java_sources = [
+@@ -1230,5 +1230,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/webapps/launchpad/LaunchpadUtils.java",
    "java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticatorActivity.java",
    "java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticatorUSBActivity.java",
@@ -440,7 +440,7 @@ index 0000000000000..5fefabd83a821
 +    private WebRtcPolicyUtils() {}
 +}
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index cd55c908d23fa..0eeb98e0d78e6 100644
+index b0c5583b72c09..5e5873158fa03 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1410,6 +1410,23 @@ Your Google account may have other forms of browsing history like searches and a
