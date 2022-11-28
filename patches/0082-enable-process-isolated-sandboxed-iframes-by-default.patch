@@ -1,4 +1,4 @@
-From e1debe62b8507e50b2dbb9b68792d4d5f77a4785 Mon Sep 17 00:00:00 2001
+From cd3451549ce0bc2a6d3eed2a0490595ea0a17255 Mon Sep 17 00:00:00 2001
 From: June <june@eridan.me>
 Date: Sun, 8 May 2022 01:34:58 +0000
 Subject: [PATCH] enable process isolated sandboxed iframes by default
@@ -9,15 +9,15 @@ Signed-off-by: June <june@eridan.me>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
-index eb8b56c751cc6..cf8d693c282d8 100644
+index 53c4e1919c6ee..67e2a88e9e2c9 100644
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -499,7 +499,7 @@ const char kIsolateOriginsFieldTrialParamName[] = "OriginsList";
- // the attribute. Note: At present, only iframes with origin-restricted
+@@ -541,7 +541,7 @@ const char kIsolateOriginsFieldTrialParamName[] = "OriginsList";
  // sandboxes are isolated.
- const base::Feature kIsolateSandboxedIframes{"IsolateSandboxedIframes",
--                                             base::FEATURE_DISABLED_BY_DEFAULT};
-+                                             base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kIsolateSandboxedIframes,
+              "IsolateSandboxedIframes",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  const base::FeatureParam<IsolateSandboxedIframesGrouping>::Option
      isolated_sandboxed_iframes_grouping_types[] = {
          {IsolateSandboxedIframesGrouping::kPerSite, "per-site"},

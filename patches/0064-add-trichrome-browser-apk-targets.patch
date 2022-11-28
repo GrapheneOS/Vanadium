@@ -1,4 +1,4 @@
-From 957ab0f51d2b36958a2bebd30aa4722e09608e06 Mon Sep 17 00:00:00 2001
+From 02bb25b5922687814dda3988e823834f629f8670 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 27 May 2021 07:30:02 -0400
 Subject: [PATCH] add trichrome browser apk targets
@@ -8,10 +8,10 @@ Subject: [PATCH] add trichrome browser apk targets
  1 file changed, 60 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 98a21cecc487d..afeb6d106dcd5 100644
+index 7934ab9348808..17af636d2d7ab 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2452,6 +2452,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2359,6 +2359,10 @@ if (current_toolchain == default_toolchain) {
      is_monochrome = true
      is_bundle_module = true
    }
@@ -22,19 +22,20 @@ index 98a21cecc487d..afeb6d106dcd5 100644
    resource_packaging("trichrome_chrome_bundle_module_pak_assets") {
      is_monochrome = false
      is_trichrome = true
-@@ -3036,7 +3040,7 @@ if (android_64bit_target_cpu && skip_secondary_abi_for_cq) {
+@@ -2899,7 +2903,7 @@ if (current_toolchain == default_toolchain) {
  
-     if (trichrome_synchronized_proguard) {
-       webview_target = "//android_webview:trichrome_webview_apk"
--      chrome_target = ":trichrome_chrome_bundle"
-+      chrome_target = ":trichrome_chrome_apk"
+       if (trichrome_synchronized_proguard) {
+         webview_target = "//android_webview:trichrome_webview_apk"
+-        chrome_target = ":trichrome_chrome_bundle"
++        chrome_target = ":trichrome_chrome_apk"
+       }
+ 
+       if (_enable_manifest_verification) {
+@@ -2954,6 +2958,61 @@ if (current_toolchain == default_toolchain) {
+       }
      }
- 
-     if (_enable_manifest_verification) {
-@@ -3092,6 +3096,61 @@ if (android_64bit_target_cpu) {
    }
- }
- 
++ 
 +monochrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
 +  version_code = trichrome_version_code
 +  version_name = chrome_version_name
@@ -89,7 +90,6 @@ index 98a21cecc487d..afeb6d106dcd5 100644
 +    include_32_bit_webview = false
 +  }
 +}
-+
- chrome_public_unit_test_apk_manifest =
-     "$root_gen_dir/chrome_public_unit_test_apk_manifest/AndroidManifest.xml"
- chrome_public_test_apk_manifest =
+ 
+   chrome_public_unit_test_apk_manifest =
+       "$root_gen_dir/chrome_public_unit_test_apk_manifest/AndroidManifest.xml"

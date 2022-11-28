@@ -1,4 +1,4 @@
-From 22ff7a60249e3bf94c2b2088cf18190a711c889f Mon Sep 17 00:00:00 2001
+From 60542961c199c5811ec25601bd84707767fd1eaf Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 6 Mar 2018 00:27:41 -0500
 Subject: [PATCH] disable showing popular sites by default
@@ -8,21 +8,23 @@ Subject: [PATCH] disable showing popular sites by default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
-index c14ff7a0dd00f..1b10a197539f9 100644
+index d35052b2fec1c..89290a176f526 100644
 --- a/components/ntp_tiles/features.cc
 +++ b/components/ntp_tiles/features.cc
-@@ -13,12 +13,12 @@ namespace ntp_tiles {
- const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
+@@ -14,7 +14,7 @@ const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
  
- const base::Feature kPopularSitesBakedInContentFeature{
--    "NTPPopularSitesBakedInContent", base::FEATURE_ENABLED_BY_DEFAULT};
-+    "NTPPopularSitesBakedInContent", base::FEATURE_DISABLED_BY_DEFAULT};
+ BASE_FEATURE(kPopularSitesBakedInContentFeature,
+              "NTPPopularSitesBakedInContent",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
  
- const base::Feature kNtpMostLikelyFaviconsFromServerFeature{
-     "NTPMostLikelyFaviconsFromServer", base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
+              "NTPMostLikelyFaviconsFromServer",
+@@ -22,6 +22,6 @@ BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
  
- const base::Feature kUsePopularSitesSuggestions{
--    "UsePopularSitesSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
-+    "UsePopularSitesSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
+ BASE_FEATURE(kUsePopularSitesSuggestions,
+              "UsePopularSitesSuggestions",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
  
  }  // namespace ntp_tiles

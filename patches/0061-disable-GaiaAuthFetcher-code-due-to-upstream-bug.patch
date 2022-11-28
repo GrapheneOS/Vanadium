@@ -1,4 +1,4 @@
-From 4dd59c94971e084da18c045b20d5bef9644d5853 Mon Sep 17 00:00:00 2001
+From 063f062a6c9b4fdc76e0e84f627a04a779e25da7 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 19 Nov 2020 07:59:29 -0500
 Subject: [PATCH] disable GaiaAuthFetcher code due to upstream bug
@@ -9,7 +9,7 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=1150817
  1 file changed, 4 insertions(+)
 
 diff --git a/google_apis/gaia/gaia_auth_fetcher.cc b/google_apis/gaia/gaia_auth_fetcher.cc
-index 96ba1929661bb..3a2af1d96e672 100644
+index ad12fd463c43e..05bc0c0757b96 100644
 --- a/google_apis/gaia/gaia_auth_fetcher.cc
 +++ b/google_apis/gaia/gaia_auth_fetcher.cc
 @@ -40,7 +40,9 @@
@@ -22,7 +22,7 @@ index 96ba1929661bb..3a2af1d96e672 100644
  
  constexpr char kBadAuthenticationError[] = "BadAuthentication";
  constexpr char kBadAuthenticationShortError[] = "badauth";
-@@ -286,6 +288,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -267,6 +269,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
      const net::NetworkTrafficAnnotationTag& traffic_annotation) {
    DCHECK(!fetch_pending_) << "Tried to fetch two things at once!";
  
@@ -30,7 +30,7 @@ index 96ba1929661bb..3a2af1d96e672 100644
    auto resource_request = std::make_unique<network::ResourceRequest>();
    resource_request->url = gaia_gurl;
    original_url_ = gaia_gurl;
-@@ -343,6 +346,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -319,6 +322,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
        base::BindOnce(&GaiaAuthFetcher::OnURLLoadComplete,
                       base::Unretained(this)),
        kMaxMessageSize);

@@ -1,18 +1,18 @@
-From e31811ed81a62b3367151eb0438ee7471d8ca11b Mon Sep 17 00:00:00 2001
+From d56aac7923c394879dc4ab8e5362ac2b3842da62 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
 Subject: [PATCH] enable strict site isolation by default on Android
 
 ---
  chrome/browser/about_flags.cc    | 10 ----------
- chrome/common/chrome_features.cc |  8 +-------
- 2 files changed, 1 insertion(+), 17 deletions(-)
+ chrome/common/chrome_features.cc |  4 ----
+ 2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index a076714a6d86a..5fe29951b44d4 100644
+index eec961dafc738..ce583f8c028ca 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4461,16 +4461,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4576,16 +4576,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsLacros | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -30,21 +30,18 @@ index a076714a6d86a..5fe29951b44d4 100644
      {"enable-isolated-web-apps", flag_descriptions::kEnableIsolatedWebAppsName,
       flag_descriptions::kEnableIsolatedWebAppsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 68903a6a32359..ccfa73c0f7308 100644
+index f9352a3b9b94a..710e0f7b58b06 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -888,13 +888,7 @@ const base::Feature kSecurityKeyAttestationPrompt{
- // TODO(alexmos): Move this and the other site isolation features below to
+@@ -1046,11 +1046,7 @@ BASE_FEATURE(kSecurityKeyAttestationPrompt,
  // browser_features, as they are only used on the browser side.
- const base::Feature kSitePerProcess {
--  "SitePerProcess",
+ BASE_FEATURE(kSitePerProcess,
+              "SitePerProcess",
 -#if BUILDFLAG(IS_ANDROID)
--      base::FEATURE_DISABLED_BY_DEFAULT
+-             base::FEATURE_DISABLED_BY_DEFAULT
 -#else
--      base::FEATURE_ENABLED_BY_DEFAULT
+              base::FEATURE_ENABLED_BY_DEFAULT
 -#endif
--};
-+  "SitePerProcess", base::FEATURE_ENABLED_BY_DEFAULT};
+ );
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
- // Enables or disables SmartDim on Chrome OS.

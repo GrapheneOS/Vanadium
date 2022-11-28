@@ -1,4 +1,4 @@
-From 4d2b77bb8d0f536190a32bdd74584dd65e2c4d07 Mon Sep 17 00:00:00 2001
+From 81d2bd79f30cc99d7618a308260bac8f5e8b6754 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 8 Mar 2021 16:53:47 -0500
 Subject: [PATCH] enable partitioning connections by default
@@ -8,44 +8,44 @@ Subject: [PATCH] enable partitioning connections by default
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 3e110ab4da5a2..6cc44e981f558 100644
+index 937b243fdf5ad..9ae7942362b5d 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -123,11 +123,11 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
-     "SplitCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
+@@ -87,11 +87,11 @@ BASE_FEATURE(kSplitCacheByNetworkIsolationKey,
  
- const base::Feature kSplitHostCacheByNetworkIsolationKey{
--    "SplitHostCacheByNetworkIsolationKey", base::FEATURE_DISABLED_BY_DEFAULT};
-+    "SplitHostCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kSplitHostCacheByNetworkIsolationKey,
+              "SplitHostCacheByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::Feature kPartitionConnectionsByNetworkIsolationKey{
-     "PartitionConnectionsByNetworkIsolationKey",
--    base::FEATURE_DISABLED_BY_DEFAULT};
-+    base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
+              "PartitionConnectionsByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
-     "ForceIsolationInfoFrameOriginToTopLevelFrame",
-@@ -135,19 +135,19 @@ const base::Feature kForceIsolationInfoFrameOriginToTopLevelFrame{
+ BASE_FEATURE(kForceIsolationInfoFrameOriginToTopLevelFrame,
+              "ForceIsolationInfoFrameOriginToTopLevelFrame",
+@@ -99,19 +99,19 @@ BASE_FEATURE(kForceIsolationInfoFrameOriginToTopLevelFrame,
  
- const base::Feature kPartitionHttpServerPropertiesByNetworkIsolationKey{
-     "PartitionHttpServerPropertiesByNetworkIsolationKey",
--    base::FEATURE_DISABLED_BY_DEFAULT};
-+    base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kPartitionHttpServerPropertiesByNetworkIsolationKey,
+              "PartitionHttpServerPropertiesByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::Feature kPartitionSSLSessionsByNetworkIsolationKey{
-     "PartitionSSLSessionsByNetworkIsolationKey",
--    base::FEATURE_DISABLED_BY_DEFAULT};
-+    base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kPartitionSSLSessionsByNetworkIsolationKey,
+              "PartitionSSLSessionsByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::Feature kPartitionExpectCTStateByNetworkIsolationKey{
-     "PartitionExpectCTStateByNetworkIsolationKey",
--    base::FEATURE_DISABLED_BY_DEFAULT};
-+    base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kPartitionExpectCTStateByNetworkIsolationKey,
+              "PartitionExpectCTStateByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::Feature kPartitionNelAndReportingByNetworkIsolationKey{
-     "PartitionNelAndReportingByNetworkIsolationKey",
--    base::FEATURE_DISABLED_BY_DEFAULT};
-+    base::FEATURE_ENABLED_BY_DEFAULT};
+ BASE_FEATURE(kPartitionNelAndReportingByNetworkIsolationKey,
+              "PartitionNelAndReportingByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::Feature kEnableDoubleKeyNetworkAnonymizationKey{
-     "EnableDoubleKeyNetworkAnonymizationKey",
+ BASE_FEATURE(kEnableDoubleKeyNetworkAnonymizationKey,
+              "EnableDoubleKeyNetworkAnonymizationKey",

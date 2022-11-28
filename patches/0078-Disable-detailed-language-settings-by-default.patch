@@ -1,4 +1,4 @@
-From 559beba3cfbeb1adbd9a3a40a121b950ef382dd9 Mon Sep 17 00:00:00 2001
+From 10c58316f3e8bc22eb2373e771aef6f1a5e39e4b Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Tue, 8 Feb 2022 03:04:20 +0000
 Subject: [PATCH] Disable detailed language settings by default
@@ -8,15 +8,15 @@ Subject: [PATCH] Disable detailed language settings by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/language/core/common/language_experiments.cc b/components/language/core/common/language_experiments.cc
-index 15e7c674c497c..da8466304a6c2 100644
+index cfc85726cfa26..9d6b044013e60 100644
 --- a/components/language/core/common/language_experiments.cc
 +++ b/components/language/core/common/language_experiments.cc
-@@ -25,7 +25,7 @@ const base::Feature kAppLanguagePromptULP{"AppLanguagePromptULP",
- const base::Feature kForceAppLanguagePrompt{"ForceAppLanguagePrompt",
-                                             base::FEATURE_DISABLED_BY_DEFAULT};
- const base::Feature kDetailedLanguageSettings{"DetailedLanguageSettings",
--                                              base::FEATURE_ENABLED_BY_DEFAULT};
-+                                              base::FEATURE_DISABLED_BY_DEFAULT};
- const base::Feature kDesktopDetailedLanguageSettings{
-     "DesktopDetailedLanguageSettings", base::FEATURE_DISABLED_BY_DEFAULT};
- const base::Feature kTranslateAssistContent{"TranslateAssistContent",
+@@ -31,7 +31,7 @@ BASE_FEATURE(kForceAppLanguagePrompt,
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kDetailedLanguageSettings,
+              "DetailedLanguageSettings",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kDesktopDetailedLanguageSettings,
+              "DesktopDetailedLanguageSettings",
+              base::FEATURE_DISABLED_BY_DEFAULT);

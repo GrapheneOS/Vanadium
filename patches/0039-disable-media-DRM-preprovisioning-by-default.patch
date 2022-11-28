@@ -1,4 +1,4 @@
-From 3ec9253b95ca23ad23a3c298f9c1b65161d2561c Mon Sep 17 00:00:00 2001
+From bb30914387da7ae3888e8e6636d33d3f133b82f5 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 21 May 2020 12:27:29 -0400
 Subject: [PATCH] disable media DRM preprovisioning by default
@@ -10,15 +10,15 @@ support is enabled.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/media/base/media_switches.cc b/media/base/media_switches.cc
-index 8d0a6366121c9..94ea4da46d174 100644
+index 24b2208d8dd95..616d5a4a015a7 100644
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -746,7 +746,7 @@ const base::Feature kMediaDrmPersistentLicense{
- // MediaDrmBridge. If disabled, MediaDrmBridge will get unprovisioned origin IDs
+@@ -848,7 +848,7 @@ BASE_FEATURE(kMediaDrmPersistentLicense,
  // which will trigger provisioning process after MediaDrmBridge is created.
- const base::Feature kMediaDrmPreprovisioning{"MediaDrmPreprovisioning",
--                                             base::FEATURE_ENABLED_BY_DEFAULT};
-+                                             base::FEATURE_DISABLED_BY_DEFAULT};
+ BASE_FEATURE(kMediaDrmPreprovisioning,
+              "MediaDrmPreprovisioning",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
  
  // Determines if MediaDrmOriginIdManager should attempt to pre-provision origin
  // IDs at startup (whenever a profile is loaded). Also used by tests that
