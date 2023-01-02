@@ -1,0 +1,76 @@
+From 325a3140b5651e345de4ac049aa230ff1facf5bf Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 20 Aug 2021 16:13:42 +0000
+Subject: [PATCH] Move search suggestions back to privacy section.
+
+---
+ .../java/res/xml/privacy_preferences.xml       |  5 +++++
+ .../privacy/settings/PrivacySettings.java      | 18 +++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
+index eadd16fa6c6bf..860dde01cc01e 100644
+--- a/chrome/android/java/res/xml/privacy_preferences.xml
++++ b/chrome/android/java/res/xml/privacy_preferences.xml
+@@ -27,6 +27,11 @@ found in the LICENSE file.
+         android:key="https_first_mode"
+         android:title="@string/settings_https_first_mode_title"
+         android:summary="@string/settings_https_first_mode_summary"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="search_suggestions"
++        android:title="@string/autocomplete_searches_and_urls_title"
++        android:summary="@string/autocomplete_searches_and_urls_summary"
++        android:persistent="false"/>
+      <org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference
+         android:key="incognito_lock"
+         android:title="@string/settings_incognito_tab_lock_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index ba173aab43533..241ef12e6753a 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -54,6 +54,7 @@ public class PrivacySettings
+     private static final String PREF_PRELOAD_PAGES = "preload_pages";
+     private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+     private static final String PREF_SECURE_DNS = "secure_dns";
++    private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
+     private static final String PREF_USAGE_STATS = "usage_stats_reporting";
+     private static final String PREF_DO_NOT_TRACK = "do_not_track";
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+@@ -111,6 +112,11 @@ public class PrivacySettings
+ 
+         mManagedPreferenceDelegate = createManagedPreferenceDelegate();
+ 
++        ChromeSwitchPreference searchSuggestionsPref =
++                (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
++        searchSuggestionsPref.setOnPreferenceChangeListener(this);
++        searchSuggestionsPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++
+         ChromeSwitchPreference canMakePaymentPref =
+                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
+         canMakePaymentPref.setOnPreferenceChangeListener(this);
+@@ -160,7 +166,10 @@ public class PrivacySettings
+     @Override
+     public boolean onPreferenceChange(Preference preference, Object newValue) {
+         String key = preference.getKey();
+-        if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
++        if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
++            UserPrefs.get(Profile.getLastUsedRegularProfile())
++                    .setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
++        } else if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
+             UserPrefs.get(Profile.getLastUsedRegularProfile())
+                     .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
+         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
+@@ -188,6 +197,13 @@ public class PrivacySettings
+             canMakePaymentPref.setChecked(prefService.getBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED));
+         }
+ 
++        ChromeSwitchPreference searchSuggestionsPref =
++                (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
++        if (searchSuggestionsPref != null) {
++            searchSuggestionsPref.setChecked(prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
++        }
++
++
+         Preference doNotTrackPref = findPreference(PREF_DO_NOT_TRACK);
+         if (doNotTrackPref != null) {
+             doNotTrackPref.setSummary(prefService.getBoolean(Pref.ENABLE_DO_NOT_TRACK)
