@@ -1,4 +1,4 @@
-From 0e0b3e0c7233f8502148e8e0599e78be6a138e65 Mon Sep 17 00:00:00 2001
+From a8f520460947e4ffc09e33dd58dc73d1b7d7182a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 25 Dec 2018 16:19:51 -0500
 Subject: [PATCH] disable seed-based field trials
@@ -8,10 +8,10 @@ Subject: [PATCH] disable seed-based field trials
  1 file changed, 2 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index e8216600da48c..a4c60aec247c0 100644
+index 13ad70197af06..2df25488a6fca 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -313,8 +313,10 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -310,8 +310,10 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    bool used_seed = false;
    if (!used_testing_config) {
@@ -21,4 +21,4 @@ index e8216600da48c..a4c60aec247c0 100644
 +#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    }
  
-   platform_field_trials->SetUpFeatureControllingFieldTrials(
+   platform_field_trials->SetUpClientSideFieldTrials(

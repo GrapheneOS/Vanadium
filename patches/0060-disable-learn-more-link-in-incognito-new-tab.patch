@@ -1,4 +1,4 @@
-From f625192cde60ee127f21ec08fb064feb4854ef69 Mon Sep 17 00:00:00 2001
+From aec902c640d14e5c20bd691abc2b9498eb304f03 Mon Sep 17 00:00:00 2001
 From: A Mak <refragable@mailbox.org>
 Date: Sat, 8 Aug 2020 11:17:59 -0700
 Subject: [PATCH] disable learn more link in incognito new tab
@@ -9,10 +9,10 @@ Subject: [PATCH] disable learn more link in incognito new tab
  2 files changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
-index 59dce79f4e56c..1813d15f60f77 100644
+index 5c5ae205b3a12..5e8687ac45209 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/LegacyIncognitoDescriptionView.java
-@@ -288,9 +288,9 @@ public class LegacyIncognitoDescriptionView
+@@ -289,9 +289,9 @@ public class LegacyIncognitoDescriptionView
          final String subtitleText = getContext().getResources().getString(readLaterEnabled
                          ? R.string.new_tab_otr_subtitle_with_reading_list
                          : R.string.new_tab_otr_subtitle);
@@ -24,7 +24,7 @@ index 59dce79f4e56c..1813d15f60f77 100644
  
          if (!learnMoreInSubtitle) {
              // Revert to the original text.
-@@ -310,7 +310,7 @@ public class LegacyIncognitoDescriptionView
+@@ -311,7 +311,7 @@ public class LegacyIncognitoDescriptionView
                  getContext(), R.color.modern_blue_300, (view) -> mLearnMore.callOnClick());
          textWithLearnMoreLink.setSpan(
                  span, subtitleText.length() + 1, textWithLearnMoreLink.length(), 0 /* flags */);

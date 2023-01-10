@@ -1,4 +1,4 @@
-From 5f3a0c7ba5c69c7feafc51499d660d4a99b4ebae Mon Sep 17 00:00:00 2001
+From 24825bb572901286a6a7bf55f61bf71f40437356 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 27 Nov 2020 02:43:37 -0500
 Subject: [PATCH] disable autofill assistant by default
@@ -8,7 +8,7 @@ Subject: [PATCH] disable autofill assistant by default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/autofill_assistant/browser/features.cc b/components/autofill_assistant/browser/features.cc
-index 67b43661f31f5..55ce1551f735c 100644
+index 14009fd5c6f69..bfd3fe4cda77d 100644
 --- a/components/autofill_assistant/browser/features.cc
 +++ b/components/autofill_assistant/browser/features.cc
 @@ -12,7 +12,7 @@ namespace features {
@@ -20,12 +20,12 @@ index 67b43661f31f5..55ce1551f735c 100644
  
  // Controls whether to enable Autofill Assistant's way of annotating DOM. If
  // enabled will create an |AnnotateDomModelService|.
-@@ -119,7 +119,7 @@ BASE_FEATURE(kAutofillAssistantLoadDFMForTriggerScripts,
+@@ -125,7 +125,7 @@ BASE_FEATURE(kAutofillAssistantPaintInvisibleTabForClick,
  
  BASE_FEATURE(kAutofillAssistantProactiveHelp,
               "AutofillAssistantProactiveHelp",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- // Enables assistant UI (once the feature is enabled, scripts need to use the
- // USE_ASSISTANT_UI=true flag to use the assistant UI).
+ // Send the Semantic model version in the client context.
+ BASE_FEATURE(kAutofillAssistantSendModelVersionInClientContext,

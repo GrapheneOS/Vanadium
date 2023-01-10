@@ -1,4 +1,4 @@
-From bd46c4a3e4f08f043d8f20d6941fc201b1758ae2 Mon Sep 17 00:00:00 2001
+From 9468d8de302d22d8ae352c868b4830c683c2fa6d Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Wed, 28 Sep 2022 05:37:00 +0200
 Subject: [PATCH] Handle web search action in browser
@@ -32,7 +32,7 @@ index 2d1661ee534f6..2c983646ab42b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index c1138824f6ada..e54a1e8c8f338 100644
+index 1fc712f4ad245..6e2033cfe1f27 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -330,6 +330,10 @@ by a child template that "extends" this file.
@@ -47,10 +47,10 @@ index c1138824f6ada..e54a1e8c8f338 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index ef6b807aba1cc..4a6cc58e21818 100644
+index 4454f790e5bb7..084f590f58345 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -757,6 +757,7 @@ public class IntentHandler {
+@@ -759,6 +759,7 @@ public class IntentHandler {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -59,7 +59,7 @@ index ef6b807aba1cc..4a6cc58e21818 100644
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 657bb611403fc..6b47a82bd1eee 100644
+index e977cdedb964a..1b202607dbaa5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -207,7 +207,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega

@@ -1,4 +1,4 @@
-From 442381f1bc3aabe991c5c1937d2772a76f6f59ce Mon Sep 17 00:00:00 2001
+From d4c95d9d219de865cb975490ce4cecb1639f0cf9 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 17 Jun 2022 10:15:43 +0000
 Subject: [PATCH] Toggle for closing tabs on exit
@@ -28,7 +28,7 @@ index 860dde01cc01e..c2664e95afc6b 100644
          android:key="preload_pages"
          android:title="@string/preload_pages_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 5df07363ae91b..da6eacbc68172 100644
+index 191f4ae5e04fa..4a5cd5dfe8862 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 @@ -1325,7 +1325,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
@@ -100,7 +100,7 @@ index 6934df96714c7..f17af2c38f9c3 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index 824a098f586ed..dd2edb70ad09a 100644
+index a814361c13cdb..8f44a0425a986 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 @@ -114,6 +114,10 @@ public final class ChromePreferenceKeys {
@@ -114,7 +114,7 @@ index 824a098f586ed..dd2edb70ad09a 100644
      /**
       * Whether Chrome is set as the default browser.
       * Default value is false.
-@@ -1144,6 +1148,7 @@ public final class ChromePreferenceKeys {
+@@ -1130,6 +1134,7 @@ public final class ChromePreferenceKeys {
                  OPEN_RECENT_TABS_COUNT,
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
@@ -123,7 +123,7 @@ index 824a098f586ed..dd2edb70ad09a 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 12f7e4dd607bb..77ec8bc1ea308 100644
+index 7df747a41f11d..c21dfa66e9f33 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1142,6 +1142,13 @@ Trust tokens improve privacy on the web and can’t be used to find out who you

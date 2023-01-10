@@ -1,28 +1,28 @@
-From beb94a379db43e249b4e9c7aa260ef557911f6ac Mon Sep 17 00:00:00 2001
+From b93b1fd97c7bf7f160a398faf3261c70db17ac35 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 01:23:48 -0400
 Subject: [PATCH] disable content feed suggestions by default
 
 ---
- .../org/chromium/chrome/browser/flags/CachedFeatureFlags.java   | 2 +-
+ .../org/chromium/chrome/browser/flags/ChromeFeatureList.java    | 2 +-
  components/feed/feed_feature_list.cc                            | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
-index a4efd60024847..35b3ca107081d 100644
---- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
-+++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/CachedFeatureFlags.java
-@@ -78,7 +78,7 @@ public class CachedFeatureFlags {
-                     .put(ChromeFeatureList.INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false)
-                     .put(ChromeFeatureList.INSTANCE_SWITCHER, true)
-                     .put(ChromeFeatureList.INSTANT_START, false)
--                    .put(ChromeFeatureList.INTEREST_FEED_V2, true)
-+                    .put(ChromeFeatureList.INTEREST_FEED_V2, false)
-                     .put(ChromeFeatureList.LENS_CAMERA_ASSISTED_SEARCH, false)
-                     .put(ChromeFeatureList.NEW_WINDOW_APP_MENU, true)
-                     .put(ChromeFeatureList.OMAHA_MIN_SDK_VERSION_ANDROID, false)
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 406b250233770..6729e30d8b8ed 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -663,7 +663,7 @@ public abstract class ChromeFeatureList {
+             new CachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false);
+     public static final CachedFlag sInstanceSwitcher = new CachedFlag(INSTANCE_SWITCHER, true);
+     public static final CachedFlag sInstantStart = new CachedFlag(INSTANT_START, false);
+-    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, true);
++    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, false);
+     public static final CachedFlag sLensCameraAssistedSearch =
+             new CachedFlag(LENS_CAMERA_ASSISTED_SEARCH, false);
+     public static final CachedFlag sNewWindowAppMenu = new CachedFlag(NEW_WINDOW_APP_MENU, true);
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index 198b24c5c9b5d..72c52bcb64c28 100644
+index e21ccd9fb4125..987316f5307fd 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,
