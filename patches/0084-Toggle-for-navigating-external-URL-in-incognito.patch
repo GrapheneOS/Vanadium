@@ -1,0 +1,195 @@
+From 1549ccadd071efceec03ce1162bbad3bd7d422da Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sun, 19 Jun 2022 06:39:48 +0000
+Subject: [PATCH] Toggle for navigating external URL in incognito
+
+---
+ .../android/java/res/xml/privacy_preferences.xml  |  5 +++++
+ .../chrome/browser/ChromeTabbedActivity.java      |  8 ++++++--
+ .../chromium/chrome/browser/IntentHandler.java    | 11 +++++++++--
+ .../chrome/browser/LaunchIntentDispatcher.java    |  7 +++++++
+ .../browser/privacy/settings/PrivacySettings.java | 15 +++++++++++++++
+ .../browser/preferences/ChromePreferenceKeys.java |  2 ++
+ .../ui/android/strings/android_chrome_strings.grd |  7 +++++++
+ 7 files changed, 51 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
+index e2151fce76efb..cb875e9a43851 100644
+--- a/chrome/android/java/res/xml/privacy_preferences.xml
++++ b/chrome/android/java/res/xml/privacy_preferences.xml
+@@ -52,6 +52,11 @@ found in the LICENSE file.
+         android:title="@string/preload_pages_title"
+         android:summary="@string/preload_pages_summary"
+         android:fragment="org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsFragment"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="open_links_in_incognito"
++        android:title="@string/open_links_in_incognito_title"
++        android:summary="@string/open_links_in_incognito_summary"
++        android:persistent="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:key="usage_stats_reporting"
+         android:title="@string/usage_stats_setting_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index 107855646c148..4242390259fbc 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -2355,13 +2355,17 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+         }
+ 
+         final boolean shouldCloseTab = backShouldCloseTab(currentTab);
+-
++        final boolean isOpenedExternalInIncognito =
++                currentTab.getLaunchType() == TabLaunchType.FROM_EXTERNAL_APP
++                && SharedPreferencesManager.getInstance().readBoolean(
++                        ChromePreferenceKeys.PREF_CLOSE_TABS_ON_EXIT, false);
+         // Minimize the app if either:
+         // - we decided not to close the tab
+         // - we decided to close the tab, but it was opened by an external app, so we will go
+         //   exit Chrome on top of closing the tab
+         final boolean minimizeApp =
+-                !shouldCloseTab || TabAssociatedApp.isOpenedFromExternalApp(currentTab);
++                !shouldCloseTab || TabAssociatedApp.isOpenedFromExternalApp(currentTab)
++                || isOpenedExternalInIncognito;
+         BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
+         if (minimizeApp) {
+             if (shouldCloseTab) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
+index e10eba61dfaf6..57767e6800354 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
+@@ -1455,9 +1455,16 @@ public class IntentHandler {
+      * @return The {@link Intent} to launch.
+      */
+     public static Intent createTrustedOpenNewTabIntent(Context context, boolean incognito) {
+-        Intent newIntent = new Intent();
++        return createTrustedTabIntent(context, incognito, new Intent());
++    }
++
++    static Intent createTrustedTabIntent(Context context, boolean incognito, Intent newIntent) {
+         newIntent.setAction(Intent.ACTION_VIEW);
+-        newIntent.setData(Uri.parse(UrlConstants.NTP_URL));
++        if (newIntent.getData() == null) {
++            newIntent.setData(Uri.parse(UrlConstants.NTP_URL));
++        } else {
++            setTabLaunchType(newIntent, TabLaunchType.FROM_EXTERNAL_APP);
++        }
+         newIntent.setClass(context, ChromeLauncherActivity.class);
+         newIntent.putExtra(Browser.EXTRA_CREATE_NEW_TAB, true);
+         newIntent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index aebcb6b4c46be..31287f4ffb425 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -4,6 +4,8 @@
+ 
+ package org.chromium.chrome.browser;
+ 
++import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_OPEN_LINKS_IN_INCOGNITO;
++
+ import android.annotation.SuppressLint;
+ import android.app.Activity;
+ import android.app.ActivityManager.RecentTaskInfo;
+@@ -42,6 +44,7 @@ import org.chromium.chrome.browser.flags.ChromeSwitches;
+ import org.chromium.chrome.browser.multiwindow.MultiWindowUtils;
+ import org.chromium.chrome.browser.notifications.NotificationPlatformBridge;
+ import org.chromium.chrome.browser.partnercustomizations.PartnerBrowserCustomizations;
++import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.chrome.browser.searchwidget.SearchActivity;
+ import org.chromium.chrome.browser.tab.Tab;
+ import org.chromium.chrome.browser.translate.TranslateIntentHandler;
+@@ -437,6 +440,10 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+ 
+         if (Intent.ACTION_VIEW.equals(newIntent.getAction())
+                 && !IntentHandler.wasIntentSenderChrome(newIntent)) {
++            if (SharedPreferencesManager.getInstance().readBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, false)) {
++                newIntent = IntentHandler.createTrustedTabIntent(mActivity, true, newIntent);
++                newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++            }
+             if (!chromeTabbedTaskExists()) {
+                 newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
+             }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index 3976014c1748c..31784ce300cf6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -6,6 +6,7 @@ package org.chromium.chrome.browser.privacy.settings;
+ 
+ import static org.chromium.components.content_settings.PrefNames.COOKIE_CONTROLS_MODE;
+ import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_CLOSE_TABS_ON_EXIT;
++import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_OPEN_LINKS_IN_INCOGNITO;
+ 
+ import android.os.Build;
+ import android.os.Bundle;
+@@ -148,6 +149,11 @@ public class PrivacySettings
+         closeTabsOnExitPref.setOnPreferenceChangeListener(this);
+         closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
+ 
++        ChromeSwitchPreference openLinksInIncognitoPref =
++                (ChromeSwitchPreference) findPreference(PREF_OPEN_LINKS_IN_INCOGNITO);
++        openLinksInIncognitoPref.setOnPreferenceChangeListener(this);
++        openLinksInIncognitoPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++
+         Preference preloadPagesPreference = findPreference(PREF_PRELOAD_PAGES);
+         preloadPagesPreference.setSummary(
+                 PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
+@@ -217,6 +223,9 @@ public class PrivacySettings
+         } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
+             SharedPreferencesManager.getInstance()
+                     .writeBoolean(PREF_CLOSE_TABS_ON_EXIT, (boolean) newValue);
++        } else if (PREF_OPEN_LINKS_IN_INCOGNITO.equals(key)) {
++            SharedPreferencesManager.getInstance()
++                    .writeBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, (boolean) newValue);
+         }
+         return true;
+     }
+@@ -238,6 +247,12 @@ public class PrivacySettings
+             closeTabsOnExitPref.setChecked(sharedPrefMgr.readBoolean(PREF_CLOSE_TABS_ON_EXIT, false));
+         }
+ 
++        ChromeSwitchPreference openLinksInIncognitoPref =
++                (ChromeSwitchPreference) findPreference(PREF_OPEN_LINKS_IN_INCOGNITO);
++        if (openLinksInIncognitoPref != null) {
++            openLinksInIncognitoPref.setChecked(sharedPrefMgr.readBoolean(PREF_OPEN_LINKS_IN_INCOGNITO, false));
++        }
++
+         PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
+ 
+         ChromeSwitchPreference canMakePaymentPref =
+diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
+index c6fa7926e78d1..bc86847a2c081 100644
+--- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
++++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
+@@ -115,6 +115,7 @@ public final class ChromePreferenceKeys {
+             "enhanced_bookmark_last_used_parent_folder";
+ 
+     public static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
++    public static final String PREF_OPEN_LINKS_IN_INCOGNITO = "open_links_in_incognito";
+ 
+     // Add SharedPreference keys with ChromeSwitchPreference a line above this one.
+ 
+@@ -1135,6 +1136,7 @@ public final class ChromePreferenceKeys {
+                 OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
+                 PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
+                 PREF_CLOSE_TABS_ON_EXIT,
++                PREF_OPEN_LINKS_IN_INCOGNITO,
+                 PRICE_TRACKING_ANNOTATIONS_ENABLED_METRICS_TIMESTAMP,
+                 PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
+                 PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 02ffb10042187..f729ad5b9f1d8 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -1560,6 +1560,13 @@ Your Google account may have other forms of browsing history like searches and a
+         <ph name="NUMBER_OF_ITEMS">%1$s<ex>3</ex></ph> items deleted
+       </message>
+ 
++      <message name="IDS_OPEN_LINKS_IN_INCOGNITO_TITLE" desc="Title of opening external links in incognito tabs menu item">
++        Open external links in incognito
++      </message>
++      <message name="IDS_OPEN_LINKS_IN_INCOGNITO_SUMMARY" desc="Summary of opening external links in incognito tabs menu item">
++        Open links navigated by external apps in incognito tabs
++      </message>
++
+       <!-- Privacy Guide -->
+       <message name="IDS_PREFS_PRIVACY_GUIDE_TITLE" desc="The title of the privacy guide menu item.">
+         Privacy guide

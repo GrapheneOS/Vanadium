@@ -1,4 +1,4 @@
-From 50e82f1a13de7acc3679f9cf521c7d32bf925fa8 Mon Sep 17 00:00:00 2001
+From af0cb17d5e484c7b9dd89062e2de6a76ec310c10 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 26 Jan 2017 01:30:12 -0500
 Subject: [PATCH] use 64-bit WebView processes
@@ -8,7 +8,7 @@ Subject: [PATCH] use 64-bit WebView processes
  1 file changed, 1 deletion(-)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
-index f31a77f8fd9c4..48c5e9a20e564 100644
+index a6ec0a7d6391c..ce806a2233dde 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
 @@ -37,7 +37,6 @@ by a child template that "extends" this file.
@@ -16,6 +16,6 @@ index f31a77f8fd9c4..48c5e9a20e564 100644
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
                   android:multiArch="true"
 -                 {{ use32bitAbi|default('android:use32bitAbi="true"') }}
-                  android:extractNativeLibs="{{ trichrome_library is not defined }}">
+                  android:extractNativeLibs="false">
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}

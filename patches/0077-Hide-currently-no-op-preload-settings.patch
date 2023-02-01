@@ -1,0 +1,25 @@
+From 0b9c91126a35878669889c11c959c6f3e18be3ab Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 24 Jan 2022 19:22:26 +0000
+Subject: [PATCH] Hide currently no-op preload settings
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettings.java     | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index a5d55f5d8864b..f48710b51d6b1 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -141,6 +141,11 @@ public class PrivacySettings
+                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
+         canMakePaymentPref.setOnPreferenceChangeListener(this);
+ 
++        Preference preloadPagesPreference = findPreference(PREF_PRELOAD_PAGES);
++        preloadPagesPreference.setSummary(
++                PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
++        getPreferenceScreen().removePreference(preloadPagesPreference);
++
+         ChromeSwitchPreference httpsFirstModePref =
+                 (ChromeSwitchPreference) findPreference(PREF_HTTPS_FIRST_MODE);
+         httpsFirstModePref.setVisible(
