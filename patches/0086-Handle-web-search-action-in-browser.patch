@@ -1,0 +1,73 @@
+From bd5b735dcf9e0ca55ab74b267700839b63fbd886 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 28 Sep 2022 05:37:00 +0200
+Subject: [PATCH] Handle web search action in browser
+
+---
+ .../src/org/chromium/base/PackageManagerUtils.java     | 10 ++++++++++
+ chrome/android/java/AndroidManifest.xml                |  4 ++++
+ .../src/org/chromium/chrome/browser/IntentHandler.java |  1 +
+ .../chrome/browser/LaunchIntentDispatcher.java         |  2 +-
+ 4 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/base/android/java/src/org/chromium/base/PackageManagerUtils.java b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
+index 2d1661ee534f6..2c983646ab42b 100644
+--- a/base/android/java/src/org/chromium/base/PackageManagerUtils.java
++++ b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
+@@ -85,6 +85,16 @@ public class PackageManagerUtils {
+         return canResolveActivity(intent, 0);
+     }
+ 
++    public static boolean canOnlyOthersResolveActivity(Intent intent, int flags) {
++        for (ResolveInfo ri: queryIntentActivities(intent, flags)) {
++            if (ContextUtils.getApplicationContext()
++                    .getPackageName().equals(ri.activityInfo.packageName)) {
++                return false;
++            }
++        }
++        return true;
++    }
++
+     /**
+      * @return Intent to query a list of installed home launchers.
+      */
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index e861de3a552a0..24562ea7af8dd 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -330,6 +330,10 @@ by a child template that "extends" this file.
+             <intent-filter>
+                 <action android:name="android.intent.action.SEARCH" />
+             </intent-filter>
++            <intent-filter> # DOWNSTREAM
++                <action android:name="android.intent.action.WEB_SEARCH" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter> # DOWNSTREAM
+             <intent-filter>
+                 <action android:name="com.sec.android.airview.HOVER" />
+             </intent-filter>
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
+index 57767e6800354..3c1ed261bd550 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
+@@ -759,6 +759,7 @@ public class IntentHandler {
+         String query = null;
+         final String action = intent.getAction();
+         if (Intent.ACTION_SEARCH.equals(action)
++                || Intent.ACTION_WEB_SEARCH.equals(action)
+                 || MediaStore.INTENT_ACTION_MEDIA_SEARCH.equals(action)) {
+             query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
+         }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 31287f4ffb425..bcae4bfc325d0 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -206,7 +206,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+         searchIntent.putExtra(SearchManager.QUERY, query);
+ 
+         try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {
+-            if (PackageManagerUtils.canResolveActivity(
++            if (PackageManagerUtils.canOnlyOthersResolveActivity(
+                         searchIntent, PackageManager.GET_RESOLVED_FILTER)) {
+                 mActivity.startActivity(searchIntent);
+             } else {

@@ -1,14 +1,14 @@
-From 8e4cdd184b0c0a66fa16ab7335e39e3c895ec30a Mon Sep 17 00:00:00 2001
+From 2d354187da510a02ce69c2efe8e74a88648e5234 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 8 Mar 2021 16:53:47 -0500
 Subject: [PATCH] enable partitioning connections by default
 
 ---
- net/base/features.cc | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/base/features.cc | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index b6a3b531972cd..3e83a0100c806 100644
+index 41bff870df997..7b1f9daf78a07 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
 @@ -87,11 +87,11 @@ BASE_FEATURE(kSplitCacheByNetworkIsolationKey,
@@ -16,7 +16,7 @@ index b6a3b531972cd..3e83a0100c806 100644
  BASE_FEATURE(kSplitHostCacheByNetworkIsolationKey,
               "SplitHostCacheByNetworkIsolationKey",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT); 
  
  BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
               "PartitionConnectionsByNetworkIsolationKey",
@@ -25,7 +25,7 @@ index b6a3b531972cd..3e83a0100c806 100644
  
  BASE_FEATURE(kForceIsolationInfoFrameOriginToTopLevelFrame,
               "ForceIsolationInfoFrameOriginToTopLevelFrame",
-@@ -99,19 +99,19 @@ BASE_FEATURE(kForceIsolationInfoFrameOriginToTopLevelFrame,
+@@ -99,15 +99,15 @@ BASE_FEATURE(kForceIsolationInfoFrameOriginToTopLevelFrame,
  
  BASE_FEATURE(kPartitionHttpServerPropertiesByNetworkIsolationKey,
               "PartitionHttpServerPropertiesByNetworkIsolationKey",
@@ -34,11 +34,6 @@ index b6a3b531972cd..3e83a0100c806 100644
  
  BASE_FEATURE(kPartitionSSLSessionsByNetworkIsolationKey,
               "PartitionSSLSessionsByNetworkIsolationKey",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
- 
- BASE_FEATURE(kPartitionExpectCTStateByNetworkIsolationKey,
-              "PartitionExpectCTStateByNetworkIsolationKey",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
