@@ -1,0 +1,65 @@
+From bc13f9d707f26de518dd2b716180958b0798ff7f Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 13 Feb 2023 10:58:37 +0000
+Subject: [PATCH] Support for switching full lto and thin lto builds
+
+---
+ build/config/compiler/BUILD.gn | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 944a039d066f6..0120acb44ea5b 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -116,6 +116,11 @@ declare_args() {
+   # http://blog.llvm.org/2018/01/improving-link-time-on-windows-with.html
+   use_ghash = true
+ 
++  # Whether to enable FullLTO on builds or not.
++  use_full_lto = false
++}
++
++declare_args() {
+   # Whether to enable ThinLTO optimizations. Turning ThinLTO optimizations on
+   # can substantially increase link time and binary size, but they generally
+   # also make binaries a fair bit faster.
+@@ -125,7 +130,7 @@ declare_args() {
+   # optimization settings to better tune the size increase.
+   thin_lto_enable_optimizations =
+       (is_chromeos || is_android || is_win || is_linux || is_mac ||
+-       (is_ios && use_lld)) && is_official_build
++       (is_ios && use_lld)) && is_official_build && !use_full_lto
+ 
+   # Initialize all local variables with a pattern. This flag will fill
+   # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
+@@ -658,8 +663,16 @@ config("compiler") {
+   if (!is_debug && use_thin_lto && is_a_target_toolchain) {
+     assert(use_lld, "LTO is only supported with lld")
+ 
++    if (use_full_lto) {
++      cflags += [
++        "-flto=full",
++      ]
++    } else {
++      cflags += [
++        "-flto=thin",
++      ]
++    }
+     cflags += [
+-      "-flto=thin",
+       "-fsplit-lto-unit",
+     ]
+ 
+@@ -682,7 +695,11 @@ config("compiler") {
+         "/lldltocachepolicy:$cache_policy",
+       ]
+     } else {
+-      ldflags += [ "-flto=thin" ]
++      if (use_full_lto) {
++        ldflags += [ "-flto=full" ]
++      } else {
++        ldflags += [ "-flto=thin" ]
++      }
+ 
+       # Enabling ThinLTO on Chrome OS too, in an effort to reduce the memory
+       # usage in crbug.com/1038040. Note this will increase build time in
