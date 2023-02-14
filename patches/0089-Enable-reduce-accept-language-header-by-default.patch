@@ -1,0 +1,22 @@
+From 633e3b9f399d4b5dee30ad81f969365306ac356d Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 14 Feb 2023 21:35:28 +0000
+Subject: [PATCH] Enable reduce accept language header by default
+
+---
+ services/network/public/cpp/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index 09cc7fdfad599..dc0f52fb916a6 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -276,7 +276,7 @@ constexpr base::FeatureParam<std::string> kCacheTransparencyPervasivePayloads{
+ // accept-language. https://github.com/Tanych/accept-language
+ BASE_FEATURE(kReduceAcceptLanguage,
+              "ReduceAcceptLanguage",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Gate access to ReduceAcceptLanguage origin trial major code. Currently, All
+ // ReduceAcceptLanguage feature codes are guarded by the feature flag
