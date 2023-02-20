@@ -1,0 +1,45 @@
+From 1372d3f6a7dd5a88946df7a7d5c0bf92bad7d551 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 20 Feb 2023 13:08:14 +0000
+Subject: [PATCH] Remove and disable no-op browser autofill settings and value
+
+---
+ .../org/chromium/chrome/browser/settings/MainSettings.java    | 2 ++
+ components/autofill/core/common/autofill_prefs.cc             | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index cd202add8cba2..7cbc9a32a85e4 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -225,6 +225,8 @@ public class MainSettings extends PreferenceFragmentCompat
+             if (uiState.canShowUi) return;
+             getPreferenceScreen().removePreference(findPreference(PREF_TOOLBAR_SHORTCUT));
+         });
++        removePreferenceIfPresent("autofill_payment_methods");
++        removePreferenceIfPresent("autofill_addresses");
+     }
+ 
+     /**
+diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
+index 3587c482fdcef..76a93b73b48a2 100644
+--- a/components/autofill/core/common/autofill_prefs.cc
++++ b/components/autofill/core/common/autofill_prefs.cc
+@@ -112,7 +112,7 @@ const char kAutocompleteLastVersionRetentionPolicy[] =
+ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+   // Synced prefs. Used for cross-device choices, e.g., credit card Autofill.
+   registry->RegisterBooleanPref(
+-      prefs::kAutofillProfileEnabled, true,
++      prefs::kAutofillProfileEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterIntegerPref(
+       prefs::kAutofillLastVersionDeduped, 0,
+@@ -122,7 +122,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+       prefs::kAutofillLastVersionDisusedAddressesDeleted, 0,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterBooleanPref(
+-      prefs::kAutofillCreditCardEnabled, true,
++      prefs::kAutofillCreditCardEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterBooleanPref(
+       prefs::kAutofillIBANEnabled, true,
