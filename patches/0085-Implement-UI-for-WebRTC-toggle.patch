@@ -1,4 +1,4 @@
-From ff3e9afd62e6b4690e4462dd33021184e3bf78df Mon Sep 17 00:00:00 2001
+From d9a366db19b254866a1849012b8807f6138a4e72 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Thu, 23 Jun 2022 16:38:51 +0000
 Subject: [PATCH] Implement UI for WebRTC toggle
@@ -25,10 +25,10 @@ PrefService for the said policy.
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
 
 diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
-index 5e66652349e43..be087edee986f 100644
+index 88ae3d7e9f13c..645805123f053 100644
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -611,6 +611,7 @@ chrome_java_resources = [
+@@ -598,6 +598,7 @@ chrome_java_resources = [
    "java/res/layout/virtual_card_enrollment_dialog.xml",
    "java/res/layout/webapk_icon_name_update_dialog.xml",
    "java/res/layout/webapk_update_report_abuse_custom_view.xml",
@@ -36,17 +36,17 @@ index 5e66652349e43..be087edee986f 100644
    "java/res/menu/bookmark_action_bar_menu.xml",
    "java/res/menu/custom_tabs_menu.xml",
    "java/res/menu/history_manager_menu.xml",
-@@ -666,4 +667,5 @@ chrome_java_resources = [
+@@ -650,4 +651,5 @@ chrome_java_resources = [
    "java/res/xml/privacy_preferences_v2.xml",
    "java/res/xml/search_widget_info.xml",
    "java/res/xml/tracing_preferences.xml",
 +  "java/res/xml/webrtc_policy_preferences.xml",
  ]
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
-index 631aa76e9a7d7..6f9f674d2f63c 100644
+index 8c6760b576760..308710fd598a8 100644
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1213,5 +1213,8 @@ chrome_java_sources = [
+@@ -1208,5 +1208,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/webapps/WebappRegistry.java",
    "java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticatorActivity.java",
    "java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticatorUSBActivity.java",
@@ -116,7 +116,7 @@ index 0000000000000..8addab2ecf1e1
 +
 +</LinearLayout>
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index cb875e9a43851..c54f01da56c48 100644
+index 71f14c3ef3efe..2106caa3ed423 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -65,6 +65,10 @@ found in the LICENSE file.
@@ -146,10 +146,10 @@ index 0000000000000..f90f9d7231ff9
 +        android:key="webrtc_policy" />
 +</PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 31784ce300cf6..6fff77cd8462c 100644
+index 55c4f0be91fa3..e361b6d052b1f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -42,6 +42,7 @@ import org.chromium.chrome.browser.signin.services.IdentityServicesProvider;
+@@ -41,6 +41,7 @@ import org.chromium.chrome.browser.signin.services.IdentityServicesProvider;
  import org.chromium.chrome.browser.sync.settings.GoogleServicesSettings;
  import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
  import org.chromium.chrome.browser.usage_stats.UsageStatsConsentDialog;
@@ -440,10 +440,10 @@ index 0000000000000..5fefabd83a821
 +    private WebRtcPolicyUtils() {}
 +}
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index f729ad5b9f1d8..7a288fcbaef45 100644
+index 2e585e8cc1d3b..823735f702906 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1707,6 +1707,23 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1550,6 +1550,23 @@ Your Google account may have other forms of browsing history like searches and a
          Temporarily links this data to your Google Account when you’re signed in, to protect you across Google apps
        </message>
  

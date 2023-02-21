@@ -1,4 +1,4 @@
-From b757d2781fc53f2b3ef73f89823101641e9ce12c Mon Sep 17 00:00:00 2001
+From 25f24ad7b76f96ad9cd84ed0e9db554b466d2ed9 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Wed, 28 Sep 2022 05:37:00 +0200
 Subject: [PATCH] Handle web search action in browser
@@ -32,10 +32,10 @@ index 2d1661ee534f6..2c983646ab42b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index e861de3a552a0..24562ea7af8dd 100644
+index 8db7d5241fef7..2b2280b5ee5a4 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -330,6 +330,10 @@ by a child template that "extends" this file.
+@@ -336,6 +336,10 @@ by a child template that "extends" this file.
              <intent-filter>
                  <action android:name="android.intent.action.SEARCH" />
              </intent-filter>
@@ -47,10 +47,10 @@ index e861de3a552a0..24562ea7af8dd 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 57767e6800354..3c1ed261bd550 100644
+index 2bb217d5de851..4be784f029942 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -759,6 +759,7 @@ public class IntentHandler {
+@@ -766,6 +766,7 @@ public class IntentHandler {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -59,10 +59,10 @@ index 57767e6800354..3c1ed261bd550 100644
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 31287f4ffb425..bcae4bfc325d0 100644
+index ac29dc2f50e63..dea37eb2c4578 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -206,7 +206,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -211,7 +211,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
          searchIntent.putExtra(SearchManager.QUERY, query);
  
          try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {

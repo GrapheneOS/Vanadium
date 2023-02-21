@@ -1,17 +1,17 @@
-From c401367236872423beddbafb92c6447f474dec9f Mon Sep 17 00:00:00 2001
+From 0690ab75fd067146c36923f2eec514b5e1386efa Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 25 Dec 2018 16:19:51 -0500
 Subject: [PATCH] disable seed-based field trials
 
 ---
- components/variations/service/variations_field_trial_creator.cc | 2 ++
- 1 file changed, 2 insertions(+)
+ .../variations/service/variations_field_trial_creator.cc      | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index 63b4f52474828..dfff829c66217 100644
+index 276d5c880c25f..e74770b5988c4 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -311,8 +311,10 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -309,12 +309,16 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    bool used_seed = false;
    if (!used_testing_config) {
@@ -21,4 +21,10 @@ index 63b4f52474828..dfff829c66217 100644
 +#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    }
  
++#if defined(FIELDTRIAL_SEED_ENABLED)
    platform_field_trials->SetUpClientSideFieldTrials(
+       used_seed, *entropy_providers, feature_list.get());
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
+ 
+   base::FeatureList::SetInstance(std::move(feature_list));
+ 

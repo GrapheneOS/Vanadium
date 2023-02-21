@@ -1,4 +1,4 @@
-From 690b3edfb9af9d3df22eda8ff7b54fc9d349da97 Mon Sep 17 00:00:00 2001
+From 85dda997c810291dfbcbef7f5c349ee1a723e933 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 23 Nov 2016 09:26:51 -0500
 Subject: [PATCH] disable contextual search by default
@@ -9,10 +9,10 @@ Subject: [PATCH] disable contextual search by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java b/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
-index 58b266eba08b1..8c3c87e9fed14 100644
+index e2575213a946a..74f987d93a9ab 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/contextualsearch/ContextualSearchFieldTrial.java
-@@ -129,7 +129,7 @@ public class ContextualSearchFieldTrial {
+@@ -110,7 +110,7 @@ public class ContextualSearchFieldTrial {
          // Allow disabling the feature remotely.
          if (getBooleanParam(DISABLED_PARAM)) return false;
  
@@ -22,7 +22,7 @@ index 58b266eba08b1..8c3c87e9fed14 100644
  
      /**
 diff --git a/chrome/browser/profiles/profile.cc b/chrome/browser/profiles/profile.cc
-index cb16500436e78..7ed5f113c0e1b 100644
+index d035eb9f2bea7..0ee0db890fa98 100644
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
 @@ -315,7 +315,7 @@ void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {

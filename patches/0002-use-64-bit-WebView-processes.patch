@@ -1,21 +1,27 @@
-From 77d500302744f541b4814d6955589f42f8f6a8da Mon Sep 17 00:00:00 2001
+From c2b8c302822869f1b6aa385418e371cf2c3ca1e4 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 26 Jan 2017 01:30:12 -0500
 Subject: [PATCH] use 64-bit WebView processes
 
 ---
- android_webview/nonembedded/java/AndroidManifest.xml | 1 -
- 1 file changed, 1 deletion(-)
+ android_webview/nonembedded/java/AndroidManifest.xml | 7 -------
+ 1 file changed, 7 deletions(-)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
-index a6ec0a7d6391c..ce806a2233dde 100644
+index d2b1b08054ced..eff8877cbd6af 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
-@@ -37,7 +37,6 @@ by a child template that "extends" this file.
+@@ -37,13 +37,6 @@ by a child template that "extends" this file.
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
                   android:multiArch="true"
+-                 {% if force_32_bit is defined and force_32_bit == 'true' %}
+-                 android:use32bitAbi="true"
+-                 {% endif %}
+-                 {# TODO(crbug.com/1411557): Remove #}
+-                 {% if force_32_bit is not defined %}
 -                 {{ use32bitAbi|default('android:use32bitAbi="true"') }}
+-                 {% endif %}
                   android:extractNativeLibs="false">
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}

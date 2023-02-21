@@ -1,4 +1,4 @@
-From 00349890a1dce5d0e09e31578bcf763f3a266eb8 Mon Sep 17 00:00:00 2001
+From b620a29dc1cecc01efeb32833e4e673d3c98e90f Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 17 Jun 2022 10:15:43 +0000
 Subject: [PATCH] Toggle for closing tabs on exit
@@ -12,7 +12,7 @@ Subject: [PATCH] Toggle for closing tabs on exit
  5 files changed, 37 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 4761252eb94f0..e2151fce76efb 100644
+index d3781748f00ff..0e0f7830d1f7e 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -42,6 +42,11 @@ found in the LICENSE file.
@@ -28,10 +28,10 @@ index 4761252eb94f0..e2151fce76efb 100644
          android:key="preload_pages"
          android:title="@string/preload_pages_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index c37d026b95957..107855646c148 100644
+index f05d6b07d10bf..9feb0d4b44632 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1317,7 +1317,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1300,7 +1300,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
              boolean noRestoreState =
@@ -43,7 +43,7 @@ index c37d026b95957..107855646c148 100644
                  // Clear the state files because they are inconsistent and useless from now on.
                  mTabModelOrchestrator.clearState();
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index f48710b51d6b1..3976014c1748c 100644
+index 726f91c66ac0f..67a7a037d8a09 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -5,6 +5,7 @@
@@ -54,7 +54,7 @@ index f48710b51d6b1..3976014c1748c 100644
  
  import android.os.Build;
  import android.os.Bundle;
-@@ -24,6 +25,7 @@ import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
+@@ -23,6 +24,7 @@ import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference;
  import org.chromium.chrome.browser.preferences.Pref;
@@ -99,7 +99,7 @@ index f48710b51d6b1..3976014c1748c 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index ac17b5399730c..c6fa7926e78d1 100644
+index 55847c6541e69..8b78f068f821c 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 @@ -114,6 +114,10 @@ public final class ChromePreferenceKeys {
@@ -113,7 +113,7 @@ index ac17b5399730c..c6fa7926e78d1 100644
      /**
       * Whether Chrome is set as the default browser.
       * Default value is false.
-@@ -1130,6 +1134,7 @@ public final class ChromePreferenceKeys {
+@@ -1099,6 +1103,7 @@ public final class ChromePreferenceKeys {
                  OPEN_RECENT_TABS_COUNT,
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
@@ -122,10 +122,10 @@ index ac17b5399730c..c6fa7926e78d1 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 3edb657ec6788..02ffb10042187 100644
+index 98709ad2c24d7..fc12b76665fee 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1439,6 +1439,13 @@ Private state tokens improve privacy on the web and can’t be used to find out
+@@ -1279,6 +1279,13 @@ Private state tokens improve privacy on the web and can’t be used to find out
          Please verify that this is a valid provider or try again later
        </message>
  

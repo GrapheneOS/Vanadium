@@ -1,4 +1,4 @@
-From 2d93b612cd58f3c33f5f924ed4a49386422c2edb Mon Sep 17 00:00:00 2001
+From c4bc643db60887d6f3bd5b0866e3f14e63a3f7d5 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH] Move search suggestions back to privacy section.
@@ -9,7 +9,7 @@ Subject: [PATCH] Move search suggestions back to privacy section.
  2 files changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index e7c1075834bfc..4761252eb94f0 100644
+index e7c1075834bfc..d3781748f00ff 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -28,6 +28,11 @@ found in the LICENSE file.
@@ -18,14 +18,14 @@ index e7c1075834bfc..4761252eb94f0 100644
          android:summary="@string/settings_https_first_mode_summary"/>
 +    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
 +        android:key="search_suggestions"
-+        android:title="@string/autocomplete_searches_and_urls_title"
-+        android:summary="@string/autocomplete_searches_and_urls_summary"
++        android:title="@string/improve_search_suggestions_title"
++        android:summary="@string/improve_search_suggestions_summary"
 +        android:persistent="false"/>
       <org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference
          android:key="incognito_lock"
          android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index da126b63a3d93..79c75cba0cdfb 100644
+index 6cd22798170db..70587757ca36e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -60,6 +60,7 @@ public class PrivacySettings
