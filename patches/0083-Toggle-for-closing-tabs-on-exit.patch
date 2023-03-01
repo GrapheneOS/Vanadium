@@ -1,4 +1,4 @@
-From 06bc81a3c0f49b2684e03ad7f8c2d40a30996ef0 Mon Sep 17 00:00:00 2001
+From 036dbb10473a071729e337a3f97cd3460b8b0954 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 17 Jun 2022 10:15:43 +0000
 Subject: [PATCH] Toggle for closing tabs on exit
@@ -28,10 +28,10 @@ index 4761252eb94f0..e2151fce76efb 100644
          android:key="preload_pages"
          android:title="@string/preload_pages_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index c37d026b95957..107855646c148 100644
+index c0b17bb91cdad..1e55f1c6d8b48 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1317,7 +1317,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1295,7 +1295,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
              boolean noRestoreState =
@@ -99,7 +99,7 @@ index f48710b51d6b1..3976014c1748c 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index ac17b5399730c..c6fa7926e78d1 100644
+index f08ba0df513df..fd6f977c89ba0 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 @@ -114,6 +114,10 @@ public final class ChromePreferenceKeys {
@@ -113,7 +113,7 @@ index ac17b5399730c..c6fa7926e78d1 100644
      /**
       * Whether Chrome is set as the default browser.
       * Default value is false.
-@@ -1130,6 +1134,7 @@ public final class ChromePreferenceKeys {
+@@ -1097,6 +1101,7 @@ public final class ChromePreferenceKeys {
                  OPEN_RECENT_TABS_COUNT,
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
@@ -122,10 +122,10 @@ index ac17b5399730c..c6fa7926e78d1 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 3edb657ec6788..02ffb10042187 100644
+index 25f8e9c7c23c1..471b2bdbb303d 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1439,6 +1439,13 @@ Private state tokens improve privacy on the web and can’t be used to find out
+@@ -1279,6 +1279,13 @@ Private state tokens improve privacy on the web and can’t be used to find out
          Please verify that this is a valid provider or try again later
        </message>
  

@@ -1,4 +1,4 @@
-From 270c42ab161c238ed55b939884f91e2a430b582d Mon Sep 17 00:00:00 2001
+From 9bf7b0898e24c49bfdddd2ded8d283dab2abb8e9 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Mon, 20 Feb 2023 07:10:55 +0000
 Subject: [PATCH] Support native Android autofill at browser
@@ -20,7 +20,7 @@ support.
  10 files changed, 129 insertions(+), 6 deletions(-)
 
 diff --git a/android_webview/browser/aw_contents.cc b/android_webview/browser/aw_contents.cc
-index dd0f344b42426..d6f4dbad0d42b 100644
+index 4cf10e64ac6bc..adade4aadd2da 100644
 --- a/android_webview/browser/aw_contents.cc
 +++ b/android_webview/browser/aw_contents.cc
 @@ -337,7 +337,7 @@ void AwContents::InitAutofillIfNecessary(bool autocomplete_enabled) {
@@ -33,10 +33,10 @@ index dd0f344b42426..d6f4dbad0d42b 100644
                                  AwAutofillClient::FromWebContents(web_contents),
                                  base::android::GetDefaultLocaleString());
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index bf94b55cd44cb..a422df43fe7c4 100644
+index 29c6119fc9363..e90bd7ea390f7 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -513,6 +513,7 @@ if (current_toolchain == default_toolchain) {
+@@ -498,6 +498,7 @@ if (current_toolchain == default_toolchain) {
        "//chrome/browser/webapps/android:java",
        "//chrome/browser/webauthn/android:java",
        "//chrome/browser/xsurface:java",
@@ -45,7 +45,7 @@ index bf94b55cd44cb..a422df43fe7c4 100644
        "//components/autofill/android:prefeditor_autofill_java",
        "//components/background_task_scheduler:background_task_scheduler_java",
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
-index 8c7a6ecc664e9..e18da9a61a3f8 100644
+index 6bb5dd67a1acb..36b1bf73901b2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 @@ -10,10 +10,14 @@ import android.annotation.SuppressLint;
@@ -63,16 +63,16 @@ index 8c7a6ecc664e9..e18da9a61a3f8 100644
  
  import androidx.annotation.Nullable;
  import androidx.annotation.VisibleForTesting;
-@@ -53,6 +57,8 @@ import org.chromium.chrome.browser.tab.state.SerializedCriticalPersistedTabData;
+@@ -52,6 +56,8 @@ import org.chromium.chrome.browser.tab.state.CriticalPersistedTabData;
+ import org.chromium.chrome.browser.tab.state.SerializedCriticalPersistedTabData;
  import org.chromium.chrome.browser.ui.native_page.FrozenNativePage;
  import org.chromium.chrome.browser.ui.native_page.NativePage;
- import org.chromium.chrome.browser.vr.VrModuleProvider;
 +import org.chromium.components.autofill.AutofillActionModeCallback;
 +import org.chromium.components.autofill.AutofillProvider;
  import org.chromium.components.dom_distiller.core.DomDistillerUrlUtils;
  import org.chromium.components.embedder_support.util.UrlConstants;
  import org.chromium.components.embedder_support.view.ContentView;
-@@ -65,9 +71,11 @@ import org.chromium.components.version_info.VersionInfo;
+@@ -64,9 +70,11 @@ import org.chromium.components.version_info.VersionInfo;
  import org.chromium.content_public.browser.ChildProcessImportance;
  import org.chromium.content_public.browser.ContentFeatureList;
  import org.chromium.content_public.browser.LoadUrlParams;
@@ -84,7 +84,7 @@ index 8c7a6ecc664e9..e18da9a61a3f8 100644
  import org.chromium.ui.base.PageTransition;
  import org.chromium.ui.base.ViewAndroidDelegate;
  import org.chromium.ui.base.WindowAndroid;
-@@ -210,6 +218,7 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
+@@ -209,6 +217,7 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
      private final TabThemeColorHelper mThemeColorHelper;
      private int mThemeColor;
      private boolean mUsedCriticalPersistedTabData;
@@ -92,7 +92,7 @@ index 8c7a6ecc664e9..e18da9a61a3f8 100644
  
      /**
       * Creates an instance of a {@link TabImpl}.
-@@ -253,12 +262,18 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
+@@ -252,12 +261,18 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
              public void onViewAttachedToWindow(View view) {
                  mIsViewAttachedToWindow = true;
                  updateInteractableState();
@@ -111,7 +111,7 @@ index 8c7a6ecc664e9..e18da9a61a3f8 100644
              }
          };
          mTabViewManager = new TabViewManagerImpl(this);
-@@ -775,6 +790,11 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
+@@ -774,6 +789,11 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
          for (TabObserver observer : mObservers) observer.onDestroyed(this);
          mObservers.clear();
  
@@ -123,7 +123,7 @@ index 8c7a6ecc664e9..e18da9a61a3f8 100644
          mUserDataHost.destroy();
          mTabViewManager.destroy();
          hideNativePage(false, null);
-@@ -1356,6 +1376,18 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
+@@ -1355,6 +1375,18 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
          return tabsPtrArray;
      }
  
@@ -142,7 +142,7 @@ index 8c7a6ecc664e9..e18da9a61a3f8 100644
      /**
       * Initializes the {@link WebContents}. Completes the browser content components initialization
       * around a native WebContents pointer.
-@@ -1399,10 +1431,23 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
+@@ -1398,10 +1430,23 @@ public class TabImpl implements Tab, TabObscuringHandler.Observer {
              mWebContentsDelegate = createWebContentsDelegate();
  
              assert mNativeTabAndroid != 0;
@@ -199,10 +199,10 @@ index 3f7f930bb8107..56e9dd9f37d36 100644
      public void onTopControlsChanged(
              int topControlsOffsetY, int contentOffsetY, int topControlsMinHeightOffsetY) {
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 21547000bf909..d6b935ab46d6e 100644
+index 42712ea4134e1..456114d26ad0b 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2500,6 +2500,13 @@ static_library("browser") {
+@@ -2506,6 +2506,13 @@ static_library("browser") {
      deps += [ "//chrome/browser/error_reporting" ]
    }
  
@@ -217,7 +217,7 @@ index 21547000bf909..d6b935ab46d6e 100644
      deps += [
        "//ui/events/ozone",
 diff --git a/chrome/browser/android/tab_web_contents_delegate_android.cc b/chrome/browser/android/tab_web_contents_delegate_android.cc
-index 67e8a45b6af74..45ecb8ce7271d 100644
+index 595b419a85fb4..7a787671952b5 100644
 --- a/chrome/browser/android/tab_web_contents_delegate_android.cc
 +++ b/chrome/browser/android/tab_web_contents_delegate_android.cc
 @@ -46,6 +46,7 @@
@@ -238,10 +238,10 @@ index 67e8a45b6af74..45ecb8ce7271d 100644
            g_browser_process->GetApplicationLocale()));
    ChromePasswordManagerClient::CreateForWebContentsWithAutofillClient(
 diff --git a/chrome/browser/ui/tab_helpers.cc b/chrome/browser/ui/tab_helpers.cc
-index d1f7fc57b3226..2c429d4d23f80 100644
+index ddf2b604c111d..a758c434de735 100644
 --- a/chrome/browser/ui/tab_helpers.cc
 +++ b/chrome/browser/ui/tab_helpers.cc
-@@ -101,7 +101,7 @@
+@@ -102,7 +102,7 @@
  #include "chrome/common/chrome_isolated_world_ids.h"
  #include "chrome/common/chrome_switches.h"
  #include "components/autofill/content/browser/content_autofill_driver_factory.h"
@@ -250,7 +250,7 @@ index d1f7fc57b3226..2c429d4d23f80 100644
  #include "components/blocked_content/popup_blocker_tab_helper.h"
  #include "components/blocked_content/popup_opener_tab_helper.h"
  #include "components/breadcrumbs/core/breadcrumbs_status.h"
-@@ -314,7 +314,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+@@ -316,7 +316,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
        web_contents,
        autofill::ChromeAutofillClient::FromWebContents(web_contents),
        base::BindRepeating(
@@ -260,7 +260,7 @@ index d1f7fc57b3226..2c429d4d23f80 100644
            g_browser_process->GetApplicationLocale()));
    if (breadcrumbs::IsEnabled())
 diff --git a/chrome/browser/ui/views/media_router/presentation_receiver_window_view.cc b/chrome/browser/ui/views/media_router/presentation_receiver_window_view.cc
-index 93cca7d1ea1b7..4077904479767 100644
+index 46c51eb6e8e0a..e90ec121d726d 100644
 --- a/chrome/browser/ui/views/media_router/presentation_receiver_window_view.cc
 +++ b/chrome/browser/ui/views/media_router/presentation_receiver_window_view.cc
 @@ -29,7 +29,7 @@
@@ -282,7 +282,7 @@ index 93cca7d1ea1b7..4077904479767 100644
            g_browser_process->GetApplicationLocale()));
    ChromePasswordManagerClient::CreateForWebContentsWithAutofillClient(
 diff --git a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
-index 0c7749e1b713a..fee09bb5f0c59 100644
+index 6da0ffff12493..e7ac240199c3e 100644
 --- a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 +++ b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 @@ -10,6 +10,7 @@ import android.graphics.Rect;
@@ -301,15 +301,15 @@ index 0c7749e1b713a..fee09bb5f0c59 100644
  import android.view.inputmethod.EditorInfo;
  import android.view.inputmethod.InputConnection;
  import android.widget.FrameLayout;
-@@ -36,6 +38,7 @@ import org.chromium.content_public.browser.WebContents;
- import org.chromium.content_public.browser.WebContentsAccessibility;
+@@ -37,6 +39,7 @@ import org.chromium.content_public.browser.WebContentsAccessibility;
+ import org.chromium.ui.accessibility.AccessibilityState;
  import org.chromium.ui.base.EventForwarder;
  import org.chromium.ui.base.EventOffsetHandler;
 +import org.chromium.ui.base.ViewAndroidDelegate;
  
  /**
   * The containing view for {@link WebContents} that exists in the Android UI hierarchy and exposes
-@@ -86,6 +89,9 @@ public class ContentView extends FrameLayout
+@@ -87,6 +90,9 @@ public class ContentView extends FrameLayout
       */
      public static ContentView createContentView(Context context,
              @Nullable EventOffsetHandler eventOffsetHandler, @Nullable WebContents webContents) {
@@ -367,7 +367,7 @@ index 0c7749e1b713a..fee09bb5f0c59 100644
 +    }
  }
 diff --git a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
-index c89c7af00a62e..c411316ec03ec 100644
+index fbc665d326732..d9492921ebd42 100644
 --- a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 +++ b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 @@ -29,6 +29,10 @@ import org.chromium.ui.dragdrop.DragStateTracker;
@@ -381,7 +381,7 @@ index c89c7af00a62e..c411316ec03ec 100644
  /**
   * Class to acquire, position, and remove anchor views from the implementing View.
   */
-@@ -585,4 +589,8 @@ public class ViewAndroidDelegate {
+@@ -591,4 +595,8 @@ public class ViewAndroidDelegate {
      public static void setDragAndDropDelegateForTest(DragAndDropDelegate testDelegate) {
          sDragAndDropTestDelegate = testDelegate;
      }

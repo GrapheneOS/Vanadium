@@ -1,4 +1,4 @@
-From ac9aa14be711bcc43aa5cde4dc2e8e18e7bc48ce Mon Sep 17 00:00:00 2001
+From 6db6e77dd74db111463591fa2d82ea6dc844e419 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 01:23:48 -0400
 Subject: [PATCH] disable content feed suggestions by default
@@ -9,10 +9,10 @@ Subject: [PATCH] disable content feed suggestions by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 1c9929da356c6..c938999e20e76 100644
+index f201f3b29d821..a3e3d05361960 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -662,7 +662,7 @@ public abstract class ChromeFeatureList {
+@@ -611,7 +611,7 @@ public abstract class ChromeFeatureList {
              new CachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false);
      public static final CachedFlag sInstanceSwitcher = new CachedFlag(INSTANCE_SWITCHER, true);
      public static final CachedFlag sInstantStart = new CachedFlag(INSTANT_START, false);
@@ -20,9 +20,9 @@ index 1c9929da356c6..c938999e20e76 100644
 +    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, false);
      public static final CachedFlag sLensCameraAssistedSearch =
              new CachedFlag(LENS_CAMERA_ASSISTED_SEARCH, true);
-     public static final CachedFlag sNewWindowAppMenu = new CachedFlag(NEW_WINDOW_APP_MENU, true);
+     public static final CachedFlag sOSKResizesVisualViewportByDefault =
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index 2d91c53f94dac..df7e569c24cf0 100644
+index 64ff72b3ab777..43b32ec112b52 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,
