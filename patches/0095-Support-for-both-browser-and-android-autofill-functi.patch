@@ -1,14 +1,14 @@
-From c20b675f1839025f6e9ad5133f5386abbabcc538 Mon Sep 17 00:00:00 2001
+From 0a5b061ade5ce8047494aa688629b64350d6be2c Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Tue, 21 Feb 2023 01:48:15 +0000
 Subject: [PATCH] Support for both browser and android autofill functionality
 
 ---
- .../browser/android_autofill_manager.cc       | 17 ++++++
- .../browser/android_autofill_manager.h        | 15 ++++++
- .../browser/content_autofill_driver.cc        | 53 +++++++++++++++++++
- .../content/browser/content_autofill_driver.h | 12 +++++
- 4 files changed, 97 insertions(+)
+ .../browser/android_autofill_manager.cc       | 17 ++++++++
+ .../browser/android_autofill_manager.h        | 15 +++++++
+ .../browser/content_autofill_driver.cc        | 43 +++++++++++++++++++
+ .../content/browser/content_autofill_driver.h | 12 ++++++
+ 4 files changed, 87 insertions(+)
 
 diff --git a/components/android_autofill/browser/android_autofill_manager.cc b/components/android_autofill/browser/android_autofill_manager.cc
 index 48484ee152dc8..c64d69e684b9d 100644
@@ -79,7 +79,7 @@ index 1ec42cd458f95..7df9fa0cf01f3 100644
        AutofillClient* client,
        AutofillManager::EnableDownloadManager enable_download_manager,
 diff --git a/components/autofill/content/browser/content_autofill_driver.cc b/components/autofill/content/browser/content_autofill_driver.cc
-index 686d976aa73e1..3c9ed30d70038 100644
+index 686d976aa73e1..c59f0a64a92d4 100644
 --- a/components/autofill/content/browser/content_autofill_driver.cc
 +++ b/components/autofill/content/browser/content_autofill_driver.cc
 @@ -304,6 +304,10 @@ void ContentAutofillDriver::FormsSeen(
@@ -191,38 +191,7 @@ index 686d976aa73e1..3c9ed30d70038 100644
        });
  }
  
-@@ -476,6 +516,9 @@ void ContentAutofillDriver::DidPreviewAutofillFormData() {
-   autofill_router().DidPreviewAutofillFormData(
-       this, [](ContentAutofillDriver* target) {
-         target->autofill_manager_->OnDidPreviewAutofillFormData();
-+        if (target->secondary_autofill_manager_) {
-+          target->secondary_autofill_manager_->OnDidPreviewAutofillFormData();
-+        }
-       });
- }
- 
-@@ -485,6 +528,9 @@ void ContentAutofillDriver::DidEndTextFieldEditing() {
-   autofill_router().DidEndTextFieldEditing(
-       this, [](ContentAutofillDriver* target) {
-         target->autofill_manager_->OnDidEndTextFieldEditing();
-+        if (target->secondary_autofill_manager_) {
-+          target->secondary_autofill_manager_->OnDidEndTextFieldEditing();
-+        }
-       });
- }
- 
-@@ -496,6 +542,10 @@ void ContentAutofillDriver::SelectFieldOptionsDidChange(
-       this, GetFormWithFrameAndFormMetaData(raw_form),
-       [](ContentAutofillDriver* target, const FormData& form) {
-         target->autofill_manager_->OnSelectFieldOptionsDidChange(form);
-+        if (target->secondary_autofill_manager_) {
-+          target->secondary_autofill_manager_->OnSelectFieldOptionsDidChange(
-+              form);
-+        }
-       });
- }
- 
-@@ -570,6 +620,9 @@ void ContentAutofillDriver::DidNavigateFrame(
+@@ -570,6 +610,9 @@ void ContentAutofillDriver::DidNavigateFrame(
    if (autofill_router_)  // Can be nullptr only in tests.
      autofill_router_->UnregisterDriver(this);
    autofill_manager_->Reset();

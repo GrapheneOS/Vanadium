@@ -1,4 +1,4 @@
-From 2ff3f024994941abb94b813a872f84a3ad8524a0 Mon Sep 17 00:00:00 2001
+From 976d501fc07932f50eb3bfddc49c886bbe001b16 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Sun, 26 Feb 2023 10:39:38 +0100
 Subject: [PATCH] Support for extended version name and increments
@@ -23,10 +23,10 @@ index 910e304bac436..52ebcde02f052 100755
    if is_next_build:
      base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF
 diff --git a/build/util/version.py b/build/util/version.py
-index bf7a59eabf799..40ccb48598804 100755
+index 9bf51cd35122b..aba62d904db4a 100755
 --- a/build/util/version.py
 +++ b/build/util/version.py
-@@ -128,6 +128,10 @@ def BuildParser():
+@@ -127,6 +127,10 @@ def BuildParser():
                        help='Write substituted strings to FILE.')
    parser.add_argument('-t', '--template', default=None,
                        help='Use TEMPLATE as the strings to substitute.')
@@ -37,7 +37,7 @@ index bf7a59eabf799..40ccb48598804 100755
    parser.add_argument(
        '-e',
        '--eval',
-@@ -200,6 +204,7 @@ def GenerateValues(options, evals):
+@@ -199,6 +203,7 @@ def GenerateValues(options, evals):
    for key, val in evals.items():
      values[key] = str(eval(val, globals(), values))
  
@@ -46,7 +46,7 @@ index bf7a59eabf799..40ccb48598804 100755
      android_chrome_version_codes = android_chrome_version.GenerateVersionCodes(
          values, options.arch, options.next)
 diff --git a/chrome/version.gni b/chrome/version.gni
-index e197cbe85192b..89d1a4a08e379 100644
+index 49113e4c6e44d..d1e8d58cf6a30 100644
 --- a/chrome/version.gni
 +++ b/chrome/version.gni
 @@ -39,6 +39,33 @@ if (is_mac) {
