@@ -1,4 +1,4 @@
-From da1d0f45a43887479df95da259f3c51f27db2196 Mon Sep 17 00:00:00 2001
+From 3b9a253e7faf1383bb2cccd3b33dafad82df7be2 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 6 Mar 2018 00:27:41 -0500
 Subject: [PATCH] disable showing popular sites by default
@@ -8,10 +8,10 @@ Subject: [PATCH] disable showing popular sites by default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
-index 8b29a14102ba0..48df4146cd5d0 100644
+index 26049117ac858..87bc57efba5a9 100644
 --- a/components/ntp_tiles/features.cc
 +++ b/components/ntp_tiles/features.cc
-@@ -18,7 +18,7 @@ const char kIOSPopularSitesExcludePopularAppsParam[] =
+@@ -15,7 +15,7 @@ const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
  
  BASE_FEATURE(kPopularSitesBakedInContentFeature,
               "NTPPopularSitesBakedInContent",
@@ -20,12 +20,12 @@ index 8b29a14102ba0..48df4146cd5d0 100644
  
  BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
               "NTPMostLikelyFaviconsFromServer",
-@@ -26,7 +26,7 @@ BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
+@@ -23,7 +23,7 @@ BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
  
  BASE_FEATURE(kUsePopularSitesSuggestions,
               "UsePopularSitesSuggestions",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- BASE_FEATURE(kIOSPopularSitesImprovedSuggestions,
-              "IOSPopularSitesImprovedSuggestions",
+ BASE_FEATURE(kNewTabPageRetention,
+              "IOSNewTabPageRetention",

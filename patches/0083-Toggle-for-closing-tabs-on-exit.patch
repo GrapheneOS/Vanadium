@@ -1,18 +1,18 @@
-From 12a2b511e05e2dc4b611b54c3388a34a00c5bfcd Mon Sep 17 00:00:00 2001
+From 97ef891e2b97badb1ea8135cf9a496b27ce025f8 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 17 Jun 2022 10:15:43 +0000
 Subject: [PATCH] Toggle for closing tabs on exit
 
 ---
- .../java/res/xml/privacy_preferences.xml        |  5 +++++
- .../chrome/browser/ChromeTabbedActivity.java    |  4 +++-
- .../privacy/settings/PrivacySettings.java       | 17 +++++++++++++++++
- .../preferences/ChromePreferenceKeys.java       |  5 +++++
- .../android/strings/android_chrome_strings.grd  |  7 +++++++
- 5 files changed, 37 insertions(+), 1 deletion(-)
+ .../android/java/res/xml/privacy_preferences.xml |  5 +++++
+ .../chrome/browser/ChromeTabbedActivity.java     |  4 +++-
+ .../privacy/settings/PrivacySettings.java        | 16 ++++++++++++++++
+ .../preferences/ChromePreferenceKeys.java        |  5 +++++
+ .../android/strings/android_chrome_strings.grd   |  7 +++++++
+ 5 files changed, 36 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index 4761252eb94f0..e2151fce76efb 100644
+index d3781748f00ff..0e0f7830d1f7e 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -42,6 +42,11 @@ found in the LICENSE file.
@@ -28,10 +28,10 @@ index 4761252eb94f0..e2151fce76efb 100644
          android:key="preload_pages"
          android:title="@string/preload_pages_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index c0b17bb91cdad..1e55f1c6d8b48 100644
+index 098dcda489758..4948e56dd6054 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1295,7 +1295,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1300,7 +1300,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
              boolean noRestoreState =
@@ -43,7 +43,7 @@ index c0b17bb91cdad..1e55f1c6d8b48 100644
                  // Clear the state files because they are inconsistent and useless from now on.
                  mTabModelOrchestrator.clearState();
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index f48710b51d6b1..3976014c1748c 100644
+index c4310f86428a0..e09bf7bc9913e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -5,6 +5,7 @@
@@ -54,7 +54,7 @@ index f48710b51d6b1..3976014c1748c 100644
  
  import android.os.Build;
  import android.os.Bundle;
-@@ -24,6 +25,7 @@ import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
+@@ -23,6 +24,7 @@ import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference;
  import org.chromium.chrome.browser.preferences.Pref;
@@ -62,19 +62,18 @@ index f48710b51d6b1..3976014c1748c 100644
  import org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsFragment;
  import org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings;
  import org.chromium.chrome.browser.privacy_guide.PrivacyGuideInteractions;
-@@ -141,6 +143,11 @@ public class PrivacySettings
+@@ -137,6 +139,10 @@ public class PrivacySettings
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
  
 +        ChromeSwitchPreference closeTabsOnExitPref =
 +                (ChromeSwitchPreference) findPreference(PREF_CLOSE_TABS_ON_EXIT);
 +        closeTabsOnExitPref.setOnPreferenceChangeListener(this);
-+        closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
 +
          Preference preloadPagesPreference = findPreference(PREF_PRELOAD_PAGES);
          preloadPagesPreference.setSummary(
                  PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
-@@ -207,6 +214,9 @@ public class PrivacySettings
+@@ -223,6 +229,9 @@ public class PrivacySettings
          } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
@@ -84,7 +83,7 @@ index f48710b51d6b1..3976014c1748c 100644
          }
          return true;
      }
-@@ -221,6 +231,13 @@ public class PrivacySettings
+@@ -237,6 +246,13 @@ public class PrivacySettings
       * Updates the preferences.
       */
      public void updatePreferences() {
@@ -99,7 +98,7 @@ index f48710b51d6b1..3976014c1748c 100644
  
          ChromeSwitchPreference canMakePaymentPref =
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-index f08ba0df513df..fd6f977c89ba0 100644
+index 7e18844fcc3f4..66b917c5e250e 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 @@ -114,6 +114,10 @@ public final class ChromePreferenceKeys {
@@ -113,7 +112,7 @@ index f08ba0df513df..fd6f977c89ba0 100644
      /**
       * Whether Chrome is set as the default browser.
       * Default value is false.
-@@ -1097,6 +1101,7 @@ public final class ChromePreferenceKeys {
+@@ -1101,6 +1105,7 @@ public final class ChromePreferenceKeys {
                  OPEN_RECENT_TABS_COUNT,
                  OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
                  PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
@@ -122,7 +121,7 @@ index f08ba0df513df..fd6f977c89ba0 100644
                  PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
                  PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 25f8e9c7c23c1..471b2bdbb303d 100644
+index 2d56244c8ea4c..fd4cc5ab36693 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -1279,6 +1279,13 @@ Private state tokens improve privacy on the web and can’t be used to find out

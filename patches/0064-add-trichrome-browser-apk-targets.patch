@@ -1,4 +1,4 @@
-From 4c39ba6d20d213eccfe3205ceabc8192e68a45bc Mon Sep 17 00:00:00 2001
+From 174c2a321c74762c5ef0d1c211a7adadc1885f01 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 27 May 2021 07:30:02 -0400
 Subject: [PATCH] add trichrome browser apk targets
@@ -8,10 +8,10 @@ Subject: [PATCH] add trichrome browser apk targets
  1 file changed, 35 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 9e74ba01e1d3f..29c6119fc9363 100644
+index 7a0b4452d2d5d..4ce851c52c7d6 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2343,6 +2343,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2268,6 +2268,10 @@ if (current_toolchain == default_toolchain) {
      is_trichrome = true
      is_bundle_module = true
    }
@@ -22,41 +22,41 @@ index 9e74ba01e1d3f..29c6119fc9363 100644
  
    # Java libraries that go into each public chrome APK and base module. The chrome
    # JNI registration is generated based on this target.
-@@ -2890,6 +2894,37 @@ if (current_toolchain == default_toolchain) {
+@@ -2748,6 +2752,37 @@ if (current_toolchain == default_toolchain) {
        }
      }
    }
 + 
-+monochrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
-+  apk_name = "TrichromeChrome"
-+  is_trichrome = true
-+  target_type = "android_apk"
-+  static_library_provider = ":trichrome_library_apk"
++  monochrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
++    apk_name = "TrichromeChrome"
++    is_trichrome = true
++    target_type = "android_apk"
++    static_library_provider = ":trichrome_library_apk"
++    if (android_64bit_target_cpu) {
++      is_64_bit_browser = false
++      include_64_bit_webview = true
++    }
++  }
++  
 +  if (android_64bit_target_cpu) {
-+    is_64_bit_browser = false
-+    include_64_bit_webview = true
++    monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
++      apk_name = "TrichromeChrome6432"
++      is_trichrome = true
++      target_type = "android_apk"
++      static_library_provider = ":trichrome_library_64_32_apk"
++      is_64_bit_browser = true
++      include_32_bit_webview = true
++    }
++  
++    monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
++      apk_name = "TrichromeChrome64"
++      is_trichrome = true
++      target_type = "android_apk"
++      static_library_provider = ":trichrome_library_64_apk"
++      is_64_bit_browser = true
++      include_32_bit_webview = false
++    }
 +  }
-+}
-+
-+if (android_64bit_target_cpu) {
-+  monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
-+    apk_name = "TrichromeChrome6432"
-+    is_trichrome = true
-+    target_type = "android_apk"
-+    static_library_provider = ":trichrome_library_64_32_apk"
-+    is_64_bit_browser = true
-+    include_32_bit_webview = true
-+  }
-+
-+  monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
-+    apk_name = "TrichromeChrome64"
-+    is_trichrome = true
-+    target_type = "android_apk"
-+    static_library_provider = ":trichrome_library_64_apk"
-+    is_64_bit_browser = true
-+    include_32_bit_webview = false
-+  }
-+}
  
-   chrome_public_unit_test_apk_manifest =
-       "$root_gen_dir/chrome_public_unit_test_apk_manifest/AndroidManifest.xml"
+   # As compared to chrome_public_test_apk, this target contains only unit tests
+   # that require on device capabilities. These tests are smaller, more tightly

@@ -1,28 +1,28 @@
-From 0a5b061ade5ce8047494aa688629b64350d6be2c Mon Sep 17 00:00:00 2001
+From df417747c5a5139998cab8c2ee57cdb69900f3a9 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Tue, 21 Feb 2023 01:48:15 +0000
 Subject: [PATCH] Support for both browser and android autofill functionality
 
 ---
- .../browser/android_autofill_manager.cc       | 17 ++++++++
+ .../browser/android_autofill_manager.cc       | 15 +++++++
  .../browser/android_autofill_manager.h        | 15 +++++++
  .../browser/content_autofill_driver.cc        | 43 +++++++++++++++++++
  .../content/browser/content_autofill_driver.h | 12 ++++++
- 4 files changed, 87 insertions(+)
+ 4 files changed, 85 insertions(+)
 
 diff --git a/components/android_autofill/browser/android_autofill_manager.cc b/components/android_autofill/browser/android_autofill_manager.cc
-index 48484ee152dc8..c64d69e684b9d 100644
+index c5363e60ed02b..fb27a326b9357 100644
 --- a/components/android_autofill/browser/android_autofill_manager.cc
 +++ b/components/android_autofill/browser/android_autofill_manager.cc
-@@ -7,6 +7,7 @@
- #include "base/memory/ptr_util.h"
+@@ -9,6 +9,7 @@
  #include "components/android_autofill/browser/autofill_provider.h"
  #include "components/autofill/content/browser/content_autofill_driver.h"
+ #include "components/autofill/core/browser/metrics/form_events/form_event_logger_weblayer_android.h"
 +#include "components/autofill/core/browser/browser_autofill_manager.h"
  #include "content/public/browser/render_frame_host.h"
  #include "content/public/browser/web_contents.h"
  
-@@ -26,6 +27,22 @@ void AndroidDriverInitHook(
+@@ -26,6 +27,20 @@ void AndroidDriverInitHook(AutofillClient* client,
    driver->GetAutofillAgent()->SetQueryPasswordSuggestion(true);
  }
  
@@ -31,27 +31,25 @@ index 48484ee152dc8..c64d69e684b9d 100644
 +    const std::string& app_locale,
 +    ContentAutofillDriver* driver) {
 +  driver->set_autofill_manager(std::make_unique<BrowserAutofillManager>(
-+      driver, client, app_locale,
-+      autofill::AutofillManager::EnableDownloadManager(false)));
++      driver, client, app_locale));
 +  driver->set_secondary_autofill_manager(base::WrapUnique(
-+      new AndroidAutofillManager(driver, client,
-+          autofill::AutofillManager::EnableDownloadManager(false))));
++      new AndroidAutofillManager(driver, client)));
 +  driver->GetAutofillAgent()->SetUserGestureRequired(false);
 +  driver->GetAutofillAgent()->SetSecureContextRequired(true);
 +  driver->GetAutofillAgent()->SetFocusRequiresScroll(false);
 +  driver->GetAutofillAgent()->SetQueryPasswordSuggestion(true);
 +}
 +
- AndroidAutofillManager::AndroidAutofillManager(
-     AutofillDriver* driver,
-     AutofillClient* client,
+ AndroidAutofillManager::AndroidAutofillManager(AutofillDriver* driver,
+                                                AutofillClient* client)
+     : AutofillManager(driver, client) {
 diff --git a/components/android_autofill/browser/android_autofill_manager.h b/components/android_autofill/browser/android_autofill_manager.h
-index 1ec42cd458f95..7df9fa0cf01f3 100644
+index f3d6eeaceb8b1..8128cab228cc4 100644
 --- a/components/android_autofill/browser/android_autofill_manager.h
 +++ b/components/android_autofill/browser/android_autofill_manager.h
-@@ -15,6 +15,16 @@ namespace autofill {
- class AutofillProvider;
+@@ -16,6 +16,16 @@ class AutofillProvider;
  class ContentAutofillDriver;
+ class FormEventLoggerWeblayerAndroid;
  
 +// Creates an AndroidAutofillManager and attaches it to the `driver`.
 +//
@@ -66,7 +64,7 @@ index 1ec42cd458f95..7df9fa0cf01f3 100644
  // Creates an AndroidAutofillManager and attaches it to the `driver`.
  //
  // This hook is to be passed to CreateForWebContentsAndDelegate().
-@@ -82,6 +92,11 @@ class AndroidAutofillManager : public AutofillManager {
+@@ -85,6 +95,11 @@ class AndroidAutofillManager : public AutofillManager {
                           const url::Origin& triggered_origin);
  
   protected:
@@ -75,14 +73,14 @@ index 1ec42cd458f95..7df9fa0cf01f3 100644
 +      const std::string& app_locale,
 +      ContentAutofillDriver* driver);
 +
-   friend void AndroidDriverInitHook(
-       AutofillClient* client,
-       AutofillManager::EnableDownloadManager enable_download_manager,
+   friend void AndroidDriverInitHook(AutofillClient* client,
+                                     ContentAutofillDriver* driver);
+ 
 diff --git a/components/autofill/content/browser/content_autofill_driver.cc b/components/autofill/content/browser/content_autofill_driver.cc
-index 686d976aa73e1..c59f0a64a92d4 100644
+index 3de75be9c1866..8bf982ec1eec3 100644
 --- a/components/autofill/content/browser/content_autofill_driver.cc
 +++ b/components/autofill/content/browser/content_autofill_driver.cc
-@@ -304,6 +304,10 @@ void ContentAutofillDriver::FormsSeen(
+@@ -326,6 +326,10 @@ void ContentAutofillDriver::FormsSeen(
           const std::vector<FormData>& updated_forms,
           const std::vector<FormGlobalId>& removed_forms) {
          target->autofill_manager_->OnFormsSeen(updated_forms, removed_forms);
@@ -93,7 +91,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -330,6 +334,10 @@ void ContentAutofillDriver::FormSubmitted(
+@@ -352,6 +356,10 @@ void ContentAutofillDriver::FormSubmitted(
          }
          target->autofill_manager_->OnFormSubmitted(form, known_success,
                                                     submission_source);
@@ -104,7 +102,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -350,6 +358,10 @@ void ContentAutofillDriver::TextFieldDidChange(const FormData& raw_form,
+@@ -372,6 +380,10 @@ void ContentAutofillDriver::TextFieldDidChange(const FormData& raw_form,
           base::TimeTicks timestamp) {
          target->autofill_manager_->OnTextFieldDidChange(
              form, field, bounding_box, timestamp);
@@ -115,7 +113,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -368,6 +380,10 @@ void ContentAutofillDriver::TextFieldDidScroll(const FormData& raw_form,
+@@ -390,6 +402,10 @@ void ContentAutofillDriver::TextFieldDidScroll(const FormData& raw_form,
           const FormFieldData& field, const gfx::RectF& bounding_box) {
          target->autofill_manager_->OnTextFieldDidScroll(form, field,
                                                          bounding_box);
@@ -126,7 +124,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -387,6 +403,10 @@ void ContentAutofillDriver::SelectControlDidChange(
+@@ -409,6 +425,10 @@ void ContentAutofillDriver::SelectControlDidChange(
           const FormFieldData& field, const gfx::RectF& bounding_box) {
          target->autofill_manager_->OnSelectControlDidChange(form, field,
                                                              bounding_box);
@@ -137,7 +135,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -412,6 +432,11 @@ void ContentAutofillDriver::AskForValuesToFill(
+@@ -434,6 +454,11 @@ void ContentAutofillDriver::AskForValuesToFill(
          target->autofill_manager_->OnAskForValuesToFill(
              form, field, bounding_box, autoselect_first_suggestion,
              form_element_was_clicked);
@@ -149,7 +147,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -422,12 +447,19 @@ void ContentAutofillDriver::HidePopup() {
+@@ -444,12 +469,19 @@ void ContentAutofillDriver::HidePopup() {
      DCHECK(!target->IsPrerendering())
          << "We should never affect UI while prerendering";
      target->autofill_manager_->OnHidePopup();
@@ -169,7 +167,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
  }
  
  void ContentAutofillDriver::FocusNoLongerOnForm(bool had_interacted_form) {
-@@ -455,6 +487,10 @@ void ContentAutofillDriver::FocusOnFormField(const FormData& raw_form,
+@@ -477,6 +509,10 @@ void ContentAutofillDriver::FocusOnFormField(const FormData& raw_form,
           const FormFieldData& field, const gfx::RectF& bounding_box) {
          target->autofill_manager_->OnFocusOnFormField(form, field,
                                                        bounding_box);
@@ -180,7 +178,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -467,6 +503,10 @@ void ContentAutofillDriver::DidFillAutofillFormData(const FormData& raw_form,
+@@ -489,6 +525,10 @@ void ContentAutofillDriver::DidFillAutofillFormData(const FormData& raw_form,
        [](ContentAutofillDriver* target, const FormData& form,
           base::TimeTicks timestamp) {
          target->autofill_manager_->OnDidFillAutofillFormData(form, timestamp);
@@ -191,7 +189,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
        });
  }
  
-@@ -570,6 +610,9 @@ void ContentAutofillDriver::DidNavigateFrame(
+@@ -592,6 +632,9 @@ void ContentAutofillDriver::DidNavigateFrame(
    if (autofill_router_)  // Can be nullptr only in tests.
      autofill_router_->UnregisterDriver(this);
    autofill_manager_->Reset();
@@ -202,7 +200,7 @@ index 686d976aa73e1..c59f0a64a92d4 100644
  
  const mojo::AssociatedRemote<mojom::AutofillAgent>&
 diff --git a/components/autofill/content/browser/content_autofill_driver.h b/components/autofill/content/browser/content_autofill_driver.h
-index ffe35ecfe710b..3df00b97ae119 100644
+index b5e5f149cef25..5fc146bc97d63 100644
 --- a/components/autofill/content/browser/content_autofill_driver.h
 +++ b/components/autofill/content/browser/content_autofill_driver.h
 @@ -132,6 +132,14 @@ class ContentAutofillDriver : public AutofillDriver,
@@ -220,7 +218,7 @@ index ffe35ecfe710b..3df00b97ae119 100644
    content::RenderFrameHost* render_frame_host() { return render_frame_host_; }
  
    // Expose the events that originate from the browser and renderer processes,
-@@ -347,6 +355,10 @@ class ContentAutofillDriver : public AutofillDriver,
+@@ -349,6 +357,10 @@ class ContentAutofillDriver : public AutofillDriver,
    // code.
    std::unique_ptr<AutofillManager> autofill_manager_ = nullptr;
  

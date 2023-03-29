@@ -1,4 +1,4 @@
-From efa6e6093dd1cf16b83e3418618526e0b657c0dc Mon Sep 17 00:00:00 2001
+From 09af189f74205b950298b5a212dc304f82d326ac Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Tue, 1 Dec 2020 00:56:57 -0500
 Subject: [PATCH] disable autofill server communication by default
@@ -8,15 +8,15 @@ Subject: [PATCH] disable autofill server communication by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index 2d0b5f00334cf..91d131507637c 100644
+index 6bcf611a99a59..bd5c7896ccc98 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
-@@ -486,7 +486,7 @@ const base::FeatureParam<int> kAutofillServerBehaviorsParam{
+@@ -702,7 +702,7 @@ BASE_FEATURE(kAutofillCreateDataForTest,
  // i.e., https://other.autofill.server:port/tbproxy/af/
  BASE_FEATURE(kAutofillServerCommunication,
               "AutofillServerCommunication",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- // Controls whether Autofill may fill across origins as part of the
- // AutofillAcrossIframes experiment.
+ // Controls attaching the autofill type predictions to their respective
+ // element in the DOM.

@@ -1,4 +1,4 @@
-From f2cae880041f4e6965b5d41358ac41da6a6e87ac Mon Sep 17 00:00:00 2001
+From 74d7259a8d2bd33a0d8715ca083e7b8f21474a18 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Mon, 20 Feb 2023 07:10:55 +0000
 Subject: [PATCH] Support native Android autofill at browser
@@ -7,36 +7,46 @@ This enables support for Android Autofil on tabs showing fillable
 entries, reusing the codebase used for webview's android autofill
 support.
 ---
- android_webview/browser/aw_contents.cc        |  2 +-
+ android_webview/browser/aw_autofill_client.cc |  4 ++
  chrome/android/BUILD.gn                       |  1 +
  .../chromium/chrome/browser/tab/TabImpl.java  | 45 +++++++++++++++++
  .../browser/tab/TabViewAndroidDelegate.java   | 13 +++++
  chrome/browser/BUILD.gn                       |  7 +++
  .../tab_web_contents_delegate_android.cc      |  3 +-
+ .../ui/autofill/chrome_autofill_client.cc     |  4 ++
  chrome/browser/ui/tab_helpers.cc              |  4 +-
  .../presentation_receiver_window_view.cc      |  4 +-
  .../embedder_support/view/ContentView.java    | 48 +++++++++++++++++++
  .../chromium/ui/base/ViewAndroidDelegate.java |  8 ++++
- 10 files changed, 129 insertions(+), 6 deletions(-)
+ 11 files changed, 136 insertions(+), 5 deletions(-)
 
-diff --git a/android_webview/browser/aw_contents.cc b/android_webview/browser/aw_contents.cc
-index 4cf10e64ac6bc..adade4aadd2da 100644
---- a/android_webview/browser/aw_contents.cc
-+++ b/android_webview/browser/aw_contents.cc
-@@ -337,7 +337,7 @@ void AwContents::InitAutofillIfNecessary(bool autocomplete_enabled) {
-       autofill_provider
-           ? base::BindRepeating(&autofill::AndroidDriverInitHook,
-                                 AwAutofillClient::FromWebContents(web_contents),
--                                enable_download_manager)
-+                                autofill::AutofillManager::EnableDownloadManager(false))
-           : base::BindRepeating(&autofill::BrowserDriverInitHook,
-                                 AwAutofillClient::FromWebContents(web_contents),
-                                 base::android::GetDefaultLocaleString());
+diff --git a/android_webview/browser/aw_autofill_client.cc b/android_webview/browser/aw_autofill_client.cc
+index c1858aac78b39..79c72c830353f 100644
+--- a/android_webview/browser/aw_autofill_client.cc
++++ b/android_webview/browser/aw_autofill_client.cc
+@@ -66,6 +66,7 @@ AwAutofillClient::GetURLLoaderFactory() {
+ }
+ 
+ autofill::AutofillDownloadManager* AwAutofillClient::GetDownloadManager() {
++#if defined(USE_BROWSER_AUTOFILL_ONLY)
+   if (autofill::AutofillProvider::is_download_manager_disabled_for_testing()) {
+     return nullptr;
+   }
+@@ -75,6 +76,9 @@ autofill::AutofillDownloadManager* AwAutofillClient::GetDownloadManager() {
+         this, GetChannel(), GetLogManager());
+   }
+   return download_manager_.get();
++#else
++  return nullptr;
++#endif // defined(USE_BROWSER_AUTOFILL_ONLY)
+ }
+ 
+ autofill::PersonalDataManager* AwAutofillClient::GetPersonalDataManager() {
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 29c6119fc9363..e90bd7ea390f7 100644
+index 4ce851c52c7d6..dcc818436ab87 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -498,6 +498,7 @@ if (current_toolchain == default_toolchain) {
+@@ -383,6 +383,7 @@ if (current_toolchain == default_toolchain) {
        "//chrome/browser/webapps/android:java",
        "//chrome/browser/webauthn/android:java",
        "//chrome/browser/xsurface:java",
@@ -199,10 +209,10 @@ index 3f7f930bb8107..56e9dd9f37d36 100644
      public void onTopControlsChanged(
              int topControlsOffsetY, int contentOffsetY, int topControlsMinHeightOffsetY) {
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 42712ea4134e1..456114d26ad0b 100644
+index 0ddbd541f7ef4..3b5fcd54e21b3 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2506,6 +2506,13 @@ static_library("browser") {
+@@ -2521,6 +2521,13 @@ static_library("browser") {
      deps += [ "//chrome/browser/error_reporting" ]
    }
  
@@ -237,11 +247,32 @@ index 595b419a85fb4..7a787671952b5 100644
            autofill::ChromeAutofillClient::FromWebContents(portal_contents),
            g_browser_process->GetApplicationLocale()));
    ChromePasswordManagerClient::CreateForWebContentsWithAutofillClient(
+diff --git a/chrome/browser/ui/autofill/chrome_autofill_client.cc b/chrome/browser/ui/autofill/chrome_autofill_client.cc
+index 004f93ae2409c..53c68eda19661 100644
+--- a/chrome/browser/ui/autofill/chrome_autofill_client.cc
++++ b/chrome/browser/ui/autofill/chrome_autofill_client.cc
+@@ -162,12 +162,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
+ }
+ 
+ AutofillDownloadManager* ChromeAutofillClient::GetDownloadManager() {
++#if defined(USE_BROWSER_AUTOFILL_ONLY)
+   if (!download_manager_) {
+     // Lazy initialization to avoid virtual function calls in the constructor.
+     download_manager_ = std::make_unique<AutofillDownloadManager>(
+         this, GetChannel(), GetLogManager());
+   }
+   return download_manager_.get();
++#else
++  return nullptr;
++#endif // defined(USE_BROWSER_AUTOFILL_ONLY)
+ }
+ 
+ PersonalDataManager* ChromeAutofillClient::GetPersonalDataManager() {
 diff --git a/chrome/browser/ui/tab_helpers.cc b/chrome/browser/ui/tab_helpers.cc
-index ddf2b604c111d..a758c434de735 100644
+index fc2b6837aa5a6..f3080a6676e53 100644
 --- a/chrome/browser/ui/tab_helpers.cc
 +++ b/chrome/browser/ui/tab_helpers.cc
-@@ -102,7 +102,7 @@
+@@ -101,7 +101,7 @@
  #include "chrome/common/chrome_isolated_world_ids.h"
  #include "chrome/common/chrome_switches.h"
  #include "components/autofill/content/browser/content_autofill_driver_factory.h"
@@ -250,7 +281,7 @@ index ddf2b604c111d..a758c434de735 100644
  #include "components/blocked_content/popup_blocker_tab_helper.h"
  #include "components/blocked_content/popup_opener_tab_helper.h"
  #include "components/breadcrumbs/core/breadcrumbs_status.h"
-@@ -316,7 +316,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+@@ -314,7 +314,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
        web_contents,
        autofill::ChromeAutofillClient::FromWebContents(web_contents),
        base::BindRepeating(
@@ -282,18 +313,18 @@ index 46c51eb6e8e0a..e90ec121d726d 100644
            g_browser_process->GetApplicationLocale()));
    ChromePasswordManagerClient::CreateForWebContentsWithAutofillClient(
 diff --git a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
-index 6da0ffff12493..e7ac240199c3e 100644
+index 2b797c8ebb8cf..6873606c262cf 100644
 --- a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 +++ b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
-@@ -10,6 +10,7 @@ import android.graphics.Rect;
+@@ -9,6 +9,7 @@ import android.content.res.Configuration;
+ import android.graphics.Rect;
  import android.os.Build;
- import android.os.Bundle;
  import android.os.Handler;
 +import android.util.SparseArray;
  import android.view.DragEvent;
  import android.view.KeyEvent;
  import android.view.MotionEvent;
-@@ -19,6 +20,7 @@ import android.view.View.OnSystemUiVisibilityChangeListener;
+@@ -18,6 +19,7 @@ import android.view.View.OnSystemUiVisibilityChangeListener;
  import android.view.ViewGroup.OnHierarchyChangeListener;
  import android.view.ViewStructure;
  import android.view.accessibility.AccessibilityNodeProvider;
@@ -301,7 +332,7 @@ index 6da0ffff12493..e7ac240199c3e 100644
  import android.view.inputmethod.EditorInfo;
  import android.view.inputmethod.InputConnection;
  import android.widget.FrameLayout;
-@@ -37,6 +39,7 @@ import org.chromium.content_public.browser.WebContentsAccessibility;
+@@ -36,6 +38,7 @@ import org.chromium.content_public.browser.WebContentsAccessibility;
  import org.chromium.ui.accessibility.AccessibilityState;
  import org.chromium.ui.base.EventForwarder;
  import org.chromium.ui.base.EventOffsetHandler;
@@ -309,7 +340,7 @@ index 6da0ffff12493..e7ac240199c3e 100644
  
  /**
   * The containing view for {@link WebContents} that exists in the Android UI hierarchy and exposes
-@@ -87,6 +90,9 @@ public class ContentView extends FrameLayout
+@@ -86,6 +89,9 @@ public class ContentView extends FrameLayout
       */
      public static ContentView createContentView(Context context,
              @Nullable EventOffsetHandler eventOffsetHandler, @Nullable WebContents webContents) {
@@ -319,7 +350,7 @@ index 6da0ffff12493..e7ac240199c3e 100644
          return new ContentView(context, eventOffsetHandler, webContents);
      }
  
-@@ -597,4 +603,46 @@ public class ContentView extends FrameLayout
+@@ -586,4 +592,46 @@ public class ContentView extends FrameLayout
      private boolean webContentsAttached() {
          return hasValidWebContents() && mWebContents.getTopLevelNativeWindow() != null;
      }
@@ -367,7 +398,7 @@ index 6da0ffff12493..e7ac240199c3e 100644
 +    }
  }
 diff --git a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
-index fbc665d326732..d9492921ebd42 100644
+index 20a9af63f06fc..bcad3fe9ad179 100644
 --- a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 +++ b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 @@ -29,6 +29,10 @@ import org.chromium.ui.dragdrop.DragStateTracker;
@@ -381,7 +412,7 @@ index fbc665d326732..d9492921ebd42 100644
  /**
   * Class to acquire, position, and remove anchor views from the implementing View.
   */
-@@ -591,4 +595,8 @@ public class ViewAndroidDelegate {
+@@ -612,4 +616,8 @@ public class ViewAndroidDelegate {
      public static void setDragAndDropDelegateForTest(DragAndDropDelegate testDelegate) {
          sDragAndDropTestDelegate = testDelegate;
      }
