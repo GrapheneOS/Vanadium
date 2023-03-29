@@ -1,15 +1,15 @@
-From 0d6884a6910fa0214a2d461139dcb0443f2c8add Mon Sep 17 00:00:00 2001
+From 8ce0d915df6e842a9558d27761311f5662029397 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH] Move search suggestions back to privacy section.
 
 ---
- .../java/res/xml/privacy_preferences.xml       |  5 +++++
- .../privacy/settings/PrivacySettings.java      | 18 +++++++++++++++++-
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ .../android/java/res/xml/privacy_preferences.xml |  5 +++++
+ .../privacy/settings/PrivacySettings.java        | 16 +++++++++++++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index e7c1075834bfc..4761252eb94f0 100644
+index e7c1075834bfc..d3781748f00ff 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -28,6 +28,11 @@ found in the LICENSE file.
@@ -18,14 +18,14 @@ index e7c1075834bfc..4761252eb94f0 100644
          android:summary="@string/settings_https_first_mode_summary"/>
 +    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
 +        android:key="search_suggestions"
-+        android:title="@string/autocomplete_searches_and_urls_title"
-+        android:summary="@string/autocomplete_searches_and_urls_summary"
++        android:title="@string/improve_search_suggestions_title"
++        android:summary="@string/improve_search_suggestions_summary"
 +        android:persistent="false"/>
       <org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference
          android:key="incognito_lock"
          android:title="@string/settings_incognito_tab_lock_title"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index da126b63a3d93..79c75cba0cdfb 100644
+index 1972de12be748..9b0ca2c6ba67f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -60,6 +60,7 @@ public class PrivacySettings
@@ -36,19 +36,18 @@ index da126b63a3d93..79c75cba0cdfb 100644
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
-@@ -129,6 +130,11 @@ public class PrivacySettings
+@@ -126,6 +127,10 @@ public class PrivacySettings
  
-         mManagedPreferenceDelegate = createManagedPreferenceDelegate();
+         setHasOptionsMenu(true);
  
 +        ChromeSwitchPreference searchSuggestionsPref =
 +                (ChromeSwitchPreference) findPreference(PREF_SEARCH_SUGGESTIONS);
 +        searchSuggestionsPref.setOnPreferenceChangeListener(this);
-+        searchSuggestionsPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
 +
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -186,7 +192,10 @@ public class PrivacySettings
+@@ -203,7 +208,10 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -60,7 +59,7 @@ index da126b63a3d93..79c75cba0cdfb 100644
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
-@@ -214,6 +223,13 @@ public class PrivacySettings
+@@ -231,6 +239,12 @@ public class PrivacySettings
              canMakePaymentPref.setChecked(prefService.getBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED));
          }
  
@@ -69,7 +68,6 @@ index da126b63a3d93..79c75cba0cdfb 100644
 +        if (searchSuggestionsPref != null) {
 +            searchSuggestionsPref.setChecked(prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
 +        }
-+
 +
          Preference doNotTrackPref = findPreference(PREF_DO_NOT_TRACK);
          if (doNotTrackPref != null) {

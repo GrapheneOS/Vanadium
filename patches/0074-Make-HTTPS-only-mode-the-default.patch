@@ -1,4 +1,4 @@
-From 783404556f4d12090b5e58b3514aed238aac69ab Mon Sep 17 00:00:00 2001
+From f9b40523b99f8f61b4804fad1f10c3719d7e44ec Mon Sep 17 00:00:00 2001
 From: qua3k <cliffmaceyak@gmail.com>
 Date: Mon, 18 Oct 2021 17:18:52 -0400
 Subject: [PATCH] Make HTTPS-only mode the default
@@ -8,14 +8,15 @@ Subject: [PATCH] Make HTTPS-only mode the default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_ui_prefs.cc
-index d6e687e685829..33de27c85a672 100644
+index 3ee01c159ae2a..57f66b9bfd333 100644
 --- a/chrome/browser/ui/browser_ui_prefs.cc
 +++ b/chrome/browser/ui/browser_ui_prefs.cc
-@@ -160,6 +160,6 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -160,7 +160,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
  #endif
  
    registry->RegisterBooleanPref(
 -      prefs::kHttpsOnlyModeEnabled, false,
 +      prefs::kHttpsOnlyModeEnabled, true,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
- }
+   registry->RegisterListPref(prefs::kHttpAllowlist);
+   registry->RegisterBooleanPref(prefs::kHttpsUpgradesEnabled, true);
