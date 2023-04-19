@@ -1,0 +1,262 @@
+From 6851b15a7c74b35f466942f46caa0e1d01cb9506 Mon Sep 17 00:00:00 2001
+From: Dylan Cutler <dylancutler@google.com>
+Date: Fri, 14 Apr 2023 12:25:53 +0000
+Subject: [PATCH] Plumb StorageKey to ServiceWorkerGlobalScope
+
+This allows the CookieStore API implementation in the renderer to agree with the browser on what the correct top-level origin and site for cookies should be.
+
+Bug: 1246549,1427879
+Change-Id: I758d0336a086854533fe2d461a4847f63b294a59
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4420046
+Reviewed-by: Ayu Ishii <ayui@chromium.org>
+Commit-Queue: Dylan Cutler <dylancutler@google.com>
+Reviewed-by: Ben Kelly <wanderview@chromium.org>
+Reviewed-by: Kentaro Hara <haraken@chromium.org>
+Code-Coverage: Findit <findit-for-me@appspot.gserviceaccount.com>
+Reviewed-by: Ken Buchanan <kenrb@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1130394}
+---
+ .../browser/service_worker/fake_service_worker.cc |  3 ++-
+ .../browser/service_worker/fake_service_worker.h  |  4 +++-
+ .../service_worker/service_worker_job_unittest.cc |  3 ++-
+ .../service_worker/service_worker_version.cc      |  2 +-
+ .../mojom/service_worker/service_worker.mojom     |  4 +++-
+ .../renderer/modules/cookie_store/cookie_store.cc | 11 ++++++-----
+ .../service_worker/service_worker_global_scope.cc |  5 ++++-
+ .../service_worker/service_worker_global_scope.h  |  8 +++++++-
+ .../web_embedded_worker_impl_test.cc              |  3 ++-
+ .../renderer/platform/storage/blink_storage_key.h | 15 +++++++++++++++
+ .../blinkpy/presubmit/audit_non_blink_usage.py    |  1 +
+ 11 files changed, 46 insertions(+), 13 deletions(-)
+
+diff --git a/content/browser/service_worker/fake_service_worker.cc b/content/browser/service_worker/fake_service_worker.cc
+index 4f937526436e0..3d5c0de8fdf45 100644
+--- a/content/browser/service_worker/fake_service_worker.cc
++++ b/content/browser/service_worker/fake_service_worker.cc
+@@ -52,7 +52,8 @@ void FakeServiceWorker::InitializeGlobalScope(
+     blink::mojom::FetchHandlerExistence fetch_handler_existence,
+     mojo::PendingReceiver<blink::mojom::ReportingObserver>
+         reporting_observer_receiver,
+-    blink::mojom::AncestorFrameType ancestor_frame_type) {
++    blink::mojom::AncestorFrameType ancestor_frame_type,
++    const blink::StorageKey& storage_key) {
+   host_.Bind(std::move(service_worker_host));
+ 
+   // Enable callers to use these endpoints without us actually binding them
+diff --git a/content/browser/service_worker/fake_service_worker.h b/content/browser/service_worker/fake_service_worker.h
+index 5b6fa230cbd13..df0ce23842024 100644
+--- a/content/browser/service_worker/fake_service_worker.h
++++ b/content/browser/service_worker/fake_service_worker.h
+@@ -14,6 +14,7 @@
+ #include "mojo/public/cpp/bindings/pending_receiver.h"
+ #include "mojo/public/cpp/bindings/pending_remote.h"
+ #include "mojo/public/cpp/bindings/receiver.h"
++#include "third_party/blink/public/common/storage_key/storage_key.h"
+ #include "third_party/blink/public/mojom/service_worker/service_worker.mojom.h"
+ 
+ namespace content {
+@@ -62,7 +63,8 @@ class FakeServiceWorker : public blink::mojom::ServiceWorker {
+       FetchHandlerExistence fetch_handler_existence,
+       mojo::PendingReceiver<blink::mojom::ReportingObserver>
+           reporting_observer_receiver,
+-      blink::mojom::AncestorFrameType ancestor_frame_type) override;
++      blink::mojom::AncestorFrameType ancestor_frame_type,
++      const blink::StorageKey& storage_key) override;
+   void DispatchInstallEvent(DispatchInstallEventCallback callback) override;
+   void DispatchActivateEvent(DispatchActivateEventCallback callback) override;
+   void DispatchBackgroundFetchAbortEvent(
+diff --git a/content/browser/service_worker/service_worker_job_unittest.cc b/content/browser/service_worker/service_worker_job_unittest.cc
+index 1ca25a2520180..26617661441f7 100644
+--- a/content/browser/service_worker/service_worker_job_unittest.cc
++++ b/content/browser/service_worker/service_worker_job_unittest.cc
+@@ -1566,7 +1566,8 @@ class UpdateJobTestHelper : public EmbeddedWorkerTestHelper,
+         blink::mojom::ServiceWorkerObjectInfoPtr,
+         blink::mojom::FetchHandlerExistence,
+         mojo::PendingReceiver<blink::mojom::ReportingObserver>,
+-        blink::mojom::AncestorFrameType) override {
++        blink::mojom::AncestorFrameType,
++        const blink::StorageKey& storage_key) override {
+       client_->SimulateFailureOfScriptEvaluation();
+     }
+ 
+diff --git a/content/browser/service_worker/service_worker_version.cc b/content/browser/service_worker/service_worker_version.cc
+index 54ad5cd01f318..37a3f7a06c9e0 100644
+--- a/content/browser/service_worker/service_worker_version.cc
++++ b/content/browser/service_worker/service_worker_version.cc
+@@ -1143,7 +1143,7 @@ void ServiceWorkerVersion::InitializeGlobalScope() {
+           std::move(registration)),
+       worker_host_->container_host()->CreateServiceWorkerObjectInfoToSend(this),
+       fetch_handler_existence(), std::move(reporting_observer_receiver_),
+-      ancestor_frame_type_);
++      ancestor_frame_type_, key_);
+ 
+   is_endpoint_ready_ = true;
+ }
+diff --git a/third_party/blink/public/mojom/service_worker/service_worker.mojom b/third_party/blink/public/mojom/service_worker/service_worker.mojom
+index fe7af2b0ff217..d1250c6744e20 100644
+--- a/third_party/blink/public/mojom/service_worker/service_worker.mojom
++++ b/third_party/blink/public/mojom/service_worker/service_worker.mojom
+@@ -27,6 +27,7 @@ import "third_party/blink/public/mojom/service_worker/service_worker_event_statu
+ import "third_party/blink/public/mojom/service_worker/service_worker_fetch_response_callback.mojom";
+ import "third_party/blink/public/mojom/service_worker/service_worker_object.mojom";
+ import "third_party/blink/public/mojom/service_worker/service_worker_registration.mojom";
++import "third_party/blink/public/mojom/storage_key/storage_key.mojom";
+ import "url/mojom/origin.mojom";
+ import "url/mojom/url.mojom";
+ 
+@@ -190,7 +191,8 @@ interface ServiceWorker {
+       ServiceWorkerObjectInfo service_worker_info,
+       FetchHandlerExistence fetch_handler_existence,
+       pending_receiver<ReportingObserver>? reporting_observer_receiver,
+-      AncestorFrameType ancestor_frame_type);
++      AncestorFrameType ancestor_frame_type,
++      blink.mojom.StorageKey storage_key);
+ 
+   // These methods dispatch InstallEvent and ActivateEvent to the
+   // ServiceWorkerGlobalScope.
+diff --git a/third_party/blink/renderer/modules/cookie_store/cookie_store.cc b/third_party/blink/renderer/modules/cookie_store/cookie_store.cc
+index a7e45e116da12..779fef8cbdec3 100644
+--- a/third_party/blink/renderer/modules/cookie_store/cookie_store.cc
++++ b/third_party/blink/renderer/modules/cookie_store/cookie_store.cc
+@@ -231,7 +231,11 @@ net::SiteForCookies DefaultSiteForCookies(ExecutionContext* execution_context) {
+     return window->document()->SiteForCookies();
+ 
+   auto* scope = To<ServiceWorkerGlobalScope>(execution_context);
+-  return net::SiteForCookies::FromUrl(GURL(scope->Url()));
++  const blink::BlinkStorageKey& key = scope->storage_key();
++  if (key.IsFirstPartyContext()) {
++    return net::SiteForCookies::FromUrl(GURL(scope->Url()));
++  }
++  return net::SiteForCookies();
+ }
+ 
+ scoped_refptr<SecurityOrigin> DefaultTopFrameOrigin(
+@@ -244,12 +248,9 @@ scoped_refptr<SecurityOrigin> DefaultTopFrameOrigin(
+     return window->document()->TopFrameOrigin()->IsolatedCopy();
+   }
+ 
+-  // TODO(crbug.com/1225444): This is a temporary solution until we can plumb
+-  // BlinkStorageKey to ServiceWorkerGlobalScope. Once we do the top-frame
+-  // origin should be BlinkStorageKey's top-frame site.
+   auto* scope = To<ServiceWorkerGlobalScope>(execution_context);
+   return SecurityOrigin::CreateFromUrlOrigin(url::Origin::Create(
+-      net::SchemefulSite(scope->GetSecurityOrigin()->ToUrlOrigin()).GetURL()));
++      net::SchemefulSite(scope->storage_key().GetTopLevelSite()).GetURL()));
+ }
+ 
+ }  // namespace
+diff --git a/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.cc b/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.cc
+index 7366f1bcfef07..d0758506a152a 100644
+--- a/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.cc
++++ b/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.cc
+@@ -1620,7 +1620,8 @@ void ServiceWorkerGlobalScope::InitializeGlobalScope(
+     mojom::blink::FetchHandlerExistence fetch_hander_existence,
+     mojo::PendingReceiver<mojom::blink::ReportingObserver>
+         reporting_observer_receiver,
+-    mojom::blink::AncestorFrameType ancestor_frame_type) {
++    mojom::blink::AncestorFrameType ancestor_frame_type,
++    const blink::BlinkStorageKey& storage_key) {
+   DCHECK(IsContextThread());
+   DCHECK(!global_scope_initialized_);
+ 
+@@ -1656,6 +1657,8 @@ void ServiceWorkerGlobalScope::InitializeGlobalScope(
+   global_scope_initialized_ = true;
+   if (!pause_evaluation_)
+     ReadyToRunWorkerScript();
++
++  storage_key_ = storage_key;
+ }
+ 
+ void ServiceWorkerGlobalScope::PauseEvaluation() {
+diff --git a/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.h b/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.h
+index 82e927382d0cf..a0c816ed082ed 100644
+--- a/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.h
++++ b/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.h
+@@ -58,6 +58,7 @@
+ #include "third_party/blink/renderer/platform/mojo/heap_mojo_receiver.h"
+ #include "third_party/blink/renderer/platform/mojo/heap_mojo_receiver_set.h"
+ #include "third_party/blink/renderer/platform/mojo/heap_mojo_remote.h"
++#include "third_party/blink/renderer/platform/storage/blink_storage_key.h"
+ #include "third_party/blink/renderer/platform/wtf/casting.h"
+ #include "third_party/blink/renderer/platform/wtf/forward.h"
+ 
+@@ -116,6 +117,8 @@ class MODULES_EXPORT ServiceWorkerGlobalScope final
+   bool ShouldInstallV8Extensions() const final;
+   bool IsInFencedFrame() const override;
+ 
++  const blink::BlinkStorageKey& storage_key() const { return storage_key_; }
++
+   // Implements WorkerGlobalScope:
+   void Initialize(
+       const KURL& response_url,
+@@ -428,7 +431,8 @@ class MODULES_EXPORT ServiceWorkerGlobalScope final
+       mojom::blink::ServiceWorkerObjectInfoPtr service_worker_info,
+       mojom::blink::FetchHandlerExistence fetch_handler_existence,
+       mojo::PendingReceiver<mojom::blink::ReportingObserver>,
+-      mojom::blink::AncestorFrameType ancestor_frame_type) override;
++      mojom::blink::AncestorFrameType ancestor_frame_type,
++      const blink::BlinkStorageKey& storage_key) override;
+   void DispatchInstallEvent(DispatchInstallEventCallback callback) override;
+   void AbortInstallEvent(int event_id,
+                          mojom::blink::ServiceWorkerEventStatus status);
+@@ -730,6 +734,8 @@ class MODULES_EXPORT ServiceWorkerGlobalScope final
+   // used to check if the service worker is registered in a fenced frame or not
+   // in order to block powerful API call in fenced frames.
+   mojom::blink::AncestorFrameType ancestor_frame_type_;
++
++  blink::BlinkStorageKey storage_key_;
+ };
+ 
+ template <>
+diff --git a/third_party/blink/renderer/modules/service_worker/web_embedded_worker_impl_test.cc b/third_party/blink/renderer/modules/service_worker/web_embedded_worker_impl_test.cc
+index f10c17b60ad5c..c7210093e0719 100644
+--- a/third_party/blink/renderer/modules/service_worker/web_embedded_worker_impl_test.cc
++++ b/third_party/blink/renderer/modules/service_worker/web_embedded_worker_impl_test.cc
+@@ -214,7 +214,8 @@ class MockServiceWorkerContextClient final
+             service_worker_object.InitWithNewEndpointAndPassReceiver()),
+         mojom::blink::FetchHandlerExistence::EXISTS,
+         /*reporting_observer_receiver=*/mojo::NullReceiver(),
+-        /*ancestor_frame_type=*/mojom::blink::AncestorFrameType::kNormalFrame);
++        /*ancestor_frame_type=*/mojom::blink::AncestorFrameType::kNormalFrame,
++        blink::BlinkStorageKey());
+ 
+     // To make the other side callable.
+     host_receiver.EnableUnassociatedUsage();
+diff --git a/third_party/blink/renderer/platform/storage/blink_storage_key.h b/third_party/blink/renderer/platform/storage/blink_storage_key.h
+index 5158300138895..697e8d40a9a3f 100644
+--- a/third_party/blink/renderer/platform/storage/blink_storage_key.h
++++ b/third_party/blink/renderer/platform/storage/blink_storage_key.h
+@@ -135,6 +135,21 @@ class PLATFORM_EXPORT BlinkStorageKey {
+     return ancestor_chain_bit_;
+   }
+ 
++  // `IsFirstPartyContext` returns true if the StorageKey is for a context that
++  // is "first-party", i.e. the StorageKey's top-level site and origin have
++  // the same scheme and domain, and all intervening frames in the frame tree
++  // are first-party.
++  //
++  // `IsThirdPartyContext` returns true if the StorageKey is for a context that
++  // is "third-party", i.e. the StorageKey's top-level site and origin have
++  // different schemes and/or domains, or an intervening frame in the frame
++  // tree is third-party. StorageKeys created using a nonce instead of a
++  // top-level site will also be considered third-party.
++  bool IsFirstPartyContext() const {
++    return ancestor_chain_bit_ == mojom::blink::AncestorChainBit::kSameSite;
++  }
++  bool IsThirdPartyContext() const { return !IsFirstPartyContext(); }
++
+   // [Block 5 - Shared Utility] - Keep in sync with StorageKey.
+ 
+   // (5A) Serialize to string for use in debugging only.
+diff --git a/third_party/blink/tools/blinkpy/presubmit/audit_non_blink_usage.py b/third_party/blink/tools/blinkpy/presubmit/audit_non_blink_usage.py
+index 61202e2f9c1eb..70bc5fb965401 100755
+--- a/third_party/blink/tools/blinkpy/presubmit/audit_non_blink_usage.py
++++ b/third_party/blink/tools/blinkpy/presubmit/audit_non_blink_usage.py
+@@ -624,6 +624,7 @@ _CONFIG = [
+             'network::.+',
+ 
+             # Used in network service types.
++            'net::SchemefulSite',
+             'net::SiteForCookies',
+ 
+             # PartitionAlloc
