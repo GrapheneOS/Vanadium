@@ -1,41 +1,30 @@
-From 681a8ad08158eaa7b4e6ef49c22e31de6a66834d Mon Sep 17 00:00:00 2001
+From c23dbced0c51dd0345066afcd2f3250dfec5b3bf Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Fri, 2 Aug 2019 21:11:17 -0400
 Subject: [PATCH] remove translate offer preference
 
 ---
- .../language/settings/LanguageSettings.java   | 21 +------------------
- 1 file changed, 1 insertion(+), 20 deletions(-)
+ .../browser/language/settings/LanguageSettings.java    | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
-index 3d35cb516928f..4689ed7213cd7 100644
+index 3d35cb516928f..dd5509ef85f51 100644
 --- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
 +++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
-@@ -109,26 +109,7 @@ public class LanguageSettings extends PreferenceFragmentCompat
-                 (ContentLanguagesPreference) findPreference(PREFERRED_LANGUAGES_KEY);
-         mLanguageListPref.registerActivityLauncher(this);
+@@ -79,6 +79,16 @@ public class LanguageSettings extends PreferenceFragmentCompat
+             createBasicPreferences(savedInstanceState, rootKey);
+         }
  
--        ChromeSwitchPreference translateSwitch =
--                (ChromeSwitchPreference) findPreference(TRANSLATE_SWITCH_KEY);
--        boolean isTranslateEnabled = getPrefService().getBoolean(Pref.OFFER_TRANSLATE_ENABLED);
--        translateSwitch.setChecked(isTranslateEnabled);
--
--        translateSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
--            @Override
--            public boolean onPreferenceChange(Preference preference, Object newValue) {
--                boolean enabled = (boolean) newValue;
--                getPrefService().setBoolean(Pref.OFFER_TRANSLATE_ENABLED, enabled);
--                mLanguageListPref.notifyPrefChanged();
--                LanguagesManager.recordAction(enabled ? LanguagesManager.LanguageSettingsActionType
--                                                                .ENABLE_TRANSLATE_GLOBALLY
--                                                      : LanguagesManager.LanguageSettingsActionType
--                                                                .DISABLE_TRANSLATE_GLOBALLY);
--                return true;
--            }
--        });
--        translateSwitch.setManagedPreferenceDelegate((ChromeManagedPreferenceDelegate) preference
--                -> getPrefService().isManagedPreference(Pref.OFFER_TRANSLATE_ENABLED));
-+        getPreferenceScreen().removePreference(findPreference(TRANSLATE_SWITCH_KEY));
++        ChromeSwitchPreference translateSwitch =
++                (ChromeSwitchPreference) findPreference(TRANSLATE_SWITCH_KEY);
++        if (translateSwitch != null) {
++            getPreferenceScreen().removePreference(translateSwitch);
++        }
++        String TRANSLATE_SECTION = "translation_settings_section";
++        Preference translateSection = findPreference(TRANSLATE_SECTION);
++        if (translateSection != null) {
++            getPreferenceScreen().removePreference(translateSection);
++        }
+         LanguagesManager.recordImpression(LanguagesManager.LanguageSettingsPageType.PAGE_MAIN);
      }
  
-     /**
