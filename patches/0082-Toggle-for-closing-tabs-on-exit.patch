@@ -1,0 +1,140 @@
+From 9b60b8cd110312470ec8dea445c18bcc5423d8d7 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 17 Jun 2022 10:15:43 +0000
+Subject: [PATCH] Toggle for closing tabs on exit
+
+---
+ .../android/java/res/xml/privacy_preferences.xml |  5 +++++
+ .../chrome/browser/ChromeTabbedActivity.java     |  4 +++-
+ .../privacy/settings/PrivacySettings.java        | 16 ++++++++++++++++
+ .../preferences/ChromePreferenceKeys.java        |  5 +++++
+ .../android/strings/android_chrome_strings.grd   |  7 +++++++
+ 5 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
+index 7207ef3852924..821a67c6b5eea 100644
+--- a/chrome/android/java/res/xml/privacy_preferences.xml
++++ b/chrome/android/java/res/xml/privacy_preferences.xml
+@@ -42,6 +42,11 @@ found in the LICENSE file.
+         android:key="can_make_payment"
+         android:title="@string/can_make_payment_title"
+         android:summary="@string/settings_can_make_payment_toggle_label"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="close_tabs_on_exit"
++        android:title="@string/close_tabs_on_exit_title"
++        android:summary="@string/close_tabs_on_exit_summary"
++        android:persistent="false"/>
+     <Preference
+         android:key="preload_pages"
+         android:title="@string/preload_pages_title"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index 3a1436bcf775f..db74193925588 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -1284,7 +1284,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+                     CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
+ 
+             boolean noRestoreState =
+-                    CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE);
++                    CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE) ||
++                    SharedPreferencesManager.getInstance().readBoolean(
++                            ChromePreferenceKeys.PREF_CLOSE_TABS_ON_EXIT, false);
+             boolean shouldShowHomeSurfaceAtStartupOnTablet = false;
+             final AtomicBoolean isActiveUrlNTP = new AtomicBoolean(false);
+             if (noRestoreState) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index e18b43b3a3217..57172e121079e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -5,6 +5,7 @@
+ package org.chromium.chrome.browser.privacy.settings;
+ 
+ import static org.chromium.components.content_settings.PrefNames.COOKIE_CONTROLS_MODE;
++import static org.chromium.chrome.browser.preferences.ChromePreferenceKeys.PREF_CLOSE_TABS_ON_EXIT;
+ 
+ import android.os.Build;
+ import android.os.Bundle;
+@@ -27,6 +28,7 @@ import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncher;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference;
+ import org.chromium.chrome.browser.preferences.Pref;
++import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsFragment;
+ import org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings;
+ import org.chromium.chrome.browser.privacy_guide.PrivacyGuideInteractions;
+@@ -148,6 +150,10 @@ public class PrivacySettings extends PreferenceFragmentCompat
+                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
+         canMakePaymentPref.setOnPreferenceChangeListener(this);
+ 
++        ChromeSwitchPreference closeTabsOnExitPref =
++                (ChromeSwitchPreference) findPreference(PREF_CLOSE_TABS_ON_EXIT);
++        closeTabsOnExitPref.setOnPreferenceChangeListener(this);
++
+         Preference preloadPagesPreference = findPreference(PREF_PRELOAD_PAGES);
+         preloadPagesPreference.setSummary(
+                 PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
+@@ -230,6 +236,9 @@ public class PrivacySettings extends PreferenceFragmentCompat
+             UserPrefs.get(mProfile).setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
+         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
+             UserPrefs.get(mProfile).setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
++        } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
++            SharedPreferencesManager.getInstance()
++                    .writeBoolean(PREF_CLOSE_TABS_ON_EXIT, (boolean) newValue);
+         }
+         return true;
+     }
+@@ -244,6 +253,13 @@ public class PrivacySettings extends PreferenceFragmentCompat
+      * Updates the preferences.
+      */
+     public void updatePreferences() {
++        SharedPreferencesManager sharedPrefMgr = SharedPreferencesManager.getInstance();
++        ChromeSwitchPreference closeTabsOnExitPref =
++                (ChromeSwitchPreference) findPreference(PREF_CLOSE_TABS_ON_EXIT);
++        if (closeTabsOnExitPref != null) {
++            closeTabsOnExitPref.setChecked(sharedPrefMgr.readBoolean(PREF_CLOSE_TABS_ON_EXIT, false));
++        }
++
+         ChromeSwitchPreference canMakePaymentPref =
+                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
+         if (canMakePaymentPref != null) {
+diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
+index 3433a6608b8fc..841dd8a379532 100644
+--- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
++++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
+@@ -108,6 +108,10 @@ public final class ChromePreferenceKeys {
+             "enhanced_bookmark_last_used_parent_folder";
+     public static final String BOOKMARK_VISUALS_PREF = "Chrome.Bookmarks.BookmarkRowDisplay";
+ 
++    public static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
++
++    // Add SharedPreference keys with ChromeSwitchPreference a line above this one.
++
+     /**
+      * Whether Chrome is set as the default browser.
+      * Default value is false.
+@@ -1082,6 +1086,7 @@ public final class ChromePreferenceKeys {
+                 OPTIMIZATION_GUIDE_PUSH_NOTIFICATION_CACHE.pattern(),
+                 PASSWORD_PROTECTION_ACCOUNTS,
+                 PERSISTENT_OFFLINE_CONTENT_AVAILABILITY_STATUS,
++                PREF_CLOSE_TABS_ON_EXIT,
+                 PRICE_TRACKING_ANNOTATIONS_ENABLED_METRICS_TIMESTAMP,
+                 PRICE_TRACKING_CHROME_MANAGED_NOTIFICATIONS_TIMESTAMPS,
+                 PRICE_TRACKING_PRICE_ALERTS_MESSAGE_CARD,
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index fef701fa611cd..48bbac1d9af53 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -1285,6 +1285,13 @@ Private state tokens improve privacy on the web and can’t be used to find out
+         Please verify that this is a valid provider or try again later
+       </message>
+ 
++      <message name="IDS_CLOSE_TABS_ON_EXIT_TITLE" desc="Title of closing tabs on exit menu item">
++        Close tabs on exit
++      </message>
++      <message name="IDS_CLOSE_TABS_ON_EXIT_SUMMARY" desc="Summary of closing tabs on exit menu item">
++        Don't persist tabs between browsing sessions
++      </message>
++
+       <message name="IDS_CLEAR_BROWSING_DATA_TITLE" desc="Title of the Clear Browsing Data screen. [CHAR_LIMIT=32]">
+         Clear browsing data
+       </message>
