@@ -1,17 +1,17 @@
-From d73c2244023ab4b1266ce964125a12c975115a15 Mon Sep 17 00:00:00 2001
+From 83823bd79bf2daa1e1e647b9c20942b4772bbe96 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Mon, 8 Mar 2021 16:53:47 -0500
 Subject: [PATCH] enable partitioning connections by default
 
 ---
- net/base/features.cc | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/base/features.cc | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 16a8f64986f27..159deea8f62d5 100644
+index 4d0e418987754..39b0588b924e4 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -91,23 +91,23 @@ BASE_FEATURE(kSplitCacheByNetworkIsolationKey,
+@@ -100,27 +100,27 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
  
  BASE_FEATURE(kSplitHostCacheByNetworkIsolationKey,
               "SplitHostCacheByNetworkIsolationKey",
@@ -38,5 +38,10 @@ index 16a8f64986f27..159deea8f62d5 100644
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
- BASE_FEATURE(kEnableCrossSiteFlagNetworkAnonymizationKey,
-              "EnableCrossSiteFlagNetworkAnonymizationKey",
+ BASE_FEATURE(kEnableCrossSiteFlagNetworkIsolationKey,
+              "EnableCrossSiteFlagNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kTLS13KeyUpdate,
+              "TLS13KeyUpdate",

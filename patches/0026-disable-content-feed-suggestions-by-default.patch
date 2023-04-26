@@ -1,4 +1,4 @@
-From ae48d3cb399dd3a619e2c769af3edb2d3fad3e85 Mon Sep 17 00:00:00 2001
+From f15f8084a15cab72541c6dc40722242dbe7db383 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Sun, 22 Mar 2020 01:23:48 -0400
 Subject: [PATCH] disable content feed suggestions by default
@@ -9,10 +9,10 @@ Subject: [PATCH] disable content feed suggestions by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index ce61832ac9830..92a4929b0af48 100644
+index 6933614240b4c..34de4932be2ac 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -619,7 +619,7 @@ public abstract class ChromeFeatureList {
+@@ -638,7 +638,7 @@ public abstract class ChromeFeatureList {
              new CachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false);
      public static final CachedFlag sInstanceSwitcher = new CachedFlag(INSTANCE_SWITCHER, true);
      public static final CachedFlag sInstantStart = new CachedFlag(INSTANT_START, false);
@@ -20,9 +20,9 @@ index ce61832ac9830..92a4929b0af48 100644
 +    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, false);
      public static final CachedFlag sLensCameraAssistedSearch =
              new CachedFlag(LENS_CAMERA_ASSISTED_SEARCH, true);
-     public static final CachedFlag sOSKResizesVisualViewportByDefault =
+     public static final CachedFlag sOmahaMinSdkVersionAndroid =
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index 64ff72b3ab777..43b32ec112b52 100644
+index b3602faf1a0f3..a155b2dc01d43 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,
