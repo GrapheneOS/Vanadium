@@ -1,0 +1,98 @@
+From 8d6415b528282e377ffa4c291f8ba0354e0aa403 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 11 Apr 2023 07:14:45 +0000
+Subject: [PATCH] Helper class for modifying preferences at chrome layer
+
+---
+ chrome/android/chrome_ext_java_sources.gni    |  1 +
+ .../browser/settings/SettingsExtUtils.java    | 71 +++++++++++++++++++
+ 2 files changed, 72 insertions(+)
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java
+
+diff --git a/chrome/android/chrome_ext_java_sources.gni b/chrome/android/chrome_ext_java_sources.gni
+index fe72e9b1d3abb..b3a489f124aa8 100644
+--- a/chrome/android/chrome_ext_java_sources.gni
++++ b/chrome/android/chrome_ext_java_sources.gni
+@@ -3,4 +3,5 @@
+ # found in the LICENSE file.
+ 
+ chrome_ext_java_sources = [
++  "java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java",
+ ]
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java
+new file mode 100644
+index 0000000000000..c9907624c4fc1
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java
+@@ -0,0 +1,71 @@
++// Copyright 2023 GrapheneOS
++// Use of this source code is governed by a GPLv2-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.settings;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.preference.Preference;
++import androidx.preference.PreferenceFragmentCompat;
++import androidx.preference.SwitchPreferenceCompat;
++
++import org.chromium.base.ThreadUtils;
++
++public class SettingsExtUtils {
++
++    public static void safelyUpdatePreference(
++        @Nullable Preference preference,
++        @Nullable String newSummary
++    ) {
++        if (preference == null) return;
++        safelyUpdatePreferenceCommon(preference, newSummary);
++    }
++
++
++    public static void safelyUpdateSwitchPreference(
++        @Nullable SwitchPreferenceCompat switchPref,
++        @Nullable String newSummary,
++        boolean newValue
++    ) {
++        if (switchPref == null) return;
++        safelyUpdatePreferenceCommon(switchPref, newSummary);
++        safelyUpdatePreferenceChecked(switchPref, newSummary, newValue);
++    }
++
++    private static void safelyUpdatePreferenceCommon(
++        @NonNull Preference preference,
++        @Nullable String newSummary
++    ) {
++        ThreadUtils.checkUiThread();
++        if (newSummary != null) {
++            preference.setSummary(newSummary);
++        }
++    }
++
++    private static void safelyUpdatePreferenceChecked(
++        @NonNull SwitchPreferenceCompat switchPref,
++        @Nullable String nativeKey,
++        boolean checked
++    ) {
++        switchPref.setChecked(checked);
++    }
++
++    public static void safelyRemovePreference(
++        @NonNull PreferenceFragmentCompat prefFragment,
++        @NonNull String key
++    ) {
++        Preference preference = prefFragment.findPreference(key);
++        safelyRemovePreference(prefFragment, preference);
++    }
++
++    public static void safelyRemovePreference(
++        @NonNull PreferenceFragmentCompat prefFragment,
++        @Nullable Preference preference
++    ) {
++        ThreadUtils.checkUiThread();
++        if (preference != null) {
++            prefFragment.getPreferenceScreen().removePreference(preference);
++        }
++    }
++}
