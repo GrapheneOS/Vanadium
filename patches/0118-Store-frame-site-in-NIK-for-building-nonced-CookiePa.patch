@@ -1,0 +1,334 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dylan Cutler <dylancutler@google.com>
+Date: Mon, 8 May 2023 20:54:29 +0000
+Subject: [PATCH] Store frame site in NIK for building nonced
+ CookiePartitionKeys
+
+[Cherry-pick of https://crrev.com/c/4503807 into M114]
+
+This is necessary because nonced CPKs use the frame site of the NIK
+instead of the top-frame site. This is done to match StorageKey's
+implementation of nonced partitions, since they need to be consistent
+for partitioned cookies/service workers to interact correctly.
+
+When the NIK is in cross-site flag mode we do not use the frame site, so
+I added a passkey to a new accessor to access the frame site
+specifically for constructing CookiePartitionKeys.
+
+(cherry picked from commit f5980613b74de6c05536180b7639123632465f5c)
+
+Bug: 1442260
+Change-Id: Ieb7ba31c12b71a898c36c517b963fe7e13758f8a
+Validate-Test-Flakiness: skip
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4503807
+Reviewed-by: Maks Orlovich <morlovich@chromium.org>
+Reviewed-by: Robert Sesek <rsesek@chromium.org>
+Reviewed-by: Andrew Williams <awillia@chromium.org>
+Commit-Queue: Dylan Cutler <dylancutler@google.com>
+Cr-Original-Commit-Position: refs/heads/main@{#1140173}
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4514476
+Reviewed-by: danakj <danakj@chromium.org>
+Reviewed-by: Brendon Tiszka <tiszka@chromium.org>
+Cr-Commit-Position: refs/branch-heads/5735@{#402}
+Cr-Branched-From: 2f562e4ddbaf79a3f3cb338b4d1bd4398d49eb67-refs/heads/main@{#1135570}
+---
+ net/base/network_isolation_key.cc             |  8 +--
+ net/base/network_isolation_key.h              | 44 ++++++++++++---
+ net/cookies/cookie_partition_key.cc           |  4 +-
+ net/cookies/cookie_partition_key_unittest.cc  | 53 ++++++++++++++++++-
+ .../cpp/network_isolation_key_mojom_traits.cc | 11 ++--
+ .../cpp/network_isolation_key_mojom_traits.h  |  8 +++
+ .../public/mojom/network_isolation_key.mojom  |  3 ++
+ 7 files changed, 114 insertions(+), 17 deletions(-)
+
+diff --git a/net/base/network_isolation_key.cc b/net/base/network_isolation_key.cc
+index 69d31e5e4d0e1..309ddc147bc61 100644
+--- a/net/base/network_isolation_key.cc
++++ b/net/base/network_isolation_key.cc
+@@ -28,9 +28,11 @@ std::string GetSiteDebugString(const absl::optional<SchemefulSite>& site) {
+ NetworkIsolationKey::NetworkIsolationKey(
+     SerializationPasskey,
+     SchemefulSite top_frame_site,
++    SchemefulSite frame_site,
+     bool is_cross_site,
+     absl::optional<base::UnguessableToken> nonce)
+     : top_frame_site_(std::move(top_frame_site)),
++      frame_site_(std::move(frame_site)),
+       is_cross_site_(is_cross_site),
+       nonce_(std::move(nonce)) {
+   CHECK_EQ(GetMode(), Mode::kCrossSiteFlagEnabled);
+@@ -49,11 +51,9 @@ NetworkIsolationKey::NetworkIsolationKey(
+     SchemefulSite&& frame_site,
+     absl::optional<base::UnguessableToken>&& nonce)
+     : top_frame_site_(std::move(top_frame_site)),
+-      frame_site_((GetMode() == Mode::kFrameSiteEnabled)
+-                      ? absl::make_optional(std::move(frame_site))
+-                      : absl::nullopt),
++      frame_site_(absl::make_optional(std::move(frame_site))),
+       is_cross_site_((GetMode() == Mode::kCrossSiteFlagEnabled)
+-                         ? absl::make_optional(*top_frame_site_ != frame_site)
++                         ? absl::make_optional(*top_frame_site_ != *frame_site_)
+                          : absl::nullopt),
+       nonce_(std::move(nonce)) {
+   DCHECK(!nonce_ || !nonce_->is_empty());
+diff --git a/net/base/network_isolation_key.h b/net/base/network_isolation_key.h
+index 7b347b45cf9df..829dcdbff0e44 100644
+--- a/net/base/network_isolation_key.h
++++ b/net/base/network_isolation_key.h
+@@ -22,6 +22,10 @@ class FrameSiteEnabledNetworkIsolationKeyDataView;
+ class CrossSiteFlagEnabledNetworkIsolationKeyDataView;
+ }
+ 
++namespace net {
++class CookiePartitionKey;
++}
++
+ namespace net {
+ 
+ // Key used to isolate shared network stack resources used by requests based on
+@@ -40,10 +44,18 @@ class NET_EXPORT NetworkIsolationKey {
+     ~SerializationPasskey() = default;
+   };
+ 
++  class CookiePartitionKeyPasskey {
++   private:
++    friend class CookiePartitionKey;
++    CookiePartitionKeyPasskey() = default;
++    ~CookiePartitionKeyPasskey() = default;
++  };
++
+   // This constructor is used for deserialization when `GetMode()` returns
+   // `kCrossSiteFlagEnabled`.
+   NetworkIsolationKey(SerializationPasskey,
+                       SchemefulSite top_frame_site,
++                      SchemefulSite frame_site,
+                       bool is_cross_site,
+                       absl::optional<base::UnguessableToken> nonce);
+ 
+@@ -101,6 +113,11 @@ class NET_EXPORT NetworkIsolationKey {
+ 
+   // Compare keys for equality, true if all enabled fields are equal.
+   bool operator==(const NetworkIsolationKey& other) const {
++    if (GetMode() != Mode::kFrameSiteEnabled) {
++      return std::tie(top_frame_site_, is_cross_site_, nonce_) ==
++             std::tie(other.top_frame_site_, other.is_cross_site_,
++                      other.nonce_);
++    }
+     return std::tie(top_frame_site_, frame_site_, is_cross_site_, nonce_) ==
+            std::tie(other.top_frame_site_, other.frame_site_,
+                     other.is_cross_site_, other.nonce_);
+@@ -113,6 +130,11 @@ class NET_EXPORT NetworkIsolationKey {
+ 
+   // Provide an ordering for keys based on all enabled fields.
+   bool operator<(const NetworkIsolationKey& other) const {
++    if (GetMode() != Mode::kFrameSiteEnabled) {
++      return std::tie(top_frame_site_, is_cross_site_, nonce_) <
++             std::tie(other.top_frame_site_, other.is_cross_site_,
++                      other.nonce_);
++    }
+     return std::tie(top_frame_site_, frame_site_, is_cross_site_, nonce_) <
+            std::tie(other.top_frame_site_, other.frame_site_,
+                     other.is_cross_site_, other.nonce_);
+@@ -153,7 +175,8 @@ class NET_EXPORT NetworkIsolationKey {
+     // This scheme indicates that "2.5-key" NetworkIsolationKeys are used to
+     // partition the HTTP cache. This key will have the following properties:
+     // `top_frame_site_` -> the schemeful site of the top level page.
+-    // `frame_site_` -> absl::nullopt.
++    // `frame_site_` -> should only be accessed for serialization or building
++    // nonced CookiePartitionKeys.
+     // `is_cross_site_` -> a boolean indicating whether the frame site is
+     // schemefully cross-site from the top-level site.
+     kCrossSiteFlagEnabled,
+@@ -168,7 +191,10 @@ class NET_EXPORT NetworkIsolationKey {
+   const absl::optional<SchemefulSite>& GetFrameSite() const;
+ 
+   // Do not use outside of testing. Returns the `frame_site_`.
+-  const absl::optional<SchemefulSite>& GetFrameSiteForTesting() const {
++  const absl::optional<SchemefulSite> GetFrameSiteForTesting() const {
++    if (GetMode() == Mode::kCrossSiteFlagEnabled) {
++      return absl::nullopt;
++    }
+     return frame_site_;
+   }
+ 
+@@ -185,9 +211,17 @@ class NET_EXPORT NetworkIsolationKey {
+   const absl::optional<SchemefulSite>& GetFrameSiteForSerialization(
+       SerializationPasskey) const {
+     CHECK(!IsEmpty());
+-    CHECK_EQ(GetMode(), Mode::kFrameSiteEnabled);
+     return frame_site_;
+   }
++  // We also need to access the frame site directly when constructing
++  // CookiePartitionKey for nonced partitions. We also use a passkey for this
++  // case.
++  const absl::optional<SchemefulSite>& GetFrameSiteForCookiePartitionKey(
++      CookiePartitionKeyPasskey) const {
++    CHECK(!IsEmpty());
++    return frame_site_;
++  }
++
+   // Same as above but for the is-cross-site bit.
+   const absl::optional<bool>& GetIsCrossSiteForSerialization(
+       SerializationPasskey) const {
+@@ -211,9 +245,7 @@ class NET_EXPORT NetworkIsolationKey {
+   // The origin/etld+1 of the top frame of the page making the request.
+   absl::optional<SchemefulSite> top_frame_site_;
+ 
+-  // The origin/etld+1 of the frame that initiates the request. This will be
+-  // absl::nullopt when `GetMode()` returns `Mode::kCrossSiteFlagEnabled`, or
+-  // for an empty `NetworkIsolationKey`.
++  // The origin/etld+1 of the frame that initiates the request.
+   absl::optional<SchemefulSite> frame_site_;
+ 
+   // A boolean indicating whether the frame origin is cross-site from the
+diff --git a/net/cookies/cookie_partition_key.cc b/net/cookies/cookie_partition_key.cc
+index 8a1b10027014f..bb85ec78beccc 100644
+--- a/net/cookies/cookie_partition_key.cc
++++ b/net/cookies/cookie_partition_key.cc
+@@ -117,7 +117,9 @@ absl::optional<CookiePartitionKey> CookiePartitionKey::FromNetworkIsolationKey(
+   // TODO(crbug.com/1225444): Check if the top frame site is in a First-Party
+   // Set or if it is an extension URL.
+   const absl::optional<SchemefulSite>& partition_key_site =
+-      network_isolation_key.GetTopFrameSite();
++      nonce ? network_isolation_key.GetFrameSiteForCookiePartitionKey(
++                  NetworkIsolationKey::CookiePartitionKeyPasskey())
++            : network_isolation_key.GetTopFrameSite();
+   if (!partition_key_site)
+     return absl::nullopt;
+ 
+diff --git a/net/cookies/cookie_partition_key_unittest.cc b/net/cookies/cookie_partition_key_unittest.cc
+index 5fb8b8dda76af..30a253f9f97d9 100644
+--- a/net/cookies/cookie_partition_key_unittest.cc
++++ b/net/cookies/cookie_partition_key_unittest.cc
+@@ -144,7 +144,7 @@ TEST_P(CookiePartitionKeyTest, FromNetworkIsolationKey) {
+           "WithNonce",
+           NetworkIsolationKey(kTopLevelSite, kCookieSite, kNonce),
+           /*allow_nonced_partition_keys=*/false,
+-          CookiePartitionKey::FromURLForTesting(kTopLevelSite.GetURL(), kNonce),
++          CookiePartitionKey::FromURLForTesting(kCookieSite.GetURL(), kNonce),
+       },
+       {
+           "NoncedAllowed_KeyWithoutNonce",
+@@ -156,7 +156,7 @@ TEST_P(CookiePartitionKeyTest, FromNetworkIsolationKey) {
+           "NoncedAllowed_KeyWithoutNonce",
+           NetworkIsolationKey(kTopLevelSite, kCookieSite, kNonce),
+           /*allow_nonced_partition_keys=*/true,
+-          CookiePartitionKey::FromURLForTesting(kTopLevelSite.GetURL(), kNonce),
++          CookiePartitionKey::FromURLForTesting(kCookieSite.GetURL(), kNonce),
+       },
+   };
+ 
+@@ -302,4 +302,53 @@ TEST_P(CookiePartitionKeyTest, Equality_WithNonce) {
+   EXPECT_NE(key1, unnonced_key);
+ }
+ 
++TEST_P(CookiePartitionKeyTest, Localhost) {
++  SchemefulSite top_level_site(GURL("https://localhost:8000"));
++
++  auto key = CookiePartitionKey::FromNetworkIsolationKey(
++      NetworkIsolationKey(top_level_site, top_level_site));
++  EXPECT_EQ(PartitionedCookiesEnabled(), key.has_value());
++
++  SchemefulSite frame_site(GURL("https://cookiesite.com"));
++  key = CookiePartitionKey::FromNetworkIsolationKey(
++      NetworkIsolationKey(top_level_site, frame_site));
++  EXPECT_EQ(PartitionedCookiesEnabled(), key.has_value());
++}
++
++// Test that creating nonced partition keys works with both types of
++// NetworkIsolationKey modes. See https://crbug.com/1442260.
++TEST_P(CookiePartitionKeyTest, NetworkIsolationKeyMode) {
++  if (!PartitionedCookiesEnabled()) {
++    return;
++  }
++
++  const net::SchemefulSite kTopFrameSite(GURL("https://a.com"));
++  const net::SchemefulSite kFrameSite(GURL("https://b.com"));
++  const auto kNonce = base::UnguessableToken::Create();
++
++  {  // Frame site mode.
++    base::test::ScopedFeatureList feature_list;
++    feature_list.InitWithFeatures(
++        {}, {net::features::kEnableCrossSiteFlagNetworkIsolationKey});
++
++    const auto key = CookiePartitionKey::FromNetworkIsolationKey(
++        NetworkIsolationKey(kTopFrameSite, kFrameSite, kNonce));
++    EXPECT_TRUE(key);
++    EXPECT_EQ(key->site(), kFrameSite);
++    EXPECT_EQ(key->nonce().value(), kNonce);
++  }
++
++  {  // Cross-site flag mode.
++    base::test::ScopedFeatureList feature_list;
++    feature_list.InitWithFeatures(
++        {net::features::kEnableCrossSiteFlagNetworkIsolationKey}, {});
++
++    const auto key = CookiePartitionKey::FromNetworkIsolationKey(
++        NetworkIsolationKey(kTopFrameSite, kFrameSite, kNonce));
++    EXPECT_TRUE(key);
++    EXPECT_EQ(key->site(), kFrameSite);
++    EXPECT_EQ(key->nonce().value(), kNonce);
++  }
++}
++
+ }  // namespace net
+diff --git a/services/network/public/cpp/network_isolation_key_mojom_traits.cc b/services/network/public/cpp/network_isolation_key_mojom_traits.cc
+index 804bb0059782f..626a938187384 100644
+--- a/services/network/public/cpp/network_isolation_key_mojom_traits.cc
++++ b/services/network/public/cpp/network_isolation_key_mojom_traits.cc
+@@ -44,15 +44,18 @@ bool StructTraits<
+     Read(network::mojom::CrossSiteFlagEnabledNetworkIsolationKeyDataView data,
+          net::NetworkIsolationKey* out) {
+   net::SchemefulSite top_frame_site;
++  net::SchemefulSite frame_site;
+   absl::optional<base::UnguessableToken> nonce;
+ 
+-  if (!data.ReadTopFrameSite(&top_frame_site) || !data.ReadNonce(&nonce)) {
++  if (!data.ReadTopFrameSite(&top_frame_site) ||
++      !data.ReadFrameSite(&frame_site) || !data.ReadNonce(&nonce)) {
+     return false;
+   }
+ 
+-  *out = net::NetworkIsolationKey(
+-      net::NetworkIsolationKey::SerializationPasskey(),
+-      std::move(top_frame_site), data.is_cross_site(), std::move(nonce));
++  *out =
++      net::NetworkIsolationKey(net::NetworkIsolationKey::SerializationPasskey(),
++                               std::move(top_frame_site), std::move(frame_site),
++                               data.is_cross_site(), std::move(nonce));
+   return true;
+ }
+ 
+diff --git a/services/network/public/cpp/network_isolation_key_mojom_traits.h b/services/network/public/cpp/network_isolation_key_mojom_traits.h
+index b987124c4e235..a430c856b2b87 100644
+--- a/services/network/public/cpp/network_isolation_key_mojom_traits.h
++++ b/services/network/public/cpp/network_isolation_key_mojom_traits.h
+@@ -63,6 +63,14 @@ struct COMPONENT_EXPORT(NETWORK_CPP_BASE) StructTraits<
+     return input.GetTopFrameSite().value();
+   }
+ 
++  static const net::SchemefulSite& frame_site(
++      const net::NetworkIsolationKey& input) {
++    return input
++        .GetFrameSiteForSerialization(
++            net::NetworkIsolationKey::SerializationPasskey())
++        .value();
++  }
++
+   static bool is_cross_site(const net::NetworkIsolationKey& input) {
+     absl::optional<bool> is_cross_site = input.GetIsCrossSiteForSerialization(
+         net::NetworkIsolationKey::SerializationPasskey());
+diff --git a/services/network/public/mojom/network_isolation_key.mojom b/services/network/public/mojom/network_isolation_key.mojom
+index 2309a08827fe9..b17f783b220f5 100644
+--- a/services/network/public/mojom/network_isolation_key.mojom
++++ b/services/network/public/mojom/network_isolation_key.mojom
+@@ -35,6 +35,9 @@ struct CrossSiteFlagEnabledNetworkIsolationKey {
+   // The top-level site of the `net::NetworkIsolationKey`.
+   SchemefulSite top_frame_site;
+ 
++  // The frame site of the `net::NetworkIsolationKey`.
++  SchemefulSite frame_site;
++
+   // A boolean indicating whether the `net::NetworkIsolationKey` was created
+   // with a frame site that was schemefully cross-site with the top-level site.
+   bool is_cross_site;
