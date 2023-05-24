@@ -5,8 +5,7 @@ Subject: [PATCH] disable article suggestions feature by default
 
 ---
  components/feed/core/shared_prefs/pref_names.cc | 4 ++--
- components/ntp_snippets/features.cc             | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/feed/core/shared_prefs/pref_names.cc b/components/feed/core/shared_prefs/pref_names.cc
 index e239b42b31ef3..5a5e881272c22 100644
@@ -23,16 +22,3 @@ index e239b42b31ef3..5a5e881272c22 100644
    registry->RegisterIntegerPref(kVideoPreviewsType, 1);
  }
  
-diff --git a/components/ntp_snippets/features.cc b/components/ntp_snippets/features.cc
-index 7d146cd35fd4c..7bc431d6bcacb 100644
---- a/components/ntp_snippets/features.cc
-+++ b/components/ntp_snippets/features.cc
-@@ -40,7 +40,7 @@ const base::Feature* const kAllFeatures[] = {
- 
- BASE_FEATURE(kArticleSuggestionsFeature,
-              "NTPArticleSuggestions",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
- 
- BASE_FEATURE(kRemoteSuggestionsEmulateM58FetchingSchedule,
-              "RemoteSuggestionsEmulateM58FetchingSchedule",

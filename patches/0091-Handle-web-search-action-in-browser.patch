@@ -32,10 +32,10 @@ index 2d1661ee534f6..2c983646ab42b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index de76ef1678986..e83db1b9c8cde 100644
+index db72fb7356e29..575050c5c0d06 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -341,6 +341,10 @@ by a child template that "extends" this file.
+@@ -345,6 +345,10 @@ by a child template that "extends" this file.
              <intent-filter>
                  <action android:name="android.intent.action.SEARCH" />
              </intent-filter>
@@ -47,10 +47,10 @@ index de76ef1678986..e83db1b9c8cde 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 9319ea8bf82df..b56df80c635ba 100644
+index 3647020cb02d8..da7ad2c4a09ac 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -762,6 +762,7 @@ public class IntentHandler {
+@@ -768,6 +768,7 @@ public class IntentHandler {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -59,7 +59,7 @@ index 9319ea8bf82df..b56df80c635ba 100644
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index b1127ade4d692..1ae4d1ddc9a89 100644
+index 2f755a8aee5c7..f1fa6eeeb8e5a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -211,7 +211,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega

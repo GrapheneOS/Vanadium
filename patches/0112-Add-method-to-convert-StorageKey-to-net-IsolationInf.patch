@@ -19,10 +19,10 @@ Cr-Commit-Position: refs/heads/main@{#1138611}
  3 files changed, 67 insertions(+)
 
 diff --git a/third_party/blink/common/storage_key/storage_key.cc b/third_party/blink/common/storage_key/storage_key.cc
-index 964476ff6cc19..100b15126d2eb 100644
+index da0925aa2414d..512880ba4afd1 100644
 --- a/third_party/blink/common/storage_key/storage_key.cc
 +++ b/third_party/blink/common/storage_key/storage_key.cc
-@@ -777,6 +777,16 @@ const net::SiteForCookies StorageKey::ToNetSiteForCookies() const {
+@@ -779,6 +779,16 @@ const net::SiteForCookies StorageKey::ToNetSiteForCookies() const {
    return net::SiteForCookies(top_level_site_);
  }
  
@@ -40,10 +40,10 @@ index 964476ff6cc19..100b15126d2eb 100644
  bool StorageKey::ShouldSkipKeyDueToPartitioning(
      const std::string& reg_key_string) {
 diff --git a/third_party/blink/common/storage_key/storage_key_unittest.cc b/third_party/blink/common/storage_key/storage_key_unittest.cc
-index 2539892d56b5c..46138ae3cde01 100644
+index 4066bf8c62691..3d0ecf69fde44 100644
 --- a/third_party/blink/common/storage_key/storage_key_unittest.cc
 +++ b/third_party/blink/common/storage_key/storage_key_unittest.cc
-@@ -939,6 +939,46 @@ TEST_F(StorageKeyTest, ToNetSiteForCookies) {
+@@ -944,6 +944,46 @@ TEST_F(StorageKeyTest, ToNetSiteForCookies) {
    }
  }
  

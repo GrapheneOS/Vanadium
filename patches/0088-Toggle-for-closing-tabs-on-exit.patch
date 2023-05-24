@@ -40,17 +40,17 @@ index 01e8c8217afed..ea1dd6c3f529c 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index f925a7ce70ed6..52945debdd44a 100644
+index eb8d976faa065..f595aa4e1b231 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1268,6 +1268,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1285,6 +1285,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
  
              boolean noRestoreState =
                      CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE);
 +            noRestoreState |= TabPreferencesUtils.shouldCloseTabsOnExit();
+             boolean shouldShowHomeSurfaceAtStartupOnTablet = false;
+             final AtomicBoolean isActiveUrlNTP = new AtomicBoolean(false);
              if (noRestoreState) {
-                 // Clear the state files because they are inconsistent and useless from now on.
-                 mTabModelOrchestrator.clearState();
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
 new file mode 100644
 index 0000000000000..e004200c3102c
@@ -129,10 +129,10 @@ index d627ead5ee9d0..e702d36ea82a7 100644
      }
  }
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
-index bb8843ebdb175..9ed4688103389 100644
+index ceec302c0a9d6..8fc7dde1db697 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
-@@ -117,6 +117,8 @@ public final class SharedPrefsUtils {
+@@ -136,6 +136,8 @@ public final class SharedPrefsUtils {
  
      // Stores SharedPreferences keys and its default value
      public static class SharedPrefsExt {
@@ -141,7 +141,7 @@ index bb8843ebdb175..9ed4688103389 100644
      }
  
      static SharedPreferencesManager getSharedPrefManager() {
-@@ -127,6 +129,7 @@ public final class SharedPrefsUtils {
+@@ -146,6 +148,7 @@ public final class SharedPrefsUtils {
      static boolean isKeyInUse(String key) {
          // clang-format off
          return Arrays.asList(
