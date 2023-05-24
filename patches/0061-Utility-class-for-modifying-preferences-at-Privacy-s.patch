@@ -49,19 +49,19 @@ index 0000000000000..a352cd657b1b9
 +</PreferenceScreen>
 +
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index e64c0b3460fbd..a4193b12dbe8e 100644
+index a9da397ba2eaf..26218b5511044 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -86,6 +86,8 @@ public class PrivacySettings extends PreferenceFragmentCompat
+@@ -93,6 +93,8 @@ public class PrivacySettings extends PreferenceFragmentCompat
              SettingsUtils.addPreferencesFromResource(this, R.xml.privacy_preferences);
          }
  
 +        PrivacySettingsExt.initializePreferences(this);
 +
          Preference sandboxPreference = findPreference(PREF_PRIVACY_SANDBOX);
-         if (PrivacySandboxBridge.isPrivacySandboxRestricted()) {
-             // Hide the Privacy Sandbox if it is restricted.
-@@ -175,6 +177,8 @@ public class PrivacySettings extends PreferenceFragmentCompat
+         if (PrivacySandboxBridge.isPrivacySandboxRestricted()
+                 && !PrivacySandboxBridge.isRestrictedNoticeEnabled()) {
+@@ -185,6 +187,8 @@ public class PrivacySettings extends PreferenceFragmentCompat
                      SingleCategorySettings.EXTRA_TITLE, thirdPartyCookies.getTitle().toString());
          }
  
@@ -70,15 +70,15 @@ index e64c0b3460fbd..a4193b12dbe8e 100644
          updatePreferences();
      }
  
-@@ -291,6 +295,8 @@ public class PrivacySettings extends PreferenceFragmentCompat
-             thirdPartyCookies.setSummary(ContentSettingsResources.getThirdPartyCookieListSummary(
-                     prefService.getInteger(COOKIE_CONTROLS_MODE)));
+@@ -299,6 +303,8 @@ public class PrivacySettings extends PreferenceFragmentCompat
+                     UserPrefs.get(mProfile).getInteger(COOKIE_CONTROLS_MODE)));
          }
-+
+ 
 +        PrivacySettingsExt.updatePreferences(this);
++
+         updatePrivacyGuidePreferenceTitle();
      }
  
-     @Override
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 new file mode 100644
 index 0000000000000..00a65cf922353

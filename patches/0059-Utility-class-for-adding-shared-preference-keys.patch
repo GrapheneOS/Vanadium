@@ -6,12 +6,12 @@ Subject: [PATCH] Utility class for adding shared preference keys
 ---
  chrome/browser/preferences/BUILD.gn           |   3 +
  .../ChromePreferenceKeyChecker.java           |   4 +
- .../browser/preferences/SharedPrefsUtils.java | 133 ++++++++++++++++++
- 3 files changed, 140 insertions(+)
+ .../browser/preferences/SharedPrefsUtils.java | 152 ++++++++++++++++++
+ 3 files changed, 159 insertions(+)
  create mode 100644 chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
 
 diff --git a/chrome/browser/preferences/BUILD.gn b/chrome/browser/preferences/BUILD.gn
-index 56d2bd3b15c6f..8b521c5a088d7 100644
+index c3038943a893b..e2a45f2c23b95 100644
 --- a/chrome/browser/preferences/BUILD.gn
 +++ b/chrome/browser/preferences/BUILD.gn
 @@ -15,6 +15,9 @@ android_library("java") {
@@ -41,10 +41,10 @@ index 21e3be5ba9f77..915ee8be3def7 100644
              return true;
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
 new file mode 100644
-index 0000000000000..bb8843ebdb175
+index 0000000000000..ceec302c0a9d6
 --- /dev/null
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,152 @@
 +package org.chromium.chrome.browser.preferences;
 +
 +import org.chromium.build.annotations.CheckDiscard;
@@ -153,11 +153,30 @@ index 0000000000000..bb8843ebdb175
 +            return getSharedPrefManager().readString(key, defValue);
 +        }
 +
++        public boolean validateValue(String val) {
++            if (validValues == null) {
++                return true;
++            }
++            // don't do sort() + bsearch() of validValues array, it's expected to have a small number of entries
++            for (String validValue : validValues) {
++                if (val == validValue) {
++                    return true;
++                }
++            }
++            return false;
++        }
++
 +        public void put(String newValue) {
++            if (!validateValue(newValue)) {
++                return;
++            }
 +            getSharedPrefManager().writeString(key, newValue);
 +        }
 +
 +        public boolean putSync(String newValue) {
++            if (!validateValue(newValue)) {
++                return false;
++            }
 +            return getSharedPrefManager().writeStringSync(key, newValue);
 +        }
 +    }

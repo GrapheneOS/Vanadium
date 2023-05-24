@@ -4,14 +4,15 @@ Date: Thu, 27 May 2021 07:30:02 -0400
 Subject: [PATCH] add trichrome browser apk targets
 
 ---
- chrome/android/BUILD.gn | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ chrome/android/BUILD.gn                   | 35 +++++++++++++++++++++++
+ chrome/android/chrome_public_apk_tmpl.gni |  2 ++
+ 2 files changed, 37 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 708c6d3e43d1d..50fbaa7af78e2 100644
+index 70023630d6839..ad40428bf989b 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2260,6 +2260,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2181,6 +2181,10 @@ if (current_toolchain == default_toolchain) {
      is_trichrome = true
      is_bundle_module = true
    }
@@ -22,12 +23,12 @@ index 708c6d3e43d1d..50fbaa7af78e2 100644
  
    # Java libraries that go into each public chrome APK and base module. The chrome
    # JNI registration is generated based on this target.
-@@ -2740,6 +2744,37 @@ if (current_toolchain == default_toolchain) {
+@@ -2537,6 +2541,37 @@ if (current_toolchain == default_toolchain) {
        }
      }
    }
 + 
-+  monochrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
++  chrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
 +    apk_name = "TrichromeChrome"
 +    is_trichrome = true
 +    target_type = "android_apk"
@@ -39,7 +40,7 @@ index 708c6d3e43d1d..50fbaa7af78e2 100644
 +  }
 +  
 +  if (android_64bit_target_cpu) {
-+    monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
++    chrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
 +      apk_name = "TrichromeChrome6432"
 +      is_trichrome = true
 +      target_type = "android_apk"
@@ -48,7 +49,7 @@ index 708c6d3e43d1d..50fbaa7af78e2 100644
 +      include_32_bit_webview = true
 +    }
 +  
-+    monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
++    chrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
 +      apk_name = "TrichromeChrome64"
 +      is_trichrome = true
 +      target_type = "android_apk"
@@ -60,3 +61,16 @@ index 708c6d3e43d1d..50fbaa7af78e2 100644
  
    # As compared to chrome_public_test_apk, this target contains only unit tests
    # that require on device capabilities. These tests are smaller, more tightly
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index eeb286b07aae6..a27651ee9644c 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -453,6 +453,8 @@ template("chrome_common_apk_or_module_tmpl") {
+       deps += [ "//chrome/android:chrome_bundle_module_pak_assets" ]
+     } else if (_is_monochrome) {
+       deps += [ "//chrome/android:monochrome_apk_pak_assets" ]
++    } else if (_is_trichrome) {
++      deps += [ "//chrome/android:trichrome_chrome_apk_pak_assets" ]
+     } else {
+       assert(!_is_trichrome)
+       deps += [ "//chrome/android:chrome_apk_pak_assets" ]

@@ -29,10 +29,10 @@ index ea1dd6c3f529c..4f6b5a3ae75a5 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 52945debdd44a..8f315caf861de 100644
+index f595aa4e1b231..2950cc2c8b81b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -2328,6 +2328,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2373,6 +2373,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
          // - we decided to close the tab, but it was opened by an external app, so we will go
          //   exit Chrome on top of closing the tab
          final boolean minimizeApp =
@@ -42,7 +42,7 @@ index 52945debdd44a..8f315caf861de 100644
  
          BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 094d77e3fa3b0..b1127ade4d692 100644
+index aa44a679bee3c..2f755a8aee5c7 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -453,6 +453,9 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
@@ -156,10 +156,10 @@ index e702d36ea82a7..e75b5cd5a534a 100644
      }
  }
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
-index 9ed4688103389..d97425c0d01a8 100644
+index 8fc7dde1db697..c2ab10e14c29a 100644
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
-@@ -119,6 +119,8 @@ public final class SharedPrefsUtils {
+@@ -138,6 +138,8 @@ public final class SharedPrefsUtils {
      public static class SharedPrefsExt {
          public static final BoolSharedPref CLOSE_TABS_ON_EXIT =
                  new BoolSharedPref("close_tabs_on_exit", false);
@@ -168,7 +168,7 @@ index 9ed4688103389..d97425c0d01a8 100644
      }
  
      static SharedPreferencesManager getSharedPrefManager() {
-@@ -129,7 +131,8 @@ public final class SharedPrefsUtils {
+@@ -148,7 +150,8 @@ public final class SharedPrefsUtils {
      static boolean isKeyInUse(String key) {
          // clang-format off
          return Arrays.asList(

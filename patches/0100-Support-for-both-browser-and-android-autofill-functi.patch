@@ -11,7 +11,7 @@ Subject: [PATCH] Support for both browser and android autofill functionality
  4 files changed, 84 insertions(+)
 
 diff --git a/components/android_autofill/browser/android_autofill_manager.cc b/components/android_autofill/browser/android_autofill_manager.cc
-index 43b10eeac9e40..7aae36f3d6390 100644
+index 60b056e7e22d9..4101639a5649e 100644
 --- a/components/android_autofill/browser/android_autofill_manager.cc
 +++ b/components/android_autofill/browser/android_autofill_manager.cc
 @@ -9,6 +9,7 @@
@@ -44,7 +44,7 @@ index 43b10eeac9e40..7aae36f3d6390 100644
                                                 AutofillClient* client)
      : AutofillManager(driver, client) {
 diff --git a/components/android_autofill/browser/android_autofill_manager.h b/components/android_autofill/browser/android_autofill_manager.h
-index 62255a237e1f5..df706d7827562 100644
+index 179b2b47464e0..dd8af3166841a 100644
 --- a/components/android_autofill/browser/android_autofill_manager.h
 +++ b/components/android_autofill/browser/android_autofill_manager.h
 @@ -16,6 +16,16 @@ class AutofillProvider;
@@ -64,7 +64,7 @@ index 62255a237e1f5..df706d7827562 100644
  // Creates an AndroidAutofillManager and attaches it to the `driver`.
  //
  // This hook is to be passed to CreateForWebContentsAndDelegate().
-@@ -87,6 +97,11 @@ class AndroidAutofillManager : public AutofillManager {
+@@ -86,6 +96,11 @@ class AndroidAutofillManager : public AutofillManager {
                           const url::Origin& triggered_origin);
  
   protected:
@@ -77,7 +77,7 @@ index 62255a237e1f5..df706d7827562 100644
                                      ContentAutofillDriver* driver);
  
 diff --git a/components/autofill/content/browser/content_autofill_driver.cc b/components/autofill/content/browser/content_autofill_driver.cc
-index 60e9e3c623e03..f6c022406f007 100644
+index 00b0f300a0748..0f9287246a098 100644
 --- a/components/autofill/content/browser/content_autofill_driver.cc
 +++ b/components/autofill/content/browser/content_autofill_driver.cc
 @@ -336,6 +336,10 @@ void ContentAutofillDriver::FormsSeen(
@@ -188,7 +188,7 @@ index 60e9e3c623e03..f6c022406f007 100644
        });
  }
  
-@@ -597,6 +636,9 @@ void ContentAutofillDriver::DidNavigateFrame(
+@@ -575,6 +614,9 @@ void ContentAutofillDriver::Reset() {
    submitted_forms_.clear();
    autofill_router_->UnregisterDriver(this);
    autofill_manager_->Reset();
@@ -199,10 +199,10 @@ index 60e9e3c623e03..f6c022406f007 100644
  
  const mojo::AssociatedRemote<mojom::AutofillAgent>&
 diff --git a/components/autofill/content/browser/content_autofill_driver.h b/components/autofill/content/browser/content_autofill_driver.h
-index d973d3f771d07..ce96aad9b1b8a 100644
+index 65d6e43b5e017..bfae54ada1006 100644
 --- a/components/autofill/content/browser/content_autofill_driver.h
 +++ b/components/autofill/content/browser/content_autofill_driver.h
-@@ -131,6 +131,14 @@ class ContentAutofillDriver : public AutofillDriver,
+@@ -130,6 +130,14 @@ class ContentAutofillDriver : public AutofillDriver,
    }
    AutofillManager* autofill_manager() { return autofill_manager_.get(); }
  
@@ -217,7 +217,7 @@ index d973d3f771d07..ce96aad9b1b8a 100644
    content::RenderFrameHost* render_frame_host() { return render_frame_host_; }
  
    // Expose the events that originate from the browser and renderer processes,
-@@ -345,6 +353,10 @@ class ContentAutofillDriver : public AutofillDriver,
+@@ -343,6 +351,10 @@ class ContentAutofillDriver : public AutofillDriver,
    // code.
    std::unique_ptr<AutofillManager> autofill_manager_ = nullptr;
  

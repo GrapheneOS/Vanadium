@@ -4,34 +4,38 @@ Date: Thu, 10 Dec 2020 10:09:18 -0500
 Subject: [PATCH] disable WebView variations support
 
 ---
- .../com/android/webview/chromium/WebViewChromiumAwInit.java   | 4 ----
- .../webview/chromium/WebViewChromiumFactoryProvider.java      | 2 --
- 2 files changed, 6 deletions(-)
+ .../com/android/webview/chromium/WebViewChromiumAwInit.java | 6 ------
+ .../webview/chromium/WebViewChromiumFactoryProvider.java    | 4 ----
+ 2 files changed, 10 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index 6e089191b5b50..2cbdb14dfabb6 100644
+index d165d41f8b9e8..154be209c83fd 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -202,10 +202,6 @@ public class WebViewChromiumAwInit {
+@@ -202,12 +202,6 @@ public class WebViewChromiumAwInit {
  
              AwBrowserProcess.configureChildProcessLauncher();
  
 -            // finishVariationsInitLocked() must precede native initialization so the seed is
 -            // available when AwFeatureListCreator::SetUpFieldTrials() runs.
--            finishVariationsInitLocked();
+-            if (!FastVariationsSeedSafeModeAction.hasRun()) {
+-                finishVariationsInitLocked();
+-            }
 -
              AwBrowserProcess.start();
              AwBrowserProcess.handleMinidumpsAndSetMetricsConsent(true /* updateMetricsConsent */);
  
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index c019eabae2a9f..dcedf3510bf19 100644
+index c1c83348cc734..eea695706f323 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -479,8 +479,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -478,10 +478,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
                  }
              }
  
--            mAwInit.startVariationsInit();
+-            if (!FastVariationsSeedSafeModeAction.hasRun()) {
+-                mAwInit.startVariationsInit();
+-            }
 -
              mShouldDisableThreadChecking = shouldDisableThreadChecking(ctx);
  

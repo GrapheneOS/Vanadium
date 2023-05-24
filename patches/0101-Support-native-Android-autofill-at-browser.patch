@@ -18,7 +18,7 @@ support.
  8 files changed, 139 insertions(+), 1 deletion(-)
 
 diff --git a/android_webview/browser/aw_autofill_client.cc b/android_webview/browser/aw_autofill_client.cc
-index 1460fe2ba7591..dc4dc408fde3d 100644
+index 7dd21f8202f9f..889bf90b7821e 100644
 --- a/android_webview/browser/aw_autofill_client.cc
 +++ b/android_webview/browser/aw_autofill_client.cc
 @@ -83,6 +83,7 @@ AwAutofillClient::GetURLLoaderFactory() {
@@ -40,10 +40,10 @@ index 1460fe2ba7591..dc4dc408fde3d 100644
  
  autofill::PersonalDataManager* AwAutofillClient::GetPersonalDataManager() {
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 50fbaa7af78e2..8003bc9185dc4 100644
+index ad40428bf989b..3de0c1c903a31 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -375,6 +375,7 @@ if (current_toolchain == default_toolchain) {
+@@ -351,6 +351,7 @@ if (current_toolchain == default_toolchain) {
        "//chrome/browser/webapps/android:java",
        "//chrome/browser/webauthn/android:java",
        "//chrome/browser/xsurface:java",
@@ -52,7 +52,7 @@ index 50fbaa7af78e2..8003bc9185dc4 100644
        "//components/autofill/android:prefeditor_autofill_java",
        "//components/background_task_scheduler:background_task_scheduler_java",
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
-index 6163007224236..d1403f1391986 100644
+index 84dee29291b42..baf0859ca7cf2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 @@ -10,10 +10,14 @@ import android.annotation.SuppressLint;
@@ -118,7 +118,7 @@ index 6163007224236..d1403f1391986 100644
              }
          };
          mTabViewManager = new TabViewManagerImpl(this);
-@@ -777,6 +792,11 @@ public class TabImpl implements Tab {
+@@ -796,6 +811,11 @@ public class TabImpl implements Tab {
          for (TabObserver observer : mObservers) observer.onDestroyed(this);
          mObservers.clear();
  
@@ -130,7 +130,7 @@ index 6163007224236..d1403f1391986 100644
          mUserDataHost.destroy();
          mTabViewManager.destroy();
          hideNativePage(false, null);
-@@ -1356,6 +1376,18 @@ public class TabImpl implements Tab {
+@@ -1393,6 +1413,18 @@ public class TabImpl implements Tab {
          return tabsPtrArray;
      }
  
@@ -149,7 +149,7 @@ index 6163007224236..d1403f1391986 100644
      /**
       * Initializes the {@link WebContents}. Completes the browser content components initialization
       * around a native WebContents pointer.
-@@ -1399,10 +1431,23 @@ public class TabImpl implements Tab {
+@@ -1436,10 +1468,23 @@ public class TabImpl implements Tab {
              mWebContentsDelegate = createWebContentsDelegate();
  
              assert mNativeTabAndroid != 0;
@@ -206,7 +206,7 @@ index aeb890d6fd459..df95505407cda 100644
      public void onTopControlsChanged(
              int topControlsOffsetY, int contentOffsetY, int topControlsMinHeightOffsetY) {
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 93d76a4dcead4..342f7b13cedb3 100644
+index acf48b7ffd061..ef9200037fe05 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
 @@ -2484,6 +2484,13 @@ static_library("browser") {
@@ -224,10 +224,10 @@ index 93d76a4dcead4..342f7b13cedb3 100644
      deps += [
        "//ui/events/ozone",
 diff --git a/chrome/browser/ui/autofill/chrome_autofill_client.cc b/chrome/browser/ui/autofill/chrome_autofill_client.cc
-index 35cf2e60bce3b..466f1cc153e06 100644
+index 07663b4b2e793..dccf3ac3163dc 100644
 --- a/chrome/browser/ui/autofill/chrome_autofill_client.cc
 +++ b/chrome/browser/ui/autofill/chrome_autofill_client.cc
-@@ -51,6 +51,9 @@
+@@ -53,6 +53,9 @@
  #include "chrome/browser/web_data_service_factory.h"
  #include "chrome/common/channel_info.h"
  #include "chrome/common/url_constants.h"
@@ -237,7 +237,7 @@ index 35cf2e60bce3b..466f1cc153e06 100644
  #include "components/autofill/content/browser/autofill_log_router_factory.h"
  #include "components/autofill/content/browser/content_autofill_driver.h"
  #include "components/autofill/content/browser/content_autofill_driver_factory.h"
-@@ -178,12 +181,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
+@@ -180,12 +183,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
  }
  
  AutofillDownloadManager* ChromeAutofillClient::GetDownloadManager() {
@@ -254,7 +254,7 @@ index 35cf2e60bce3b..466f1cc153e06 100644
  }
  
  AutofillOptimizationGuide* ChromeAutofillClient::GetAutofillOptimizationGuide()
-@@ -1187,7 +1194,12 @@ void ChromeAutofillClient::OnZoomChanged(
+@@ -1162,7 +1169,12 @@ void ChromeAutofillClient::OnZoomChanged(
  ChromeAutofillClient::ChromeAutofillClient(content::WebContents* web_contents)
      : ContentAutofillClient(
            web_contents,
@@ -269,7 +269,7 @@ index 35cf2e60bce3b..466f1cc153e06 100644
                                g_browser_process->GetApplicationLocale())),
        content::WebContentsObserver(web_contents),
 diff --git a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
-index 2b797c8ebb8cf..6873606c262cf 100644
+index 0e909aab3760a..58de87e58e3f1 100644
 --- a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 +++ b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 @@ -9,6 +9,7 @@ import android.content.res.Configuration;
@@ -288,15 +288,15 @@ index 2b797c8ebb8cf..6873606c262cf 100644
  import android.view.inputmethod.EditorInfo;
  import android.view.inputmethod.InputConnection;
  import android.widget.FrameLayout;
-@@ -36,6 +38,7 @@ import org.chromium.content_public.browser.WebContentsAccessibility;
- import org.chromium.ui.accessibility.AccessibilityState;
+@@ -37,6 +39,7 @@ import org.chromium.ui.accessibility.AccessibilityState;
  import org.chromium.ui.base.EventForwarder;
  import org.chromium.ui.base.EventOffsetHandler;
+ import org.chromium.ui.dragdrop.DragEventDispatchHelper.DragEventDispatchDestination;
 +import org.chromium.ui.base.ViewAndroidDelegate;
  
  /**
   * The containing view for {@link WebContents} that exists in the Android UI hierarchy and exposes
-@@ -86,6 +89,9 @@ public class ContentView extends FrameLayout
+@@ -89,6 +92,9 @@ public class ContentView extends FrameLayout
       */
      public static ContentView createContentView(Context context,
              @Nullable EventOffsetHandler eventOffsetHandler, @Nullable WebContents webContents) {
@@ -306,9 +306,9 @@ index 2b797c8ebb8cf..6873606c262cf 100644
          return new ContentView(context, eventOffsetHandler, webContents);
      }
  
-@@ -586,4 +592,46 @@ public class ContentView extends FrameLayout
-     private boolean webContentsAttached() {
-         return hasValidWebContents() && mWebContents.getTopLevelNativeWindow() != null;
+@@ -619,4 +625,46 @@ public class ContentView extends FrameLayout
+         mDragDropEventOffsetHandler.onPostDispatchDragEvent(event.getAction());
+         return ret;
      }
 +
 +    /**
@@ -354,7 +354,7 @@ index 2b797c8ebb8cf..6873606c262cf 100644
 +    }
  }
 diff --git a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
-index 20a9af63f06fc..bcad3fe9ad179 100644
+index 454eb50e76104..849fdd41bca62 100644
 --- a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 +++ b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 @@ -29,6 +29,10 @@ import org.chromium.ui.dragdrop.DragStateTracker;
@@ -368,7 +368,7 @@ index 20a9af63f06fc..bcad3fe9ad179 100644
  /**
   * Class to acquire, position, and remove anchor views from the implementing View.
   */
-@@ -612,4 +616,8 @@ public class ViewAndroidDelegate {
+@@ -620,4 +624,8 @@ public class ViewAndroidDelegate {
      public static void setDragAndDropDelegateForTest(DragAndDropDelegate testDelegate) {
          sDragAndDropTestDelegate = testDelegate;
      }
