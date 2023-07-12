@@ -18,7 +18,7 @@ support.
  8 files changed, 139 insertions(+), 1 deletion(-)
 
 diff --git a/android_webview/browser/aw_autofill_client.cc b/android_webview/browser/aw_autofill_client.cc
-index 7dd21f8202f9f..889bf90b7821e 100644
+index a14e34214570f..74931fa2bee2c 100644
 --- a/android_webview/browser/aw_autofill_client.cc
 +++ b/android_webview/browser/aw_autofill_client.cc
 @@ -83,6 +83,7 @@ AwAutofillClient::GetURLLoaderFactory() {
@@ -40,10 +40,10 @@ index 7dd21f8202f9f..889bf90b7821e 100644
  
  autofill::PersonalDataManager* AwAutofillClient::GetPersonalDataManager() {
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index ad40428bf989b..3de0c1c903a31 100644
+index 5302bf39e1303..3197b0f548b0a 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -351,6 +351,7 @@ if (current_toolchain == default_toolchain) {
+@@ -415,6 +415,7 @@ if (current_toolchain == default_toolchain) {
        "//chrome/browser/webapps/android:java",
        "//chrome/browser/webauthn/android:java",
        "//chrome/browser/xsurface:java",
@@ -52,7 +52,7 @@ index ad40428bf989b..3de0c1c903a31 100644
        "//components/autofill/android:prefeditor_autofill_java",
        "//components/background_task_scheduler:background_task_scheduler_java",
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
-index 84dee29291b42..baf0859ca7cf2 100644
+index 514e6d144c258..0ade1685fd2af 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 @@ -10,10 +10,14 @@ import android.annotation.SuppressLint;
@@ -130,7 +130,7 @@ index 84dee29291b42..baf0859ca7cf2 100644
          mUserDataHost.destroy();
          mTabViewManager.destroy();
          hideNativePage(false, null);
-@@ -1393,6 +1413,18 @@ public class TabImpl implements Tab {
+@@ -1401,6 +1421,18 @@ public class TabImpl implements Tab {
          return tabsPtrArray;
      }
  
@@ -149,7 +149,7 @@ index 84dee29291b42..baf0859ca7cf2 100644
      /**
       * Initializes the {@link WebContents}. Completes the browser content components initialization
       * around a native WebContents pointer.
-@@ -1436,10 +1468,23 @@ public class TabImpl implements Tab {
+@@ -1444,10 +1476,23 @@ public class TabImpl implements Tab {
              mWebContentsDelegate = createWebContentsDelegate();
  
              assert mNativeTabAndroid != 0;
@@ -206,10 +206,10 @@ index aeb890d6fd459..df95505407cda 100644
      public void onTopControlsChanged(
              int topControlsOffsetY, int contentOffsetY, int topControlsMinHeightOffsetY) {
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index acf48b7ffd061..ef9200037fe05 100644
+index 77d5dfbe1d547..030e8f701b199 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2484,6 +2484,13 @@ static_library("browser") {
+@@ -2509,6 +2509,13 @@ static_library("browser") {
      deps += [ "//chrome/browser/error_reporting" ]
    }
  
@@ -224,10 +224,10 @@ index acf48b7ffd061..ef9200037fe05 100644
      deps += [
        "//ui/events/ozone",
 diff --git a/chrome/browser/ui/autofill/chrome_autofill_client.cc b/chrome/browser/ui/autofill/chrome_autofill_client.cc
-index 07663b4b2e793..dccf3ac3163dc 100644
+index 36ebcfaeb4c10..64c81bbd7f643 100644
 --- a/chrome/browser/ui/autofill/chrome_autofill_client.cc
 +++ b/chrome/browser/ui/autofill/chrome_autofill_client.cc
-@@ -53,6 +53,9 @@
+@@ -54,6 +54,9 @@
  #include "chrome/browser/web_data_service_factory.h"
  #include "chrome/common/channel_info.h"
  #include "chrome/common/url_constants.h"
@@ -237,7 +237,7 @@ index 07663b4b2e793..dccf3ac3163dc 100644
  #include "components/autofill/content/browser/autofill_log_router_factory.h"
  #include "components/autofill/content/browser/content_autofill_driver.h"
  #include "components/autofill/content/browser/content_autofill_driver_factory.h"
-@@ -180,12 +183,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
+@@ -181,12 +184,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
  }
  
  AutofillDownloadManager* ChromeAutofillClient::GetDownloadManager() {
@@ -254,7 +254,7 @@ index 07663b4b2e793..dccf3ac3163dc 100644
  }
  
  AutofillOptimizationGuide* ChromeAutofillClient::GetAutofillOptimizationGuide()
-@@ -1162,7 +1169,12 @@ void ChromeAutofillClient::OnZoomChanged(
+@@ -1175,7 +1182,12 @@ void ChromeAutofillClient::OnZoomChanged(
  ChromeAutofillClient::ChromeAutofillClient(content::WebContents* web_contents)
      : ContentAutofillClient(
            web_contents,
