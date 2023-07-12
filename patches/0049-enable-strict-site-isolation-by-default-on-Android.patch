@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 5a5a48ef70c66..08b8840e7d4df 100644
+index 6a2afe7412a1c..340be489db6df 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4523,16 +4523,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4740,16 +4740,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsLacros | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -30,10 +30,10 @@ index 5a5a48ef70c66..08b8840e7d4df 100644
      {"enable-isolated-web-apps", flag_descriptions::kEnableIsolatedWebAppsName,
       flag_descriptions::kEnableIsolatedWebAppsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index f5cfcba7b8f7c..ae01d4b1a151f 100644
+index 6c74a02db6a71..b2977d397b9f6 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -1049,11 +1049,7 @@ BASE_FEATURE(kSecurityKeyAttestationPrompt,
+@@ -1084,11 +1084,7 @@ BASE_FEATURE(kSecurityKeyAttestationPrompt,
  // browser_features, as they are only used on the browser side.
  BASE_FEATURE(kSitePerProcess,
               "SitePerProcess",

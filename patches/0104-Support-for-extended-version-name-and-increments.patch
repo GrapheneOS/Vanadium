@@ -1,0 +1,85 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sun, 26 Feb 2023 10:39:38 +0100
+Subject: [PATCH] Support for extended version name and increments
+
+---
+ build/util/android_chrome_version.py |  2 +-
+ build/util/version.py                |  5 +++++
+ chrome/version.gni                   | 27 +++++++++++++++++++++++++++
+ 3 files changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
+index f00cd99d2bfa5..4bd88e04ab48b 100755
+--- a/build/util/android_chrome_version.py
++++ b/build/util/android_chrome_version.py
+@@ -327,7 +327,7 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
+   """
+ 
+   base_version_code = int(
+-      '%s%03d00' % (version_values['BUILD'], int(version_values['PATCH'])))
++      '%s%03d00' % (version_values['BUILD'], (int(version_values['PATCH']) + int(version_values['INCREMENT']))))
+ 
+   if is_next_build:
+     base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF
+diff --git a/build/util/version.py b/build/util/version.py
+index 9bf51cd35122b..aba62d904db4a 100755
+--- a/build/util/version.py
++++ b/build/util/version.py
+@@ -127,6 +127,10 @@ def BuildParser():
+                       help='Write substituted strings to FILE.')
+   parser.add_argument('-t', '--template', default=None,
+                       help='Use TEMPLATE as the strings to substitute.')
++  parser.add_argument(
++      '--increment',
++      default='0',
++      help='Version increment to append at version_name, add at version_code.')
+   parser.add_argument(
+       '-e',
+       '--eval',
+@@ -199,6 +203,7 @@ def GenerateValues(options, evals):
+   for key, val in evals.items():
+     values[key] = str(eval(val, globals(), values))
+ 
++  values['INCREMENT'] = options.increment
+   if options.os == 'android':
+     android_chrome_version_codes = android_chrome_version.GenerateVersionCodes(
+         values, options.arch, options.next)
+diff --git a/chrome/version.gni b/chrome/version.gni
+index 938b664fbff64..9a5422e321516 100644
+--- a/chrome/version.gni
++++ b/chrome/version.gni
+@@ -39,6 +39,33 @@ if (is_mac) {
+   import("//build/config/android/config.gni")
+   import("//build/config/chrome_build.gni")
+ 
++  declare_args() {
++    # Allows usage for extended versionName increment for android.
++    ext_version_enabled = false
++    # Increment positive integer to append at versionName,
++    # as well as to add on patch section of versionCode.
++    # String is used for utility at build/util/version.py.
++    ext_version_increment = ""
++  }
++
++  # Disallow setting extended version increment when disabled.
++  assert(ext_version_enabled || ext_version_increment == "")
++
++  if (ext_version_enabled) {
++    _version_dictionary_template = "full = \"@MAJOR@.@MINOR@.@BUILD@" +
++                                 ".@PATCH@.@INCREMENT@\" " +
++                                 "major = \"@MAJOR@\" minor = \"@MINOR@\" " +
++                                 "build = \"@BUILD@\" patch = \"@PATCH@\" " +
++                                 "increment = \"@INCREMENT@\" "
++
++    if (ext_version_increment != "") {
++      _script_arguments += [
++        "--increment",
++        ext_version_increment
++      ]
++    }
++  }
++
+   _version_dictionary_template +=
+       "chrome_version_code = " + "\"@CHROME_VERSION_CODE@\" " +
+       "monochrome_version_code = \"@MONOCHROME_VERSION_CODE@\" " +

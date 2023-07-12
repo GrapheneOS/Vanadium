@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 25 Apr 2023 04:53:22 -0400
+Subject: [PATCH] require HTTPS for component updates
+
+---
+ .../component_updater/aw_component_updater_configurator.cc      | 2 +-
+ .../component_updater/chrome_component_updater_configurator.cc  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc b/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc
+index 9131e43f88256..c38e4616bd034 100644
+--- a/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc
++++ b/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc
+@@ -38,7 +38,7 @@ AwComponentUpdaterConfigurator::AwComponentUpdaterConfigurator(
+     PrefService* pref_service)
+     : configurator_impl_(
+           component_updater::ComponentUpdaterCommandLineConfigPolicy(cmdline),
+-          false),
++          true),
+       pref_service_(pref_service) {}
+ 
+ AwComponentUpdaterConfigurator::~AwComponentUpdaterConfigurator() = default;
+diff --git a/chrome/browser/component_updater/chrome_component_updater_configurator.cc b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
+index e0401d6bddd61..8f378281ed592 100644
+--- a/chrome/browser/component_updater/chrome_component_updater_configurator.cc
++++ b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
+@@ -108,7 +108,7 @@ class ChromeConfigurator : public update_client::Configurator {
+ ChromeConfigurator::ChromeConfigurator(const base::CommandLine* cmdline,
+                                        PrefService* pref_service)
+     : configurator_impl_(ComponentUpdaterCommandLineConfigPolicy(cmdline),
+-                         false),
++                         true),
+       pref_service_(pref_service) {
+   DCHECK(pref_service_);
+ }

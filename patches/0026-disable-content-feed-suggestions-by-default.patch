@@ -9,20 +9,20 @@ Subject: [PATCH] disable content feed suggestions by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 957ccbd940466..73954ddc3e289 100644
+index 23232d12babb8..9eb979448884d 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -623,7 +623,7 @@ public abstract class ChromeFeatureList {
+@@ -539,7 +539,7 @@ public abstract class ChromeFeatureList {
              new CachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false);
      public static final CachedFlag sInstanceSwitcher = new CachedFlag(INSTANCE_SWITCHER, true);
      public static final CachedFlag sInstantStart = new CachedFlag(INSTANT_START, false);
 -    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, true);
 +    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, false);
-     public static final CachedFlag sLensCameraAssistedSearch =
-             new CachedFlag(LENS_CAMERA_ASSISTED_SEARCH, true);
-     public static final CachedFlag sOmahaMinSdkVersionAndroid =
+     public static final CachedFlag sOmniboxMatchToolbarAndStatusBarColor =
+             new CachedFlag(OMNIBOX_MATCH_TOOLBAR_AND_STATUS_BAR_COLOR, false);
+     public static final CachedFlag sOmniboxModernizeVisualUpdate =
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index a8b36a9ace946..93f8bc7a9af6e 100644
+index 6e3c127bf0f46..3a6f97be23488 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,

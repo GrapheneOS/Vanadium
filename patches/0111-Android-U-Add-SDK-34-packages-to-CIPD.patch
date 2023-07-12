@@ -1,0 +1,91 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Sam Maier <smaier@chromium.org>
+Date: Fri, 9 Jun 2023 14:51:08 +0000
+Subject: [PATCH] Android U: Add SDK 34 packages to CIPD
+
+Bug: 1445802
+Change-Id: I04d8216da26f5b95c334ebae1ba4b5475cf4c76e
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4601882
+Reviewed-by: Richard Coles <torne@chromium.org>
+Reviewed-by: Haiyang Pan <hypan@google.com>
+Commit-Queue: Sam Maier <smaier@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1155524}
+---
+ .../android_sdk/cipd/build-tools/34.0.0.yaml        | 13 +++++++++++++
+ .../android_sdk/cipd/platforms/android-34.yaml      | 13 +++++++++++++
+ .../android-34/google_apis/x86_64.yaml              |  9 +++++++++
+ .../android-34/google_apis_playstore/x86_64.yaml    |  9 +++++++++
+ 4 files changed, 44 insertions(+)
+ create mode 100644 third_party/android_sdk/cipd/build-tools/34.0.0.yaml
+ create mode 100644 third_party/android_sdk/cipd/platforms/android-34.yaml
+ create mode 100644 third_party/android_sdk/cipd/system_images/android-34/google_apis/x86_64.yaml
+ create mode 100644 third_party/android_sdk/cipd/system_images/android-34/google_apis_playstore/x86_64.yaml
+
+diff --git a/third_party/android_sdk/cipd/build-tools/34.0.0.yaml b/third_party/android_sdk/cipd/build-tools/34.0.0.yaml
+new file mode 100644
+index 0000000000000..7133b4cebefb5
+--- /dev/null
++++ b/third_party/android_sdk/cipd/build-tools/34.0.0.yaml
+@@ -0,0 +1,13 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++package: chromium/third_party/android_sdk/public/build-tools/34.0.0
++description: build-tools Android SDK Build Tools
++root: ../../public/
++data:
++  - dir: build-tools/34.0.0
++# Some tools inspect their argv0 and don't handle CIPD's symlink structure
++# correctly. Install in copy mode so that they can find the other directories
++# relative to themselves.
++install_mode: copy
+diff --git a/third_party/android_sdk/cipd/platforms/android-34.yaml b/third_party/android_sdk/cipd/platforms/android-34.yaml
+new file mode 100644
+index 0000000000000..07566b1761571
+--- /dev/null
++++ b/third_party/android_sdk/cipd/platforms/android-34.yaml
+@@ -0,0 +1,13 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++package: chromium/third_party/android_sdk/public/platforms/android-34
++description: platforms Android SDK Platforms library
++root: ../../public/
++data:
++  - dir: platforms/android-34
++# Some tools inspect their argv0 and don't handle CIPD's symlink structure
++# correctly. Install in copy mode so that they can find the other directories
++# relative to themselves.
++install_mode: copy
+diff --git a/third_party/android_sdk/cipd/system_images/android-34/google_apis/x86_64.yaml b/third_party/android_sdk/cipd/system_images/android-34/google_apis/x86_64.yaml
+new file mode 100644
+index 0000000000000..3634c350fd867
+--- /dev/null
++++ b/third_party/android_sdk/cipd/system_images/android-34/google_apis/x86_64.yaml
+@@ -0,0 +1,9 @@
++# Copyright 2023 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++package: chromium/third_party/android_sdk/public/system-images/android-34/google_apis/x86_64
++description: system_images;android-34;google_apis;x86_64
++root: ../../../../public/
++data:
++  - dir: system-images/android-34/google_apis/x86_64
+diff --git a/third_party/android_sdk/cipd/system_images/android-34/google_apis_playstore/x86_64.yaml b/third_party/android_sdk/cipd/system_images/android-34/google_apis_playstore/x86_64.yaml
+new file mode 100644
+index 0000000000000..5537073a87b9a
+--- /dev/null
++++ b/third_party/android_sdk/cipd/system_images/android-34/google_apis_playstore/x86_64.yaml
+@@ -0,0 +1,9 @@
++# Copyright 2023 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++package: chromium/third_party/android_sdk/public/system-images/android-34/google_apis_playstore/x86_64
++description: system_images;android-34;google_apis_playstore;x86_64
++root: ../../../../public/
++data:
++  - dir: system-images/android-34/google_apis_playstore/x86_64
