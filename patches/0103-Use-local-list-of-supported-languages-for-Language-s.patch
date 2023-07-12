@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sat, 25 Feb 2023 05:11:12 +0100
+Subject: [PATCH] Use local list of supported languages for Language settings
+
+Disable requests or connections to fetch language list from server
+---
+ .../translate/core/browser/translate_language_list.cc       | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/components/translate/core/browser/translate_language_list.cc b/components/translate/core/browser/translate_language_list.cc
+index 577f2c9f4de00..e49dc937e60eb 100644
+--- a/components/translate/core/browser/translate_language_list.cc
++++ b/components/translate/core/browser/translate_language_list.cc
+@@ -163,7 +163,7 @@ const char* const kDefaultSupportedLanguages[] = {
+ const char kLanguageListFetchPath[] = "translate_a/l?client=chrome";
+ 
+ // Represent if the language list updater is disabled.
+-bool update_is_disabled = false;
++bool update_is_disabled = true;
+ 
+ // Retry parameter for fetching.
+ const int kMaxRetryOn5xx = 5;
+@@ -229,6 +229,10 @@ GURL TranslateLanguageList::TranslateLanguageUrl() {
+ }
+ 
+ void TranslateLanguageList::RequestLanguageList() {
++  if (update_is_disabled) {
++    return;
++  }
++
+   // If resource requests are not allowed, we'll get a callback when they are.
+   if (!resource_requests_allowed_) {
+     request_pending_ = true;

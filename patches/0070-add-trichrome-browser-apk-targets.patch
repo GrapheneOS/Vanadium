@@ -9,10 +9,10 @@ Subject: [PATCH] add trichrome browser apk targets
  2 files changed, 37 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 70023630d6839..ad40428bf989b 100644
+index f4a6146a01795..a5880ecd93a3c 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2181,6 +2181,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2276,6 +2276,10 @@ if (current_toolchain == default_toolchain) {
      is_trichrome = true
      is_bundle_module = true
    }
@@ -21,9 +21,9 @@ index 70023630d6839..ad40428bf989b 100644
 +    is_trichrome = true
 +  }
  
-   # Java libraries that go into each public chrome APK and base module. The chrome
-   # JNI registration is generated based on this target.
-@@ -2537,6 +2541,37 @@ if (current_toolchain == default_toolchain) {
+   # Exists separately from chrome_public_base_module_java_for_test to allow
+   # downstream to depend on test support packages without needing to depend on
+@@ -2624,6 +2628,37 @@ if (current_toolchain == default_toolchain) {
        }
      }
    }
@@ -62,10 +62,10 @@ index 70023630d6839..ad40428bf989b 100644
    # As compared to chrome_public_test_apk, this target contains only unit tests
    # that require on device capabilities. These tests are smaller, more tightly
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index eeb286b07aae6..a27651ee9644c 100644
+index 3f2270f1a168d..d2cffad846db9 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -453,6 +453,8 @@ template("chrome_common_apk_or_module_tmpl") {
+@@ -458,6 +458,8 @@ template("chrome_common_apk_or_module_tmpl") {
        deps += [ "//chrome/android:chrome_bundle_module_pak_assets" ]
      } else if (_is_monochrome) {
        deps += [ "//chrome/android:monochrome_apk_pak_assets" ]

@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Sam Maier <smaier@chromium.org>
+Date: Wed, 21 Jun 2023 20:58:48 +0000
+Subject: [PATCH] Android U: Deleting line in test asserting we aren't
+ targeting U
+
+Bug: 1445802
+Change-Id: I58a01445353b06b5102e2e76cd687a14830a659c
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4632062
+Auto-Submit: Sam Maier <smaier@chromium.org>
+Reviewed-by: Andrew Grieve <agrieve@chromium.org>
+Commit-Queue: Sam Maier <smaier@chromium.org>
+Commit-Queue: Andrew Grieve <agrieve@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1160850}
+---
+ base/android/junit/src/org/chromium/base/BuildInfoTest.java | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/base/android/junit/src/org/chromium/base/BuildInfoTest.java b/base/android/junit/src/org/chromium/base/BuildInfoTest.java
+index fefedf6c057ad..913070bc09fb2 100644
+--- a/base/android/junit/src/org/chromium/base/BuildInfoTest.java
++++ b/base/android/junit/src/org/chromium/base/BuildInfoTest.java
+@@ -89,6 +89,5 @@ public class BuildInfoTest {
+         assertEquals("0", properties[IS_AT_LEAST_T]);
+         assertEquals("0", properties[IS_AT_LEAST_U]);
+         assertEquals("REL", properties[SDK_CODENAME]);
+-        assertEquals("0", properties[TARGETS_AT_LEAST_U]);
+     }
+ }

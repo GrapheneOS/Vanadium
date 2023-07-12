@@ -8,7 +8,7 @@ Subject: [PATCH] Support opening external web search in incognito
  1 file changed, 3 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 9a426bfdd7843..9a0615f63674e 100644
+index e4db6275ab750..a78da06e0833b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 @@ -32,6 +32,7 @@ import org.chromium.base.supplier.UnownedUserDataSupplier;
@@ -17,14 +17,14 @@ index 9a426bfdd7843..9a0615f63674e 100644
  import org.chromium.chrome.browser.IntentHandler;
 +import org.chromium.chrome.browser.TabPreferencesUtils;
  import org.chromium.chrome.browser.WebContentsFactory;
- import org.chromium.chrome.browser.app.omnibox.ActionChipsDelegateImpl;
  import org.chromium.chrome.browser.app.tabmodel.TabWindowManagerSingleton;
-@@ -532,6 +533,8 @@ public class SearchActivity extends AsyncInitializationActivity
-         }
-         if (isFromSearchWidget()) {
-             intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
+ import org.chromium.chrome.browser.back_press.BackPressManager;
+@@ -551,6 +552,8 @@ public class SearchActivity extends AsyncInitializationActivity
+         if (!TextUtils.isEmpty(postDataType) && postData != null && postData.length != 0) {
+             intent.putExtra(IntentHandler.EXTRA_POST_DATA_TYPE, postDataType);
+             intent.putExtra(IntentHandler.EXTRA_POST_DATA, postData);
 +        } else if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
 +            intent = TabPreferencesUtils.appendNeededIncognitoExtras(this, intent);
          }
-         intent.putExtra(EXTRA_FROM_SEARCH_ACTIVITY, true);
-         IntentUtils.addTrustedIntentExtras(intent);
+         if (isFromSearchWidget()) {
+             intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
