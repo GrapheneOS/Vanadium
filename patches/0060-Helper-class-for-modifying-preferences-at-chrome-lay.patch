@@ -5,8 +5,8 @@ Subject: [PATCH] Helper class for modifying preferences at chrome layer
 
 ---
  chrome/android/chrome_ext_java_sources.gni    |  1 +
- .../browser/settings/SettingsExtUtils.java    | 71 +++++++++++++++++++
- 2 files changed, 72 insertions(+)
+ .../browser/settings/SettingsExtUtils.java    | 70 +++++++++++++++++++
+ 2 files changed, 71 insertions(+)
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java
 
 diff --git a/chrome/android/chrome_ext_java_sources.gni b/chrome/android/chrome_ext_java_sources.gni
@@ -21,10 +21,10 @@ index fe72e9b1d3abb..b3a489f124aa8 100644
  ]
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java
 new file mode 100644
-index 0000000000000..c9907624c4fc1
+index 0000000000000..efd15edfb79c3
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,70 @@
 +// Copyright 2023 GrapheneOS
 +// Use of this source code is governed by a GPLv2-style license that can be
 +// found in the LICENSE file.
@@ -57,7 +57,7 @@ index 0000000000000..c9907624c4fc1
 +    ) {
 +        if (switchPref == null) return;
 +        safelyUpdatePreferenceCommon(switchPref, newSummary);
-+        safelyUpdatePreferenceChecked(switchPref, newSummary, newValue);
++        safelyUpdatePreferenceChecked(switchPref, newValue);
 +    }
 +
 +    private static void safelyUpdatePreferenceCommon(
@@ -72,7 +72,6 @@ index 0000000000000..c9907624c4fc1
 +
 +    private static void safelyUpdatePreferenceChecked(
 +        @NonNull SwitchPreferenceCompat switchPref,
-+        @Nullable String nativeKey,
 +        boolean checked
 +    ) {
 +        switchPref.setChecked(checked);

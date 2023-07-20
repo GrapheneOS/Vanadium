@@ -6,8 +6,8 @@ Subject: [PATCH] Utility class for adding shared preference keys
 ---
  chrome/browser/preferences/BUILD.gn           |   3 +
  .../ChromePreferenceKeyChecker.java           |   4 +
- .../browser/preferences/SharedPrefsUtils.java | 152 ++++++++++++++++++
- 3 files changed, 159 insertions(+)
+ .../browser/preferences/SharedPrefsUtils.java | 136 ++++++++++++++++++
+ 3 files changed, 143 insertions(+)
  create mode 100644 chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
 
 diff --git a/chrome/browser/preferences/BUILD.gn b/chrome/browser/preferences/BUILD.gn
@@ -41,10 +41,10 @@ index 21e3be5ba9f77..915ee8be3def7 100644
              return true;
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
 new file mode 100644
-index 0000000000000..b47ededa67272
+index 0000000000000..57b6339f26d98
 --- /dev/null
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/SharedPrefsUtils.java
-@@ -0,0 +1,152 @@
+@@ -0,0 +1,136 @@
 +package org.chromium.chrome.browser.preferences;
 +
 +import org.chromium.build.annotations.CheckDiscard;
@@ -134,17 +134,10 @@ index 0000000000000..b47ededa67272
 +    public static class StringSharedPref {
 +        private final String key;
 +        private String defValue;
-+        private String[] validValues;
 +
 +        StringSharedPref(String key, String defValue) {
 +            this.key = key;
 +            this.defValue = defValue;
-+        }
-+
-+        StringSharedPref(String key, String defValue, String[] validValues) {
-+            this.key = key;
-+            this.defValue = defValue;
-+            this.validValues = validValues;
 +        }
 +
 +        public String getKey() { return key; }
@@ -154,16 +147,7 @@ index 0000000000000..b47ededa67272
 +        }
 +
 +        public boolean validateValue(String val) {
-+            if (validValues == null) {
-+                return true;
-+            }
-+            // don't do sort() + bsearch() of validValues array, it's expected to have a small number of entries
-+            for (String validValue : validValues) {
-+                if (val.equals(validValue)) {
-+                    return true;
-+                }
-+            }
-+            return false;
++            return true;
 +        }
 +
 +        public void put(String newValue) {
