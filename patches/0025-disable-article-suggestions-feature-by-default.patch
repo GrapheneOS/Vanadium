@@ -8,17 +8,17 @@ Subject: [PATCH] disable article suggestions feature by default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/components/feed/core/shared_prefs/pref_names.cc b/components/feed/core/shared_prefs/pref_names.cc
-index e239b42b31ef3..5a5e881272c22 100644
+index 71586a65fcd92..b353a93d81469 100644
 --- a/components/feed/core/shared_prefs/pref_names.cc
 +++ b/components/feed/core/shared_prefs/pref_names.cc
-@@ -20,8 +20,8 @@ const char kArticlesListVisible[] = "ntp_snippets.list_visible";
- const char kVideoPreviewsType[] = "ntp_snippets.video_previews_type";
+@@ -19,8 +19,8 @@ const char kEnableSnippets[] = "ntp_snippets.enable";
+ const char kArticlesListVisible[] = "ntp_snippets.list_visible";
  
  void RegisterFeedSharedProfilePrefs(PrefRegistrySimple* registry) {
 -  registry->RegisterBooleanPref(kEnableSnippets, true);
 -  registry->RegisterBooleanPref(kArticlesListVisible, true);
 +  registry->RegisterBooleanPref(kEnableSnippets, false);
 +  registry->RegisterBooleanPref(kArticlesListVisible, false);
-   registry->RegisterIntegerPref(kVideoPreviewsType, 1);
  }
  
+ }  // namespace prefs
