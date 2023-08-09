@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 2 Jan 2023 12:14:24 -0500
+Subject: [PATCH] enable new third party storage partitioning
+
+---
+ net/base/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 35d9d1f5ac28a..6b304840cd179 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -263,7 +263,7 @@ BASE_FEATURE(kBlockSetCookieHeader,
+ // by the top level site to reduce fingerprinting.
+ BASE_FEATURE(kThirdPartyStoragePartitioning,
+              "ThirdPartyStoragePartitioning",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ // Whether to use the new code paths needed to support partitioning Blob URLs.
+ // This exists as a kill-switch in case an issue is identified with the Blob
+ // URL implementation that causes breakage.

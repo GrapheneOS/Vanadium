@@ -8,7 +8,7 @@ Subject: [PATCH] disable seed-based field trials
  1 file changed, 4 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index e16159a291741..b273a8db21a02 100644
+index bfddf3a8eb07d..6885a49a0561f 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
 @@ -312,12 +312,16 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
@@ -18,13 +18,13 @@ index e16159a291741..b273a8db21a02 100644
 +#if defined(FIELDTRIAL_SEED_ENABLED)
      used_seed = CreateTrialsFromSeed(*entropy_providers, feature_list.get(),
                                       safe_seed_manager);
-+#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
++#endif
    }
  
 +#if defined(FIELDTRIAL_SEED_ENABLED)
    platform_field_trials->SetUpClientSideFieldTrials(
        used_seed, *entropy_providers, feature_list.get());
-+#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
++#endif
  
-   base::FeatureList::SetInstance(std::move(feature_list));
+   platform_field_trials->RegisterFeatureOverrides(feature_list.get());
  

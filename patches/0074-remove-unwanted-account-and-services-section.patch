@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 20 Aug 2021 16:13:42 +0000
+Subject: [PATCH] remove unwanted account and services section
+
+---
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index f01d5deba2867..1d85c9eff77d9 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -211,6 +211,8 @@ public class MainSettings extends PreferenceFragmentCompat
+         }
+ 
+         getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
++        getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION));
++        getPreferenceScreen().removePreference(findPreference(PREF_GOOGLE_SERVICES));
+ 
+         new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
+             // We don't show the toolbar shortcut settings page if disabled from finch.
