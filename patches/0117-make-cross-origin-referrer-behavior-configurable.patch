@@ -30,14 +30,14 @@ The chrome for the cross-origin referrer policy preference is based on
  services/network/network_context.h            |  3 +
  .../network_service_network_delegate.cc       | 29 ++++++
  .../network_service_network_delegate.h        |  8 ++
- .../public/mojom/network_context.mojom        | 13 +++
+ .../public/mojom/network_context.mojom        | 14 +++
  .../renderer_preferences_mojom_traits.cc      |  1 +
- .../renderer_preferences.h                    |  2 +
+ .../renderer_preferences.h                    |  4 +
  .../renderer_preferences_mojom_traits.h       |  5 ++
- .../public/mojom/renderer_preferences.mojom   |  4 +
+ .../public/mojom/renderer_preferences.mojom   |  5 ++
  .../web_service_worker_fetch_context_impl.cc  | 27 ++++++
  ...ted_or_shared_worker_fetch_context_impl.cc | 27 ++++++
- 28 files changed, 489 insertions(+)
+ 28 files changed, 493 insertions(+)
  create mode 100644 chrome/android/java/res/layout/cross_origin_referrer_policy_preference.xml
  create mode 100644 chrome/android/java/res/xml/cross_origin_referrer_policy_preferences.xml
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/referrer/settings/CrossOriginReferrerPolicyPreference.java
@@ -763,7 +763,7 @@ index ea8be1d29ad4a..fa77cacc0febe 100644
    mojo::Remote<mojom::ProxyErrorClient> proxy_error_client_;
    raw_ptr<NetworkContext> network_context_;
 diff --git a/services/network/public/mojom/network_context.mojom b/services/network/public/mojom/network_context.mojom
-index e1385ffd42940..abdedd5d2d6ad 100644
+index e1385ffd42940..7034bd1010042 100644
 --- a/services/network/public/mojom/network_context.mojom
 +++ b/services/network/public/mojom/network_context.mojom
 @@ -311,6 +311,12 @@ struct NetworkContextFilePaths {
@@ -779,17 +779,18 @@ index e1385ffd42940..abdedd5d2d6ad 100644
  // Parameters for constructing a network context.
  struct NetworkContextParams {
    // The user agent string.
-@@ -330,6 +336,9 @@ struct NetworkContextParams {
+@@ -330,6 +336,10 @@ struct NetworkContextParams {
    // If false, the referrer of requests is never populated.
    bool enable_referrers = true;
  
 +  // Configures what referrers are sent cross-origin.
-+  CrossOriginReferrerPolicy cross_origin_referrer_policy;
++  CrossOriginReferrerPolicy cross_origin_referrer_policy =
++      CrossOriginReferrerPolicy.kDefault;
 +
    // If true, requests initiated with referrers that don't match their referrer
    // policy will fail.
    bool validate_referrer_policy_on_initial_request = true;
-@@ -1205,6 +1214,10 @@ interface NetworkContext {
+@@ -1205,6 +1215,10 @@ interface NetworkContext {
    // If false, the referrer of requests is never populated.
    SetEnableReferrers(bool enable_referrers);
  
@@ -813,7 +814,7 @@ index 66f99b12ba32b..1a910ebc352c9 100644
    out->enable_do_not_track = data.enable_do_not_track();
    out->enable_encrypted_media = data.enable_encrypted_media();
 diff --git a/third_party/blink/public/common/renderer_preferences/renderer_preferences.h b/third_party/blink/public/common/renderer_preferences/renderer_preferences.h
-index ecda061e4a22b..ef7ab28573239 100644
+index ecda061e4a22b..59aaed7572fa7 100644
 --- a/third_party/blink/public/common/renderer_preferences/renderer_preferences.h
 +++ b/third_party/blink/public/common/renderer_preferences/renderer_preferences.h
 @@ -12,6 +12,7 @@
@@ -824,11 +825,13 @@ index ecda061e4a22b..ef7ab28573239 100644
  #include "third_party/abseil-cpp/absl/types/optional.h"
  #include "third_party/blink/public/common/common_export.h"
  #include "third_party/blink/public/common/user_agent/user_agent_metadata.h"
-@@ -53,6 +54,7 @@ struct BLINK_COMMON_EXPORT RendererPreferences {
+@@ -53,6 +54,9 @@ struct BLINK_COMMON_EXPORT RendererPreferences {
    absl::optional<base::TimeDelta> caret_blink_interval;
    bool use_custom_colors{true};
    bool enable_referrers{true};
-+  network::mojom::CrossOriginReferrerPolicy cross_origin_referrer_policy;
++  network::mojom::CrossOriginReferrerPolicy cross_origin_referrer_policy {
++      network::mojom::CrossOriginReferrerPolicy::kDefault
++  };
    bool allow_cross_origin_auth_prompt{false};
    bool enable_do_not_track{false};
    bool enable_encrypted_media{true};
@@ -849,7 +852,7 @@ index 8bbeee8821c39..488254d319810 100644
        const ::blink::RendererPreferences& data) {
      return data.allow_cross_origin_auth_prompt;
 diff --git a/third_party/blink/public/mojom/renderer_preferences.mojom b/third_party/blink/public/mojom/renderer_preferences.mojom
-index 271672f8a7a0b..642f3c3ba3a3e 100644
+index 271672f8a7a0b..a1da19a1e41c1 100644
 --- a/third_party/blink/public/mojom/renderer_preferences.mojom
 +++ b/third_party/blink/public/mojom/renderer_preferences.mojom
 @@ -6,6 +6,7 @@ module blink.mojom;
@@ -860,12 +863,13 @@ index 271672f8a7a0b..642f3c3ba3a3e 100644
  import "ui/gfx/mojom/font_render_params.mojom";
  import "third_party/blink/public/mojom/user_agent/user_agent_metadata.mojom";
  
-@@ -70,6 +71,9 @@ struct RendererPreferences {
+@@ -70,6 +71,10 @@ struct RendererPreferences {
    // Set to false to not send referrers.
    bool enable_referrers = true;
  
 +  // Configures what referrers are sent cross-origin
-+  network.mojom.CrossOriginReferrerPolicy cross_origin_referrer_policy;
++  network.mojom.CrossOriginReferrerPolicy cross_origin_referrer_policy =
++      network.mojom.CrossOriginReferrerPolicy.kDefault;
 +
    // Set to true to allow third-party sub-content to pop-up HTTP basic auth
    // dialog boxes.
