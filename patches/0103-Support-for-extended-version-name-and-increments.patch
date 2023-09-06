@@ -4,21 +4,22 @@ Date: Sun, 26 Feb 2023 10:39:38 +0100
 Subject: [PATCH] Support for extended version name and increments
 
 ---
- build/util/android_chrome_version.py |  2 +-
+ build/util/android_chrome_version.py |  3 ++-
  build/util/version.py                |  5 +++++
  chrome/version.gni                   | 27 +++++++++++++++++++++++++++
- 3 files changed, 33 insertions(+), 1 deletion(-)
+ 3 files changed, 34 insertions(+), 1 deletion(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index f00cd99d2bfa5..4bd88e04ab48b 100755
+index 41b22a0de9fbd..a3d8187d1d034 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -327,7 +327,7 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
-   """
+@@ -332,7 +332,8 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
  
-   base_version_code = int(
--      '%s%03d00' % (version_values['BUILD'], int(version_values['PATCH'])))
-+      '%s%03d00' % (version_values['BUILD'], (int(version_values['PATCH']) + int(version_values['INCREMENT']))))
+   build_number = int(version_values['BUILD'])
+   patch_number = int(version_values['PATCH'])
+-  base_version_code = (build_number * 1000 + patch_number) * 100
++  increment_number = int(version_values['INCREMENT'])
++  base_version_code = (build_number * 1000 + patch_number + increment_number) * 100
  
    if is_next_build:
      base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF

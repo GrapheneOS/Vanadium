@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index 20160807af8ef..ae29c11e2d807 100644
+index 6dd44c4958248..c74f70f60f443 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4735,16 +4735,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4794,16 +4794,6 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMojoLinuxChannelSharedMemDescription,
       kOsCrOS | kOsLinux | kOsLacros | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
@@ -30,10 +30,10 @@ index 20160807af8ef..ae29c11e2d807 100644
      {"enable-isolated-web-apps", flag_descriptions::kEnableIsolatedWebAppsName,
       flag_descriptions::kEnableIsolatedWebAppsDescription, kOsAll,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 409680a51def4..3748681666106 100644
+index 3f72898d5a97e..582c1bce9f579 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -1077,11 +1077,7 @@ BASE_FEATURE(kSecurityKeyAttestationPrompt,
+@@ -1121,11 +1121,7 @@ const base::FeatureParam<base::TimeDelta> kSCTLogMaxIngestionRandomDelay{
  // browser_features, as they are only used on the browser side.
  BASE_FEATURE(kSitePerProcess,
               "SitePerProcess",

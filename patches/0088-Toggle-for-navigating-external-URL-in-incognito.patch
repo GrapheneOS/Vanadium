@@ -29,10 +29,10 @@ index ea1dd6c3f529c..4f6b5a3ae75a5 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 84af9ca940a07..cc56e8fb84aca 100644
+index 216ddfe9c4d80..3bacb93dc1207 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -2435,6 +2435,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2453,6 +2453,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
          // - we decided to close the tab, but it was opened by an external app, so we will go
          //   exit Chrome on top of closing the tab
          final boolean minimizeApp =
@@ -42,10 +42,10 @@ index 84af9ca940a07..cc56e8fb84aca 100644
  
          BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 394815849855a..2efb57b8acd85 100644
+index 0fa028c6563c2..4c0d4278d0189 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -447,6 +447,9 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -407,6 +407,9 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {
@@ -108,7 +108,7 @@ index e004200c3102c..91fee9ee6bef3 100644
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index e702d36ea82a7..e75b5cd5a534a 100644
+index 866b0b17fc725..0b3c42b0e37c2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -27,6 +27,8 @@ final class PrivacySettingsExt {
@@ -118,8 +118,8 @@ index e702d36ea82a7..e75b5cd5a534a 100644
 +    private static final String PREF_OPEN_LINKS_IN_INCOGNITO =
 +            SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.getKey();
  
-     private static final Preference.OnPreferenceChangeListener LISTENER =
-         (pref, val) -> {
+     private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
+         return (pref, val) -> {
 @@ -39,6 +41,8 @@ final class PrivacySettingsExt {
                  prefService.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) val);
              } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
@@ -129,21 +129,21 @@ index e702d36ea82a7..e75b5cd5a534a 100644
              }
              return true;
          };
-@@ -83,6 +87,13 @@ final class PrivacySettingsExt {
+@@ -85,6 +89,13 @@ final class PrivacySettingsExt {
              closeTabsOnExitPref.setOrder(PRIVACY_PREFERENCES_ORDER);
-             closeTabsOnExitPref.setOnPreferenceChangeListener(LISTENER);
+             closeTabsOnExitPref.setOnPreferenceChangeListener(getListener(profile));
          }
 +
 +        ChromeSwitchPreference openLinksInIncognitoPref =
 +                (ChromeSwitchPreference) prefFragment.findPreference(PREF_OPEN_LINKS_IN_INCOGNITO);
 +        if (openLinksInIncognitoPref != null) {
 +            openLinksInIncognitoPref.setOrder(PRIVACY_PREFERENCES_ORDER);
-+            openLinksInIncognitoPref.setOnPreferenceChangeListener(LISTENER);
++            openLinksInIncognitoPref.setOnPreferenceChangeListener(getListener(profile));
 +        }
      }
  
-     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment) {
-@@ -99,5 +110,11 @@ final class PrivacySettingsExt {
+     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
+@@ -101,5 +112,11 @@ final class PrivacySettingsExt {
          SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ closeTabsOnExitPref,
                  /* newSummary*/ null,
                  /* newCheckedValue*/ SharedPrefsExt.CLOSE_TABS_ON_EXIT.get());

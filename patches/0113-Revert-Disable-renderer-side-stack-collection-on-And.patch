@@ -1,0 +1,74 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 24 Aug 2023 08:22:32 +0000
+Subject: [PATCH] Revert "Disable renderer-side stack collection on Android for
+ crbug.com/1425281"
+
+This reverts commit cced4d50b725beb478c114496c54ffe3b7812c0f.
+---
+ content/renderer/render_frame_impl.cc |  8 ++++----
+ content/renderer/render_frame_impl.h  | 11 +++--------
+ 2 files changed, 7 insertions(+), 12 deletions(-)
+
+diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
+index 94d3c751277e0..d281b2a031763 100644
+--- a/content/renderer/render_frame_impl.cc
++++ b/content/renderer/render_frame_impl.cc
+@@ -1493,7 +1493,7 @@ RenderFrameImpl* RenderFrameImpl::CreateMainFrame(
+ 
+   CHECK(!render_frame->in_frame_tree_);
+   render_frame->in_frame_tree_ = true;
+-#if !(BUILDFLAG(IS_ANDROID) || \
++#if !((BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_32_BITS)) || \
+       (BUILDFLAG(IS_CHROMEOS) && defined(ARCH_CPU_ARM64)))
+   render_frame->added_to_frame_tree_stack_trace_.emplace();
+ #endif
+@@ -1606,7 +1606,7 @@ void RenderFrameImpl::CreateFrame(
+     // call to createLocalChild.
+     CHECK(!render_frame->in_frame_tree_);
+     render_frame->in_frame_tree_ = true;
+-#if !(BUILDFLAG(IS_ANDROID) || \
++#if !((BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_32_BITS)) || \
+       (BUILDFLAG(IS_CHROMEOS) && defined(ARCH_CPU_ARM64)))
+     render_frame->added_to_frame_tree_stack_trace_.emplace();
+ #endif
+@@ -3569,7 +3569,7 @@ blink::WebLocalFrame* RenderFrameImpl::CreateChildFrame(
+ 
+   CHECK(!child_render_frame->in_frame_tree_);
+   child_render_frame->in_frame_tree_ = true;
+-#if !(BUILDFLAG(IS_ANDROID) || \
++#if !((BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_32_BITS)) || \
+       (BUILDFLAG(IS_CHROMEOS) && defined(ARCH_CPU_ARM64)))
+   child_render_frame->added_to_frame_tree_stack_trace_.emplace();
+ #endif
+@@ -5077,7 +5077,7 @@ bool RenderFrameImpl::SwapIn(WebFrame* previous_web_frame) {
+ 
+   CHECK(!in_frame_tree_);
+   in_frame_tree_ = true;
+-#if !(BUILDFLAG(IS_ANDROID) || \
++#if !((BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_32_BITS)) || \
+       (BUILDFLAG(IS_CHROMEOS) && defined(ARCH_CPU_ARM64)))
+   added_to_frame_tree_stack_trace_.emplace();
+ #endif
+diff --git a/content/renderer/render_frame_impl.h b/content/renderer/render_frame_impl.h
+index 597f299a06291..91a8fdd2b9b93 100644
+--- a/content/renderer/render_frame_impl.h
++++ b/content/renderer/render_frame_impl.h
+@@ -1194,14 +1194,9 @@ class CONTENT_EXPORT RenderFrameImpl
+   // Blink Web* layer to check for provisional frames.
+   bool in_frame_tree_;
+   // TODO(crbug.com/1425281): Temporary for debugging. Note that collecting this
+-  // stack trace is limited to non-Android/non-aarch64 CrOS platforms because:
+-  // - https://crbug.com/1457701: unwinding doesn't work inside the sandbox on
+-  //   CrOS aarch64
+-  // - https://crbug.com/1461901: libunwind crashes on invalid inputs on 32-bit
+-  //   Android.
+-  // - https://crbug.com/1470012: libunwind crashes on invalid inputs on 64-bit
+-  //   Android (which shouldn't have been the case since 64-bit should just be
+-  //   able to use the frame pointers rather than relying on unwind tables...)
++  // stack trace is limited to non-aarch64 platforms because
++  // base::debug::StackTrace appears to crash on CrOS aarch64 in the renderer
++  // sandbox. See https://crbug.com/1457701.
+   absl::optional<base::debug::StackTrace> added_to_frame_tree_stack_trace_;
+ 
+   const int routing_id_;

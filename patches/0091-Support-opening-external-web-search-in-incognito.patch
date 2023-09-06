@@ -8,10 +8,10 @@ Subject: [PATCH] Support opening external web search in incognito
  1 file changed, 3 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 8719d28cbeeb0..2fce36c51d6e1 100644
+index 6f2489c142d30..8af6494de9dc3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -32,6 +32,7 @@ import org.chromium.base.supplier.UnownedUserDataSupplier;
+@@ -33,6 +33,7 @@ import org.chromium.base.supplier.UnownedUserDataSupplier;
  import org.chromium.blink.mojom.DisplayMode;
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.IntentHandler;
@@ -19,7 +19,7 @@ index 8719d28cbeeb0..2fce36c51d6e1 100644
  import org.chromium.chrome.browser.WebContentsFactory;
  import org.chromium.chrome.browser.app.tabmodel.TabWindowManagerSingleton;
  import org.chromium.chrome.browser.back_press.BackPressManager;
-@@ -552,6 +553,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -555,6 +556,8 @@ public class SearchActivity extends AsyncInitializationActivity
          if (!TextUtils.isEmpty(postDataType) && postData != null && postData.length != 0) {
              intent.putExtra(IntentHandler.EXTRA_POST_DATA_TYPE, postDataType);
              intent.putExtra(IntentHandler.EXTRA_POST_DATA, postData);
