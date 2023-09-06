@@ -9,10 +9,10 @@ Subject: [PATCH] disable content feed suggestions by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index ded32decebb05..7bada01e6fcdf 100644
+index 723da0089d718..89f4ae73c4816 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -551,7 +551,7 @@ public abstract class ChromeFeatureList {
+@@ -558,7 +558,7 @@ public abstract class ChromeFeatureList {
              new CachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false);
      public static final CachedFlag sInstanceSwitcher = new CachedFlag(INSTANCE_SWITCHER, true);
      public static final CachedFlag sInstantStart = new CachedFlag(INSTANT_START, false);
@@ -22,7 +22,7 @@ index ded32decebb05..7bada01e6fcdf 100644
              new CachedFlag(PRIVACY_GUIDE_POST_MVP, false);
      public static final CachedFlag sOmniboxMatchToolbarAndStatusBarColor =
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index b6ec563a009c7..4a24500d58ed9 100644
+index b1bda3fc9a693..5900d9d5e4aae 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
 @@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,

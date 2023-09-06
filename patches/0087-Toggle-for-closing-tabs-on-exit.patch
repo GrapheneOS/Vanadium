@@ -40,10 +40,10 @@ index 01e8c8217afed..ea1dd6c3f529c 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 9ab3f3042c8a2..84af9ca940a07 100644
+index 2aa6ab6379d63..216ddfe9c4d80 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1274,6 +1274,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1256,6 +1256,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
  
              boolean noRestoreState =
                      CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE);
@@ -82,7 +82,7 @@ index 0000000000000..e004200c3102c
 +
 +}
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index d627ead5ee9d0..e702d36ea82a7 100644
+index 307c8d8134b6e..866b0b17fc725 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -26,6 +26,7 @@ import org.chromium.components.user_prefs.UserPrefs;
@@ -91,8 +91,8 @@ index d627ead5ee9d0..e702d36ea82a7 100644
      private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
 +    private static final String PREF_CLOSE_TABS_ON_EXIT = SharedPrefsExt.CLOSE_TABS_ON_EXIT.getKey();
  
-     private static final Preference.OnPreferenceChangeListener LISTENER =
-         (pref, val) -> {
+     private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
+         return (pref, val) -> {
 @@ -36,6 +37,8 @@ final class PrivacySettingsExt {
              String key = pref.getKey();
              if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
@@ -102,21 +102,21 @@ index d627ead5ee9d0..e702d36ea82a7 100644
              }
              return true;
          };
-@@ -73,6 +76,13 @@ final class PrivacySettingsExt {
-             searchSuggestionsPref.setOnPreferenceChangeListener(LISTENER);
-             searchSuggestionsPref.setManagedPreferenceDelegate(DELEGATE);
+@@ -75,6 +78,13 @@ final class PrivacySettingsExt {
+             searchSuggestionsPref.setOnPreferenceChangeListener(getListener(profile));
+             searchSuggestionsPref.setManagedPreferenceDelegate(getDelegate(profile));
          }
 +
 +        ChromeSwitchPreference closeTabsOnExitPref =
 +                (ChromeSwitchPreference) prefFragment.findPreference(PREF_CLOSE_TABS_ON_EXIT);
 +        if (closeTabsOnExitPref != null) {
 +            closeTabsOnExitPref.setOrder(PRIVACY_PREFERENCES_ORDER);
-+            closeTabsOnExitPref.setOnPreferenceChangeListener(LISTENER);
++            closeTabsOnExitPref.setOnPreferenceChangeListener(getListener(profile));
 +        }
      }
  
-     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment) {
-@@ -83,5 +93,11 @@ final class PrivacySettingsExt {
+     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
+@@ -85,5 +95,11 @@ final class PrivacySettingsExt {
          SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ searchSuggestionsPref,
                  /* newSummary*/ null,
                  /* newCheckedValue*/ prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));

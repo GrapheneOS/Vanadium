@@ -32,10 +32,10 @@ index 2d1661ee534f6..2c983646ab42b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 6f3722cd64029..a126f4eac2895 100644
+index 298dfaabe9ce9..71739e277c4be 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -346,6 +346,10 @@ by a child template that "extends" this file.
+@@ -344,6 +344,10 @@ by a child template that "extends" this file.
              <intent-filter>
                  <action android:name="android.intent.action.SEARCH" />
              </intent-filter>
@@ -47,10 +47,10 @@ index 6f3722cd64029..a126f4eac2895 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 3f26f41d07644..704e55f1af447 100644
+index 060fb0b2e2265..008f009004692 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -768,6 +768,7 @@ public class IntentHandler {
+@@ -763,6 +763,7 @@ public class IntentHandler {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -59,10 +59,10 @@ index 3f26f41d07644..704e55f1af447 100644
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 2efb57b8acd85..57415bcdfe44b 100644
+index 4c0d4278d0189..3015616921c9e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -204,7 +204,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -200,7 +200,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
          searchIntent.putExtra(SearchManager.QUERY, query);
  
          try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {

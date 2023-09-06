@@ -5,19 +5,22 @@ Subject: [PATCH] enable Chrome Root Store by default
 
 This also enables the Chrome Certificate Verifier.
 ---
- net/base/features.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/base/features.cc | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 6b304840cd179..dc916161cf771 100644
+index 4345c8882b361..4b1d6f696bded 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -162,7 +162,7 @@ BASE_FEATURE(kCertDualVerificationTrialFeature,
+@@ -177,11 +177,7 @@ BASE_FEATURE(kCertDualVerificationTrialFeature,
  #if BUILDFLAG(CHROME_ROOT_STORE_OPTIONAL)
  BASE_FEATURE(kChromeRootStoreUsed,
               "ChromeRootStoreUsed",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
+-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+              base::FEATURE_ENABLED_BY_DEFAULT
+-#else
+-             base::FEATURE_DISABLED_BY_DEFAULT
+-#endif
+ );
  #endif  // BUILDFLAG(CHROME_ROOT_STORE_OPTIONAL)
  
- #if BUILDFLAG(IS_MAC) || BUILDFLAG(USE_NSS_CERTS) || BUILDFLAG(IS_WIN)

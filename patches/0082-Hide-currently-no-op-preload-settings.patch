@@ -4,22 +4,21 @@ Date: Mon, 24 Jan 2022 19:22:26 +0000
 Subject: [PATCH] Hide currently no-op preload settings
 
 ---
- .../chrome/browser/privacy/settings/PrivacySettings.java     | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../chrome/browser/privacy/settings/PrivacySettings.java        | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 15d8d44e30da7..065d89cb9da1d 100644
+index b71fb9e1d61bb..46c143fc1a1a1 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -152,6 +152,11 @@ public class PrivacySettings extends PreferenceFragmentCompat
-                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
-         canMakePaymentPref.setOnPreferenceChangeListener(this);
+@@ -257,8 +257,10 @@ public class PrivacySettings extends PreferenceFragmentCompat
+         if (preloadPagesPreference != null) {
+             preloadPagesPreference.setSummary(
+                     PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
++            getPreferenceScreen().removePreference(preloadPagesPreference);
+         }
  
-+        Preference preloadPagesPreference = findPreference(PREF_PRELOAD_PAGES);
-+        preloadPagesPreference.setSummary(
-+                PreloadPagesSettingsFragment.getPreloadPagesSummaryString(getContext()));
-+        getPreferenceScreen().removePreference(preloadPagesPreference);
 +
-         ChromeSwitchPreference httpsFirstModePref =
-                 (ChromeSwitchPreference) findPreference(PREF_HTTPS_FIRST_MODE);
-         httpsFirstModePref.setVisible(
+         Preference secureDnsPref = findPreference(PREF_SECURE_DNS);
+         if (secureDnsPref != null && secureDnsPref.isVisible()) {
+             secureDnsPref.setSummary(SecureDnsSettings.getSummary(getContext()));

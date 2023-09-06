@@ -137,7 +137,7 @@ index 0000000000000..f90f9d7231ff9
 +        android:key="webrtc_policy" />
 +</PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index e75b5cd5a534a..fdd7daddf6dca 100644
+index 0b3c42b0e37c2..01757dc68b41b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -17,6 +17,7 @@ import org.chromium.chrome.browser.preferences.SharedPrefsUtils.SharedPrefsExt;
@@ -154,11 +154,11 @@ index e75b5cd5a534a..fdd7daddf6dca 100644
              SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.getKey();
 +    private static final String PREF_WEBRTC_POLICY = "webrtc_policy";
  
-     private static final Preference.OnPreferenceChangeListener LISTENER =
-         (pref, val) -> {
-@@ -94,6 +96,11 @@ final class PrivacySettingsExt {
+     private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
+         return (pref, val) -> {
+@@ -96,6 +98,11 @@ final class PrivacySettingsExt {
              openLinksInIncognitoPref.setOrder(PRIVACY_PREFERENCES_ORDER);
-             openLinksInIncognitoPref.setOnPreferenceChangeListener(LISTENER);
+             openLinksInIncognitoPref.setOnPreferenceChangeListener(getListener(profile));
          }
 +
 +        Preference webRtcPolicyPref = prefFragment.findPreference(PREF_WEBRTC_POLICY);
@@ -167,8 +167,8 @@ index e75b5cd5a534a..fdd7daddf6dca 100644
 +        }
      }
  
-     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment) {
-@@ -116,5 +123,9 @@ final class PrivacySettingsExt {
+     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
+@@ -118,5 +125,9 @@ final class PrivacySettingsExt {
          SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ openLinksInIncognitoPref,
                  /* newSummary*/ null,
                  /* newCheckedValue*/ SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.get());

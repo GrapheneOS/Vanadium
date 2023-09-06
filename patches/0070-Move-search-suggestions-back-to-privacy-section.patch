@@ -24,7 +24,7 @@ index a352cd657b1b9..01e8c8217afed 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index 00a65cf922353..d627ead5ee9d0 100644
+index 4bf3be9576c22..307c8d8134b6e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -25,6 +25,8 @@ import org.chromium.components.user_prefs.UserPrefs;
@@ -33,9 +33,9 @@ index 00a65cf922353..d627ead5ee9d0 100644
  
 +    private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
 +
-     private static final Preference.OnPreferenceChangeListener LISTENER =
-         (pref, val) -> {
-             PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
+     private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
+         return (pref, val) -> {
+             PrefService prefService = UserPrefs.get(profile);
 @@ -32,6 +34,9 @@ final class PrivacySettingsExt {
                  return false;
              }
@@ -45,8 +45,8 @@ index 00a65cf922353..d627ead5ee9d0 100644
 +            }
              return true;
          };
- 
-@@ -42,6 +47,9 @@ final class PrivacySettingsExt {
+     }
+@@ -43,6 +48,9 @@ final class PrivacySettingsExt {
                  return false;
              }
              String key = pref.getKey();
@@ -55,8 +55,8 @@ index 00a65cf922353..d627ead5ee9d0 100644
 +            }
              return false;
          };
- 
-@@ -58,10 +66,22 @@ final class PrivacySettingsExt {
+     }
+@@ -60,10 +68,22 @@ final class PrivacySettingsExt {
          int SECURITY_PREFERENCES_ORDER =
                  ChromeFeatureList.isEnabled(ChromeFeatureList.PRIVACY_SANDBOX_SETTINGS_4) ? 2 : 9999;
          SettingsUtils.addPreferencesFromResource(prefFragment, R.xml.privacy_preferences_ext);
@@ -64,14 +64,14 @@ index 00a65cf922353..d627ead5ee9d0 100644
 +                (ChromeSwitchPreference) prefFragment.findPreference(PREF_SEARCH_SUGGESTIONS);
 +        if (searchSuggestionsPref != null) {
 +            searchSuggestionsPref.setOrder(PRIVACY_PREFERENCES_ORDER);
-+            searchSuggestionsPref.setOnPreferenceChangeListener(LISTENER);
-+            searchSuggestionsPref.setManagedPreferenceDelegate(DELEGATE);
++            searchSuggestionsPref.setOnPreferenceChangeListener(getListener(profile));
++            searchSuggestionsPref.setManagedPreferenceDelegate(getDelegate(profile));
 +        }
      }
  
-     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment) {
+     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
          ThreadUtils.checkUiThread();
-         PrefService prefService = UserPrefs.get(Profile.getLastUsedRegularProfile());
+         PrefService prefService = UserPrefs.get(profile);
 +        ChromeSwitchPreference searchSuggestionsPref =
 +                (ChromeSwitchPreference) prefFragment.findPreference(PREF_SEARCH_SUGGESTIONS);
 +        SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ searchSuggestionsPref,
