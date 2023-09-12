@@ -24,7 +24,7 @@ index a352cd657b1b9..01e8c8217afed 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index 4bf3be9576c22..307c8d8134b6e 100644
+index a9acd9e82ee60..2db54e2fa4497 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -25,6 +25,8 @@ import org.chromium.components.user_prefs.UserPrefs;
@@ -46,17 +46,17 @@ index 4bf3be9576c22..307c8d8134b6e 100644
              return true;
          };
      }
-@@ -43,6 +48,9 @@ final class PrivacySettingsExt {
+@@ -45,6 +50,9 @@ final class PrivacySettingsExt {
+                     return false;
+                 }
+                 String key = pref.getKey();
++                if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
++                    return prefService.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
++                }
                  return false;
              }
-             String key = pref.getKey();
-+            if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
-+                return prefService.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
-+            }
-             return false;
          };
-     }
-@@ -60,10 +68,22 @@ final class PrivacySettingsExt {
+@@ -63,10 +71,22 @@ final class PrivacySettingsExt {
          int SECURITY_PREFERENCES_ORDER =
                  ChromeFeatureList.isEnabled(ChromeFeatureList.PRIVACY_SANDBOX_SETTINGS_4) ? 2 : 9999;
          SettingsUtils.addPreferencesFromResource(prefFragment, R.xml.privacy_preferences_ext);

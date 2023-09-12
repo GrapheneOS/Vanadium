@@ -148,7 +148,7 @@ index 6e955e33c0109..356e4204e1cd2 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index 01757dc68b41b..93b26c6fe3d22 100644
+index ecc59873336e8..f68ef522bbaa3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -15,6 +15,7 @@ import org.chromium.chrome.browser.flags.ChromeFeatureList;
@@ -167,7 +167,7 @@ index 01757dc68b41b..93b26c6fe3d22 100644
  
      private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
          return (pref, val) -> {
-@@ -103,6 +105,12 @@ final class PrivacySettingsExt {
+@@ -106,6 +108,12 @@ final class PrivacySettingsExt {
          if (webRtcPolicyPref != null) {
              webRtcPolicyPref.setOrder(PRIVACY_PREFERENCES_ORDER);
          }
@@ -180,7 +180,7 @@ index 01757dc68b41b..93b26c6fe3d22 100644
      }
  
      static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
-@@ -129,5 +137,12 @@ final class PrivacySettingsExt {
+@@ -132,5 +140,12 @@ final class PrivacySettingsExt {
          Preference webRtcPolicyPref = prefFragment.findPreference(PREF_WEBRTC_POLICY);
          SettingsExtUtils.safelyUpdatePreference(/* preference */ webRtcPolicyPref,
                  /* newSummary */ WebRtcPolicySettings.getWebRtcPolicySummaryString(prefFragment.getContext()));

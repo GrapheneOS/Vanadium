@@ -8,8 +8,8 @@ Subject: [PATCH] Utility class for modifying preferences at Privacy section
  chrome/android/chrome_ext_java_sources.gni    |  1 +
  .../java/res/xml/privacy_preferences_ext.xml  |  9 +++
  .../privacy/settings/PrivacySettings.java     |  6 ++
- .../privacy/settings/PrivacySettingsExt.java  | 69 +++++++++++++++++++
- 5 files changed, 86 insertions(+)
+ .../privacy/settings/PrivacySettingsExt.java  | 72 +++++++++++++++++++
+ 5 files changed, 89 insertions(+)
  create mode 100644 chrome/android/java/res/xml/privacy_preferences_ext.xml
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 
@@ -81,10 +81,10 @@ index 2429268892127..814bd064d67eb 100644
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 new file mode 100644
-index 0000000000000..4bf3be9576c22
+index 0000000000000..a9acd9e82ee60
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,72 @@
 +// Copyright 2023 GrapheneOS
 +// Use of this source code is governed by a GPLv2-style license that can be
 +// found in the LICENSE file.
@@ -124,13 +124,16 @@ index 0000000000000..4bf3be9576c22
 +    }
 +
 +    private static final ChromeManagedPreferenceDelegate getDelegate(@NonNull Profile profile) {
-+        return pref -> {
-+            PrefService prefService = UserPrefs.get(profile);
-+            if (pref == null) {
++        return new ChromeManagedPreferenceDelegate() {
++            @Override
++            public boolean isPreferenceControlledByPolicy(Preference pref) {
++                PrefService prefService = UserPrefs.get(profile);
++                if (pref == null) {
++                    return false;
++                }
++                String key = pref.getKey();
 +                return false;
 +            }
-+            String key = pref.getKey();
-+            return false;
 +        };
 +    }
 +

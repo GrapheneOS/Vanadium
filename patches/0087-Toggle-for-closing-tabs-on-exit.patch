@@ -82,7 +82,7 @@ index 0000000000000..e004200c3102c
 +
 +}
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index 307c8d8134b6e..866b0b17fc725 100644
+index 2db54e2fa4497..60afa9f0c9e51 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -26,6 +26,7 @@ import org.chromium.components.user_prefs.UserPrefs;
@@ -102,7 +102,7 @@ index 307c8d8134b6e..866b0b17fc725 100644
              }
              return true;
          };
-@@ -75,6 +78,13 @@ final class PrivacySettingsExt {
+@@ -78,6 +81,13 @@ final class PrivacySettingsExt {
              searchSuggestionsPref.setOnPreferenceChangeListener(getListener(profile));
              searchSuggestionsPref.setManagedPreferenceDelegate(getDelegate(profile));
          }
@@ -116,7 +116,7 @@ index 307c8d8134b6e..866b0b17fc725 100644
      }
  
      static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
-@@ -85,5 +95,11 @@ final class PrivacySettingsExt {
+@@ -88,5 +98,11 @@ final class PrivacySettingsExt {
          SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ searchSuggestionsPref,
                  /* newSummary*/ null,
                  /* newCheckedValue*/ prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
