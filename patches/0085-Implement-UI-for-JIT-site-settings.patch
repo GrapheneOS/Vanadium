@@ -32,10 +32,10 @@ Subject: [PATCH] Implement UI for JIT site settings
  create mode 100644 components/browser_ui/site_settings/android/java/res/drawable-xxxhdpi/permission_javascript_jit.png
 
 diff --git a/components/browser_ui/site_settings/android/BUILD.gn b/components/browser_ui/site_settings/android/BUILD.gn
-index 9719ec36a3f9e..727d92b431fce 100644
+index 14c1a6c1c173a..25d7b1d45036e 100644
 --- a/components/browser_ui/site_settings/android/BUILD.gn
 +++ b/components/browser_ui/site_settings/android/BUILD.gn
-@@ -194,6 +194,7 @@ android_resources("java_resources") {
+@@ -196,6 +196,7 @@ android_resources("java_resources") {
      "java/res/drawable-hdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-hdpi/permission_background_sync.png",
      "java/res/drawable-hdpi/permission_javascript.png",
@@ -43,7 +43,7 @@ index 9719ec36a3f9e..727d92b431fce 100644
      "java/res/drawable-hdpi/permission_popups.png",
      "java/res/drawable-hdpi/permission_protected_media.png",
      "java/res/drawable-hdpi/settings_sensors.png",
-@@ -201,6 +202,7 @@ android_resources("java_resources") {
+@@ -203,6 +204,7 @@ android_resources("java_resources") {
      "java/res/drawable-mdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-mdpi/permission_background_sync.png",
      "java/res/drawable-mdpi/permission_javascript.png",
@@ -51,7 +51,7 @@ index 9719ec36a3f9e..727d92b431fce 100644
      "java/res/drawable-mdpi/permission_popups.png",
      "java/res/drawable-mdpi/permission_protected_media.png",
      "java/res/drawable-mdpi/settings_sensors.png",
-@@ -208,6 +210,7 @@ android_resources("java_resources") {
+@@ -210,6 +212,7 @@ android_resources("java_resources") {
      "java/res/drawable-xhdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-xhdpi/permission_background_sync.png",
      "java/res/drawable-xhdpi/permission_javascript.png",
@@ -59,7 +59,7 @@ index 9719ec36a3f9e..727d92b431fce 100644
      "java/res/drawable-xhdpi/permission_popups.png",
      "java/res/drawable-xhdpi/permission_protected_media.png",
      "java/res/drawable-xhdpi/settings_sensors.png",
-@@ -215,6 +218,7 @@ android_resources("java_resources") {
+@@ -217,6 +220,7 @@ android_resources("java_resources") {
      "java/res/drawable-xxhdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-xxhdpi/permission_background_sync.png",
      "java/res/drawable-xxhdpi/permission_javascript.png",
@@ -67,7 +67,7 @@ index 9719ec36a3f9e..727d92b431fce 100644
      "java/res/drawable-xxhdpi/permission_popups.png",
      "java/res/drawable-xxhdpi/permission_protected_media.png",
      "java/res/drawable-xxhdpi/settings_sensors.png",
-@@ -222,6 +226,7 @@ android_resources("java_resources") {
+@@ -224,6 +228,7 @@ android_resources("java_resources") {
      "java/res/drawable-xxxhdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-xxxhdpi/permission_background_sync.png",
      "java/res/drawable-xxxhdpi/permission_javascript.png",
@@ -322,10 +322,10 @@ index cc2951ae1d3a7..4c6c49adf08ae 100644
                  return "microphone";
              case Type.NFC:
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
-index cc7b47427aab6..7639ec2cfaa12 100644
+index 9d8c0d2dca0c6..594f64f7cc556 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
-@@ -27,6 +27,7 @@ public class SiteSettingsUtil {
+@@ -30,6 +30,7 @@ public class SiteSettingsUtil {
              ContentSettingsType.MEDIASTREAM_MIC,
              ContentSettingsType.NOTIFICATIONS,
              ContentSettingsType.JAVASCRIPT,
@@ -334,10 +334,10 @@ index cc7b47427aab6..7639ec2cfaa12 100644
              ContentSettingsType.ADS,
              ContentSettingsType.BACKGROUND_SYNC,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-index d2ae37792afbe..9d8fd570e3e56 100644
+index dde963b77da78..3c00552cb9fdc 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-@@ -231,6 +231,12 @@ public final class Website implements WebsiteEntry {
+@@ -232,6 +232,12 @@ public final class Website implements WebsiteEntry {
              } else {
                  RecordUserAction.record("JavascriptContentSetting.DisableBy.SiteSettings");
              }
@@ -363,7 +363,7 @@ index d3319be4efcf0..a2f99e8d67199 100644
        case ContentSettingsType::REQUEST_DESKTOP_SITE:
        case ContentSettingsType::SENSORS:
 diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
-index a6081a7312dd1..b65c7c7604912 100644
+index 3e504ce1da2f1..2547012b3242f 100644
 --- a/components/browser_ui/strings/android/site_settings.grdp
 +++ b/components/browser_ui/strings/android/site_settings.grdp
 @@ -70,6 +70,9 @@
@@ -399,10 +399,10 @@ index a6081a7312dd1..b65c7c7604912 100644
  
    <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCATION_ASK" desc="Summary text explaining that sites need to ask for permission before knowing location and that it is the recommended setting.">
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index 8730a4e709bc7..607a92abe36ae 100644
+index f8d17b160da4e..c60b66eeba541 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -526,7 +526,7 @@ void ContentSettingsRegistry::Init() {
+@@ -536,7 +536,7 @@ void ContentSettingsRegistry::Init() {
             ContentSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
  
    Register(ContentSettingsType::JAVASCRIPT_JIT, "javascript-jit",
@@ -433,10 +433,10 @@ index 90bbf0b66c598..94fe998b556f3 100644
      // The sound content setting should always show up when the tab has played
      // audio since last navigation.
 diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
-index 18dd31f524a09..6c5e1da1cdcb9 100644
+index ee84486bd7d1c..9baf02294ea10 100644
 --- a/components/page_info/page_info.cc
 +++ b/components/page_info/page_info.cc
-@@ -103,6 +103,7 @@ ContentSettingsType kPermissionType[] = {
+@@ -104,6 +104,7 @@ ContentSettingsType kPermissionType[] = {
      ContentSettingsType::SENSORS,
      ContentSettingsType::NOTIFICATIONS,
      ContentSettingsType::JAVASCRIPT,
@@ -444,9 +444,9 @@ index 18dd31f524a09..6c5e1da1cdcb9 100644
  #if !BUILDFLAG(IS_ANDROID)
      ContentSettingsType::IMAGES,
  #endif
-@@ -1249,6 +1250,11 @@ bool PageInfo::ShouldShowPermission(
-     }
+@@ -1268,6 +1269,11 @@ bool PageInfo::ShouldShowPermission(
    }
+ #endif  // !BUILDFLAG(IS_ANDROID)
  
 +  // Always show JIT settings UI when when it has a site-specific override.
 +  if (info.type == ContentSettingsType::JAVASCRIPT_JIT) {
@@ -457,10 +457,10 @@ index 18dd31f524a09..6c5e1da1cdcb9 100644
        web_contents_->GetBrowserContext()->IsOffTheRecord();
  #if BUILDFLAG(IS_ANDROID)
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index 59af8d65b18cd..12574e62cb675 100644
+index e6fab48974fbe..484be276e6a1e 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
-@@ -138,6 +138,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {
+@@ -143,6 +143,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {
       IDS_SITE_SETTINGS_TYPE_COOKIES_MID_SENTENCE},
      {ContentSettingsType::JAVASCRIPT, IDS_SITE_SETTINGS_TYPE_JAVASCRIPT,
       IDS_SITE_SETTINGS_TYPE_JAVASCRIPT_MID_SENTENCE},
@@ -470,10 +470,10 @@ index 59af8d65b18cd..12574e62cb675 100644
       IDS_SITE_SETTINGS_TYPE_POPUPS_REDIRECTS_MID_SENTENCE},
      {ContentSettingsType::GEOLOCATION, IDS_SITE_SETTINGS_TYPE_LOCATION,
 diff --git a/components/site_settings_strings.grdp b/components/site_settings_strings.grdp
-index 87f46eaa4aaec..6a9540f710760 100644
+index eff0a73b73485..d6b9a61069f35 100644
 --- a/components/site_settings_strings.grdp
 +++ b/components/site_settings_strings.grdp
-@@ -82,6 +82,12 @@
+@@ -88,6 +88,12 @@
    <message name="IDS_SITE_SETTINGS_TYPE_JAVASCRIPT_MID_SENTENCE" desc="The label used for JavaScript site settings controls when used mid-sentence.">
      javascript
    </message>

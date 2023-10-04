@@ -18,7 +18,7 @@ support.
  8 files changed, 139 insertions(+), 1 deletion(-)
 
 diff --git a/android_webview/browser/aw_autofill_client.cc b/android_webview/browser/aw_autofill_client.cc
-index 4f084381d3001..88c57addc2418 100644
+index b1f749c2843c4..6d523b4c65440 100644
 --- a/android_webview/browser/aw_autofill_client.cc
 +++ b/android_webview/browser/aw_autofill_client.cc
 @@ -86,6 +86,7 @@ AwAutofillClient::GetURLLoaderFactory() {
@@ -40,19 +40,19 @@ index 4f084381d3001..88c57addc2418 100644
  
  autofill::PersonalDataManager* AwAutofillClient::GetPersonalDataManager() {
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 016b7b2c631c5..88f83d6cc5d84 100644
+index 41b0ab7ea469e..bec45fd5bbf46 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -432,6 +432,7 @@ if (current_toolchain == default_toolchain) {
-       "//chrome/browser/webapps/android:java",
-       "//chrome/browser/webauthn/android:java",
+@@ -446,6 +446,7 @@ if (current_toolchain == default_toolchain) {
        "//chrome/browser/xsurface:java",
+       "//chrome/browser/xsurface_provider:dependency_provider_impl_java",
+       "//chrome/browser/xsurface_provider:java",
 +      "//components/android_autofill/browser:java",
        "//components/autofill/android:autofill_java",
        "//components/background_task_scheduler:background_task_scheduler_java",
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
-index 08918b8c1b991..9dffdd4bde4c8 100644
+index 78cca79afaffe..931aba47673d1 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
 @@ -10,10 +10,14 @@ import android.annotation.SuppressLint;
@@ -91,7 +91,7 @@ index 08918b8c1b991..9dffdd4bde4c8 100644
  import org.chromium.ui.base.PageTransition;
  import org.chromium.ui.base.ViewAndroidDelegate;
  import org.chromium.ui.base.WindowAndroid;
-@@ -211,6 +219,7 @@ public class TabImpl implements Tab {
+@@ -213,6 +221,7 @@ public class TabImpl implements Tab {
      private int mThemeColor;
      private boolean mUsedCriticalPersistedTabData;
      private boolean mIsWebContentObscured;
@@ -99,7 +99,7 @@ index 08918b8c1b991..9dffdd4bde4c8 100644
  
      /**
       * Creates an instance of a {@link TabImpl}.
-@@ -254,12 +263,18 @@ public class TabImpl implements Tab {
+@@ -256,12 +265,18 @@ public class TabImpl implements Tab {
              public void onViewAttachedToWindow(View view) {
                  mIsViewAttachedToWindow = true;
                  updateInteractableState();
@@ -118,7 +118,7 @@ index 08918b8c1b991..9dffdd4bde4c8 100644
              }
          };
          mTabViewManager = new TabViewManagerImpl(this);
-@@ -798,6 +813,11 @@ public class TabImpl implements Tab {
+@@ -806,6 +821,11 @@ public class TabImpl implements Tab {
          for (TabObserver observer : mObservers) observer.onDestroyed(this);
          mObservers.clear();
  
@@ -130,8 +130,8 @@ index 08918b8c1b991..9dffdd4bde4c8 100644
          mUserDataHost.destroy();
          mTabViewManager.destroy();
          hideNativePage(false, null);
-@@ -1386,6 +1406,18 @@ public class TabImpl implements Tab {
-         return tabsPtrArray;
+@@ -1421,6 +1441,18 @@ public class TabImpl implements Tab {
+         return webContentsState == null ? -1 : webContentsState.version();
      }
  
 +    public void onProvideAutofillVirtualStructure(ViewStructure structure, int flags) {
@@ -149,7 +149,7 @@ index 08918b8c1b991..9dffdd4bde4c8 100644
      /**
       * Initializes the {@link WebContents}. Completes the browser content components initialization
       * around a native WebContents pointer.
-@@ -1429,10 +1461,23 @@ public class TabImpl implements Tab {
+@@ -1464,10 +1496,23 @@ public class TabImpl implements Tab {
              mWebContentsDelegate = createWebContentsDelegate();
  
              assert mNativeTabAndroid != 0;
@@ -206,10 +206,10 @@ index 16c12477bbcb2..a5c9b7fffe05e 100644
      public void onTopControlsChanged(
              int topControlsOffsetY, int contentOffsetY, int topControlsMinHeightOffsetY) {
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index ff490f2ffb3f5..9c634aef77cc9 100644
+index 9ab6c039d18f8..5033e3568cf6d 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2550,6 +2550,13 @@ static_library("browser") {
+@@ -2586,6 +2586,13 @@ static_library("browser") {
      deps += [ "//chrome/browser/error_reporting" ]
    }
  
@@ -224,10 +224,10 @@ index ff490f2ffb3f5..9c634aef77cc9 100644
      deps += [
        "//ui/events/ozone",
 diff --git a/chrome/browser/ui/autofill/chrome_autofill_client.cc b/chrome/browser/ui/autofill/chrome_autofill_client.cc
-index cefb0ebd68c83..71c91a0ac8666 100644
+index caf9c0f6491ca..528dafb71f745 100644
 --- a/chrome/browser/ui/autofill/chrome_autofill_client.cc
 +++ b/chrome/browser/ui/autofill/chrome_autofill_client.cc
-@@ -54,6 +54,9 @@
+@@ -56,6 +56,9 @@
  #include "chrome/browser/web_data_service_factory.h"
  #include "chrome/common/channel_info.h"
  #include "chrome/common/url_constants.h"
@@ -237,7 +237,7 @@ index cefb0ebd68c83..71c91a0ac8666 100644
  #include "components/autofill/content/browser/autofill_log_router_factory.h"
  #include "components/autofill/content/browser/content_autofill_driver.h"
  #include "components/autofill/content/browser/content_autofill_driver_factory.h"
-@@ -188,12 +191,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
+@@ -200,12 +203,16 @@ ChromeAutofillClient::GetURLLoaderFactory() {
  }
  
  AutofillDownloadManager* ChromeAutofillClient::GetDownloadManager() {
@@ -254,7 +254,7 @@ index cefb0ebd68c83..71c91a0ac8666 100644
  }
  
  AutofillOptimizationGuide* ChromeAutofillClient::GetAutofillOptimizationGuide()
-@@ -1273,7 +1280,12 @@ void ChromeAutofillClient::OnZoomChanged(
+@@ -1268,7 +1275,12 @@ void ChromeAutofillClient::OnZoomChanged(
  ChromeAutofillClient::ChromeAutofillClient(content::WebContents* web_contents)
      : ContentAutofillClient(
            web_contents,
@@ -269,7 +269,7 @@ index cefb0ebd68c83..71c91a0ac8666 100644
                                g_browser_process->GetApplicationLocale())),
        content::WebContentsObserver(web_contents),
 diff --git a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
-index 17482e0338285..715797efe65be 100644
+index aefde08a5b224..e08ce993314e2 100644
 --- a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 +++ b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/view/ContentView.java
 @@ -9,6 +9,7 @@ import android.content.res.Configuration;
@@ -280,7 +280,7 @@ index 17482e0338285..715797efe65be 100644
  import android.view.DragEvent;
  import android.view.KeyEvent;
  import android.view.MotionEvent;
-@@ -18,6 +19,7 @@ import android.view.View.OnSystemUiVisibilityChangeListener;
+@@ -19,6 +20,7 @@ import android.view.View.OnSystemUiVisibilityChangeListener;
  import android.view.ViewGroup.OnHierarchyChangeListener;
  import android.view.ViewStructure;
  import android.view.accessibility.AccessibilityNodeProvider;
@@ -288,15 +288,15 @@ index 17482e0338285..715797efe65be 100644
  import android.view.inputmethod.EditorInfo;
  import android.view.inputmethod.InputConnection;
  import android.widget.FrameLayout;
-@@ -37,6 +39,7 @@ import org.chromium.ui.accessibility.AccessibilityState;
+@@ -38,6 +40,7 @@ import org.chromium.ui.accessibility.AccessibilityState;
  import org.chromium.ui.base.EventForwarder;
  import org.chromium.ui.base.EventOffsetHandler;
  import org.chromium.ui.dragdrop.DragEventDispatchHelper.DragEventDispatchDestination;
 +import org.chromium.ui.base.ViewAndroidDelegate;
  
- /**
-  * The containing view for {@link WebContents} that exists in the Android UI hierarchy and exposes
-@@ -87,6 +90,9 @@ public class ContentView extends FrameLayout
+ import java.util.function.Supplier;
+ 
+@@ -92,6 +95,9 @@ public class ContentView extends FrameLayout
       */
      public static ContentView createContentView(Context context,
              @Nullable EventOffsetHandler eventOffsetHandler, @Nullable WebContents webContents) {
@@ -306,7 +306,7 @@ index 17482e0338285..715797efe65be 100644
          return new ContentView(context, eventOffsetHandler, webContents);
      }
  
-@@ -617,4 +623,46 @@ public class ContentView extends FrameLayout
+@@ -638,4 +644,46 @@ public class ContentView extends FrameLayout
          mDragDropEventOffsetHandler.onPostDispatchDragEvent(event.getAction());
          return ret;
      }
@@ -354,10 +354,10 @@ index 17482e0338285..715797efe65be 100644
 +    }
  }
 diff --git a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
-index 9394236df6aa3..6eca97140eee6 100644
+index 1e1d4ea42cf90..595e6a703fff4 100644
 --- a/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
 +++ b/ui/android/java/src/org/chromium/ui/base/ViewAndroidDelegate.java
-@@ -30,6 +30,10 @@ import org.chromium.ui.dragdrop.DragStateTracker;
+@@ -31,6 +31,10 @@ import org.chromium.ui.dragdrop.DragStateTracker;
  import org.chromium.ui.dragdrop.DropDataAndroid;
  import org.chromium.ui.mojom.CursorType;
  
@@ -368,7 +368,7 @@ index 9394236df6aa3..6eca97140eee6 100644
  /**
   * Class to acquire, position, and remove anchor views from the implementing View.
   */
-@@ -621,4 +625,8 @@ public class ViewAndroidDelegate {
+@@ -578,4 +582,8 @@ public class ViewAndroidDelegate {
          sDragAndDropDelegateForTesting = testDelegate;
          ResettersForTesting.register(() -> sDragAndDropDelegateForTesting = null);
      }
