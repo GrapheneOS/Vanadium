@@ -10,10 +10,10 @@ Subject: [PATCH] Support for extended version name and increments
  3 files changed, 34 insertions(+), 1 deletion(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index 41b22a0de9fbd..a3d8187d1d034 100755
+index 16cf8d0403304..afa6cda922381 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -332,7 +332,8 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
+@@ -333,7 +333,8 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
  
    build_number = int(version_values['BUILD'])
    patch_number = int(version_values['PATCH'])
@@ -47,7 +47,7 @@ index 9bf51cd35122b..aba62d904db4a 100755
      android_chrome_version_codes = android_chrome_version.GenerateVersionCodes(
          values, options.arch, options.next)
 diff --git a/chrome/version.gni b/chrome/version.gni
-index 938b664fbff64..9a5422e321516 100644
+index 3cb46611efd56..8c45518991567 100644
 --- a/chrome/version.gni
 +++ b/chrome/version.gni
 @@ -39,6 +39,33 @@ if (is_mac) {

@@ -32,7 +32,7 @@ index 2d1661ee534f6..2c983646ab42b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 298dfaabe9ce9..71739e277c4be 100644
+index e4c9f334a8923..eda70c9f8650f 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -344,6 +344,10 @@ by a child template that "extends" this file.
@@ -47,10 +47,10 @@ index 298dfaabe9ce9..71739e277c4be 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-index 060fb0b2e2265..008f009004692 100644
+index ee4c3c0289718..6820faf522a77 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
-@@ -763,6 +763,7 @@ public class IntentHandler {
+@@ -760,6 +760,7 @@ public class IntentHandler {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -59,10 +59,10 @@ index 060fb0b2e2265..008f009004692 100644
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 4c0d4278d0189..3015616921c9e 100644
+index 8299f821f11f1..d075ef2f65e5b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -200,7 +200,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
+@@ -201,7 +201,7 @@ public class LaunchIntentDispatcher implements IntentHandler.IntentHandlerDelega
          searchIntent.putExtra(SearchManager.QUERY, query);
  
          try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {
