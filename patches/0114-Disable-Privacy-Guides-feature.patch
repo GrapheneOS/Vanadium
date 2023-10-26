@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 26 Oct 2023 18:12:43 +0000
+Subject: [PATCH] Disable Privacy Guides feature
+
+---
+ chrome/common/chrome_features.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
+index 4060ed3970f9d..90d79f2d65bba 100644
+--- a/chrome/common/chrome_features.cc
++++ b/chrome/common/chrome_features.cc
+@@ -1056,11 +1056,11 @@ BASE_FEATURE(kPrintPreviewSetupAssistance,
+ #if BUILDFLAG(IS_ANDROID)
+ BASE_FEATURE(kPrivacyGuideAndroid,
+              "PrivacyGuideAndroid",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kPrivacyGuideAndroidPostMVP,
+              "PrivacyGuideAndroidPostMVP",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ #endif
+ 
+ // Enables or disables push subscriptions keeping Chrome running in the
