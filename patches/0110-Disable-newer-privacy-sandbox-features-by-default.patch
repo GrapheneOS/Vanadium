@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 25 Sep 2023 09:26:57 +0000
+Subject: [PATCH] Disable newer privacy sandbox features by default
+
+---
+ components/privacy_sandbox/privacy_sandbox_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
+index 4f49c1eafc7ca..4b3571c1d82dc 100644
+--- a/components/privacy_sandbox/privacy_sandbox_features.cc
++++ b/components/privacy_sandbox/privacy_sandbox_features.cc
+@@ -13,7 +13,7 @@ BASE_FEATURE(kPrivacySandboxSuppressDialogOnNonNormalBrowsers,
+ 
+ BASE_FEATURE(kPrivacySandboxSettings4,
+              "PrivacySandboxSettings4",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
+ const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";

@@ -4,28 +4,14 @@ Date: Sun, 22 Mar 2020 01:23:48 -0400
 Subject: [PATCH] disable content feed suggestions by default
 
 ---
- .../org/chromium/chrome/browser/flags/ChromeFeatureList.java    | 2 +-
- components/feed/feed_feature_list.cc                            | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ components/feed/feed_feature_list.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 962a3f80cead2..42d01feba0bdd 100644
---- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-+++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -568,7 +568,7 @@ public abstract class ChromeFeatureList {
-             new CachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, false);
-     public static final CachedFlag sInstanceSwitcher = new CachedFlag(INSTANCE_SWITCHER, true);
-     public static final CachedFlag sInstantStart = new CachedFlag(INSTANT_START, false);
--    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, true);
-+    public static final CachedFlag sInterestFeedV2 = new CachedFlag(INTEREST_FEED_V2, false);
-     public static final CachedFlag sNewTabSearchEngineUrlAndroid =
-             new CachedFlag(NEW_TAB_SEARCH_ENGINE_URL_ANDROID, false);
-     public static final CachedFlag sPrivacyGuideAndroid3 =
 diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
-index fd4eaa23ab215..14de68240c883 100644
+index acda50bc47a18..646098ffeb184 100644
 --- a/components/feed/feed_feature_list.cc
 +++ b/components/feed/feed_feature_list.cc
-@@ -24,7 +24,7 @@ BASE_FEATURE(kInterestFeedContentSuggestions,
+@@ -21,7 +21,7 @@ namespace feed {
  // changed, please update the cached one's default value in CachedFeatureFlags.
  BASE_FEATURE(kInterestFeedV2,
               "InterestFeedV2",

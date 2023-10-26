@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 15 Oct 2021 13:49:33 +0000
+Subject: [PATCH] Remove privacy trials preference UI
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettings.java        | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index b78f38e60e789..85c3bb4ab74a3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -127,6 +127,8 @@ public class PrivacySettings
+         mIncognitoLockSettings = new IncognitoLockSettings(incognitoReauthPreference);
+         mIncognitoLockSettings.setUpIncognitoReauthPreference(getActivity());
+ 
++        getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_SANDBOX));
++
+         Preference safeBrowsingPreference = findPreference(PREF_SAFE_BROWSING);
+         safeBrowsingPreference.setSummary(
+                 SafeBrowsingSettingsFragment.getSafeBrowsingSummaryString(getContext()));
