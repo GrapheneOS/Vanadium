@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 13 Mar 2023 08:46:00 +0000
+Subject: [PATCH] Consolidate resources added at android-specific chrome layer
+
+---
+ chrome/android/chrome_ext_java_resources.gni | 6 ++++++
+ chrome/android/chrome_java_resources.gni     | 5 ++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+ create mode 100644 chrome/android/chrome_ext_java_resources.gni
+
+diff --git a/chrome/android/chrome_ext_java_resources.gni b/chrome/android/chrome_ext_java_resources.gni
+new file mode 100644
+index 0000000000000..9980a7c5f6d84
+--- /dev/null
++++ b/chrome/android/chrome_ext_java_resources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++chrome_ext_java_resources = [
++]
+diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
+index 20d507d2b4818..081a351d42951 100644
+--- a/chrome/android/chrome_java_resources.gni
++++ b/chrome/android/chrome_java_resources.gni
+@@ -7,7 +7,10 @@
+ # (for f in $(find java/res/*/ -type f); do echo '  "'$f'",'; done; echo ']') >> chrome_java_resources.gni
+ # git cl format
+ 
+-chrome_java_resources = [
++import ("//chrome/android/chrome_ext_java_resources.gni")
++
++chrome_java_resources = chrome_ext_java_resources
++chrome_java_resources += [
+   "java/res/anim/accelerate_quart.xml",
+   "java/res/anim/activity_close_exit.xml",
+   "java/res/anim/activity_open_enter.xml",

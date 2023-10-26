@@ -4,23 +4,19 @@ Date: Wed, 26 Dec 2018 10:20:24 -0500
 Subject: [PATCH] switch to -fstack-protector-strong
 
 ---
- build/config/compiler/BUILD.gn | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ build/config/compiler/BUILD.gn | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index 06812fb9c2188..c3abb3009a563 100644
+index 6d05512ae3644..77a913e864f79 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -368,18 +368,12 @@ config("compiler") {
+@@ -372,14 +372,12 @@ config("compiler") {
            cflags += [ "-fstack-protector" ]
          }
        } else if ((is_posix && !is_chromeos && !is_nacl) || is_fuchsia) {
 -        # TODO(phajdan.jr): Use -fstack-protector-strong when our gcc supports it.
 -        # See also https://crbug.com/533294
--        if (current_os != "zos") {
--          cflags += [ "--param=ssp-buffer-size=4" ]
--        }
--
          # The x86 toolchain currently has problems with stack-protector.
          if (is_android && current_cpu == "x86") {
            cflags += [ "-fno-stack-protector" ]

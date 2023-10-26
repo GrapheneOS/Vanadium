@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sat, 3 Sep 2022 08:15:59 +0200
+Subject: [PATCH] Support opening external web search in incognito
+
+---
+ .../chromium/chrome/browser/searchwidget/SearchActivity.java   | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index dfc4378ebbaf9..8b57b868a1a1a 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -33,6 +33,7 @@ import org.chromium.base.supplier.UnownedUserDataSupplier;
+ import org.chromium.blink.mojom.DisplayMode;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.IntentHandler;
++import org.chromium.chrome.browser.TabPreferencesUtils;
+ import org.chromium.chrome.browser.WebContentsFactory;
+ import org.chromium.chrome.browser.app.tabmodel.TabWindowManagerSingleton;
+ import org.chromium.chrome.browser.back_press.BackPressManager;
+@@ -556,6 +557,8 @@ public class SearchActivity extends AsyncInitializationActivity
+         if (!TextUtils.isEmpty(postDataType) && postData != null && postData.length != 0) {
+             intent.putExtra(IntentHandler.EXTRA_POST_DATA_TYPE, postDataType);
+             intent.putExtra(IntentHandler.EXTRA_POST_DATA, postData);
++        } else if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            intent = TabPreferencesUtils.appendNeededIncognitoExtras(this, intent);
+         }
+         if (isFromSearchWidget()) {
+             intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);

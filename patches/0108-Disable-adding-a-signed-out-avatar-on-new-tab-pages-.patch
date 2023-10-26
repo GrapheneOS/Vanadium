@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 8 Aug 2023 09:10:36 +0000
+Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
+ default
+
+---
+ components/signin/public/base/signin_switches.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/signin/public/base/signin_switches.cc b/components/signin/public/base/signin_switches.cc
+index 3058668bb3a31..44993148086fb 100644
+--- a/components/signin/public/base/signin_switches.cc
++++ b/components/signin/public/base/signin_switches.cc
+@@ -14,7 +14,7 @@ namespace switches {
+ // Feature to add a signed-out avatar on the NTP.
+ BASE_FEATURE(kIdentityStatusConsistency,
+              "IdentityStatusConsistency",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ #endif
+ 
+ // Clears the token service before using it. This allows simulating the

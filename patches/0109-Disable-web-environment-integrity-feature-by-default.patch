@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 17 Aug 2023 12:55:37 +0000
+Subject: [PATCH] Disable web environment integrity feature by default
+
+---
+ .../blink/renderer/platform/runtime_enabled_features.json5   | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+index cc6cc1bde39e9..3fd809da609dd 100644
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+@@ -4182,13 +4182,10 @@
+     {
+       name: "WebEnvironmentIntegrity",
+       status: "experimental",
+-      origin_trial_feature_name: "WebEnvironmentIntegrity",
+       // base_feature is meant as kill-switch. The RuntimeFeature should follow
+       // the `status` field or Origin Trial unless explicitly overriden by
+       // Finch / command line flags.
+-      base_feature_status: "enabled",
+-      copied_from_base_feature_if: "overridden",
+-      origin_trial_allows_third_party: true,
++      base_feature_status: "disabled",
+     },
+     {
+       name: "WebFontResizeLCP",
