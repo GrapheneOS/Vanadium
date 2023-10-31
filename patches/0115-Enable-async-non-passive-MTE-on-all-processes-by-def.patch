@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 31 Oct 2023 11:31:24 +0000
+Subject: [PATCH] Enable async, non-passive MTE on all processes by default
+
+---
+ base/allocator/partition_alloc_features.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
+index 69f34a277c295..e5542e02d24d7 100644
+--- a/base/allocator/partition_alloc_features.cc
++++ b/base/allocator/partition_alloc_features.cc
+@@ -177,7 +177,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
+ 
+ BASE_FEATURE(kPartitionAllocMemoryTagging,
+              "PartitionAllocMemoryTagging",
+-             FEATURE_DISABLED_BY_DEFAULT);
++             FEATURE_ENABLED_BY_DEFAULT);
+ 
+ constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
+     {MemtagMode::kSync, "sync"},
+@@ -196,7 +196,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+ const base::FeatureParam<MemoryTaggingEnabledProcesses>
+     kMemoryTaggingEnabledProcessesParam{
+         &kPartitionAllocMemoryTagging, "enabled-processes",
+-        MemoryTaggingEnabledProcesses::kBrowserOnly,
++        MemoryTaggingEnabledProcesses::kAllProcesses,
+         &kMemoryTaggingEnabledProcessesOptions};
+ 
+ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+@@ -206,7 +206,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+ BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
+ BASE_FEATURE(kPartitionAllocPermissiveMte,
+              "PartitionAllocPermissiveMte",
+-             FEATURE_ENABLED_BY_DEFAULT);
++             FEATURE_DISABLED_BY_DEFAULT);
+ 
+ const base::FeatureParam<bool> kBackupRefPtrAsanEnableDereferenceCheckParam{
+     &kPartitionAllocBackupRefPtr, "asan-enable-dereference-check", true};
