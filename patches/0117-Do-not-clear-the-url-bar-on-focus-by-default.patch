@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 15 Nov 2023 09:48:53 +0000
+Subject: [PATCH] Do not clear the url bar on focus by default
+
+---
+ .../chromium/chrome/browser/omnibox/LocationBarMediator.java    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
+index be948d18eca39..eade95a66ba32 100644
+--- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
++++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
+@@ -195,7 +195,7 @@ class LocationBarMediator
+     private @BrandedColorScheme int mBrandedColorScheme = BrandedColorScheme.APP_DEFAULT;
+     private ObservableSupplierImpl<Boolean> mBackPressStateSupplier =
+             new ObservableSupplierImpl<>();
+-    private boolean mShouldClearOmniboxOnFocus = true;
++    private boolean mShouldClearOmniboxOnFocus = false;
+     private ObservableSupplier<TabModelSelector> mTabModelSelectorSupplier;
+ 
+     /*package */ LocationBarMediator(@NonNull Context context,
