@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 16 Nov 2023 18:31:07 +0000
+Subject: [PATCH] Support for opening in incognito tabs for search queries from
+ search widgets or intents
+
+---
+ .../chromium/chrome/browser/searchwidget/SearchActivity.java | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index 8b57b868a1a1a..4e8befc96e018 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -300,7 +300,11 @@ public class SearchActivity extends AsyncInitializationActivity
+ 
+     @Override
+     public void finishNativeInitialization() {
++        boolean isIncognitoMode = IntentUtils.safeGetBooleanExtra(getIntent(), IntentHandler.EXTRA_INCOGNITO_MODE, false);
+         Profile profile = Profile.getLastUsedRegularProfile();
++        if (isIncognitoMode) {
++            profile = profile.getPrimaryOTRProfile(true);
++        }
+         mProfileSupplier.set(profile);
+ 
+         super.finishNativeInitialization();
+@@ -365,6 +369,7 @@ public class SearchActivity extends AsyncInitializationActivity
+                        .setLaunchType(TabLaunchType.FROM_EXTERNAL_APP)
+                        .setWebContents(webContents)
+                        .setDelegateFactory(factory)
++                       .setIncognito(isIncognitoMode)
+                        .build();
+         mTab.loadUrl(new LoadUrlParams(ContentUrlConstants.ABOUT_BLANK_DISPLAY_URL));
+ 
