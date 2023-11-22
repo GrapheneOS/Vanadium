@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dmitry Muhomor <muhomor.dmitry@gmail.com>
+Date: Wed, 22 Nov 2023 15:10:08 +0200
+Subject: [PATCH] enable memory tagging in all processes
+
+---
+ android_webview/nonembedded/java/AndroidManifest.xml | 1 +
+ base/allocator/partition_alloc_features.cc           | 6 +++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
+index 8fdea244f2719..176553dce1843 100644
+--- a/android_webview/nonembedded/java/AndroidManifest.xml
++++ b/android_webview/nonembedded/java/AndroidManifest.xml
+@@ -31,20 +31,21 @@ by a child template that "extends" this file.
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+ 
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+     <!-- Required to run the foreground service-->
+     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+ 
+     <application android:label="{{ application_label|default('Vanadium System WebView') }}"
+                  android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
+                  android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
+                  android:multiArch="true"
++                 android:memtagMode="async"
+                  android:extractNativeLibs="false">
+         {# This part is shared between stand-alone WebView and Monochrome #}
+         {% macro common(manifest_package, webview_lib) %}
+             <meta-data android:name="com.android.webview.WebViewLibrary"
+                        android:value="{{ webview_lib }}" />
+             <!-- Service used to hold androidx.webkit startup feature metadata
+                  that can be read from other apps via PackageManager. -->
+             <service
+               android:name="org.chromium.android_webview.services.StartupFeatureMetadataHolder"
+               android:enabled="false"
+diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
+index 69f34a277c295..e5542e02d24d7 100644
+--- a/base/allocator/partition_alloc_features.cc
++++ b/base/allocator/partition_alloc_features.cc
+@@ -170,50 +170,50 @@ constexpr FeatureParam<BackupRefPtrMode>::Option kBackupRefPtrModeOptions[] = {
+     {BackupRefPtrMode::kDisabledButSplitPartitions3Way,
+      "disabled-but-3-way-split"},
+ };
+ 
+ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
+     &kPartitionAllocBackupRefPtr, "brp-mode", BackupRefPtrMode::kEnabled,
+     &kBackupRefPtrModeOptions};
+ 
+ BASE_FEATURE(kPartitionAllocMemoryTagging,
+              "PartitionAllocMemoryTagging",
+-             FEATURE_DISABLED_BY_DEFAULT);
++             FEATURE_ENABLED_BY_DEFAULT);
+ 
+ constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
+     {MemtagMode::kSync, "sync"},
+     {MemtagMode::kAsync, "async"}};
+ 
+ const base::FeatureParam<MemtagMode> kMemtagModeParam{
+     &kPartitionAllocMemoryTagging, "memtag-mode", MemtagMode::kAsync,
+     &kMemtagModeOptions};
+ 
+ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+     kMemoryTaggingEnabledProcessesOptions[] = {
+         {MemoryTaggingEnabledProcesses::kBrowserOnly, "browser-only"},
+         {MemoryTaggingEnabledProcesses::kNonRenderer, "non-renderer"},
+         {MemoryTaggingEnabledProcesses::kAllProcesses, "all-processes"}};
+ 
+ const base::FeatureParam<MemoryTaggingEnabledProcesses>
+     kMemoryTaggingEnabledProcessesParam{
+         &kPartitionAllocMemoryTagging, "enabled-processes",
+-        MemoryTaggingEnabledProcesses::kBrowserOnly,
++        MemoryTaggingEnabledProcesses::kAllProcesses,
+         &kMemoryTaggingEnabledProcessesOptions};
+ 
+ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+              "KillPartitionAllocMemoryTagging",
+              FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
+ BASE_FEATURE(kPartitionAllocPermissiveMte,
+              "PartitionAllocPermissiveMte",
+-             FEATURE_ENABLED_BY_DEFAULT);
++             FEATURE_DISABLED_BY_DEFAULT);
+ 
+ const base::FeatureParam<bool> kBackupRefPtrAsanEnableDereferenceCheckParam{
+     &kPartitionAllocBackupRefPtr, "asan-enable-dereference-check", true};
+ const base::FeatureParam<bool> kBackupRefPtrAsanEnableExtractionCheckParam{
+     &kPartitionAllocBackupRefPtr, "asan-enable-extraction-check",
+     false};  // Not much noise at the moment to enable by default.
+ const base::FeatureParam<bool> kBackupRefPtrAsanEnableInstantiationCheckParam{
+     &kPartitionAllocBackupRefPtr, "asan-enable-instantiation-check", true};
+ 
+ // If enabled, switches the bucket distribution to a denser one.
