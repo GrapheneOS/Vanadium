@@ -12,14 +12,7 @@ diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webv
 index 8fdea244f2719..176553dce1843 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
-@@ -31,20 +31,21 @@ by a child template that "extends" this file.
-     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
- 
-     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
-     <!-- Required to run the foreground service-->
-     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
- 
-     <application android:label="{{ application_label|default('Vanadium System WebView') }}"
+@@ -38,6 +38,7 @@ by a child template that "extends" this file.
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
                   android:multiArch="true"
@@ -27,25 +20,11 @@ index 8fdea244f2719..176553dce1843 100644
                   android:extractNativeLibs="false">
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
-             <meta-data android:name="com.android.webview.WebViewLibrary"
-                        android:value="{{ webview_lib }}" />
-             <!-- Service used to hold androidx.webkit startup feature metadata
-                  that can be read from other apps via PackageManager. -->
-             <service
-               android:name="org.chromium.android_webview.services.StartupFeatureMetadataHolder"
-               android:enabled="false"
 diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
 index 69f34a277c295..e5542e02d24d7 100644
 --- a/base/allocator/partition_alloc_features.cc
 +++ b/base/allocator/partition_alloc_features.cc
-@@ -170,50 +170,50 @@ constexpr FeatureParam<BackupRefPtrMode>::Option kBackupRefPtrModeOptions[] = {
-     {BackupRefPtrMode::kDisabledButSplitPartitions3Way,
-      "disabled-but-3-way-split"},
- };
- 
- const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
-     &kPartitionAllocBackupRefPtr, "brp-mode", BackupRefPtrMode::kEnabled,
-     &kBackupRefPtrModeOptions};
+@@ -177,7 +177,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
  
  BASE_FEATURE(kPartitionAllocMemoryTagging,
               "PartitionAllocMemoryTagging",
@@ -54,18 +33,7 @@ index 69f34a277c295..e5542e02d24d7 100644
  
  constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
      {MemtagMode::kSync, "sync"},
-     {MemtagMode::kAsync, "async"}};
- 
- const base::FeatureParam<MemtagMode> kMemtagModeParam{
-     &kPartitionAllocMemoryTagging, "memtag-mode", MemtagMode::kAsync,
-     &kMemtagModeOptions};
- 
- constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
-     kMemoryTaggingEnabledProcessesOptions[] = {
-         {MemoryTaggingEnabledProcesses::kBrowserOnly, "browser-only"},
-         {MemoryTaggingEnabledProcesses::kNonRenderer, "non-renderer"},
-         {MemoryTaggingEnabledProcesses::kAllProcesses, "all-processes"}};
- 
+@@ -196,7 +196,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
  const base::FeatureParam<MemoryTaggingEnabledProcesses>
      kMemoryTaggingEnabledProcessesParam{
          &kPartitionAllocMemoryTagging, "enabled-processes",
@@ -74,9 +42,7 @@ index 69f34a277c295..e5542e02d24d7 100644
          &kMemoryTaggingEnabledProcessesOptions};
  
  BASE_FEATURE(kKillPartitionAllocMemoryTagging,
-              "KillPartitionAllocMemoryTagging",
-              FEATURE_DISABLED_BY_DEFAULT);
- 
+@@ -206,7 +206,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
  BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
  BASE_FEATURE(kPartitionAllocPermissiveMte,
               "PartitionAllocPermissiveMte",
@@ -85,10 +51,3 @@ index 69f34a277c295..e5542e02d24d7 100644
  
  const base::FeatureParam<bool> kBackupRefPtrAsanEnableDereferenceCheckParam{
      &kPartitionAllocBackupRefPtr, "asan-enable-dereference-check", true};
- const base::FeatureParam<bool> kBackupRefPtrAsanEnableExtractionCheckParam{
-     &kPartitionAllocBackupRefPtr, "asan-enable-extraction-check",
-     false};  // Not much noise at the moment to enable by default.
- const base::FeatureParam<bool> kBackupRefPtrAsanEnableInstantiationCheckParam{
-     &kPartitionAllocBackupRefPtr, "asan-enable-instantiation-check", true};
- 
- // If enabled, switches the bucket distribution to a denser one.

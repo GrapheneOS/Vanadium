@@ -14,14 +14,7 @@ diff --git a/base/allocator/partition_alloc_support.cc b/base/allocator/partitio
 index 00be89a6703b3..de5684c6da39c 100644
 --- a/base/allocator/partition_alloc_support.cc
 +++ b/base/allocator/partition_alloc_support.cc
-@@ -1105,27 +1105,29 @@ void PartitionAllocSupport::ReconfigureAfterFeatureListInit(
-   partition_alloc::TagViolationReportingMode memory_tagging_reporting_mode =
-       partition_alloc::TagViolationReportingMode::kUndefined;
- 
- #if PA_CONFIG(HAS_MEMORY_TAGGING)
-   // ShouldEnableMemoryTagging() checks kKillPartitionAllocMemoryTagging but
-   // check here too to wrap the GetMemoryTaggingModeForCurrentThread() call.
-   if (!base::FeatureList::IsEnabled(
+@@ -1112,13 +1112,15 @@ void PartitionAllocSupport::ReconfigureAfterFeatureListInit(
            base::features::kKillPartitionAllocMemoryTagging)) {
      // If synchronous mode is enabled from startup it means this is a test and
      // memory tagging should be enabled.
@@ -40,10 +33,3 @@ index 00be89a6703b3..de5684c6da39c 100644
  #if BUILDFLAG(IS_ANDROID)
        if (enable_memory_tagging) {
          switch (base::features::kMemtagModeParam.Get()) {
-           case base::features::MemtagMode::kSync:
-             memory_tagging_reporting_mode =
-                 partition_alloc::TagViolationReportingMode::kSynchronous;
-             break;
-           case base::features::MemtagMode::kAsync:
-             memory_tagging_reporting_mode =
-                 partition_alloc::TagViolationReportingMode::kAsynchronous;
