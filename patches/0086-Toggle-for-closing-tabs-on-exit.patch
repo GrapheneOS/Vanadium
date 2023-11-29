@@ -61,15 +61,15 @@ index 01e8c8217afed..ea1dd6c3f529c 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 01c85c2639e4b..e269a2bb14ba4 100644
+index a9fff1726ba83..84452aa4f2c25 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1298,6 +1298,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1324,6 +1324,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
  
              boolean noRestoreState =
                      CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE);
 +            noRestoreState |= TabPreferencesUtils.shouldCloseTabsOnExit();
-             boolean shouldShowHomeSurfaceAtStartupOnTablet = false;
+             boolean shouldShowNtpAsHomeSurfaceAtStartup = false;
              final AtomicBoolean isActiveUrlNTP = new AtomicBoolean(false);
              if (noRestoreState) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java

@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 19 Sep 2023 13:31:07 +0000
+Subject: [PATCH] temporary: Workaround for crashes at StackTrace calls
+
+---
+ tools/cfi/ignores.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tools/cfi/ignores.txt b/tools/cfi/ignores.txt
+index 73080483ab32b..93de8277e5de9 100644
+--- a/tools/cfi/ignores.txt
++++ b/tools/cfi/ignores.txt
+@@ -263,3 +263,7 @@ src:*third_party/pthreadpool/src/src/portable-api.c
+ ######### Uncategorized
+ 
+ src:*native_client/*
++
++######### Downstream addition
++[cfi-unrelated-cast]
++fun:__unw_init_local

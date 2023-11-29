@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 8 Aug 2023 09:10:36 +0000
+Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
+ default
+
+---
+ .../identity_disc/IdentityDiscController.java        | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+index b9d44b048ae80..66aa02bda31ba 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+@@ -56,6 +56,9 @@ import org.chromium.components.signin.metrics.SigninAccessPoint;
+  */
+ public class IdentityDiscController implements NativeInitObserver, ProfileDataCache.Observer,
+                                                IdentityManager.Observer, ButtonDataProvider {
++
++    private static final boolean ALLOW_NTP_AVATAR = false;
++
+     // Context is used for fetching resources and launching preferences page.
+     private final Context mContext;
+     private ActivityLifecycleDispatcher mActivityLifecycleDispatcher;
+@@ -160,6 +163,11 @@ public class IdentityDiscController implements NativeInitObserver, ProfileDataCa
+             return;
+         }
+ 
++        if (!ALLOW_NTP_AVATAR) {
++            mButtonData.setCanShow(false);
++            return;
++        }
++
+         String email = CoreAccountInfo.getEmailFrom(getSignedInAccountInfo());
+         ensureProfileDataCache();
+ 
+@@ -331,6 +339,10 @@ public class IdentityDiscController implements NativeInitObserver, ProfileDataCa
+     }
+ 
+     private String getContentDescription(@Nullable String email) {
++        if (!ALLOW_NTP_AVATAR) {
++            return mContext.getString(R.string.accessibility_toolbar_btn_identity_disc);
++        }
++
+         if (email == null) {
+             return mContext.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
+         }
