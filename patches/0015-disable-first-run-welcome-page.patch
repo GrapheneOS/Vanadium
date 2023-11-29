@@ -4,19 +4,18 @@ Date: Sun, 26 Nov 2017 22:51:43 +0100
 Subject: [PATCH] disable first run welcome page
 
 ---
- .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java | 3 ---
- .../chromium/chrome/browser/firstrun/FirstRunStatus.java    | 6 +++++-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java   | 2 --
+ .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java  | 4 ++--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-index 4b20c1479a6b2..a69c381c7a24b 100644
+index 55a3c961e2774..5c2cbedfb0b4f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-@@ -44,15 +44,12 @@ public class FirstRunUtils {
-         boolean javaPrefValue =
+@@ -47,14 +47,12 @@ public class FirstRunUtils {
                  javaPrefs.readBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, false);
          boolean nativePrefValue = isFirstRunEulaAccepted();
--        boolean isFirstRunComplete = FirstRunStatus.getFirstRunFlowComplete();
+         boolean isFirstRunComplete = FirstRunStatus.getFirstRunFlowComplete();
 -        if (javaPrefValue || nativePrefValue || isFirstRunComplete) {
              if (!javaPrefValue) {
                  javaPrefs.writeBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, true);
@@ -29,19 +28,16 @@ index 4b20c1479a6b2..a69c381c7a24b 100644
  
      /**
 diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-index 12c311490bd72..cea4d48c0b68c 100644
+index d74db169c6465..ab787ec3e838f 100644
 --- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
 +++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-@@ -52,8 +52,12 @@ public class FirstRunStatus {
+@@ -52,8 +52,8 @@ public class FirstRunStatus {
       * includes ToS and Sign In pages if necessary.
       */
      public static boolean getFirstRunFlowComplete() {
--        return SharedPreferencesManager.getInstance().readBoolean(
-+        boolean complete = SharedPreferencesManager.getInstance().readBoolean(
-                 ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
-+        if (!complete) {
-+           setFirstRunFlowComplete(true);
-+        }
+-        return ChromeSharedPreferences.getInstance().readBoolean(
+-                ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
++        setFirstRunFlowComplete(true);
 +        return true;
      }
  

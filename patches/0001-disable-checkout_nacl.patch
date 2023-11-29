@@ -8,14 +8,14 @@ Subject: [PATCH] disable checkout_nacl
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/DEPS b/DEPS
-index c63b324385917..77ffe5fe14fe5 100644
+index ea81a510e5d5f..f399c7eb7605b 100644
 --- a/DEPS
 +++ b/DEPS
-@@ -119,7 +119,7 @@ vars = {
+@@ -118,7 +118,7 @@ vars = {
  
-   # Check out and download nacl by default, unless on an arm mac.
+   # Check out and download nacl by default, unless on Windows or Mac.
    # This can be disabled e.g. with custom_vars.
--  'checkout_nacl': 'not (host_os == "mac" and host_cpu == "arm64")',
+-  'checkout_nacl': 'host_os == "linux"',
 +  'checkout_nacl': False,
  
    # By default, do not check out src-internal. This can be overridden e.g. with
