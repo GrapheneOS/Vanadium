@@ -17,5 +17,5 @@ mkdir release
 cd release
 
 for app in TrichromeChrome TrichromeLibrary TrichromeWebView; do
-    $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}6432.apk --out $app.apk <<< $keystore_pass
+    $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}*.apk --out $app.apk <<< $keystore_pass
 done
