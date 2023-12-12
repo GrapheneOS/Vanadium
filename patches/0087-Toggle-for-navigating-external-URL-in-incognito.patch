@@ -79,7 +79,7 @@ index 07db1f2dc148b..10579e23967b5 100644
                  newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
              }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
-index 57aae64057cfb..70cfc9c2aff61 100644
+index 57aae64057cfb..9115cbf9c5fef 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
 @@ -4,10 +4,19 @@
@@ -118,7 +118,7 @@ index 57aae64057cfb..70cfc9c2aff61 100644
 +        newIntent.setClass(context, ChromeLauncherActivity.class);
 +        newIntent.putExtra(Browser.EXTRA_CREATE_NEW_TAB, true);
 +        IntentHandler.setTabLaunchType(newIntent, TabLaunchType.FROM_EXTERNAL_APP);
-+        newIntent = appendNeededIncognitoExtras(context, newIntent);
++        appendNeededIncognitoExtras(context, newIntent);
 +        return newIntent;
 +    }
 +
