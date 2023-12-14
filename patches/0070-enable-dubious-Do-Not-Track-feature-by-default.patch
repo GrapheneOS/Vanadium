@@ -1,0 +1,22 @@
+From d43fcea0dd7669fd9a8f1964b3ca09824994808a Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 1 Aug 2017 11:16:11 -0400
+Subject: [PATCH] enable dubious Do Not Track feature by default
+
+---
+ components/privacy_sandbox/tracking_protection_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/privacy_sandbox/tracking_protection_prefs.cc b/components/privacy_sandbox/tracking_protection_prefs.cc
+index cc84b93f08411..ea8e85ffd96bb 100644
+--- a/components/privacy_sandbox/tracking_protection_prefs.cc
++++ b/components/privacy_sandbox/tracking_protection_prefs.cc
+@@ -55,7 +55,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   registry->RegisterBooleanPref(prefs::kTrackingProtection3pcdEnabled, false);
+   registry->RegisterBooleanPref(
+-      prefs::kEnableDoNotTrack, false,
++      prefs::kEnableDoNotTrack, true,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ 
+   // Sentiment Survey

@@ -1,0 +1,22 @@
+From e05d491e9739e384252e69a4226c9074b8ef68bf Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 15 Apr 2021 02:14:37 -0400
+Subject: [PATCH] remove Help & feedback menu entry
+
+---
+ .../browser/app/appmenu/AppMenuPropertiesDelegateImpl.java      | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
+index 5c74436790092..3bc97ebd3fa31 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
+@@ -552,6 +552,8 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
+         menu.findItem(R.id.reader_mode_prefs_id)
+                 .setVisible(isCurrentTabNotNull && shouldShowReaderModePrefs(currentTab));
+ 
++        menu.findItem(R.id.help_id).setVisible(false);
++
+         updateManagedByMenuItem(menu, currentTab);
+ 
+         // Only display quick delete divider line on the page menu and if quick delete is enabled.
