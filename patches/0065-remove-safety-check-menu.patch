@@ -1,0 +1,22 @@
+From a52d2fc58f9862783b9e87cbc19eaacdf85fb6ad Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 25 May 2021 16:43:39 -0400
+Subject: [PATCH] remove safety check menu
+
+---
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index d336415b3ec62..c18f6e3f0da88 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -231,6 +231,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
+             templateUrlService.load();
+         }
+ 
++        getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
++
+         new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
+             // We don't show the toolbar shortcut settings page if disabled from finch.
+             if (uiState.canShowUi) return;
