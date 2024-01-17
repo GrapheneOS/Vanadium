@@ -21,10 +21,10 @@ index 8fdea244f2719..176553dce1843 100644
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
 diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
-index 6bda3b483a163..afac4f97e334a 100644
+index ab0086c63b531..f52457e01c495 100644
 --- a/base/allocator/partition_alloc_features.cc
 +++ b/base/allocator/partition_alloc_features.cc
-@@ -179,7 +179,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
+@@ -191,7 +191,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
  
  BASE_FEATURE(kPartitionAllocMemoryTagging,
               "PartitionAllocMemoryTagging",
@@ -33,7 +33,7 @@ index 6bda3b483a163..afac4f97e334a 100644
  
  constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
      {MemtagMode::kSync, "sync"},
-@@ -198,7 +198,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+@@ -210,7 +210,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
  const base::FeatureParam<MemoryTaggingEnabledProcesses>
      kMemoryTaggingEnabledProcessesParam{
          &kPartitionAllocMemoryTagging, "enabled-processes",
@@ -42,7 +42,7 @@ index 6bda3b483a163..afac4f97e334a 100644
          &kMemoryTaggingEnabledProcessesOptions};
  
  BASE_FEATURE(kKillPartitionAllocMemoryTagging,
-@@ -208,7 +208,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+@@ -220,7 +220,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
  BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
  BASE_FEATURE(kPartitionAllocPermissiveMte,
               "PartitionAllocPermissiveMte",

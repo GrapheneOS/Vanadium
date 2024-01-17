@@ -9,7 +9,7 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=1150817
  1 file changed, 4 insertions(+)
 
 diff --git a/google_apis/gaia/gaia_auth_fetcher.cc b/google_apis/gaia/gaia_auth_fetcher.cc
-index 702edab659d2a..f3428680fa797 100644
+index 1818791d95e2c..205b8dfce2a6e 100644
 --- a/google_apis/gaia/gaia_auth_fetcher.cc
 +++ b/google_apis/gaia/gaia_auth_fetcher.cc
 @@ -41,7 +41,9 @@
@@ -22,7 +22,7 @@ index 702edab659d2a..f3428680fa797 100644
  
  constexpr char kBadAuthenticationError[] = "BadAuthentication";
  constexpr char kBadAuthenticationShortError[] = "badauth";
-@@ -260,6 +262,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -264,6 +266,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
      const net::NetworkTrafficAnnotationTag& traffic_annotation) {
    DCHECK(!fetch_pending_) << "Tried to fetch two things at once!";
  
@@ -30,7 +30,7 @@ index 702edab659d2a..f3428680fa797 100644
    auto resource_request = std::make_unique<network::ResourceRequest>();
    resource_request->url = gaia_gurl;
    original_url_ = gaia_gurl;
-@@ -314,6 +317,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -318,6 +321,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
        base::BindOnce(&GaiaAuthFetcher::OnURLLoadComplete,
                       base::Unretained(this)),
        kMaxMessageSize);

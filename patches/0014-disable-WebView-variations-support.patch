@@ -9,7 +9,7 @@ Subject: [PATCH] disable WebView variations support
  2 files changed, 10 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index eb504c2d045e5..7bb1f103cda5a 100644
+index 6465a21c086a1..814cd9633c00f 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 @@ -201,12 +201,6 @@ public class WebViewChromiumAwInit {
@@ -23,13 +23,13 @@ index eb504c2d045e5..7bb1f103cda5a 100644
 -            }
 -
              AwBrowserProcess.start();
-             AwBrowserProcess.handleMinidumpsAndSetMetricsConsent(true /* updateMetricsConsent */);
+             AwBrowserProcess.handleMinidumpsAndSetMetricsConsent(/* updateMetricsConsent= */ true);
  
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 63b97852e7d8d..c424f51292a02 100644
+index f6e1066b6421b..deb013a8aeda8 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -488,10 +488,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -483,10 +483,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
                  }
              }
  

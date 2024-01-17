@@ -9,20 +9,20 @@ Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
  1 file changed, 12 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-index b9d44b048ae80..66aa02bda31ba 100644
+index cdfbe40804e20..37588b73c1adc 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-@@ -56,6 +56,9 @@ import org.chromium.components.signin.metrics.SigninAccessPoint;
-  */
- public class IdentityDiscController implements NativeInitObserver, ProfileDataCache.Observer,
-                                                IdentityManager.Observer, ButtonDataProvider {
+@@ -59,6 +59,9 @@ public class IdentityDiscController
+                 ProfileDataCache.Observer,
+                 IdentityManager.Observer,
+                 ButtonDataProvider {
 +
 +    private static final boolean ALLOW_NTP_AVATAR = false;
 +
      // Context is used for fetching resources and launching preferences page.
      private final Context mContext;
      private ActivityLifecycleDispatcher mActivityLifecycleDispatcher;
-@@ -160,6 +163,11 @@ public class IdentityDiscController implements NativeInitObserver, ProfileDataCa
+@@ -166,6 +169,11 @@ public class IdentityDiscController
              return;
          }
  
@@ -34,7 +34,7 @@ index b9d44b048ae80..66aa02bda31ba 100644
          String email = CoreAccountInfo.getEmailFrom(getSignedInAccountInfo());
          ensureProfileDataCache();
  
-@@ -331,6 +339,10 @@ public class IdentityDiscController implements NativeInitObserver, ProfileDataCa
+@@ -339,6 +347,10 @@ public class IdentityDiscController
      }
  
      private String getContentDescription(@Nullable String email) {

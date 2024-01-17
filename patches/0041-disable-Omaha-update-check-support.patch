@@ -9,10 +9,10 @@ Subject: [PATCH] disable Omaha update check support
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
-index 1eb773a4c38a2..c7cd8b8febba8 100644
+index 4f7a64abb07f5..ae7ee72d8fb19 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
-@@ -157,7 +157,7 @@ public class OmahaBase {
+@@ -161,7 +161,7 @@ public class OmahaBase {
      }
  
      static boolean isDisabled() {
@@ -22,15 +22,15 @@ index 1eb773a4c38a2..c7cd8b8febba8 100644
  
      /**
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
-index 90cfcd7661c43..97f59b58fef13 100644
+index 97a6757ee1914..3334cfc34d567 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
-@@ -50,7 +50,7 @@ public class VersionNumberGetter {
+@@ -51,7 +51,7 @@ public class VersionNumberGetter {
      private static VersionNumberGetter sInstanceForTests;
  
      /** If false, OmahaClient will never report that a newer version is available. */
 -    private static boolean sEnableUpdateDetection = true;
 +    private static boolean sEnableUpdateDetection = false;
  
-     protected VersionNumberGetter() { }
+     protected VersionNumberGetter() {}
  

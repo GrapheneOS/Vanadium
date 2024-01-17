@@ -8,14 +8,14 @@ Subject: [PATCH] disable checkout_nacl
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/DEPS b/DEPS
-index acd91d1f83676..e7c6f0b4d8ed9 100644
+index bde827d2d4e60..bfcefeb66fa65 100644
 --- a/DEPS
 +++ b/DEPS
 @@ -118,7 +118,7 @@ vars = {
  
-   # Check out and download nacl by default, unless on Windows or Mac.
+   # Check out and download nacl for ChromeOS only.
    # This can be disabled e.g. with custom_vars.
--  'checkout_nacl': 'host_os == "linux"',
+-  'checkout_nacl': 'checkout_chromeos',
 +  'checkout_nacl': False,
  
    # By default, do not check out src-internal. This can be overridden e.g. with
