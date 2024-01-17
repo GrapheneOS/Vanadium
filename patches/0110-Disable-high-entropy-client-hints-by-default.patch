@@ -35,10 +35,10 @@ index a8f95dd73aae3..c4634eea66f35 100644
      case WebClientHintsType::kUA:
      case WebClientHintsType::kUAArch:
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 7e2656a36817d..5e7d3a2eef6dc 100644
+index addc240069868..d0e6f8f6fcc4b 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -469,6 +469,11 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -457,6 +457,11 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
@@ -51,10 +51,10 @@ index 7e2656a36817d..5e7d3a2eef6dc 100644
  BASE_FEATURE(kClientHintsDPR,
               "ClientHintsDPR",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 325ab89d12a1c..a8faecd2ea7aa 100644
+index af7418074d8a8..230ece25ade4b 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -231,6 +231,7 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCanvasFreeMemoryWhenHidden);
+@@ -234,6 +234,7 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCanvasFreeMemoryWhenHidden);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  
@@ -63,10 +63,10 @@ index 325ab89d12a1c..a8faecd2ea7aa 100644
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDeviceMemory_DEPRECATED);
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDPR);
 diff --git a/third_party/blink/renderer/core/frame/navigator_ua_data.cc b/third_party/blink/renderer/core/frame/navigator_ua_data.cc
-index 0a8e6c4d7a198..571a5ab63eed6 100644
+index c3b785db648b1..91a5848521448 100644
 --- a/third_party/blink/renderer/core/frame/navigator_ua_data.cc
 +++ b/third_party/blink/renderer/core/frame/navigator_ua_data.cc
-@@ -195,6 +195,10 @@ ScriptPromise NavigatorUAData::getHighEntropyValues(
+@@ -219,6 +219,10 @@ ScriptPromise NavigatorUAData::getHighEntropyValues(
        GetExecutionContext(), WebFeature::kNavigatorUAData_Platform, platform());
  
    for (const String& hint : hints) {

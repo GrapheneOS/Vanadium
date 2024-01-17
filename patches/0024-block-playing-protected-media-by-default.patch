@@ -8,15 +8,15 @@ Subject: [PATCH] block playing protected media by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index f322cd7f82cb0..ba5bc962db570 100644
+index 1c5e96218dafa..c88e8a7731f40 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -209,7 +209,7 @@ void ContentSettingsRegistry::Init() {
+@@ -213,7 +213,7 @@ void ContentSettingsRegistry::Init() {
             ContentSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
  
    Register(ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER,
 -           "protected-media-identifier", CONTENT_SETTING_ALLOW,
 +           "protected-media-identifier", CONTENT_SETTING_BLOCK,
-            WebsiteSettingsInfo::UNSYNCABLE, /*allowlisted_schemes=*/{},
+            WebsiteSettingsInfo::UNSYNCABLE, /*allowlisted_primary_schemes=*/{},
  #if BUILDFLAG(IS_ANDROID)
             /*valid_settings=*/

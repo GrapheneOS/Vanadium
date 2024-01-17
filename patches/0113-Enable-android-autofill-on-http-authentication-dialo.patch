@@ -8,13 +8,13 @@ Subject: [PATCH] Enable android autofill on http authentication dialog
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/login/ChromeHttpAuthHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/login/ChromeHttpAuthHandler.java
-index fcdfb39b91be7..78f736d9ff7c1 100644
+index 6f11d483fb695..2aa08a1baeaab 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/login/ChromeHttpAuthHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/login/ChromeHttpAuthHandler.java
-@@ -103,7 +103,7 @@ public class ChromeHttpAuthHandler extends EmptyTabObserver implements LoginProm
-         mTab.addObserver(this);
-         String messageBody = ChromeHttpAuthHandlerJni.get().getMessageBody(
-                 mNativeChromeHttpAuthHandler, ChromeHttpAuthHandler.this);
+@@ -108,7 +108,7 @@ public class ChromeHttpAuthHandler extends EmptyTabObserver implements LoginProm
+         String messageBody =
+                 ChromeHttpAuthHandlerJni.get()
+                         .getMessageBody(mNativeChromeHttpAuthHandler, ChromeHttpAuthHandler.this);
 -        mLoginPrompt = new LoginPrompt(activity, messageBody, null, this);
 +        mLoginPrompt = new LoginPrompt(activity, messageBody, tab.getOriginalUrl(), this);
          // In case the autofill data arrives before the prompt is created.

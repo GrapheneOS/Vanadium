@@ -24,10 +24,10 @@ index ebf7e0b307a94..3e6a2890c085e 100755
    if is_next_build:
      base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF
 diff --git a/build/util/version.py b/build/util/version.py
-index 9bf51cd35122b..aba62d904db4a 100755
+index 30d3a5d1bf6e0..fe2f1c47e3425 100755
 --- a/build/util/version.py
 +++ b/build/util/version.py
-@@ -127,6 +127,10 @@ def BuildParser():
+@@ -131,6 +131,10 @@ def BuildParser():
                        help='Write substituted strings to FILE.')
    parser.add_argument('-t', '--template', default=None,
                        help='Use TEMPLATE as the strings to substitute.')
@@ -35,10 +35,10 @@ index 9bf51cd35122b..aba62d904db4a 100755
 +      '--increment',
 +      default='0',
 +      help='Version increment to append at version_name, add at version_code.')
-   parser.add_argument(
-       '-e',
-       '--eval',
-@@ -199,6 +203,7 @@ def GenerateValues(options, evals):
+   parser.add_argument('-x',
+                       '--executable',
+                       default=False,
+@@ -208,6 +212,7 @@ def GenerateValues(options, evals):
    for key, val in evals.items():
      values[key] = str(eval(val, globals(), values))
  

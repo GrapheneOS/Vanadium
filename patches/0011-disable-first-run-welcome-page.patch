@@ -9,7 +9,7 @@ Subject: [PATCH] disable first run welcome page
  2 files changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-index 55a3c961e2774..5c2cbedfb0b4f 100644
+index 5872eb1c431ec..a41c17edde919 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 @@ -47,14 +47,12 @@ public class FirstRunUtils {
@@ -28,15 +28,15 @@ index 55a3c961e2774..5c2cbedfb0b4f 100644
  
      /**
 diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-index d74db169c6465..ab787ec3e838f 100644
+index 4aedb8a0f1d95..cff008ce39b67 100644
 --- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
 +++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-@@ -52,8 +52,8 @@ public class FirstRunStatus {
+@@ -50,8 +50,8 @@ public class FirstRunStatus {
       * includes ToS and Sign In pages if necessary.
       */
      public static boolean getFirstRunFlowComplete() {
--        return ChromeSharedPreferences.getInstance().readBoolean(
--                ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
+-        return ChromeSharedPreferences.getInstance()
+-                .readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
 +        setFirstRunFlowComplete(true);
 +        return true;
      }
