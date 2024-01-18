@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[[ $# -eq 1 ]] || exit 1
+[[ $# -ge 1 ]] || exit 1
 
 set -o errexit -o nounset -o pipefail
 
@@ -10,12 +10,16 @@ APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/34.0.0/apksigner
 read -p "Enter keystore passphrase: " -s keystore_pass
 echo
 
-cd "$1/Default/apks"
+for d in "$@"; do
+    cd "$d/Default/apks"
 
-rm -rf release
-mkdir release
-cd release
+    rm -rf release
+    mkdir release
+    cd release
 
-for app in TrichromeChrome TrichromeLibrary TrichromeWebView; do
-    $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}*.apk --out $app.apk <<< $keystore_pass
+    for app in TrichromeChrome TrichromeLibrary TrichromeWebView; do
+        $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}*.apk --out $app.apk <<< $keystore_pass
+    done
+
+    cd ../../../..
 done
