@@ -1,10 +1,12 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Wed, 15 Nov 2023 06:14:54 +0000
-Subject: [PATCH] temporary: Do not disable high entropy client hints on
+Subject: [PATCH] temporary: Disable changes to high entropy client hints in
  webview
 
-This will be disabled momentarily until further evaluation.
+WebView clients can set user-agents using the standard WebView APIs
+provided in android, rendering this patchset useless for information
+reduction purposes.
 ---
  android_webview/BUILD.gn                      |  3 ++
  .../WebViewChromiumFactoryProvider.java       |  3 ++
