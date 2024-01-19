@@ -4,76 +4,110 @@ Date: Sun, 12 Nov 2023 04:26:12 +0000
 Subject: [PATCH] Disable high-entropy client hints by default
 
 ---
- .../blink/common/client_hints/enabled_client_hints.cc       | 6 ++++++
- third_party/blink/common/features.cc                        | 5 +++++
- third_party/blink/public/common/features.h                  | 1 +
- third_party/blink/renderer/core/frame/navigator_ua_data.cc  | 4 ++++
- 4 files changed, 16 insertions(+)
+ .../embedder_support/user_agent_utils.cc      | 29 +++++++++++++++++++
+ content/browser/client_hints/client_hints.cc  | 16 ++++++++++
+ third_party/blink/common/features.cc          | 10 +++++++
+ third_party/blink/public/common/features.h    |  2 ++
+ 4 files changed, 57 insertions(+)
 
-diff --git a/third_party/blink/common/client_hints/enabled_client_hints.cc b/third_party/blink/common/client_hints/enabled_client_hints.cc
-index a8f95dd73aae3..c4634eea66f35 100644
---- a/third_party/blink/common/client_hints/enabled_client_hints.cc
-+++ b/third_party/blink/common/client_hints/enabled_client_hints.cc
-@@ -7,6 +7,7 @@
- #include "base/feature_list.h"
- #include "services/network/public/cpp/client_hints.h"
- #include "third_party/blink/public/common/features.h"
-+#include "third_party/blink/public/common/client_hints/client_hints.h"
+diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
+index ab6efe49ab728..52075ddfbcc83 100644
+--- a/components/embedder_support/user_agent_utils.cc
++++ b/components/embedder_support/user_agent_utils.cc
+@@ -490,6 +490,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(const PrefService* pref_service,
+                : metadata;
+   }
  
- namespace blink {
- 
-@@ -15,6 +16,11 @@ namespace {
- using ::network::mojom::WebClientHintsType;
- 
- bool IsDisabledByFeature(const WebClientHintsType type) {
-+  if (!IsClientHintSentByDefault(type)) {
-+      if (base::FeatureList::IsEnabled(features::kClientHintsLowEntropyOnly)) {
-+        return true;
-+      }
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsLowEntropyOnly)) {
++    return metadata;
 +  }
-   switch (type) {
-     case WebClientHintsType::kUA:
-     case WebClientHintsType::kUAArch:
++
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsFromReducedUA)) {
++    // Values reflected from reduced user agent obtained from
++    // GetReducedUserAgent from //content/common/user_agent.cc
++    std::string reduced_version_number =
++        base::StrCat({version_info::GetMajorVersionNumber(), ".0.",
++                      blink::features::kUserAgentFrozenBuildVersion.Get(), ".0"});
++    // See GetFormFactorsForClientHints. Do not include XR Form Factor.
++    // By default, use "Mobile" or "Desktop" depending on the `mobile` bit.
++    std::vector<std::string> form_factor = {
++        metadata.mobile ? blink::kMobileFormFactor : blink::kDesktopFormFactor};
++    metadata.brand_full_version_list =
++        GetUserAgentBrandList(version_info::GetMajorVersionNumber(),
++                              enable_updated_grease_by_policy,
++                              reduced_version_number,
++                              blink::UserAgentBrandVersionType::kFullVersion);
++    // Only based on low-entropy client hints for mobile, keep the same logic.
++    metadata.form_factor = form_factor;
++    metadata.model = "K";
++    metadata.platform_version = "10.0.0";
++    metadata.full_version = reduced_version_number;
++    return metadata;
++  }
++
+   if (only_low_entropy_ch) {
+     return metadata;
+   }
+diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
+index adf593b4d3214..63e25a85e7c23 100644
+--- a/content/browser/client_hints/client_hints.cc
++++ b/content/browser/client_hints/client_hints.cc
+@@ -870,6 +870,22 @@ void AddRequestClientHintsHeaders(
+ 
+   GURL url = origin.GetURL();
+ 
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsLowEntropyOnly)) {
++    return;
++  }
++
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsFromReducedUA)) {
++    if (UserAgentClientHintEnabled()) {
++      UpdateNavigationRequestClientUaHeadersImpl(
++          delegate, is_ua_override_on, frame_tree_node,
++          ClientUaHeaderCallType::kDuringCreation, headers, container_policy,
++          request_url, data);
++    }
++    return;
++  }
++
+   // Add Headers
+   if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
+     AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index addc240069868..d0e6f8f6fcc4b 100644
+index addc240069868..fdc982c0af9c4 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -457,6 +457,11 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -457,6 +457,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
 +// Enable low-entropy client hints only.
 +BASE_FEATURE(kClientHintsLowEntropyOnly,
 +             "ClientHintsLowEntropyOnly",
-+             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
++// Use information from reduced user agent for high entropy client hints
++BASE_FEATURE(kClientHintsFromReducedUA,
++            "kClientHintsFromReducedUA",
++            base::FEATURE_ENABLED_BY_DEFAULT);
 +
  // Enable `sec-ch-dpr` client hint.
  BASE_FEATURE(kClientHintsDPR,
               "ClientHintsDPR",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index af7418074d8a8..230ece25ade4b 100644
+index af7418074d8a8..53adbffb849ea 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -234,6 +234,7 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCanvasFreeMemoryWhenHidden);
+@@ -234,6 +234,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCanvasFreeMemoryWhenHidden);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  
 +BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsLowEntropyOnly);
++BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsFromReducedUA);
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDeviceMemory);
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDeviceMemory_DEPRECATED);
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDPR);
-diff --git a/third_party/blink/renderer/core/frame/navigator_ua_data.cc b/third_party/blink/renderer/core/frame/navigator_ua_data.cc
-index c3b785db648b1..91a5848521448 100644
---- a/third_party/blink/renderer/core/frame/navigator_ua_data.cc
-+++ b/third_party/blink/renderer/core/frame/navigator_ua_data.cc
-@@ -219,6 +219,10 @@ ScriptPromise NavigatorUAData::getHighEntropyValues(
-       GetExecutionContext(), WebFeature::kNavigatorUAData_Platform, platform());
- 
-   for (const String& hint : hints) {
-+    if (base::FeatureList::IsEnabled(
-+            blink::features::kClientHintsLowEntropyOnly)) {
-+      break;
-+    }
-     if (hint == "platformVersion") {
-       values->setPlatformVersion(platform_version_);
-       MaybeRecordMetric(record_identifiability, hint, platform_version_,

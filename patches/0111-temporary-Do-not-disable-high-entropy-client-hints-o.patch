@@ -8,8 +8,8 @@ This will be disabled momentarily until further evaluation.
 ---
  android_webview/BUILD.gn                      |  3 ++
  .../WebViewChromiumFactoryProvider.java       |  3 ++
- .../common/AlwaysOverridenFlagList.java       | 35 +++++++++++++++++++
- 3 files changed, 41 insertions(+)
+ .../common/AlwaysOverridenFlagList.java       | 36 +++++++++++++++++++
+ 3 files changed, 42 insertions(+)
  create mode 100644 android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
 
 diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
@@ -49,10 +49,10 @@ index deb013a8aeda8..d6fb072cd58fc 100644
              AndroidXProcessGlobalConfig androidXConfig = AndroidXProcessGlobalConfig.getConfig();
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
 new file mode 100644
-index 0000000000000..3c4e86e2a500d
+index 0000000000000..d14bedc5c1aed
 --- /dev/null
 +++ b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,36 @@
 +package org.chromium.android_webview.common;
 +
 +import org.chromium.blink_public.common.BlinkFeatures;
@@ -69,6 +69,7 @@ index 0000000000000..3c4e86e2a500d
 +
 +    static {
 +        sOverrides.put(BlinkFeatures.CLIENT_HINTS_LOW_ENTROPY_ONLY, false);
++        sOverrides.put(BlinkFeatures.CLIENT_HINTS_FROM_REDUCED_UA, false);
 +    }
 +
 +    public static void applyFlagOverrides(Map<String, Boolean> existingOverrideMap) {
