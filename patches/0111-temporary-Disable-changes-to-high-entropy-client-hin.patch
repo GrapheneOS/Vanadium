@@ -10,8 +10,8 @@ reduction purposes.
 ---
  android_webview/BUILD.gn                      |  3 ++
  .../WebViewChromiumFactoryProvider.java       |  3 ++
- .../common/AlwaysOverridenFlagList.java       | 36 +++++++++++++++++++
- 3 files changed, 42 insertions(+)
+ .../common/AlwaysOverridenFlagList.java       | 37 +++++++++++++++++++
+ 3 files changed, 43 insertions(+)
  create mode 100644 android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
 
 diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
@@ -51,10 +51,10 @@ index deb013a8aeda8..d6fb072cd58fc 100644
              AndroidXProcessGlobalConfig androidXConfig = AndroidXProcessGlobalConfig.getConfig();
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
 new file mode 100644
-index 0000000000000..d14bedc5c1aed
+index 0000000000000..3115c1f38b690
 --- /dev/null
 +++ b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,37 @@
 +package org.chromium.android_webview.common;
 +
 +import org.chromium.blink_public.common.BlinkFeatures;
@@ -64,7 +64,8 @@ index 0000000000000..d14bedc5c1aed
 +
 +public class AlwaysOverridenFlagList {
 +    private static final Flag[] sFlags = {
-+            Flag.baseFeature(BlinkFeatures.CLIENT_HINTS_LOW_ENTROPY_ONLY)
++        Flag.baseFeature(BlinkFeatures.CLIENT_HINTS_LOW_ENTROPY_ONLY),
++        Flag.baseFeature(BlinkFeatures.CLIENT_HINTS_FROM_REDUCED_UA)
 +    };
 +
 +    private static final Map<String, Boolean> sOverrides = new HashMap<>();
