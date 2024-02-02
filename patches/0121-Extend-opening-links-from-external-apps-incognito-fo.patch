@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 1 Feb 2024 17:58:40 +0000
+Subject: [PATCH] Extend opening links from external apps incognito for search
+ tabs
+
+---
+ .../chrome/browser/searchwidget/SearchActivity.java         | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index e3134cf471481..e76e2e970598b 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -342,13 +342,17 @@ public class SearchActivity extends AsyncInitializationActivity
+                     @Nullable
+                     @Override
+                     protected OTRProfileID createOffTheRecordProfileID() {
++                        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++                            return super.createOffTheRecordProfileID();
++                        }
+                         throw new IllegalStateException(
+                                 "Attempting to access incognito from the search activity");
+                     }
+                 };
+         profileProvider.onAvailable(
+                 (provider) -> {
+-                    mProfileSupplier.set(profileProvider.get().getOriginalProfile());
++                    mProfileSupplier.set(ProfileProvider.getOrCreateProfile(profileProvider.get(),
++                            TabPreferencesUtils.shouldOpenLinksInIncognito()));
+                 });
+         return profileProvider;
+     }
