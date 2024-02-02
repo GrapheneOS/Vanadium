@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 1 Feb 2024 17:58:19 +0000
+Subject: [PATCH] Extend opening links from external apps in incognito for
+ custom tabs
+
+---
+ .../org/chromium/chrome/browser/LaunchIntentDispatcher.java    | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index aedb5068f2349..e4b2259257481 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -268,6 +268,9 @@ public class LaunchIntentDispatcher {
+         newIntent.setAction(Intent.ACTION_VIEW);
+         newIntent.setData(uri);
+         newIntent.setClassName(context, CustomTabActivity.class.getName());
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            TabPreferencesUtils.appendNeededIncognitoExtras(context, newIntent);
++        }
+ 
+         // Since configureIntentForResizableCustomTab() might change the componenet/class
+         // associated with the passed intent, it needs to be called after #setClassName(context,
