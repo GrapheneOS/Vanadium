@@ -6,6 +6,11 @@ set -o errexit -o nounset -o pipefail
 
 KEYSTORE=$PWD/../vanadium.keystore
 APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/34.0.0/apksigner
+readonly APPS=(
+    TrichromeChrome
+    TrichromeLibrary
+    TrichromeWebView
+)
 
 read -p "Enter keystore passphrase: " -s keystore_pass
 echo
@@ -17,7 +22,7 @@ for d in "$@"; do
     mkdir release
     cd release
 
-    for app in TrichromeChrome TrichromeLibrary TrichromeWebView; do
+    for app in ${APPS[@]}; do
         $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}*.apk --out $app.apk <<< $keystore_pass
     done
 
