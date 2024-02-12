@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 9 Feb 2024 14:35:53 +0000
+Subject: [PATCH] test: Get from component apk spec
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java         | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 4028cc05adf52..32e9e8c48979d 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -33,6 +33,14 @@ public class ConfigGenerator {
+                         component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
+                                 .setComponentFileName("unindexed_ruleset")
+                                 .setVersionCode(1L)
++                                .setApkSpec(componentApkSpec(componentApkSpecParams -> componentApkSpecParams
++                                        .setPkgName("app.vanadium.config.test.content_filtering")
++                                        .addAllSha256Certs(certs(
++                                                List.of(
++                                                        "02fd8a34844f3924ad8ed220eca1f976491aaea237161ee01976ef344f81b9d4"
++                                                )
++                                        )))
++                                )
+                         ))
+                 )
+         ));

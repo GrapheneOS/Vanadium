@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 9 Feb 2024 14:39:04 +0000
+Subject: [PATCH] test: Use separate apk spec for content filtering
+
+---
+ vanadium/android_config/BUILD.gn | 48 ++++++++++++++++++++++++++++++--
+ 1 file changed, 46 insertions(+), 2 deletions(-)
+
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+index bb36a0ba6a200..9c6b9b3eff6a7 100644
+--- a/vanadium/android_config/BUILD.gn
++++ b/vanadium/android_config/BUILD.gn
+@@ -18,10 +18,54 @@ config_apk_tmpl("vanadium_config_apk") {
+   ]
+ }
+ 
+-config_apk_tmpl("vanadium_config_for_testing_apk") {
++config_apk_tmpl("vanadium_config_whole_test_apk") {
+   testonly = true
+-  apk_name = "VanadiumConfigTest"
++  apk_name = "VanadiumConfigWholeTest"
+   application_label = "Vanadium Config Test"
++  deps = [
++    "proto:config_assets",
++  ]
++  visibility = [
++    "//vanadium/android_config:*",
++  ]
++}
++
++config_apk_tmpl("vanadium_config_split_components_test_apk") {
++  testonly = true
++  apk_name = "VanadiumConfigSplitTest"
++  application_label = "Vanadium Config Test"
++  deps = [
++    "proto:config_assets",
++  ]
++  visibility = [
++    "//vanadium/android_config:*",
++  ]
++}
++
++config_apk_tmpl("vanadium_config_cf_test_apk") {
++  testonly = true
++  apk_name = "VanadiumConfigCFTest"
++  application_label = "Vanadium Content Filtering Config"
++  version_code = "1"
++  manifest_package = "app.vanadium.config.test.content_filtering"
++  deps = [
++    "filter_lists:ruleset_assets",
++  ]
++  visibility = [
++    "//vanadium/android_config:*",
++  ]
++}
++
++group("vanadium_config_test_apks") {
++  testonly = true
++  deps = [
++    ":vanadium_config_whole_test_apk",
++    ":vanadium_config_split_components_test_apk",
++    ":vanadium_config_cf_test_apk",
++  ]
++  visibility = [
++    "//vanadium/android_config:*",
++  ]
+ }
+ 
+ # An empty group included in //BUILD.gn to make this and other config apk type build
