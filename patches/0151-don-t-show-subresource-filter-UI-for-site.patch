@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Sun, 19 Jun 2022 01:12:36 -0400
+Subject: [PATCH] don't show subresource filter UI for site
+
+---
+ ...ubresource_filter_content_settings_manager.cc | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/components/subresource_filter/content/browser/subresource_filter_content_settings_manager.cc b/components/subresource_filter/content/browser/subresource_filter_content_settings_manager.cc
+index 3d0649fe9a066..ffca214a6fb74 100644
+--- a/components/subresource_filter/content/browser/subresource_filter_content_settings_manager.cc
++++ b/components/subresource_filter/content/browser/subresource_filter_content_settings_manager.cc
+@@ -83,21 +83,7 @@ void SubresourceFilterContentSettingsManager::OnDidShowUI(const GURL& url) {
+ 
+ bool SubresourceFilterContentSettingsManager::ShouldShowUIForSite(
+     const GURL& url) const {
+-  if (!should_use_smart_ui())
+-    return true;
+-
+-  absl::optional<base::Value::Dict> dict = GetSiteMetadata(url);
+-  if (!dict)
+-    return true;
+-
+-  if (absl::optional<double> last_shown_time =
+-          dict->FindDouble(kInfobarLastShownTimeKey)) {
+-    base::Time last_shown =
+-        base::Time::FromSecondsSinceUnixEpoch(*last_shown_time);
+-    if (clock_->Now() - last_shown < kDelayBeforeShowingInfobarAgain)
+-      return false;
+-  }
+-  return true;
++  return false;
+ }
+ 
+ void SubresourceFilterContentSettingsManager::SetSiteMetadataBasedOnActivation(
