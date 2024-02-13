@@ -9,7 +9,9 @@ Subject: [PATCH] Support for both browser and android autofill functionality
  .../browser/content_autofill_driver.cc        | 52 +++++++++++++++++++
  .../content/browser/content_autofill_driver.h |  8 +++
  .../autofill/core/browser/autofill_driver.h   |  6 +++
- 5 files changed, 96 insertions(+)
+ .../core/browser/test_autofill_driver.cc      |  8 +++
+ .../core/browser/test_autofill_driver.h       |  3 ++
+ 7 files changed, 107 insertions(+)
 
 diff --git a/components/android_autofill/browser/android_autofill_manager.cc b/components/android_autofill/browser/android_autofill_manager.cc
 index 0d51b11b639b6..de3e78c4eaec8 100644
@@ -267,3 +269,41 @@ index ed61f8b928a1e..c5a2e80443223 100644
    // Returns whether the AutofillDriver instance is associated with an active
    // frame in the MPArch sense.
    virtual bool IsInActiveFrame() const = 0;
+diff --git a/components/autofill/core/browser/test_autofill_driver.cc b/components/autofill/core/browser/test_autofill_driver.cc
+index 0d07793657acc..10d9e024b4c4b 100644
+--- a/components/autofill/core/browser/test_autofill_driver.cc
++++ b/components/autofill/core/browser/test_autofill_driver.cc
+@@ -13,4 +13,12 @@ AutofillManager& TestAutofillDriver::GetAutofillManager() {
+   return *autofill_manager_;
+ }
+ 
++AutofillManager& TestAutofillDriver::GetSecondaryAutofillManager() {
++  return *secondary_autofill_manager_;
++}
++
++bool TestAutofillDriver::HasSecondaryAutofillManager() {
++  return false;
++}
++
+ }  // namespace autofill
+diff --git a/components/autofill/core/browser/test_autofill_driver.h b/components/autofill/core/browser/test_autofill_driver.h
+index bb8c48eab1c5d..7d0d65191dcb9 100644
+--- a/components/autofill/core/browser/test_autofill_driver.h
++++ b/components/autofill/core/browser/test_autofill_driver.h
+@@ -193,6 +193,8 @@ class TestAutofillDriver : public TestAutofillDriverTemplate<AutofillDriver> {
+ 
+   // AutofillDriver
+   AutofillManager& GetAutofillManager() override;
++  AutofillManager& GetSecondaryAutofillManager() override;
++  bool HasSecondaryAutofillManager() override;
+ 
+   void set_autofill_manager(std::unique_ptr<AutofillManager> autofill_manager) {
+     autofill_manager_ = std::move(autofill_manager);
+@@ -200,6 +202,7 @@ class TestAutofillDriver : public TestAutofillDriverTemplate<AutofillDriver> {
+ 
+  private:
+   std::unique_ptr<AutofillManager> autofill_manager_ = nullptr;
++  std::unique_ptr<AutofillManager> secondary_autofill_manager_ = nullptr;
+ };
+ 
+ }  // namespace autofill
