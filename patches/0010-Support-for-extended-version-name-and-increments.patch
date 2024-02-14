@@ -10,10 +10,10 @@ Subject: [PATCH] Support for extended version name and increments
  3 files changed, 34 insertions(+), 1 deletion(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index ebf7e0b307a94..3e6a2890c085e 100755
+index ebd8cf40b79c4..f01160050e776 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -339,7 +339,8 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
+@@ -340,7 +340,8 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
  
    build_number = int(version_values['BUILD'])
    patch_number = int(version_values['PATCH'])
@@ -24,10 +24,10 @@ index ebf7e0b307a94..3e6a2890c085e 100755
    if is_next_build:
      base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF
 diff --git a/build/util/version.py b/build/util/version.py
-index 30d3a5d1bf6e0..fe2f1c47e3425 100755
+index d593f20094513..db27a4636b156 100755
 --- a/build/util/version.py
 +++ b/build/util/version.py
-@@ -131,6 +131,10 @@ def BuildParser():
+@@ -133,6 +133,10 @@ def BuildParser():
                        help='Write substituted strings to FILE.')
    parser.add_argument('-t', '--template', default=None,
                        help='Use TEMPLATE as the strings to substitute.')
@@ -38,7 +38,7 @@ index 30d3a5d1bf6e0..fe2f1c47e3425 100755
    parser.add_argument('-x',
                        '--executable',
                        default=False,
-@@ -208,6 +212,7 @@ def GenerateValues(options, evals):
+@@ -210,6 +214,7 @@ def GenerateValues(options, evals):
    for key, val in evals.items():
      values[key] = str(eval(val, globals(), values))
  
@@ -47,7 +47,7 @@ index 30d3a5d1bf6e0..fe2f1c47e3425 100755
      android_chrome_version_codes = android_chrome_version.GenerateVersionCodes(
          values, options.arch, options.next)
 diff --git a/chrome/version.gni b/chrome/version.gni
-index 1caacc0ef84de..63602dbd3b9b9 100644
+index 3677614b402f6..02e7491134be8 100644
 --- a/chrome/version.gni
 +++ b/chrome/version.gni
 @@ -39,6 +39,33 @@ if (is_mac) {

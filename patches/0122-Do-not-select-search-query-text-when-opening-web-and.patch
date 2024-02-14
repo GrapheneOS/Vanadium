@@ -11,10 +11,10 @@ Subject: [PATCH] Do not select search query text when opening web and global
  3 files changed, 34 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index c4090888ba4dd..8bb66e1d21b98 100644
+index e8b11d112f126..e9f80adf0b8e2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -228,6 +228,9 @@ public class LaunchIntentDispatcher {
+@@ -225,6 +225,9 @@ public class LaunchIntentDispatcher {
                  searchActivityIntent.setClass(
                          ContextUtils.getApplicationContext(), SearchActivity.class);
                  searchActivityIntent.putExtra(SearchManager.QUERY, query);
@@ -25,10 +25,10 @@ index c4090888ba4dd..8bb66e1d21b98 100644
              }
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 1aa4848cb109f..5e31c130d1771 100644
+index bcd45c88b77f5..9f91551b01863 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -556,6 +556,20 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -592,6 +592,20 @@ public class SearchActivity extends AsyncInitializationActivity
          return IntentUtils.safeGetStringExtra(getIntent(), SearchManager.QUERY);
      }
  
@@ -49,7 +49,7 @@ index 1aa4848cb109f..5e31c130d1771 100644
      private void beginQuery() {
          @SearchType int searchType = getSearchType(getIntent().getAction());
          if (isFromQuickActionSearchWidget()) {
-@@ -565,7 +579,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -601,7 +615,8 @@ public class SearchActivity extends AsyncInitializationActivity
                  searchType,
                  getOptionalIntentQuery(),
                  mLocationBarCoordinator.getVoiceRecognitionHandler(),
