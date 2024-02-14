@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 19 Sep 2023 13:31:07 +0000
+Subject: [PATCH] temporary: Workaround for crashes at StackTrace calls
+
+---
+ tools/cfi/ignores.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tools/cfi/ignores.txt b/tools/cfi/ignores.txt
+index f1f50f0b104a1..ff34fdbd5697e 100644
+--- a/tools/cfi/ignores.txt
++++ b/tools/cfi/ignores.txt
+@@ -275,3 +275,7 @@ src:*third_party/xnnpack/src/src/operators/deconvolution-nhwc.c
+ ######### Uncategorized
+ 
+ src:*native_client/*
++
++######### Downstream addition
++[cfi-unrelated-cast]
++fun:__unw_init_local

@@ -31,7 +31,7 @@ index 91d814c08fffa..9661167adf22b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 53308a672eb62..dd1e197449e94 100644
+index eda85c0e8a5e7..399eb74b5ab8d 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -347,6 +347,14 @@ by a child template that "extends" this file.
@@ -50,10 +50,10 @@ index 53308a672eb62..dd1e197449e94 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 3393fb15eef11..201f3df0b632c 100644
+index 390dcfa997195..327dee0a9ae36 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -203,6 +203,8 @@ public class LaunchIntentDispatcher {
+@@ -200,6 +200,8 @@ public class LaunchIntentDispatcher {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -62,7 +62,7 @@ index 3393fb15eef11..201f3df0b632c 100644
                  || MediaStore.INTENT_ACTION_MEDIA_SEARCH.equals(action)) {
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
-@@ -216,7 +218,7 @@ public class LaunchIntentDispatcher {
+@@ -213,7 +215,7 @@ public class LaunchIntentDispatcher {
          searchIntent.putExtra(SearchManager.QUERY, query);
  
          try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {
