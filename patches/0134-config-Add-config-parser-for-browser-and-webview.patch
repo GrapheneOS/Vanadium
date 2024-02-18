@@ -5,8 +5,8 @@ Subject: [PATCH] config: Add config parser for browser and webview
 
 ---
  vanadium/android_config/proto/BUILD.gn        |  10 +
- .../vanadium/config/VanadiumConfParser.java   | 561 ++++++++++++++++++
- 2 files changed, 571 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 548 ++++++++++++++++++
+ 2 files changed, 558 insertions(+)
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
@@ -29,10 +29,10 @@ index e3cf1229f8920..82f4c9a72847d 100644
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..1f0a003ae921f
+index 0000000000000..93c283d0325eb
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,561 @@
+@@ -0,0 +1,548 @@
 +package app.vanadium.config;
 +
 +import android.content.BroadcastReceiver;
@@ -324,19 +324,6 @@ index 0000000000000..1f0a003ae921f
 +    private static boolean verifyPackage(Context ctx, String pkgName, byte[] sha256CertDigestBytes) {
 +        if (!isEligible()) {
 +            return false;
-+        }
-+
-+        if (ConfigInfo.REQUIRES_SYSTEM) {
-+            PackageInfo pi = getPackageInfoOrNull(ctx, pkgName, 0);
-+            if (pi == null || pi.applicationInfo == null) {
-+                Log.e(TAG, "unable to verify not found package: " + pkgName);
-+                return false;
-+            }
-+
-+            if ((pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-+                Log.w(TAG, "the package " + pkgName +  " is not a system app");
-+                return false;
-+            }
 +        }
 +
 +        return ctx.getPackageManager().hasSigningCertificate(
