@@ -4,9 +4,9 @@ Date: Wed, 6 Dec 2023 15:45:43 +0000
 Subject: [PATCH] config: Generate ConfigInfo from config apk
 
 ---
- vanadium/android_config/config_apk.gni        | 30 +++++++++
- .../java/templates/ConfigInfo.template        | 66 +++++++++++++++++++
- 2 files changed, 96 insertions(+)
+ vanadium/android_config/config_apk.gni        | 30 ++++++++++
+ .../java/templates/ConfigInfo.template        | 60 +++++++++++++++++++
+ 2 files changed, 90 insertions(+)
  create mode 100644 vanadium/android_config/java/templates/ConfigInfo.template
 
 diff --git a/vanadium/android_config/config_apk.gni b/vanadium/android_config/config_apk.gni
@@ -49,10 +49,10 @@ index c7548d44cc63b..bcab087b475f3 100644
 +}
 diff --git a/vanadium/android_config/java/templates/ConfigInfo.template b/vanadium/android_config/java/templates/ConfigInfo.template
 new file mode 100644
-index 0000000000000..5f3774176dc5b
+index 0000000000000..298b27e13a3d5
 --- /dev/null
 +++ b/vanadium/android_config/java/templates/ConfigInfo.template
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,60 @@
 +// Copyright 2023 GrapheneOS
 +// Use of this source code is governed by a GPL-2.0 style license that can be
 +// found in the LICENSE file.
@@ -111,11 +111,5 @@ index 0000000000000..5f3774176dc5b
 +    public static MAYBE_FINAL boolean IS_DEBUG = true;
 +#else
 +    public static MAYBE_FINAL boolean IS_DEBUG MAYBE_FALSE;
-+#endif
-+
-+#if defined(_REQUIRES_SYSTEM)
-+    public static MAYBE_FINAL boolean REQUIRES_SYSTEM = true;
-+#else
-+    public static MAYBE_FINAL boolean REQUIRES_SYSTEM MAYBE_FALSE;
 +#endif
 +}
