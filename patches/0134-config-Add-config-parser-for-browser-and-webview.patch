@@ -5,8 +5,8 @@ Subject: [PATCH] config: Add config parser for browser and webview
 
 ---
  vanadium/android_config/proto/BUILD.gn        |  10 +
- .../vanadium/config/VanadiumConfParser.java   | 539 ++++++++++++++++++
- 2 files changed, 549 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 541 ++++++++++++++++++
+ 2 files changed, 551 insertions(+)
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
@@ -29,10 +29,10 @@ index e3cf1229f8920..82f4c9a72847d 100644
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..5699dd87857a2
+index 0000000000000..a9d7e9a606b4a
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,539 @@
+@@ -0,0 +1,541 @@
 +package app.vanadium.config;
 +
 +import android.content.BroadcastReceiver;
@@ -286,7 +286,9 @@ index 0000000000000..5699dd87857a2
 +        parseInBackground(ctx, specType);
 +
 +        ParsedConfigs curConfigs = getParsedConfigs();
-+        if (curConfigs != null && curConfigs.hasOtherComponentApks && curConfigs.components.size() > 0) {
++        if (curConfigs != null && curConfigs.hasOtherComponentApks
++                && curConfigs.components.size() > 0
++                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 +            IntentFilter filter = new IntentFilter();
 +            filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
 +            filter.addDataScheme("package");
