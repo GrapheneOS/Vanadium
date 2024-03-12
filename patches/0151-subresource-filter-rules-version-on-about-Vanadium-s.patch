@@ -1,0 +1,82 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Sun, 15 Oct 2023 23:26:27 -0400
+Subject: [PATCH] subresource filter rules version on about Vanadium settings
+ page
+
+---
+ chrome/android/java/res/xml/about_chrome_preferences.xml | 8 +++++++-
+ .../browser/about_settings/AboutChromeSettings.java      | 9 +++++++++
+ .../ui/android/strings/android_chrome_ext_strings.grdp   | 3 +++
+ 3 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/res/xml/about_chrome_preferences.xml b/chrome/android/java/res/xml/about_chrome_preferences.xml
+index fb1dfed23052b..696b3df447965 100644
+--- a/chrome/android/java/res/xml/about_chrome_preferences.xml
++++ b/chrome/android/java/res/xml/about_chrome_preferences.xml
+@@ -5,10 +5,16 @@ Use of this source code is governed by a BSD-style license that can be
+ found in the LICENSE file.
+ -->
+ 
+-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto">
+     <org.chromium.chrome.browser.about_settings.LongClickCopySummaryPreference
+         android:key="application_version"
+         android:title="@string/application_version_title" />
++    <org.chromium.chrome.browser.about_settings.LongClickCopySummaryPreference
++        android:key="subresource_filter_rules_version"
++        android:title="@string/subresource_filter_rules_version_title"
++        app:isPreferenceVisible="false" />
+     <org.chromium.chrome.browser.about_settings.AboutChromePreferenceOSVersion
+         android:key="os_version"
+         android:title="@string/os_version_title" />
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java
+index fe807929ef2ab..363278179ede0 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java
+@@ -16,6 +16,7 @@ import androidx.preference.PreferenceFragmentCompat;
+ import org.chromium.base.version_info.VersionInfo;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.tracing.settings.DeveloperSettings;
++import org.chromium.chrome.browser.subresource_filter.RulesetUpdater;
+ import org.chromium.components.browser_ui.settings.SettingsUtils;
+ import org.chromium.ui.widget.Toast;
+ 
+@@ -28,6 +29,8 @@ public class AboutChromeSettings extends PreferenceFragmentCompat
+ 
+     private static final String PREF_APPLICATION_VERSION = "application_version";
+     private static final String PREF_OS_VERSION = "os_version";
++    private static final String PREF_SUBRESOURCE_FILTER_RULES_VERSION =
++            "subresource_filter_rules_version";
+     private static final String PREF_LEGAL_INFORMATION = "legal_information";
+ 
+     // Non-translated strings:
+@@ -52,6 +55,12 @@ public class AboutChromeSettings extends PreferenceFragmentCompat
+         p.setSummary(
+                 getApplicationVersion(getActivity(), AboutSettingsBridge.getApplicationVersion()));
+         p.setOnPreferenceClickListener(this);
++        p = findPreference(PREF_SUBRESOURCE_FILTER_RULES_VERSION);
++        final String subresourceFilterRulesVersion = RulesetUpdater.version();
++        if (!subresourceFilterRulesVersion.equals("")) {
++            p.setSummary(subresourceFilterRulesVersion);
++            p.setVisible(true);
++        }
+         p = findPreference(PREF_OS_VERSION);
+         p.setSummary(AboutSettingsBridge.getOSVersion());
+         p = findPreference(PREF_LEGAL_INFORMATION);
+diff --git a/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp b/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+index 97c468723891d..75759f14c6367 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
++++ b/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+@@ -28,6 +28,9 @@
+   <message name="IDS_OPEN_LINKS_IN_INCOGNITO_SUMMARY" desc="Summary of opening external links in incognito tabs menu item">
+     Open links navigated by external apps in incognito tabs
+   </message>
++  <message name="IDS_SUBRESOURCE_FILTER_RULES_VERSION_TITLE" desc="Title of subresource filter rules version menu item">
++    Subresource filter rules version
++  </message>
+   <!-- WebRTC toggle -->
+   <message name="IDS_WEBRTC_POLICY_TITLE" desc="WebRTC policy setting label">
+     WebRTC IP handling policy
