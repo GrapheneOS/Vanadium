@@ -15,7 +15,7 @@ Android.
  4 files changed, 55 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
-index ab6efe49ab728..52075ddfbcc83 100644
+index a179caee2d592..79844e88287ce 100644
 --- a/components/embedder_support/user_agent_utils.cc
 +++ b/components/embedder_support/user_agent_utils.cc
 @@ -490,6 +490,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(const PrefService* pref_service,
@@ -80,14 +80,14 @@ index cc868f5b51aeb..b4af366953058 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 452a11b8e6150..bbb9e8666c112 100644
+index 8cb94b4f2b27c..a542a3621c3e1 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -496,6 +496,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -527,6 +527,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
-+// Use low-entropy client hints only.
++// Enable low-entropy client hints only.
 +BASE_FEATURE(kClientHintsLowEntropyOnly,
 +             "ClientHintsLowEntropyOnly",
 +             base::FEATURE_DISABLED_BY_DEFAULT);
@@ -101,10 +101,10 @@ index 452a11b8e6150..bbb9e8666c112 100644
  BASE_FEATURE(kClientHintsDPR,
               "ClientHintsDPR",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 230637dfa08c7..ff25317896869 100644
+index d788f7303c903..8238ae3b70f55 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -255,6 +255,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCanvasFreeMemoryWhenHidden);
+@@ -269,6 +269,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  

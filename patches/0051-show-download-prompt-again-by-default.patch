@@ -8,15 +8,15 @@ Subject: [PATCH] show download prompt again by default
  1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
-index 61fe8b66ee52b..20b51e205dae8 100644
+index 0b2bd001bf870..0b763df4f7e3c 100644
 --- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
 +++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
-@@ -179,13 +179,9 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
+@@ -192,13 +192,9 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
      }
  
      private PropertyModel getLocationDialogModel() {
 -        boolean isInitial =
--                DownloadDialogBridge.getPromptForDownloadAndroid()
+-                DownloadDialogBridge.getPromptForDownloadAndroid(mProfile)
 -                        == DownloadPromptStatus.SHOW_INITIAL;
 -
          PropertyModel.Builder builder =

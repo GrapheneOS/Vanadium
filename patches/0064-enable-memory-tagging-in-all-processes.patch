@@ -4,9 +4,9 @@ Date: Wed, 22 Nov 2023 15:10:08 +0200
 Subject: [PATCH] enable memory tagging in all processes
 
 ---
- android_webview/nonembedded/java/AndroidManifest.xml | 1 +
- base/allocator/partition_alloc_features.cc           | 6 +++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ .../nonembedded/java/AndroidManifest.xml            |  1 +
+ base/allocator/partition_alloc_features.cc          | 13 -------------
+ 2 files changed, 1 insertion(+), 13 deletions(-)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
 index 8fdea244f2719..176553dce1843 100644
@@ -21,33 +21,43 @@ index 8fdea244f2719..176553dce1843 100644
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
 diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
-index 3ad143f6dabbd..5d53fcca1aed8 100644
+index 0a320b841ebfe..582602920715d 100644
 --- a/base/allocator/partition_alloc_features.cc
 +++ b/base/allocator/partition_alloc_features.cc
-@@ -178,7 +178,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
+@@ -179,11 +179,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
  
  BASE_FEATURE(kPartitionAllocMemoryTagging,
               "PartitionAllocMemoryTagging",
--             FEATURE_DISABLED_BY_DEFAULT);
-+             FEATURE_ENABLED_BY_DEFAULT);
+-#if BUILDFLAG(USE_FULL_MTE)
+              FEATURE_ENABLED_BY_DEFAULT
+-#else
+-             FEATURE_DISABLED_BY_DEFAULT
+-#endif
+ );
  
  constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
-     {MemtagMode::kSync, "sync"},
-@@ -197,7 +197,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+@@ -208,11 +204,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
  const base::FeatureParam<MemoryTaggingEnabledProcesses>
      kMemoryTaggingEnabledProcessesParam{
          &kPartitionAllocMemoryTagging, "enabled-processes",
+-#if BUILDFLAG(USE_FULL_MTE)
+         MemoryTaggingEnabledProcesses::kAllProcesses,
+-#else
 -        MemoryTaggingEnabledProcesses::kBrowserOnly,
-+        MemoryTaggingEnabledProcesses::kAllProcesses,
+-#endif
          &kMemoryTaggingEnabledProcessesOptions};
  
  BASE_FEATURE(kKillPartitionAllocMemoryTagging,
-@@ -207,7 +207,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+@@ -222,12 +214,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
  BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
  BASE_FEATURE(kPartitionAllocPermissiveMte,
               "PartitionAllocPermissiveMte",
--             FEATURE_ENABLED_BY_DEFAULT);
-+             FEATURE_DISABLED_BY_DEFAULT);
+-#if BUILDFLAG(USE_FULL_MTE)
+-             // We want to actually crash if USE_FULL_MTE is enabled.
+              FEATURE_DISABLED_BY_DEFAULT
+-#else
+-             FEATURE_ENABLED_BY_DEFAULT
+-#endif
+ );
  
  const base::FeatureParam<bool> kBackupRefPtrAsanEnableDereferenceCheckParam{
-     &kPartitionAllocBackupRefPtr, "asan-enable-dereference-check", true};
