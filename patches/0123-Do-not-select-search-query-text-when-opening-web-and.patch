@@ -11,7 +11,7 @@ Subject: [PATCH] Do not select search query text when opening web and global
  3 files changed, 34 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 9e0b1a7ac3c94..07dd1e1e0d3ad 100644
+index 0470e05c45ae8..8b8577d4d3669 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -228,6 +228,9 @@ public class LaunchIntentDispatcher {
@@ -25,10 +25,10 @@ index 9e0b1a7ac3c94..07dd1e1e0d3ad 100644
              }
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index bcd45c88b77f5..9f91551b01863 100644
+index 4cf64adf06031..54f3578258016 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -592,6 +592,20 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -596,6 +596,20 @@ public class SearchActivity extends AsyncInitializationActivity
          return IntentUtils.safeGetStringExtra(getIntent(), SearchManager.QUERY);
      }
  
@@ -49,7 +49,7 @@ index bcd45c88b77f5..9f91551b01863 100644
      private void beginQuery() {
          @SearchType int searchType = getSearchType(getIntent().getAction());
          if (isFromQuickActionSearchWidget()) {
-@@ -601,7 +615,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -605,7 +619,8 @@ public class SearchActivity extends AsyncInitializationActivity
                  searchType,
                  getOptionalIntentQuery(),
                  mLocationBarCoordinator.getVoiceRecognitionHandler(),
