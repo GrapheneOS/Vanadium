@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 16 Nov 2023 19:19:07 +0000
+Subject: [PATCH] Enforce Network permission for calling app by showing prompt
+ when not granted
+
+---
+ .../chromium/base/ext/CustomOSApiHelpers.java  | 18 ++++++++++++++++++
+ .../chrome/browser/LaunchIntentDispatcher.java | 17 +++++++++++++++++
+ 2 files changed, 35 insertions(+)
+
+diff --git a/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java b/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java
+index 2885d83017450..e4fb9123711c3 100644
+--- a/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java
++++ b/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java
+@@ -1,4 +1,22 @@
+ package org.chromium.base.ext;
+ 
++import android.app.Activity;
++
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++
+ public class CustomOSApiHelpers {
++
++    // Arbitrary value that's unlikely to be taken as @PackageManager.PermissionResult value
++    public static final int PERMISSION_RESULT_UNKNOWN = -100;
++
++    public static int checkLaunchedFromPackagePermission(Activity activity, String permission) {
++        try {
++            Method method = Activity.class.getDeclaredMethod("checkLaunchedFromPackagePermission", String.class);
++            return (int) method.invoke(activity, permission);
++        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
++            return PERMISSION_RESULT_UNKNOWN;
++        }
++    }
++
+ }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index c93adbc8cd83c..6d8980b53ecba 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -4,6 +4,7 @@
+ 
+ package org.chromium.chrome.browser;
+ 
++import android.Manifest;
+ import android.annotation.SuppressLint;
+ import android.app.Activity;
+ import android.app.ActivityManager.RecentTaskInfo;
+@@ -31,6 +32,7 @@ import org.chromium.base.IntentUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.PackageManagerUtils;
+ import org.chromium.base.StrictModeContext;
++import org.chromium.base.ext.CustomOSApiHelpers;
+ import org.chromium.chrome.browser.browserservices.SessionDataHolder;
+ import org.chromium.chrome.browser.browserservices.ui.splashscreen.trustedwebactivity.TwaSplashController;
+ import org.chromium.chrome.browser.customtabs.CustomTabActivity;
+@@ -160,6 +162,21 @@ public class LaunchIntentDispatcher {
+             url = IntentHandler.getUrlFromIntent(mIntent);
+         }
+ 
++        if (mActivity instanceof ChromeLauncherActivity) {
++            int permissionResult = CustomOSApiHelpers.checkLaunchedFromPackagePermission(
++                    mActivity, Manifest.permission.INTERNET);
++            if (permissionResult != CustomOSApiHelpers.PERMISSION_RESULT_UNKNOWN
++                    && permissionResult != PackageManager.PERMISSION_GRANTED) {
++                Intent redirectedIntent = new Intent(Intent.ACTION_MAIN);
++                redirectedIntent.setClass(
++                        ContextUtils.getApplicationContext(), SearchActivity.class);
++                redirectedIntent.putExtra(SearchManager.QUERY, url);
++                redirectedIntent.putExtra(IntentHandler.EXTRA_INCOGNITO_MODE, true);
++                mActivity.startActivity(redirectedIntent);
++                return Action.FINISH_ACTIVITY;
++            }
++        }
++
+         // Check if a web search Intent is being handled.
+         if (url == null && tabId == Tab.INVALID_TAB_ID && !incognito
+                 && processWebSearchIntent(mIntent)) {

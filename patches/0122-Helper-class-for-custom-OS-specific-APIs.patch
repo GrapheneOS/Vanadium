@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 16 Nov 2023 14:52:12 +0000
+Subject: [PATCH] Helper class for custom OS-specific APIs
+
+---
+ base/BUILD.gn                                                 | 4 ++++
+ .../java/src/org/chromium/base/ext/CustomOSApiHelpers.java    | 4 ++++
+ 2 files changed, 8 insertions(+)
+ create mode 100644 base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java
+
+diff --git a/base/BUILD.gn b/base/BUILD.gn
+index 7caa859940f59..8bfc142560cfd 100644
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -4462,6 +4462,10 @@ if (is_android) {
+       "android/java/src/org/chromium/base/task/UiThreadTaskExecutor.java",
+     ]
+ 
++    sources += [
++       "android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java"
++    ]
++
+     if (use_clang_profiling) {
+       sources += [
+         "test/android/javatests/src/org/chromium/base/test/ClangProfiler.java",
+diff --git a/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java b/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java
+new file mode 100644
+index 0000000000000..2885d83017450
+--- /dev/null
++++ b/base/android/java/src/org/chromium/base/ext/CustomOSApiHelpers.java
+@@ -0,0 +1,4 @@
++package org.chromium.base.ext;
++
++public class CustomOSApiHelpers {
++}
