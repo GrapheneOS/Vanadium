@@ -1,0 +1,251 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Friedrich Horschig <fhorschig@chromium.org>
+Date: Wed, 13 Mar 2024 16:58:28 +0000
+Subject: [PATCH] upstream: [Android][3PPWM] For AwG, fall back to built-in
+ Autofill
+
+AwG shouldn't replace built-in Autofilll which is in
+a better position to fill exactly the same data.
+
+This CL adds a variation to the flag which allows to
+skip that fallback. It simplifies manual testing and
+temporarily, automated testing, too.
+
+Bug: 323130329
+Change-Id: I8078fac19adb149918de69479e187344e0e062de
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5366403
+Reviewed-by: Jan Keitel <jkeitel@google.com>
+Commit-Queue: Friedrich Horschig <fhorschig@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1272224}
+---
+ chrome/browser/about_flags.cc                 | 20 ++++++++++++++--
+ .../ui/autofill/autofill_client_provider.cc   | 11 +++++++--
+ .../autofill_client_provider_unittest.cc      | 12 ++++++++--
+ .../browser/android_autofill_client.cc        | 17 +++++++++++++
+ .../browser/android_autofill_client.h         |  5 ++++
+ .../autofill/AndroidAutofillClient.java       | 24 +++++++++++++++++++
+ .../autofill/core/common/autofill_features.h  |  4 ++++
+ 7 files changed, 87 insertions(+), 6 deletions(-)
+
+diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
+index 17167a96cf5e0..8ad112c61fa0a 100644
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -3710,6 +3710,19 @@ const FeatureEntry::Choice kAccountBookmarksAndReadingListBehindOptInChoices[] =
+ };
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
++#if BUILDFLAG(IS_ANDROID)
++inline constexpr flags_ui::FeatureEntry::FeatureParam
++    kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheckParam = {
++        autofill::features::
++            kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck.name,
++        "true"};
++inline constexpr flags_ui::FeatureEntry::FeatureVariation
++    kAutofillVirtualViewStructureVariation[] = {
++        {"Enabled without compatibility check",
++         &kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheckParam, 1,
++         nullptr}};
++#endif  // BUILDFLAG(IS_ANDROID)
++
+ // RECORDING USER METRICS FOR FLAGS:
+ // -----------------------------------------------------------------------------
+ // The first line of the entry is the internal name.
+@@ -5683,8 +5696,11 @@ const FeatureEntry kFeatureEntries[] = {
+      flag_descriptions::kAutofillVirtualViewStructureAndroidName,
+      flag_descriptions::kAutofillVirtualViewStructureAndroidDescription,
+      kOsAndroid,
+-     FEATURE_VALUE_TYPE(
+-         autofill::features::kAutofillVirtualViewStructureAndroid)},
++     FEATURE_WITH_PARAMS_VALUE_TYPE(
++         autofill::features::kAutofillVirtualViewStructureAndroid,
++         kAutofillVirtualViewStructureVariation,
++         "Skip AutofillService Check")},
++
+     {"enable-pix-detection", flag_descriptions::kEnablePixDetectionName,
+      flag_descriptions::kEnablePixDetectionDescription, kOsAndroid,
+      FEATURE_VALUE_TYPE(payments::facilitated::kEnablePixDetection)},
+diff --git a/chrome/browser/ui/autofill/autofill_client_provider.cc b/chrome/browser/ui/autofill/autofill_client_provider.cc
+index ec1ed8f2c2fba..18c323a76a601 100644
+--- a/chrome/browser/ui/autofill/autofill_client_provider.cc
++++ b/chrome/browser/ui/autofill/autofill_client_provider.cc
+@@ -26,7 +26,8 @@ bool UsesVirtualViewStructureForAutofill(const PrefService* prefs) {
+     return false;
+   }
+ 
+-  return prefs->GetBoolean(prefs::kAutofillUsingVirtualViewStructure);
++  return prefs->GetBoolean(prefs::kAutofillUsingVirtualViewStructure) &&
++         android_autofill::AndroidAutofillClient::AllowedForAutofillService();
+ #else
+   return false;
+ #endif  // BUILDFLAG(IS_ANDROID)
+@@ -35,7 +36,13 @@ bool UsesVirtualViewStructureForAutofill(const PrefService* prefs) {
+ }  // namespace
+ 
+ AutofillClientProvider::AutofillClientProvider(PrefService* prefs)
+-    : uses_platform_autofill_(UsesVirtualViewStructureForAutofill(prefs)) {}
++    : uses_platform_autofill_(UsesVirtualViewStructureForAutofill(prefs)) {
++#if BUILDFLAG(IS_ANDROID)
++  // Ensure the pref is reset if platform autofill is restricted.
++  prefs->SetBoolean(prefs::kAutofillUsingVirtualViewStructure,
++                    uses_platform_autofill_);
++#endif  // BUILDFLAG(IS_ANDROID)
++}
+ 
+ AutofillClientProvider::~AutofillClientProvider() = default;
+ 
+diff --git a/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc b/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc
+index 2c7d9254caadb..e332769f0f7db 100644
+--- a/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc
++++ b/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc
+@@ -86,9 +86,17 @@ TEST_F(AutofillClientProviderLegacyTest, AlwaysCreatesChromeClient) {
+ }
+ 
+ class AutofillClientProviderTest : public AutofillClientProviderBaseTest {
++ public:
++  AutofillClientProviderTest() {
++    scoped_feature_list_.InitAndEnableFeatureWithParameters(
++        features::kAutofillVirtualViewStructureAndroid,
++        {{features::kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck
++              .name,
++          "true"}});
++  }
++
+  private:
+-  base::test::ScopedFeatureList scoped_feature_list_{
+-      features::kAutofillVirtualViewStructureAndroid};
++  base::test::ScopedFeatureList scoped_feature_list_;
+ };
+ 
+ TEST_F(AutofillClientProviderTest, CreateAndroidClientForEnabledPref) {
+diff --git a/components/android_autofill/browser/android_autofill_client.cc b/components/android_autofill/browser/android_autofill_client.cc
+index 557ed85cd56d9..470dfbd8dfcbb 100644
+--- a/components/android_autofill/browser/android_autofill_client.cc
++++ b/components/android_autofill/browser/android_autofill_client.cc
+@@ -12,6 +12,7 @@
+ #include "base/android/locale_utils.h"
+ #include "base/android/scoped_java_ref.h"
+ #include "base/check_op.h"
++#include "base/feature_list.h"
+ #include "base/functional/function_ref.h"
+ #include "base/notreached.h"
+ #include "base/types/cxx23_to_underlying.h"
+@@ -25,6 +26,7 @@
+ #include "components/autofill/core/browser/ui/suggestion.h"
+ #include "components/autofill/core/browser/webdata/autofill_webdata_service.h"
+ #include "components/autofill/core/common/aliases.h"
++#include "components/autofill/core/common/autofill_features.h"
+ #include "components/prefs/pref_service.h"
+ #include "components/user_prefs/user_prefs.h"
+ #include "content/public/browser/browser_context.h"
+@@ -35,6 +37,9 @@
+ #include "ui/android/view_android.h"
+ #include "ui/gfx/geometry/rect_f.h"
+ 
++using autofill::features::kAutofillVirtualViewStructureAndroid;
++using autofill::features::
++    kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck;
+ using base::android::AttachCurrentThread;
+ using base::android::ConvertUTF16ToJavaString;
+ using base::android::JavaParamRef;
+@@ -55,6 +60,18 @@ void AndroidAutofillClient::CreateForWebContents(
+   }
+ }
+ 
++// static
++bool AndroidAutofillClient::AllowedForAutofillService() {
++  if (!base::FeatureList::IsEnabled(kAutofillVirtualViewStructureAndroid)) {
++    return false;
++  }
++  if (kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck.Get()) {
++    return true;
++  }
++  return Java_AndroidAutofillClient_allowedForAutofillService(
++      AttachCurrentThread());
++}
++
+ AndroidAutofillClient::~AndroidAutofillClient() {
+   HideAutofillPopup(autofill::PopupHidingReason::kTabGone);
+ }
+diff --git a/components/android_autofill/browser/android_autofill_client.h b/components/android_autofill/browser/android_autofill_client.h
+index 89e84922e6adc..0f969e286b8d4 100644
+--- a/components/android_autofill/browser/android_autofill_client.h
++++ b/components/android_autofill/browser/android_autofill_client.h
+@@ -75,6 +75,11 @@ class AndroidAutofillClient : public autofill::ContentAutofillClient {
+       base::FunctionRef<void(const base::android::JavaRef<jobject>&)>
+           notify_client_created);
+ 
++  // Checks whether the AutofillService selected in Android settings works for
++  // the browser. Autofill With Google should never fill Chrome since the
++  // built-in filling mechanism is the preferred way.
++  static bool AllowedForAutofillService();
++
+   AndroidAutofillClient(const AndroidAutofillClient&) = delete;
+   AndroidAutofillClient& operator=(const AndroidAutofillClient&) = delete;
+ 
+diff --git a/components/android_autofill/browser/java/src/org/chromium/components/autofill/AndroidAutofillClient.java b/components/android_autofill/browser/java/src/org/chromium/components/autofill/AndroidAutofillClient.java
+index 27e77fcfc2814..ffda5aea47fde 100644
+--- a/components/android_autofill/browser/java/src/org/chromium/components/autofill/AndroidAutofillClient.java
++++ b/components/android_autofill/browser/java/src/org/chromium/components/autofill/AndroidAutofillClient.java
+@@ -4,8 +4,11 @@
+ 
+ package org.chromium.components.autofill;
+ 
++import android.content.ComponentName;
+ import android.content.Context;
++import android.os.Build;
+ import android.view.View;
++import android.view.autofill.AutofillManager;
+ 
+ import org.jni_zero.CalledByNative;
+ import org.jni_zero.JNINamespace;
+@@ -20,6 +23,9 @@ import org.chromium.base.ContextUtils;
+  */
+ @JNINamespace("android_autofill")
+ public class AndroidAutofillClient {
++    private static final String AWG_COMPONENT_NAME =
++            "com.google.android.gms/com.google.android.gms.autofill.service.AutofillService";
++
+     private final long mNativeAndroidAutofillClient;
+     private AutofillPopup mAutofillPopup;
+     private Context mContext;
+@@ -29,6 +35,24 @@ public class AndroidAutofillClient {
+         return new AndroidAutofillClient(nativeClient);
+     }
+ 
++    @CalledByNative
++    public static boolean allowedForAutofillService() {
++        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
++            return false;
++        }
++        AutofillManager manager =
++                ContextUtils.getApplicationContext().getSystemService(AutofillManager.class);
++        if (manager == null || !manager.isEnabled()) {
++            return false;
++        }
++        ComponentName componentName = null;
++        try {
++            componentName = manager.getAutofillServiceComponentName();
++        } catch (Exception e) {
++        }
++        return componentName != null && !AWG_COMPONENT_NAME.equals(componentName.flattenToString());
++    }
++
+     private AndroidAutofillClient(long nativeAndroidAutofillClient) {
+         mNativeAndroidAutofillClient = nativeAndroidAutofillClient;
+     }
+diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
+index 723986ae80eb2..13b9f8c4aac63 100644
+--- a/components/autofill/core/common/autofill_features.h
++++ b/components/autofill/core/common/autofill_features.h
+@@ -222,6 +222,10 @@ extern const base::FeatureParam<int>
+ #if BUILDFLAG(IS_ANDROID)
+ COMPONENT_EXPORT(AUTOFILL)
+ BASE_DECLARE_FEATURE(kAutofillVirtualViewStructureAndroid);
++inline constexpr base::FeatureParam<bool>
++    kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
++        &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
++        false};
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+ #if BUILDFLAG(IS_APPLE)
