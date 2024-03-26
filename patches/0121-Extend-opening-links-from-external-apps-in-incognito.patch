@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 1 Feb 2024 17:58:40 +0000
+Subject: [PATCH] Extend opening links from external apps in incognito for
+ share intents
+
+---
+ .../org/chromium/chrome/browser/LaunchIntentDispatcher.java    | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 216d57223b2e9..0470e05c45ae8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -152,6 +152,9 @@ public class LaunchIntentDispatcher {
+             url = IntentHandler.getUrlFromShareIntent(mIntent);
+             if (url == null) return Action.FINISH_ACTIVITY;
+             mIntent.setData(Uri.parse(url));
++            if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++                mIntent = TabPreferencesUtils.appendNeededIncognitoExtras(mActivity, mIntent);
++            }
+         } else {
+             url = IntentHandler.getUrlFromIntent(mIntent);
+         }
