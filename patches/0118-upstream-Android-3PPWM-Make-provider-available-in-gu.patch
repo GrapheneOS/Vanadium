@@ -1,0 +1,136 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Friedrich Horschig <fhorschig@chromium.org>
+Date: Mon, 11 Mar 2024 13:19:00 +0000
+Subject: [PATCH] upstream: [Android][3PPWM] Make provider available in
+ guest/ash
+
+The client is needed in guest/ash profiles, too. E.g. for
+autocomplete.
+The provider shouldn't be nullable but available for every profile that
+needs it. Therefore, make it a reference.
+
+Bug: 326231439
+Change-Id: Ifd9736cb195f66a6f5dbedcdf61bb1c0a60186bc
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5360916
+Reviewed-by: Christoph Schwering <schwering@google.com>
+Commit-Queue: Friedrich Horschig <fhorschig@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1270912}
+---
+ .../autofill_client_provider_factory.cc       | 16 +++++++++++----
+ .../autofill_client_provider_factory.h        |  2 +-
+ .../autofill_client_provider_unittest.cc      | 20 +++++++++++--------
+ 3 files changed, 25 insertions(+), 13 deletions(-)
+
+diff --git a/chrome/browser/ui/autofill/autofill_client_provider_factory.cc b/chrome/browser/ui/autofill/autofill_client_provider_factory.cc
+index 4476b450260e1..559ba819de210 100644
+--- a/chrome/browser/ui/autofill/autofill_client_provider_factory.cc
++++ b/chrome/browser/ui/autofill/autofill_client_provider_factory.cc
+@@ -21,17 +21,25 @@ AutofillClientProviderFactory* AutofillClientProviderFactory::GetInstance() {
+ }
+ 
+ // static
+-AutofillClientProvider* AutofillClientProviderFactory::GetForProfile(
++AutofillClientProvider& AutofillClientProviderFactory::GetForProfile(
+     Profile* profile) {
+-  return static_cast<AutofillClientProvider*>(
+-      GetInstance()->GetServiceForBrowserContext(profile, /*create=*/true));
++  CHECK(profile) << "Autofill requires a valid profile.";
++  auto* provider =
++      GetInstance()->GetServiceForBrowserContext(profile, /*create=*/true);
++  CHECK(provider) << "Autofill is not available for the given profile.";
++  return *static_cast<AutofillClientProvider*>(provider);
+ }
+ 
+ AutofillClientProviderFactory::AutofillClientProviderFactory()
+     : ProfileKeyedServiceFactory(
+           "AutofillClientProvider",
+           // TODO: crbug.com/326231439 - Other/no provider for OTR profiles?
+-          ProfileSelections::BuildRedirectedInIncognito()) {}
++          ProfileSelections::Builder()
++              .WithRegular(ProfileSelection::kRedirectedToOriginal)
++              .WithGuest(ProfileSelection::kRedirectedToOriginal)
++              .WithAshInternals(ProfileSelection::kRedirectedToOriginal)
++              .WithSystem(ProfileSelection::kNone)
++              .Build()) {}
+ 
+ AutofillClientProviderFactory::~AutofillClientProviderFactory() = default;
+ 
+diff --git a/chrome/browser/ui/autofill/autofill_client_provider_factory.h b/chrome/browser/ui/autofill/autofill_client_provider_factory.h
+index 05715b675afb3..6abe1d547f4a2 100644
+--- a/chrome/browser/ui/autofill/autofill_client_provider_factory.h
++++ b/chrome/browser/ui/autofill/autofill_client_provider_factory.h
+@@ -18,7 +18,7 @@ class AutofillClientProvider;
+ class AutofillClientProviderFactory : public ProfileKeyedServiceFactory {
+  public:
+   static AutofillClientProviderFactory* GetInstance();
+-  static AutofillClientProvider* GetForProfile(Profile* profile);
++  static AutofillClientProvider& GetForProfile(Profile* profile);
+ 
+   AutofillClientProviderFactory(const AutofillClientProviderFactory&) = delete;
+   AutofillClientProviderFactory& operator=(
+diff --git a/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc b/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc
+index 341d9ee8348ec..2c7d9254caadb 100644
+--- a/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc
++++ b/chrome/browser/ui/autofill/autofill_client_provider_unittest.cc
+@@ -33,7 +33,7 @@ class AutofillClientProviderBaseTest : public testing::Test {
+ 
+   TestingProfile* profile() { return profile_.get(); }
+ 
+-  AutofillClientProvider* provider() {
++  AutofillClientProvider& provider() {
+     return AutofillClientProviderFactory::GetForProfile(profile());
+   }
+ 
+@@ -45,13 +45,17 @@ class AutofillClientProviderBaseTest : public testing::Test {
+ };
+ 
+ TEST_F(AutofillClientProviderBaseTest, ProvidesServiceInNonIncognito) {
+-  ASSERT_TRUE(AutofillClientProviderFactory::GetForProfile(profile()));
++  AutofillClientProviderFactory::GetForProfile(profile());
+ }
+ 
+ TEST_F(AutofillClientProviderBaseTest, ProvidesServiceInIncognito) {
+-  ASSERT_TRUE(AutofillClientProviderFactory::GetForProfile(
++  AutofillClientProviderFactory::GetForProfile(
+       profile()->GetOffTheRecordProfile(
+-          Profile::OTRProfileID::CreateUniqueForTesting(), true)));
++          Profile::OTRProfileID::CreateUniqueForTesting(), true));
++}
++
++TEST_F(AutofillClientProviderBaseTest, ProvidesNoServiceWithoutProfile) {
++  ASSERT_DEATH(AutofillClientProviderFactory::GetForProfile(nullptr), "");
+ }
+ 
+ TEST_F(AutofillClientProviderBaseTest, UsesBuiltInAutofillForDisabledPref) {
+@@ -59,7 +63,7 @@ TEST_F(AutofillClientProviderBaseTest, UsesBuiltInAutofillForDisabledPref) {
+   // Independent of platform or feature, a disabled pref means Chrome fills.
+   prefs()->SetBoolean(prefs::kAutofillUsingVirtualViewStructure, false);
+ #endif  // BUILDFLAG(IS_ANDROID)
+-  EXPECT_FALSE(provider()->uses_platform_autofill());
++  EXPECT_FALSE(provider().uses_platform_autofill());
+ }
+ 
+ #if BUILDFLAG(IS_ANDROID)
+@@ -78,7 +82,7 @@ class AutofillClientProviderLegacyTest : public AutofillClientProviderBaseTest {
+ TEST_F(AutofillClientProviderLegacyTest, AlwaysCreatesChromeClient) {
+   // The pref is irrelevant if the feature is disabled.
+   prefs()->SetBoolean(prefs::kAutofillUsingVirtualViewStructure, true);
+-  EXPECT_FALSE(provider()->uses_platform_autofill());
++  EXPECT_FALSE(provider().uses_platform_autofill());
+ }
+ 
+ class AutofillClientProviderTest : public AutofillClientProviderBaseTest {
+@@ -89,11 +93,11 @@ class AutofillClientProviderTest : public AutofillClientProviderBaseTest {
+ 
+ TEST_F(AutofillClientProviderTest, CreateAndroidClientForEnabledPref) {
+   prefs()->SetBoolean(prefs::kAutofillUsingVirtualViewStructure, true);
+-  EXPECT_TRUE(provider()->uses_platform_autofill());
++  EXPECT_TRUE(provider().uses_platform_autofill());
+ 
+   // A changing pref doesn't change the clients for new tabs:
+   prefs()->SetBoolean(prefs::kAutofillUsingVirtualViewStructure, false);
+-  EXPECT_TRUE(provider()->uses_platform_autofill());
++  EXPECT_TRUE(provider().uses_platform_autofill());
+ }
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
