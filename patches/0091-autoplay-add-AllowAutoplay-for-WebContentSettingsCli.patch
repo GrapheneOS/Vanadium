@@ -1,0 +1,182 @@
+From 90baf1cb00ec425ec3cb17bea589bb2f73b5edca Mon Sep 17 00:00:00 2001
+From: octocorvus <loryeam@gmail.com>
+Date: Wed, 12 Oct 2022 09:04:43 +0000
+Subject: [PATCH] [autoplay] add AllowAutoplay for WebContentSettingsClient
+
+This allows accessing the Autoplay site setting in blink.
+---
+ .../core/browser/content_settings_utils.cc    |  2 ++
+ .../core/common/content_settings.cc           |  4 +++-
+ .../core/common/content_settings.h            |  1 +
+ .../core/common/content_settings.mojom        |  1 +
+ .../common/content_settings_mojom_traits.cc   |  3 ++-
+ .../common/content_settings_mojom_traits.h    |  5 ++++
+ .../renderer/content_settings_agent_impl.cc   | 23 +++++++++++++++++++
+ .../renderer/content_settings_agent_impl.h    |  3 +++
+ .../platform/web_content_settings_client.h    |  4 ++++
+ 9 files changed, 44 insertions(+), 2 deletions(-)
+
+diff --git a/components/content_settings/core/browser/content_settings_utils.cc b/components/content_settings/core/browser/content_settings_utils.cc
+index a1af4f30a2b00..56122e9850f50 100644
+--- a/components/content_settings/core/browser/content_settings_utils.cc
++++ b/components/content_settings/core/browser/content_settings_utils.cc
+@@ -151,6 +151,8 @@ void GetRendererContentSettingRules(const HostContentSettingsMap* map,
+                              &(rules->script_rules));
+   map->GetSettingsForOneType(ContentSettingsType::POPUPS,
+                              &(rules->popup_redirect_rules));
++  map->GetSettingsForOneType(ContentSettingsType::AUTOPLAY,
++                             &(rules->autoplay_rules));
+ }
+ 
+ bool IsMorePermissive(ContentSetting a, ContentSetting b) {
+diff --git a/components/content_settings/core/common/content_settings.cc b/components/content_settings/core/common/content_settings.cc
+index b2c74904489e7..ef2b0c7da0d99 100644
+--- a/components/content_settings/core/common/content_settings.cc
++++ b/components/content_settings/core/common/content_settings.cc
+@@ -203,7 +203,8 @@ bool RendererContentSettingRules::IsRendererContentSetting(
+          content_type == ContentSettingsType::JAVASCRIPT ||
+          content_type == ContentSettingsType::POPUPS ||
+          content_type == ContentSettingsType::MIXEDSCRIPT ||
+-         content_type == ContentSettingsType::AUTO_DARK_WEB_CONTENT;
++         content_type == ContentSettingsType::AUTO_DARK_WEB_CONTENT ||
++         content_type == ContentSettingsType::AUTOPLAY;
+ }
+ 
+ void RendererContentSettingRules::FilterRulesByOutermostMainFrameURL(
+@@ -213,6 +214,7 @@ void RendererContentSettingRules::FilterRulesByOutermostMainFrameURL(
+   FilterRulesForType(popup_redirect_rules, outermost_main_frame_url);
+   FilterRulesForType(mixed_content_rules, outermost_main_frame_url);
+   FilterRulesForType(auto_dark_content_rules, outermost_main_frame_url);
++  FilterRulesForType(autoplay_rules, outermost_main_frame_url);
+ }
+ 
+ RendererContentSettingRules::RendererContentSettingRules() = default;
+diff --git a/components/content_settings/core/common/content_settings.h b/components/content_settings/core/common/content_settings.h
+index 8a72a70593212..ba92d75a149db 100644
+--- a/components/content_settings/core/common/content_settings.h
++++ b/components/content_settings/core/common/content_settings.h
+@@ -93,6 +93,7 @@ struct RendererContentSettingRules {
+   ContentSettingsForOneType popup_redirect_rules;
+   ContentSettingsForOneType mixed_content_rules;
+   ContentSettingsForOneType auto_dark_content_rules;
++  ContentSettingsForOneType autoplay_rules;
+ };
+ 
+ namespace content_settings {
+diff --git a/components/content_settings/core/common/content_settings.mojom b/components/content_settings/core/common/content_settings.mojom
+index 136cd84e0c4ea..d0622f5c1875f 100644
+--- a/components/content_settings/core/common/content_settings.mojom
++++ b/components/content_settings/core/common/content_settings.mojom
+@@ -78,4 +78,5 @@ struct RendererContentSettingRules {
+   array<ContentSettingPatternSource> popup_redirect_rules;
+   array<ContentSettingPatternSource> mixed_content_rules;
+   array<ContentSettingPatternSource> auto_dark_content_rules;
++  array<ContentSettingPatternSource> autoplay_rules;
+ };
+diff --git a/components/content_settings/core/common/content_settings_mojom_traits.cc b/components/content_settings/core/common/content_settings_mojom_traits.cc
+index 7827cbb991f8a..0f384e787a254 100644
+--- a/components/content_settings/core/common/content_settings_mojom_traits.cc
++++ b/components/content_settings/core/common/content_settings_mojom_traits.cc
+@@ -102,7 +102,8 @@ bool StructTraits<content_settings::mojom::RendererContentSettingRulesDataView,
+          data.ReadScriptRules(&out->script_rules) &&
+          data.ReadPopupRedirectRules(&out->popup_redirect_rules) &&
+          data.ReadMixedContentRules(&out->mixed_content_rules) &&
+-         data.ReadAutoDarkContentRules(&out->auto_dark_content_rules);
++         data.ReadAutoDarkContentRules(&out->auto_dark_content_rules) &&
++         data.ReadAutoplayRules(&out->autoplay_rules);
+ }
+ 
+ }  // namespace mojo
+diff --git a/components/content_settings/core/common/content_settings_mojom_traits.h b/components/content_settings/core/common/content_settings_mojom_traits.h
+index e3afc3a0a2069..9c5c8ffc4983b 100644
+--- a/components/content_settings/core/common/content_settings_mojom_traits.h
++++ b/components/content_settings/core/common/content_settings_mojom_traits.h
+@@ -150,6 +150,11 @@ struct StructTraits<
+     return r.auto_dark_content_rules;
+   }
+ 
++  static const std::vector<ContentSettingPatternSource>& autoplay_rules(
++      const RendererContentSettingRules& r) {
++    return r.autoplay_rules;
++  }
++
+   static bool Read(
+       content_settings::mojom::RendererContentSettingRulesDataView data,
+       RendererContentSettingRules* out);
+diff --git a/components/content_settings/renderer/content_settings_agent_impl.cc b/components/content_settings/renderer/content_settings_agent_impl.cc
+index 9b9f37709511a..17c6e48f61092 100644
+--- a/components/content_settings/renderer/content_settings_agent_impl.cc
++++ b/components/content_settings/renderer/content_settings_agent_impl.cc
+@@ -362,6 +362,28 @@ bool ContentSettingsAgentImpl::AllowAutoDarkWebContent(
+   return allow;
+ }
+ 
++bool ContentSettingsAgentImpl::AllowAutoplay(bool enabled_per_settings) {
++  if (!enabled_per_settings)
++    return false;
++
++  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
++  const auto it = cached_autoplay_permissions_.find(frame);
++  if (it != cached_autoplay_permissions_.end())
++    return it->second;
++
++  bool allow = true;
++  if (content_setting_rules_) {
++    ContentSetting setting = GetContentSettingFromRules(
++        content_setting_rules_->autoplay_rules,
++        url::Origin(frame->GetDocument().GetSecurityOrigin()).GetURL());
++    allow = setting != CONTENT_SETTING_BLOCK;
++  }
++  allow = allow || IsAllowlistedForContentSettings();
++
++  cached_autoplay_permissions_[frame] = allow;
++  return allow;
++}
++
+ bool ContentSettingsAgentImpl::AllowReadFromClipboard(bool default_value) {
+   return delegate_->AllowReadFromClipboard().value_or(default_value);
+ }
+@@ -430,6 +452,7 @@ void ContentSettingsAgentImpl::ClearBlockedContentSettings() {
+   content_blocked_.clear();
+   cached_storage_permissions_.clear();
+   cached_script_permissions_.clear();
++  cached_autoplay_permissions_.clear();
+ }
+ 
+ bool ContentSettingsAgentImpl::IsAllowlistedForContentSettings() const {
+diff --git a/components/content_settings/renderer/content_settings_agent_impl.h b/components/content_settings/renderer/content_settings_agent_impl.h
+index 49448d021a2aa..7066cf3a534bf 100644
+--- a/components/content_settings/renderer/content_settings_agent_impl.h
++++ b/components/content_settings/renderer/content_settings_agent_impl.h
+@@ -85,6 +85,7 @@ class ContentSettingsAgentImpl
+   bool AllowScriptFromSource(bool enabled_per_settings,
+                              const blink::WebURL& script_url) override;
+   bool AllowAutoDarkWebContent(bool enabled_per_settings) override;
++  bool AllowAutoplay(bool enabled_per_settings) override;
+   bool AllowReadFromClipboard(bool default_value) override;
+   bool AllowWriteToClipboard(bool default_value) override;
+   bool AllowMutationEvents(bool default_value) override;
+@@ -159,6 +160,8 @@ class ContentSettingsAgentImpl
+   // Caches the result of AllowScript.
+   base::flat_map<blink::WebFrame*, bool> cached_script_permissions_;
+ 
++  base::flat_map<blink::WebFrame*, bool> cached_autoplay_permissions_;
++
+   bool mixed_content_autoupgrades_disabled_ = false;
+ 
+   // If true, IsAllowlistedForContentSettings will always return true.
+diff --git a/third_party/blink/public/platform/web_content_settings_client.h b/third_party/blink/public/platform/web_content_settings_client.h
+index 87d4a0ee3887d..a810e5bdf55eb 100644
+--- a/third_party/blink/public/platform/web_content_settings_client.h
++++ b/third_party/blink/public/platform/web_content_settings_client.h
+@@ -73,6 +73,10 @@ class WebContentSettingsClient {
+     return enabled_per_settings;
+   }
+ 
++  virtual bool AllowAutoplay(bool enabled_per_settings) {
++    return enabled_per_settings;
++  }
++
+   // Controls whether access to read the clipboard is allowed for this frame.
+   virtual bool AllowReadFromClipboard(bool default_value) {
+     return default_value;
