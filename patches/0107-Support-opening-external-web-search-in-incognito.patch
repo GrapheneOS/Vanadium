@@ -4,11 +4,11 @@ Date: Sat, 3 Sep 2022 08:15:59 +0200
 Subject: [PATCH] Support opening external web search in incognito
 
 ---
- .../chromium/chrome/browser/searchwidget/SearchActivity.java   | 3 +++
- 1 file changed, 3 insertions(+)
+ .../chromium/chrome/browser/searchwidget/SearchActivity.java | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 94091a73041f1..60596c93f7138 100644
+index 60abda224309e..a0b4d2fe6d728 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 @@ -34,6 +34,7 @@ import org.chromium.base.supplier.UnownedUserDataSupplier;
@@ -19,12 +19,14 @@ index 94091a73041f1..60596c93f7138 100644
  import org.chromium.chrome.browser.app.tabmodel.TabWindowManagerSingleton;
  import org.chromium.chrome.browser.back_press.BackPressManager;
  import org.chromium.chrome.browser.browserservices.intents.WebappConstants;
-@@ -678,6 +679,8 @@ public class SearchActivity extends AsyncInitializationActivity
-         if (!TextUtils.isEmpty(postDataType) && postData != null && postData.length != 0) {
-             intent.putExtra(IntentHandler.EXTRA_POST_DATA_TYPE, postDataType);
-             intent.putExtra(IntentHandler.EXTRA_POST_DATA, postData);
-+        } else if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
+@@ -627,6 +628,10 @@ public class SearchActivity extends AsyncInitializationActivity
+         Intent intent = SearchActivityUtils.createIntentForStartActivity(this, params);
+         if (intent == null) return;
+ 
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
 +            intent = TabPreferencesUtils.appendNeededIncognitoExtras(this, intent);
-         }
-         if (isFromSearchWidget()) {
++        }
++
+         if (mIntentOrigin == IntentOrigin.SEARCH_WIDGET) {
              intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
+         }

@@ -8,7 +8,7 @@ Subject: [PATCH] stop ignoring download location prompt setting
  1 file changed, 16 deletions(-)
 
 diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
-index 5208b0d29e816..0b2bd001bf870 100644
+index dcdd0dffc003f..27a8f32c4d3c2 100644
 --- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
 +++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
 @@ -141,22 +141,6 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
@@ -21,7 +21,7 @@ index 5208b0d29e816..0b2bd001bf870 100644
 -        if (dirs.size() == 1
 -                && !mLocationDialogManaged
 -                && mDialogType == DownloadLocationDialogType.DEFAULT
--                && !shouldShowIncognitoWarning()) {
+-                && !mProfile.isOffTheRecord()) {
 -            final DirectoryOption dir = dirs.get(0);
 -            if (dir.type == DirectoryOption.DownloadLocationDirectoryType.DEFAULT) {
 -                assert (!TextUtils.isEmpty(dir.location));
