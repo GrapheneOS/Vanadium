@@ -30,7 +30,7 @@ index b0e9583bf84af..b3a33697d2a89 100644
  
  subresource_filter_android_java_srcjar_deps = [
 diff --git a/components/subresource_filter/content/browser/ruleset_service.cc b/components/subresource_filter/content/browser/ruleset_service.cc
-index 9b41ddbcabd9b..567ffab0ca004 100644
+index a1df508aa6213..63e090451627d 100644
 --- a/components/subresource_filter/content/browser/ruleset_service.cc
 +++ b/components/subresource_filter/content/browser/ruleset_service.cc
 @@ -24,6 +24,9 @@
@@ -57,13 +57,13 @@ index 9b41ddbcabd9b..567ffab0ca004 100644
  
    // Before initialization, retain information about the most recently supplied
 diff --git a/components/subresource_filter/content/browser/unindexed_ruleset_stream_generator.cc b/components/subresource_filter/content/browser/unindexed_ruleset_stream_generator.cc
-index 59abe187c40b4..e1eccf348675b 100644
+index 1a0755c4b260a..a712016180c15 100644
 --- a/components/subresource_filter/content/browser/unindexed_ruleset_stream_generator.cc
 +++ b/components/subresource_filter/content/browser/unindexed_ruleset_stream_generator.cc
 @@ -9,6 +9,9 @@
  #include "base/files/file_path.h"
- #include "components/subresource_filter/content/browser/ruleset_version.h"
  #include "components/subresource_filter/core/browser/copying_file_stream.h"
+ #include "components/subresource_filter/core/browser/ruleset_version.h"
 +#if BUILDFLAG(IS_ANDROID)
 +#include "components/subresource_filter/android_config/subresource_filter_fetching.h"
 +#endif // BUILDFLAG(IS_ANDROID)

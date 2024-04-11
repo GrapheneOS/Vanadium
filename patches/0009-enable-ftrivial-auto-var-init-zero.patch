@@ -1,22 +1,22 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
-Date: Thu, 22 Dec 2016 07:15:34 -0500
-Subject: [PATCH] enable -fwrapv in Clang for non-UBSan builds
+Date: Wed, 8 Apr 2020 20:48:17 -0400
+Subject: [PATCH] enable -ftrivial-auto-var-init=zero
 
 ---
  build/config/compiler/BUILD.gn | 4 ++++
  1 file changed, 4 insertions(+)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index 76b12b2b83c06..ea255f5bf4e86 100644
+index 78809fda587f4..477f94cf5e493 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -394,6 +394,10 @@ config("compiler") {
-       }
+@@ -398,6 +398,10 @@ config("compiler") {
+       cflags += [ "-fwrapv" ]
      }
  
-+    if (is_clang && !is_ubsan && !is_ubsan_security) {
-+      cflags += [ "-fwrapv" ]
++    if (is_clang) {
++      cflags += [ "-ftrivial-auto-var-init=zero" ]
 +    }
 +
      # Linker warnings.

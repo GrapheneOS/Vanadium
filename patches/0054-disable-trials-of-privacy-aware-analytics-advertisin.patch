@@ -4,23 +4,14 @@ Date: Wed, 4 Aug 2021 03:29:04 -0400
 Subject: [PATCH] disable trials of privacy-aware analytics/advertising APIs
 
 ---
- components/privacy_sandbox/privacy_sandbox_prefs.cc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ components/privacy_sandbox/privacy_sandbox_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-index ed64fe0eaa318..cd88a7d1b808a 100644
+index 315069059a0d8..822cc8cf88a88 100644
 --- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-@@ -12,7 +12,7 @@ namespace privacy_sandbox {
- 
- void RegisterProfilePrefs(PrefRegistrySimple* registry) {
-   registry->RegisterBooleanPref(
--      prefs::kPrivacySandboxApisEnabled, true,
-+      prefs::kPrivacySandboxApisEnabled, false,
-       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-   registry->RegisterBooleanPref(prefs::kPrivacySandboxM1ConsentDecisionMade,
-                                 false);
-@@ -51,7 +51,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -48,7 +48,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(
        prefs::kPrivacySandboxFirstPartySetsDataAccessAllowedInitialized, false);
    registry->RegisterBooleanPref(

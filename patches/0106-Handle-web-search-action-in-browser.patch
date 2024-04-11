@@ -50,10 +50,10 @@ index 4c6568ab28e8c..e7142cb813751 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 3f916924578fd..f904753fc2982 100644
+index 16f8d578186dd..904cec28d2902 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -200,6 +200,8 @@ public class LaunchIntentDispatcher {
+@@ -198,6 +198,8 @@ public class LaunchIntentDispatcher {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -62,7 +62,7 @@ index 3f916924578fd..f904753fc2982 100644
                  || MediaStore.INTENT_ACTION_MEDIA_SEARCH.equals(action)) {
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
-@@ -213,7 +215,7 @@ public class LaunchIntentDispatcher {
+@@ -211,7 +213,7 @@ public class LaunchIntentDispatcher {
          searchIntent.putExtra(SearchManager.QUERY, query);
  
          try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {

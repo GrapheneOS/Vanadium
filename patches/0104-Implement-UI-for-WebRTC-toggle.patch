@@ -347,7 +347,7 @@ index 0000000000000..5ee1893382254
 +}
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
 new file mode 100644
-index 0000000000000..296e59fc57167
+index 0000000000000..e5e6aab62fcfb
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
 @@ -0,0 +1,92 @@
@@ -361,7 +361,7 @@ index 0000000000000..296e59fc57167
 +
 +import org.chromium.chrome.R;
 +import org.chromium.chrome.browser.preferences.Pref;
-+import org.chromium.chrome.browser.profiles.Profile;
++import org.chromium.chrome.browser.profiles.ProfileManager;
 +import org.chromium.chrome.browser.webrtc.settings.WebRtcPolicyPreference.WebRtcPolicy;
 +import org.chromium.components.user_prefs.UserPrefs;
 +
@@ -428,7 +428,7 @@ index 0000000000000..296e59fc57167
 +    }
 +
 +    private static String getPolicyFromNative() {
-+        return UserPrefs.get(Profile.getLastUsedRegularProfile())
++        return UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
 +                .getString(Pref.WEB_RTCIP_HANDLING_POLICY);
 +    }
 +
@@ -437,7 +437,7 @@ index 0000000000000..296e59fc57167
 +    }
 +
 +    static void setPolicy(@WebRtcPolicy int policy) {
-+        UserPrefs.get(Profile.getLastUsedRegularProfile())
++        UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
 +                .setString(Pref.WEB_RTCIP_HANDLING_POLICY, convertToWebRtcPolicyString(policy));
 +    }
 +

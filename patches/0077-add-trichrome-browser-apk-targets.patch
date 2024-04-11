@@ -9,10 +9,10 @@ Subject: [PATCH] add trichrome browser apk targets
  2 files changed, 37 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 167b6a6f6b44c..14774020c38bc 100644
+index 98fe8b1d5282d..c52bd414497f3 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2390,6 +2390,10 @@ if (current_toolchain == default_toolchain) {
+@@ -2439,6 +2439,10 @@ if (current_toolchain == default_toolchain) {
      is_trichrome = true
      is_bundle_module = true
    }
@@ -23,7 +23,7 @@ index 167b6a6f6b44c..14774020c38bc 100644
  
    # Exists separately from chrome_public_base_module_java_for_test to allow
    # downstream to depend on test support packages without needing to depend on
-@@ -2769,6 +2773,37 @@ if (current_toolchain == default_toolchain) {
+@@ -2809,6 +2813,37 @@ if (current_toolchain == default_toolchain) {
        }
      }
    }
@@ -62,15 +62,15 @@ index 167b6a6f6b44c..14774020c38bc 100644
    # As compared to chrome_public_test_apk, this target contains only unit tests
    # that require on device capabilities. These tests are smaller, more tightly
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index df3d58c8bade4..b4a17cf298dd5 100644
+index fd6e0d5513e5c..7da69860df6c2 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -454,6 +454,8 @@ template("chrome_common_apk_or_module_tmpl") {
-       deps += [ "//chrome/android:chrome_bundle_module_pak_assets" ]
+@@ -475,6 +475,8 @@ template("chrome_common_apk_or_module_tmpl") {
+       asset_deps += [ "//chrome/android:chrome_bundle_module_pak_assets" ]
      } else if (_is_monochrome) {
-       deps += [ "//chrome/android:monochrome_apk_pak_assets" ]
+       asset_deps += [ "//chrome/android:monochrome_apk_pak_assets" ]
 +    } else if (_is_trichrome) {
-+      deps += [ "//chrome/android:trichrome_chrome_apk_pak_assets" ]
++      asset_deps += [ "//chrome/android:trichrome_chrome_apk_pak_assets" ]
      } else {
        assert(!_is_trichrome)
-       deps += [ "//chrome/android:chrome_apk_pak_assets" ]
+       asset_deps += [ "//chrome/android:chrome_apk_pak_assets" ]

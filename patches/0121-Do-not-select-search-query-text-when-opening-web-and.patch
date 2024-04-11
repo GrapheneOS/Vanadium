@@ -11,10 +11,10 @@ Subject: [PATCH] Do not select search query text when opening web and global
  3 files changed, 34 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 0470e05c45ae8..8b8577d4d3669 100644
+index 882dda1a5960a..8164a3d1bdfe2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -228,6 +228,9 @@ public class LaunchIntentDispatcher {
+@@ -226,6 +226,9 @@ public class LaunchIntentDispatcher {
                  searchActivityIntent.setClass(
                          ContextUtils.getApplicationContext(), SearchActivity.class);
                  searchActivityIntent.putExtra(SearchManager.QUERY, query);
@@ -25,10 +25,10 @@ index 0470e05c45ae8..8b8577d4d3669 100644
              }
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 4cf64adf06031..54f3578258016 100644
+index 4e7d086cf82a4..5d386fecd11a6 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -596,6 +596,20 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -579,12 +579,27 @@ public class SearchActivity extends AsyncInitializationActivity
          return IntentUtils.safeGetStringExtra(getIntent(), SearchManager.QUERY);
      }
  
@@ -47,10 +47,8 @@ index 4cf64adf06031..54f3578258016 100644
 +    }
 +
      private void beginQuery() {
-         @SearchType int searchType = getSearchType(getIntent().getAction());
-         if (isFromQuickActionSearchWidget()) {
-@@ -605,7 +619,8 @@ public class SearchActivity extends AsyncInitializationActivity
-                 searchType,
+         mSearchBox.beginQuery(
+                 mSearchType,
                  getOptionalIntentQuery(),
                  mLocationBarCoordinator.getVoiceRecognitionHandler(),
 -                getWindowAndroid());
@@ -60,10 +58,10 @@ index 4cf64adf06031..54f3578258016 100644
  
      @Override
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
-index 0cb52c2049b0c..e2e5edb3f9a8c 100644
+index 0eac49e632ec6..eb50bd4e0f296 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
-@@ -130,13 +130,27 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
+@@ -125,13 +125,27 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
              @Nullable String optionalText,
              @NonNull VoiceRecognitionHandler voiceRecognitionHandler,
              @NonNull WindowAndroid windowAndroid) {
