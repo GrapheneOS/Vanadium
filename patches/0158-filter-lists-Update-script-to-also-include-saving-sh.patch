@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 9 Apr 2024 15:05:31 +0000
+Subject: [PATCH] filter-lists: Update script to also include saving sha256
+ digest
+
+---
+ .../android_config/filter_lists/filter_list_download.py   | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/vanadium/android_config/filter_lists/filter_list_download.py b/vanadium/android_config/filter_lists/filter_list_download.py
+index efbba1141db09..64c849a6c884d 100644
+--- a/vanadium/android_config/filter_lists/filter_list_download.py
++++ b/vanadium/android_config/filter_lists/filter_list_download.py
+@@ -3,14 +3,16 @@
+ # SPDX-License-Identifier: GPL-v2.0
+ 
+ import argparse
++import base64
++import hashlib
+ import os
+ import ssl
+ import sys
+ import urllib.request
+ 
+-
+ def FetchAndGenerateFilterList(args):
+     urls = list(set(args.urls))
++    hasher = hashlib.new('sha256')
+     for url in urls:
+         if not url.startswith("https://"):
+             continue
+@@ -23,6 +25,10 @@ def FetchAndGenerateFilterList(args):
+                 if not buf:
+                     break
+                 args.output.write(buf)
++                hasher.update(buf)
++    with open('.'.join([args.output.name, 'sha256']), 'w') as f:
++        f.write(hasher.hexdigest())
++
+ 
+ if __name__ == '__main__':
+     parser = argparse.ArgumentParser()
