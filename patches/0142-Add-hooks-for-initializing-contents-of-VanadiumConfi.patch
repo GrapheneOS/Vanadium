@@ -4,24 +4,24 @@ Date: Thu, 14 Dec 2023 16:54:04 +0000
 Subject: [PATCH] Add hooks for initializing contents of VanadiumConfig app
 
 ---
- .../base/config/VanadiumConfigBridge.java     | 119 ++++++++++++++++++
+ .../base/config/VanadiumConfigBridge.java     | 102 ++++++++++++++++++
  .../library_loader/LibraryLoaderHooks.java    |   5 +
  base/base_android_library_ext.gni             |   2 +
- 3 files changed, 126 insertions(+)
+ 3 files changed, 109 insertions(+)
  create mode 100644 base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
 
 diff --git a/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
 new file mode 100644
-index 0000000000000..f6c8246542fbc
+index 0000000000000..3807e0a138e80
 --- /dev/null
 +++ b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
-@@ -0,0 +1,119 @@
+@@ -0,0 +1,102 @@
 +package org.chromium.base.config;
 +
-+import android.content.Context;
-+import android.text.TextUtils;
++import static org.chromium.base.command_line.VanadiumCommandLineUtils.getCommaDelimitedSwitchValue;
++import static org.chromium.base.command_line.VanadiumCommandLineUtils.setCommaDelimitedSwitchValue;
 +
-+import androidx.annotation.NonNull;
++import android.content.Context;
 +
 +import app.vanadium.config.VanadiumConfParser;
 +import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
@@ -31,29 +31,12 @@ index 0000000000000..f6c8246542fbc
 +import org.chromium.base.library_loader.LibraryProcessType;
 +
 +import java.util.ArrayList;
-+import java.util.Arrays;
 +import java.util.HashSet;
-+import java.util.List;
 +import java.util.Map;
 +import java.util.Set;
 +
 +public class VanadiumConfigBridge {
 +    private static final String TAG = "VanadiumConfigBridge";
-+
-+    public static List<String> getCommaDelimitedSwitchValue(String name) {
-+        return CommandLine.getInstance().hasSwitch(name)
-+                && CommandLine.getInstance().getSwitchValue(name) != null
-+                ? Arrays.asList(CommandLine.getInstance().getSwitchValue(name).split(","))
-+                : new ArrayList<>();
-+    }
-+
-+    public static void setCommaDelimitedSwitchValue(String name, @NonNull List<String> value) {
-+        if (value.isEmpty()) {
-+            CommandLine.getInstance().removeSwitch(name);
-+        } else {
-+            CommandLine.getInstance().appendSwitchWithValue(name, TextUtils.join(",", value));
-+        }
-+    }
 +
 +    public static void initConfigs(Context appCtx, @LibraryProcessType int libraryProcessType) {
 +        switch (libraryProcessType) {
@@ -160,12 +143,12 @@ index 255768f85f8fd..b1a621f62770a 100644
      }
  }
 diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
-index f6eaa1c124546..0aecf49395f48 100644
+index 75c03b8bd7c5c..714b393cc58b8 100644
 --- a/base/base_android_library_ext.gni
 +++ b/base/base_android_library_ext.gni
-@@ -4,9 +4,11 @@
- 
+@@ -5,9 +5,11 @@
  base_java_ext_java_sources = [
+   "android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
    "android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java",
 +  "android/java/src/org/chromium/base/config/VanadiumConfigBridge.java",
  ]

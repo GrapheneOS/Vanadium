@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Zoraver Kang <Zoraver@users.noreply.github.com>
 Date: Mon, 26 Sep 2022 23:43:14 -0400
-Subject: [PATCH] Add update handling of subresource filter component from
- config apk
+Subject: [PATCH] content-filtering: Add update handling of subresource filter
+ component from config apk
 
 This is a combination of 2 commits.
 
@@ -10,11 +10,11 @@ JNI bind RulesetService.IndexAndStoreAndPublishRulesetIfNeeded()
 
 JNI bind RulesetService.GetMostRecentlyIndexedVersion()
 ---
- .../subresource_filter/android/BUILD.gn       | 37 ++++++++++
- .../subresource_filter/RulesetUpdater.java    | 68 +++++++++++++++++++
- .../android/ruleset_updater.cc                | 47 +++++++++++++
+ .../subresource_filter/android/BUILD.gn       | 38 ++++++++++
+ .../subresource_filter/RulesetUpdater.java    | 71 +++++++++++++++++++
+ .../android/ruleset_updater.cc                | 47 ++++++++++++
  .../android/ruleset_updater.h                 | 14 ++++
- 4 files changed, 166 insertions(+)
+ 4 files changed, 170 insertions(+)
  create mode 100644 chrome/browser/subresource_filter/android/BUILD.gn
  create mode 100644 chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
  create mode 100644 chrome/browser/subresource_filter/android/ruleset_updater.cc
@@ -22,10 +22,10 @@ JNI bind RulesetService.GetMostRecentlyIndexedVersion()
 
 diff --git a/chrome/browser/subresource_filter/android/BUILD.gn b/chrome/browser/subresource_filter/android/BUILD.gn
 new file mode 100644
-index 0000000000000..244ab75fb5c48
+index 0000000000000..5a6cbb259e2bc
 --- /dev/null
 +++ b/chrome/browser/subresource_filter/android/BUILD.gn
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,38 @@
 +# Copyright 2023 Zoraver Kang
 +
 +import("//build/config/android/rules.gni")
@@ -46,6 +46,7 @@ index 0000000000000..244ab75fb5c48
 +  deps = [
 +    ":jni_headers",
 +    "//base:base_java",
++    "//components/subresource_filter/android_config:java",
 +    "//third_party/jni_zero:jni_zero_java",
 +    "//vanadium/android_config/proto:browser_config_parser_java",
 +    "//vanadium/android_config/proto:config_proto_java",
@@ -65,10 +66,10 @@ index 0000000000000..244ab75fb5c48
 +}
 diff --git a/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java b/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
 new file mode 100644
-index 0000000000000..aa8e4b35e6c07
+index 0000000000000..06b2010fcfe9c
 --- /dev/null
 +++ b/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,71 @@
 +// Copyright 2022-2024 GrapheneOS
 +// Use of this source code is governed by a GPL-2.0-style license that can be
 +// found in the LICENSE file.
@@ -78,13 +79,12 @@ index 0000000000000..aa8e4b35e6c07
 +
 +package org.chromium.chrome.browser.subresource_filter;
 +
-+import org.chromium.base.ContextUtils;
 +import org.chromium.base.Log;
++import org.chromium.components.subresource_filter.SubresourceFilterFetching;
 +import org.jni_zero.JNINamespace;
 +import org.jni_zero.NativeMethods;
 +
 +import app.vanadium.config.VanadiumConfParser;
-+import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
 +
 +@JNINamespace("subresource_filter")
 +public class RulesetUpdater {
@@ -97,30 +97,34 @@ index 0000000000000..aa8e4b35e6c07
 +            return;
 +        }
 +
-+        update();
++        update(/* ignoreVersionCheck */ false);
 +    }
 +
-+    private static void update() {
-+        long unindexedContentVersionCode = VanadiumConfParser.getVersionCodeForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
-+        if (unindexedContentVersionCode < 0) {
-+            return;
++    public static void update(boolean ignoreVersionCheck) {
++        long unindexedContentVersionCode = SubresourceFilterFetching.getUnindexedRulesetVersion();
++        if (ignoreVersionCheck) {
++            Log.d(TAG, "Will update subresource filter from config apk regardless of previous version");
++        } else {
++            if (unindexedContentVersionCode < 0) {
++                return;
++            }
++
++            long previousVersion;
++            try {
++                previousVersion = Long.parseLong(version());
++            } catch (NumberFormatException e) {
++                Log.d(TAG, "Previous version is not from config apk, treating as outdated.");
++                previousVersion = -1;
++            }
++
++            if (previousVersion >= unindexedContentVersionCode) {
++                Log.d(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
++                return;
++            }
 +        }
 +
-+        byte[] unindexedRulesetData = VanadiumConfParser.getByteArrayForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
++        byte[] unindexedRulesetData = SubresourceFilterFetching.getUnindexedRulesetData();
 +        if (unindexedRulesetData == null) {
-+            return;
-+        }
-+
-+        long previousVersion;
-+        try {
-+            previousVersion = Long.parseLong(version());
-+        } catch (NumberFormatException e) {
-+            Log.d(TAG, "Previous version is not from config apk, treating as outdated.");
-+            previousVersion = -1;
-+        }
-+
-+        if (previousVersion >= unindexedContentVersionCode) {
-+            Log.d(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
 +            return;
 +        }
 +
