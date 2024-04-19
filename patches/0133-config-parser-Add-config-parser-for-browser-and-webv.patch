@@ -1,16 +1,16 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 29 Dec 2023 05:21:43 +0000
-Subject: [PATCH] config: Add config parser for browser and webview
+Subject: [PATCH] config-parser: Add config parser for browser and webview
 
 ---
  vanadium/android_config/proto/BUILD.gn        |  10 +
- .../vanadium/config/VanadiumConfParser.java   | 541 ++++++++++++++++++
- 2 files changed, 551 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 534 ++++++++++++++++++
+ 2 files changed, 544 insertions(+)
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
-index e3cf1229f8920..82f4c9a72847d 100644
+index e3cf1229f8920..ae2627740c4e0 100644
 --- a/vanadium/android_config/proto/BUILD.gn
 +++ b/vanadium/android_config/proto/BUILD.gn
 @@ -51,3 +51,13 @@ action("config_generation") {
@@ -20,7 +20,7 @@ index e3cf1229f8920..82f4c9a72847d 100644
 +
 +android_library("browser_config_parser_java") {
 +  sources = [
-+    "java/src/app/vanadium/config/VanadiumConfParser.java"
++    "java/src/app/vanadium/config/VanadiumConfParser.java",
 +  ]
 +  deps = [
 +    ":config_proto_java",
@@ -29,10 +29,10 @@ index e3cf1229f8920..82f4c9a72847d 100644
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..a9d7e9a606b4a
+index 0000000000000..c056faacb11c4
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,541 @@
+@@ -0,0 +1,534 @@
 +package app.vanadium.config;
 +
 +import android.content.BroadcastReceiver;
@@ -471,58 +471,51 @@ index 0000000000000..a9d7e9a606b4a
 +                        continue;
 +                    }
 +
-+                    // No need to verify the config app again, this implies it has the component file.
-+                    if (!component.hasApkSpec()) {
-+                        pendingComponents.put(componentType, new ParsedComponent(component, componentApkFilePath));
-+                        appendFlagsToTypes.accept(component.getDependentFlagsList());
-+                        continue;
-+                    }
++                    // If there is a specified ComponentApkSpec, check if it has non-empty, non-default values.
++                    if (component.hasApkSpec()) {
++                        ComponentApkSpec componentApkSpec = component.getApkSpec();
++                        String componentPkgName = componentApkSpec.getPkgName();
++                        List<ByteString> sha256Certs = componentApkSpec.getSha256CertsList();
++                        // No need to verify the config app again, default instance implies it has the component file.
++                        // Also, no supplied component package name implies the config app has the component file.
++                        // Config app will be attached later as dependency of current process.
++                        final boolean componentFromConfigApp =
++                                componentApkSpec.equals(ComponentApkSpec.getDefaultInstance())
++                                        || componentPkgName.isEmpty()
++                                        || componentPkgName.equals(ConfigInfo.CONFIG_APK_PACKAGE);
 +
-+                    // No need to verify the config app again, default instance implies it has the component file.
-+                    ComponentApkSpec componentApkSpec = component.getApkSpec();
-+                    if (componentApkSpec.equals(ComponentApkSpec.getDefaultInstance())) {
-+                        pendingComponents.put(componentType, new ParsedComponent(component, componentApkFilePath));
-+                        appendFlagsToTypes.accept(component.getDependentFlagsList());
-+                        continue;
-+                    }
++                        boolean verified = componentFromConfigApp;
++                        for (int i = 0; i < sha256Certs.size(); i++) {
++                            if (verified) {
++                                break;
++                            }
 +
-+                    String componentPkgName = componentApkSpec.getPkgName();
-+                    // No supplied component package name implies the config app has the component file,
-+                    // no need to verify the config app again.
-+                    // Config app will be attached later as dependency of current process.
-+                    if (componentPkgName == null
-+                            || componentPkgName.isEmpty()
-+                            || ConfigInfo.CONFIG_APK_PACKAGE.equals(componentPkgName)) {
-+                        pendingComponents.put(componentType, new ParsedComponent(component, componentApkFilePath));
-+                        appendFlagsToTypes.accept(component.getDependentFlagsList());
-+                        continue;
-+                    }
++                            byte[] sha256CertBytes = sha256Certs.get(i).toByteArray();
++                            if (verifyPackage(ctx, componentPkgName, sha256CertBytes)) {
++                                verified = true;
++                                break;
++                            }
++                        }
 +
-+                    List<ByteString> sha256Certs = componentApkSpec.getSha256CertsList();
-+                    boolean verified = false;
-+                    for (int i = 0; i < sha256Certs.size(); i++) {
-+                        byte[] sha256CertBytes = sha256Certs.get(i).toByteArray();
-+                        if (verifyPackage(ctx, componentPkgName, sha256CertBytes)) {
-+                            verified = true;
-+                            break;
++                        if (!verified) {
++                            continue;
++                        }
++
++                        if (!componentFromConfigApp) {
++                            PackageInfo componentApkPkgInfo = getPackageInfoOrNull(ctx,
++                                    componentPkgName, PackageManager.MATCH_DISABLED_COMPONENTS);
++                            if (componentApkPkgInfo == null || componentApkPkgInfo.applicationInfo == null) {
++                                Log.w(TAG, "component package " + componentPkgName + " not found, not adding the component");
++                                continue;
++                            }
++
++                            attachPackageAsCurrentProcessDependency(ctx, componentPkgName);
++
++                            hasOtherComponentApks = true;
++                            componentApkFilePath = componentApkPkgInfo.applicationInfo.publicSourceDir;
 +                        }
 +                    }
 +
-+                    if (!verified) {
-+                        continue;
-+                    }
-+
-+                    PackageInfo componentApkPkgInfo = getPackageInfoOrNull(ctx,
-+                            componentPkgName, PackageManager.MATCH_DISABLED_COMPONENTS);
-+                    if (componentApkPkgInfo == null || componentApkPkgInfo.applicationInfo == null) {
-+                        Log.w(TAG, "component package " + componentPkgName + " not found, not adding the component");
-+                        continue;
-+                    }
-+
-+                    attachPackageAsCurrentProcessDependency(ctx, componentPkgName);
-+
-+                    hasOtherComponentApks = true;
-+                    componentApkFilePath = componentApkPkgInfo.applicationInfo.publicSourceDir;
 +                    pendingComponents.put(componentType, new ParsedComponent(component, componentApkFilePath));
 +                    appendFlagsToTypes.accept(component.getDependentFlagsList());
 +                }
