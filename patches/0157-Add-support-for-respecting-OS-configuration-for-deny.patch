@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 20 Feb 2024 04:05:46 +0000
+Subject: [PATCH] Add support for respecting OS configuration for denying
+ execmem
+
+This check applies jitless flag whenever execmem is denied for browser
+or webview in OS configuration
+---
+ .../chromium/base/library_loader/LibraryLoaderHooks.java    | 6 ++++++
+ base/base_android_library_ext.gni                           | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+index b1a621f62770a..387a463a3a382 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -2,8 +2,11 @@ package org.chromium.base.library_loader;
+ 
+ import android.content.Context;
+ 
++import org.chromium.base.command_line.VanadiumCommandLineUtils;
+ import org.chromium.base.config.VanadiumConfigBridge;
+ 
++import app.vanadium.ext.CustomOSApis;
++
+ class LibraryLoaderHooks {
+ 
+     static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
+@@ -12,6 +15,9 @@ class LibraryLoaderHooks {
+ 
+     static void onBeforeCommandLineSwitchLocked(Context appContext, @LibraryProcessType int type) {
+         VanadiumConfigBridge.applyFlagFromConfigs(appContext, type);
++        if (CustomOSApis.isExecmemBlocked()) {
++            VanadiumCommandLineUtils.appendValueOnSwitch("js-flags", "--jitless");
++        }
+     }
+ 
+     static void onSubsequentCommandLineSwitchLockedCheck(Context appContext, @LibraryProcessType int type) {
+diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
+index 714b393cc58b8..58ac6064b8c1c 100644
+--- a/base/base_android_library_ext.gni
++++ b/base/base_android_library_ext.gni
+@@ -10,6 +10,7 @@ base_java_ext_java_sources = [
+ 
+ base_java_ext_deps = [
+   "//vanadium/android_config/proto:browser_config_parser_java",
++  "//vanadium/ext/custom_os:custom_os_apis_java",
+ ]
+ 
+ base_java_ext_srcjar_deps = [
