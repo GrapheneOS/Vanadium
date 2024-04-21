@@ -35,7 +35,7 @@ new file mode 100644
 index 0000000000000..bea68189c9031
 --- /dev/null
 +++ b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,29 @@
 +package app.vanadium.ext;
 +
 +import android.os.Environment;
@@ -56,6 +56,7 @@ index 0000000000000..bea68189c9031
 +                return false;
 +            }
 +
++            var res = isExecmemBlocked.invoke(null);
 +            return (boolean) res;
 +        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
 +            Log.e(TAG, "", e);
