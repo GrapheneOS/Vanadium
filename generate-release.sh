@@ -10,7 +10,6 @@ readonly APPS=(
     TrichromeChrome
     TrichromeLibrary
     TrichromeWebView
-    VanadiumConfig
 )
 
 read -p "Enter keystore passphrase: " -s keystore_pass
