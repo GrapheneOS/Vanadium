@@ -1,15 +1,15 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
 Date: Fri, 29 Mar 2024 13:26:23 +0000
-Subject: [PATCH] Skip checks for android autofill service app when using other
- providers as autofill
+Subject: [PATCH] config-generator: Skip checks for android autofill service
+ app when using other providers as autofill
 
 ---
  .../app/vanadium/config/host/ConfigGenerator.java | 15 +++++++++++++++
  1 file changed, 15 insertions(+)
 
 diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-index f48987de2ff09..3578a35124d60 100644
+index f48987de2ff09..cc13370feadc6 100644
 --- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 +++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 @@ -46,6 +46,21 @@ public class ConfigGenerator {
@@ -17,7 +17,7 @@ index f48987de2ff09..3578a35124d60 100644
                  ))
          ));
 +        // Skips check for enabled autofill service, or if an app is set for autofill service.
-+        // This is added to minimize burden support on reverting back to default for autofill settings.
++        // This is added to minimize support burden caused by reverting back to default for autofill settings.
 +        configList.add(config(configParams -> configParams.setSpec(
 +                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(
 +                                SpecType.BROWSER
