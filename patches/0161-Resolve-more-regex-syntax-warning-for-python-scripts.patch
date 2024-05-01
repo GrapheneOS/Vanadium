@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 1 May 2024 10:48:14 +0000
+Subject: [PATCH] Resolve more regex syntax warning for python scripts for
+ Python 3.12
+
+---
+ build/android/gyp/util/resource_utils.py   | 4 ++--
+ build/android/gyp/util/resources_parser.py | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/build/android/gyp/util/resource_utils.py b/build/android/gyp/util/resource_utils.py
+index 223c747baaba2..294aa99904f72 100644
+--- a/build/android/gyp/util/resource_utils.py
++++ b/build/android/gyp/util/resource_utils.py
+@@ -599,7 +599,7 @@ def CreateRJavaFiles(srcjar_dir,
+   else:
+     # Create a unique name using srcjar_out. Underscores are added to ensure
+     # no reserved keywords are used for directory names.
+-    root_r_java_package = re.sub('[^\w\.]', '', srcjar_out.replace('/', '._'))
++    root_r_java_package = re.sub(r'[^\w\.]', '', srcjar_out.replace('/', '._'))
+ 
+   root_r_java_dir = os.path.join(srcjar_dir, *root_r_java_package.split('.'))
+   build_utils.MakeDirectory(root_r_java_dir)
+@@ -971,7 +971,7 @@ def ParseAndroidResourceStringsFromXml(xml_data):
+     raise Exception('<resources> start tag expected: ' + xml_data)
+   input_data = xml_data[m.end():]
+   resource_attrs = m.group(1)
+-  re_namespace = re.compile('\s*(xmlns:(\w+)="([^"]+)")')
++  re_namespace = re.compile(r'\s*(xmlns:(\w+)="([^"]+)")')
+   namespaces = {}
+   while resource_attrs:
+     m = re_namespace.match(resource_attrs)
+diff --git a/build/android/gyp/util/resources_parser.py b/build/android/gyp/util/resources_parser.py
+index ec3495f9e51ad..8551370bb6d88 100644
+--- a/build/android/gyp/util/resources_parser.py
++++ b/build/android/gyp/util/resources_parser.py
+@@ -19,7 +19,7 @@ _DUMMY_RTXT_INDEX = '1'
+ 
+ 
+ def _ResourceNameToJavaSymbol(resource_name):
+-  return re.sub('[\.:]', '_', resource_name)
++  return re.sub(r'[\.:]', '_', resource_name)
+ 
+ 
+ class RTxtGenerator:
