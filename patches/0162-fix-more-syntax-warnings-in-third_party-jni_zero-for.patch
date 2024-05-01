@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 1 May 2024 10:58:07 +0000
+Subject: [PATCH] fix more syntax warnings in //third_party/jni_zero for Python
+ 3.12
+
+---
+ third_party/jni_zero/jni_registration_generator.py | 4 ++--
+ third_party/jni_zero/parse.py                      | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/third_party/jni_zero/jni_registration_generator.py b/third_party/jni_zero/jni_registration_generator.py
+index 8089aec8601dc..8cfd30ba90568 100644
+--- a/third_party/jni_zero/jni_registration_generator.py
++++ b/third_party/jni_zero/jni_registration_generator.py
+@@ -257,8 +257,8 @@ def _GenerateStubs(natives):
+ 
+ def _InsertMultiplexingSwitchNumbers(signature_to_cases, java_functions_string,
+                                      short_gen_jni_class):
+-  switch_case_method_name_re = re.compile('return (\w+)\(')
+-  java_function_call_re = re.compile('public static \S+ (\w+)\(')
++  switch_case_method_name_re = re.compile(r'return (\w+)\(')
++  java_function_call_re = re.compile(r'public static \S+ (\w+)\(')
+   method_to_switch_num = {}
+   for signature, cases in sorted(signature_to_cases.items()):
+     for i, case in enumerate(cases):
+diff --git a/third_party/jni_zero/parse.py b/third_party/jni_zero/parse.py
+index 33203b9848e95..237c1f3dd38b3 100644
+--- a/third_party/jni_zero/parse.py
++++ b/third_party/jni_zero/parse.py
+@@ -111,7 +111,7 @@ def _remove_generics(value):
+     value = ret
+ 
+ 
+-_PACKAGE_REGEX = re.compile('^package\s+(\S+?);', flags=re.MULTILINE)
++_PACKAGE_REGEX = re.compile(r'^package\s+(\S+?);', flags=re.MULTILINE)
+ 
+ 
+ def _parse_package(contents):
+@@ -353,7 +353,7 @@ def _parse_imports(contents):
+           package.replace('.', '/') + '/' + class_name.replace('.', '$'))
+ 
+ 
+-_JNI_NAMESPACE_REGEX = re.compile('@JNINamespace\("(.*?)"\)')
++_JNI_NAMESPACE_REGEX = re.compile(r'@JNINamespace\("(.*?)"\)')
+ 
+ 
+ def _parse_jni_namespace(contents):
