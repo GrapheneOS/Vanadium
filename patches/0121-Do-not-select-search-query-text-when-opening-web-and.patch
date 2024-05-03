@@ -11,13 +11,13 @@ Subject: [PATCH] Do not select search query text when opening web and global
  3 files changed, 34 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 882dda1a5960a..8164a3d1bdfe2 100644
+index a630fd73ccc57..5a25e2e955062 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -226,6 +226,9 @@ public class LaunchIntentDispatcher {
-                 searchActivityIntent.setClass(
-                         ContextUtils.getApplicationContext(), SearchActivity.class);
-                 searchActivityIntent.putExtra(SearchManager.QUERY, query);
+@@ -230,6 +230,9 @@ public class LaunchIntentDispatcher {
+                     searchActivityIntent =
+                             TabPreferencesUtils.appendNeededIncognitoExtras(mActivity, searchActivityIntent);
+                 }
 +                searchActivityIntent.putExtra(SearchActivity.EXTRA_SELECT_ALL_TEXT,
 +                        !Intent.ACTION_WEB_SEARCH.equals(action)
 +                                && !SearchManager.INTENT_ACTION_GLOBAL_SEARCH.equals(action));
@@ -25,10 +25,10 @@ index 882dda1a5960a..8164a3d1bdfe2 100644
              }
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 4e7d086cf82a4..5d386fecd11a6 100644
+index ae7019b42152b..6e3032bb0a06a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -579,12 +579,27 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -581,12 +581,27 @@ public class SearchActivity extends AsyncInitializationActivity
          return IntentUtils.safeGetStringExtra(getIntent(), SearchManager.QUERY);
      }
  
