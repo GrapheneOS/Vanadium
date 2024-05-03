@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 1 May 2024 10:48:14 +0000
+Subject: [PATCH] Resolve more regex syntax warning for python scripts for
+ Python 3.12
+
+---
+ build/android/gyp/util/resources_parser.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/android/gyp/util/resources_parser.py b/build/android/gyp/util/resources_parser.py
+index ec3495f9e51ad..8551370bb6d88 100644
+--- a/build/android/gyp/util/resources_parser.py
++++ b/build/android/gyp/util/resources_parser.py
+@@ -19,7 +19,7 @@ _DUMMY_RTXT_INDEX = '1'
+ 
+ 
+ def _ResourceNameToJavaSymbol(resource_name):
+-  return re.sub('[\.:]', '_', resource_name)
++  return re.sub(r'[\.:]', '_', resource_name)
+ 
+ 
+ class RTxtGenerator:

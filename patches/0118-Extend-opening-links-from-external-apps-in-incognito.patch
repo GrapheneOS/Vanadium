@@ -5,18 +5,35 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  search tabs
 
 ---
- .../chrome/browser/searchwidget/SearchActivity.java         | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../chromium/chrome/browser/LaunchIntentDispatcher.java   | 4 ++++
+ .../chrome/browser/searchwidget/SearchActivity.java       | 8 +++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index b45c78eadde80..b7123a0983308 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -223,6 +223,10 @@ public class LaunchIntentDispatcher {
+                 searchActivityIntent.setClass(
+                         ContextUtils.getApplicationContext(), SearchActivity.class);
+                 searchActivityIntent.putExtra(SearchManager.QUERY, query);
++                if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++                    searchActivityIntent =
++                            TabPreferencesUtils.appendNeededIncognitoExtras(mActivity, searchActivityIntent);
++                }
+                 mActivity.startActivity(searchActivityIntent);
+             }
+         }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index a0b4d2fe6d728..4e7d086cf82a4 100644
+index a0b4d2fe6d728..ae7019b42152b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -366,13 +366,17 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -366,13 +366,19 @@ public class SearchActivity extends AsyncInitializationActivity
                      @Nullable
                      @Override
                      protected OTRProfileID createOffTheRecordProfileID() {
-+                        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++                        if (IntentUtils.safeGetBooleanExtra(getIntent(),
++                                IntentHandler.EXTRA_INCOGNITO_MODE, false)) {
 +                            return super.createOffTheRecordProfileID();
 +                        }
                          throw new IllegalStateException(
@@ -27,7 +44,8 @@ index a0b4d2fe6d728..4e7d086cf82a4 100644
                  (provider) -> {
 -                    mProfileSupplier.set(profileProvider.get().getOriginalProfile());
 +                    mProfileSupplier.set(ProfileProvider.getOrCreateProfile(profileProvider.get(),
-+                            TabPreferencesUtils.shouldOpenLinksInIncognito()));
++                            IntentUtils.safeGetBooleanExtra(getIntent(),
++                                    IntentHandler.EXTRA_INCOGNITO_MODE, false)));
                  });
          return profileProvider;
      }
