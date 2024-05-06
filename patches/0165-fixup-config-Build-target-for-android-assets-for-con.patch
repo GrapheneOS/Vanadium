@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 6 May 2024 18:13:56 +0000
+Subject: [PATCH] fixup! config: Build target for android assets for config
+ file protobuf
+
+---
+ .../android_config/filter_lists/generate_ruleset.gni     | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/vanadium/android_config/filter_lists/generate_ruleset.gni b/vanadium/android_config/filter_lists/generate_ruleset.gni
+index ea4236d6ffbae..0a1bfe50516cd 100644
+--- a/vanadium/android_config/filter_lists/generate_ruleset.gni
++++ b/vanadium/android_config/filter_lists/generate_ruleset.gni
+@@ -25,10 +25,17 @@ template("generate_unindexed_ruleset_assets") {
+       "//components/subresource_filter/tools:ruleset_converter",
+     ]
+ 
++    rebased_input_files = []
++    foreach(input_file, inputs) {
++      rebased_input_files += [
++        rebase_path(input_file, root_build_dir),
++      ]
++    }
++
+     args = [
+       "--input_format=filter-list",
+       "--output_format=unindexed-ruleset",
+-      "--input_files=" + rebase_path(inputs[0], root_build_dir),
++      "--input_files=" + string_join(",", rebased_input_files),
+       "--output_file=" + rebase_path(outputs[0], root_build_dir),
+     ]
+   }
