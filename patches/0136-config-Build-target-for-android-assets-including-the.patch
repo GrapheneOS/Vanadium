@@ -5,9 +5,9 @@ Subject: [PATCH] config: Build target for android assets including the content
  filtering file
 
 ---
- vanadium/android_config/filter_lists/BUILD.gn | 17 +++++++
- .../filter_lists/generate_ruleset.gni         | 48 +++++++++++++++++++
- 2 files changed, 65 insertions(+)
+ vanadium/android_config/filter_lists/BUILD.gn | 17 ++++++
+ .../filter_lists/generate_ruleset.gni         | 55 +++++++++++++++++++
+ 2 files changed, 72 insertions(+)
  create mode 100644 vanadium/android_config/filter_lists/BUILD.gn
  create mode 100644 vanadium/android_config/filter_lists/generate_ruleset.gni
 
@@ -37,10 +37,10 @@ index 0000000000000..aedd0eaa93493
 \ No newline at end of file
 diff --git a/vanadium/android_config/filter_lists/generate_ruleset.gni b/vanadium/android_config/filter_lists/generate_ruleset.gni
 new file mode 100644
-index 0000000000000..ea4236d6ffbae
+index 0000000000000..a0d016ec3f2d3
 --- /dev/null
 +++ b/vanadium/android_config/filter_lists/generate_ruleset.gni
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,55 @@
 +# Copyright 2023 The Chromium Authors
 +# Use of this source code is governed by a BSD-style license that can be
 +# found in the LICENSE file.
@@ -67,11 +67,18 @@ index 0000000000000..ea4236d6ffbae
 +    deps = [
 +      "//components/subresource_filter/tools:ruleset_converter",
 +    ]
++    rebased_input_files = []
++    foreach(input_file, inputs) {
++      rebased_input_files += [
++        rebase_path(input_file, root_build_dir),
++      ]
++    }
++
 +
 +    args = [
 +      "--input_format=filter-list",
 +      "--output_format=unindexed-ruleset",
-+      "--input_files=" + rebase_path(inputs[0], root_build_dir),
++      "--input_files=" + string_join(",", rebased_input_files),
 +      "--output_file=" + rebase_path(outputs[0], root_build_dir),
 +    ]
 +  }
