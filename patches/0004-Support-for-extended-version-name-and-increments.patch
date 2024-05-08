@@ -4,27 +4,46 @@ Date: Sun, 26 Feb 2023 10:39:38 +0100
 Subject: [PATCH] Support for extended version name and increments
 
 ---
- build/util/android_chrome_version.py |  3 ++-
- build/util/version.py                |  5 +++++
+ build/util/android_chrome_version.py |  8 ++++----
+ build/util/version.py                |  8 +++++++-
  chrome/version.gni                   | 27 +++++++++++++++++++++++++++
- 3 files changed, 34 insertions(+), 1 deletion(-)
+ 3 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index ebd8cf40b79c4..f01160050e776 100755
+index 767e4eeb4d571..281e24f54017d 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -340,7 +340,8 @@ def GenerateVersionCodes(version_values, arch, is_next_build):
+@@ -314,7 +314,7 @@ def TranslateVersionCode(version_code, is_webview=False):
+                                is_next_build)
  
-   build_number = int(version_values['BUILD'])
-   patch_number = int(version_values['PATCH'])
+ 
+-def GenerateVersionCodes(build_number, patch_number, arch, is_next_build):
++def GenerateVersionCodes(build_number, patch_number, increment_number, arch, is_next_build):
+   """Build dict of version codes for the specified build architecture. Eg:
+ 
+   {
+@@ -337,7 +337,7 @@ def GenerateVersionCodes(build_number, patch_number, arch, is_next_build):
+ 
+   Thus, this method is responsible for the final two digits of versionCode.
+   """
 -  base_version_code = (build_number * 1000 + patch_number) * 100
-+  increment_number = int(version_values['INCREMENT'])
 +  base_version_code = (build_number * 1000 + patch_number + increment_number) * 100
  
    if is_next_build:
      base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF
+@@ -382,8 +382,8 @@ def main():
+   elif args.version_name:
+     if not args.arch:
+       parser.error('Required --arch')
+-    _, _, build, patch = args.version_name.split('.')
+-    values = GenerateVersionCodes(int(build), int(patch), args.arch, args.next)
++    _, _, build, patch, increment = args.version_name.split('.')
++    values = GenerateVersionCodes(int(build), int(patch), int(increment), args.arch, args.next)
+     for k, v in values.items():
+       print(f'{k}={v}')
+   else:
 diff --git a/build/util/version.py b/build/util/version.py
-index d593f20094513..db27a4636b156 100755
+index e8056ba1aa001..1336678964c18 100755
 --- a/build/util/version.py
 +++ b/build/util/version.py
 @@ -133,6 +133,10 @@ def BuildParser():
@@ -38,14 +57,19 @@ index d593f20094513..db27a4636b156 100755
    parser.add_argument('-x',
                        '--executable',
                        default=False,
-@@ -210,6 +214,7 @@ def GenerateValues(options, evals):
+@@ -210,9 +214,11 @@ def GenerateValues(options, evals):
    for key, val in evals.items():
      values[key] = str(eval(val, globals(), values))
  
 +  values['INCREMENT'] = options.increment
    if options.os == 'android':
      android_chrome_version_codes = android_chrome_version.GenerateVersionCodes(
-         values, options.arch, options.next)
+-        int(values['BUILD']), int(values['PATCH']), options.arch, options.next)
++        int(values['BUILD']), int(values['PATCH']), int(values['INCREMENT']),
++        options.arch, options.next)
+     values.update(android_chrome_version_codes)
+ 
+   return values
 diff --git a/chrome/version.gni b/chrome/version.gni
 index 3677614b402f6..02e7491134be8 100644
 --- a/chrome/version.gni

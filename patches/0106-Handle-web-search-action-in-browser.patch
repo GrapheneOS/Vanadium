@@ -10,11 +10,11 @@ Subject: [PATCH] Handle web search action in browser
  3 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/base/android/java/src/org/chromium/base/PackageManagerUtils.java b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
-index 91d814c08fffa..9661167adf22b 100644
+index a467d72ad54c7..4016e1d96ae20 100644
 --- a/base/android/java/src/org/chromium/base/PackageManagerUtils.java
 +++ b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
-@@ -84,6 +84,16 @@ public class PackageManagerUtils {
-         return canResolveActivity(intent, 0);
+@@ -92,6 +92,16 @@ public class PackageManagerUtils {
+         return pm.hasSystemFeature(feature);
      }
  
 +    public static boolean canOnlyOthersResolveActivity(Intent intent, int flags) {
@@ -31,10 +31,10 @@ index 91d814c08fffa..9661167adf22b 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 4c6568ab28e8c..e7142cb813751 100644
+index 178126eaae687..95174ba848c7d 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -347,6 +347,14 @@ by a child template that "extends" this file.
+@@ -350,6 +350,14 @@ by a child template that "extends" this file.
              <intent-filter>
                  <action android:name="android.intent.action.SEARCH" />
              </intent-filter>
@@ -50,10 +50,10 @@ index 4c6568ab28e8c..e7142cb813751 100644
                  <action android:name="com.sec.android.airview.HOVER" />
              </intent-filter>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 16f8d578186dd..904cec28d2902 100644
+index cfea75e6e156e..fb8ac124f0f42 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -198,6 +198,8 @@ public class LaunchIntentDispatcher {
+@@ -197,6 +197,8 @@ public class LaunchIntentDispatcher {
          String query = null;
          final String action = intent.getAction();
          if (Intent.ACTION_SEARCH.equals(action)
@@ -62,12 +62,12 @@ index 16f8d578186dd..904cec28d2902 100644
                  || MediaStore.INTENT_ACTION_MEDIA_SEARCH.equals(action)) {
              query = IntentUtils.safeGetStringExtra(intent, SearchManager.QUERY);
          }
-@@ -211,7 +213,7 @@ public class LaunchIntentDispatcher {
+@@ -209,7 +211,7 @@ public class LaunchIntentDispatcher {
+         Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
          searchIntent.putExtra(SearchManager.QUERY, query);
  
-         try (StrictModeContext ignored = StrictModeContext.allowDiskReads()) {
--            if (PackageManagerUtils.canResolveActivity(
-+            if (PackageManagerUtils.canOnlyOthersResolveActivity(
-                     searchIntent, PackageManager.GET_RESOLVED_FILTER)) {
-                 mActivity.startActivity(searchIntent);
-             } else {
+-        if (PackageManagerUtils.canResolveActivity(
++        if (PackageManagerUtils.canOnlyOthersResolveActivity(
+                 searchIntent, PackageManager.GET_RESOLVED_FILTER)) {
+             mActivity.startActivity(searchIntent);
+         } else {

@@ -5,11 +5,12 @@ Subject: [PATCH] Enable usage of Android Autofill by default
 
 ---
  components/autofill/core/common/autofill_features.cc | 2 +-
+ components/autofill/core/common/autofill_features.h  | 2 +-
  components/autofill/core/common/autofill_prefs.cc    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index be4ca4499cd0c..d27f43c8a0625 100644
+index 0e7a048d6735d..8355f98628e23 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
 @@ -703,7 +703,7 @@ BASE_FEATURE(kAutofillEnableSecurityTouchEventFilteringAndroid,
@@ -21,6 +22,19 @@ index be4ca4499cd0c..d27f43c8a0625 100644
  
  #endif  // BUILDFLAG(IS_ANDROID)
  
+diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
+index 4e411b4b396a9..5e5662ec4f3b8 100644
+--- a/components/autofill/core/common/autofill_features.h
++++ b/components/autofill/core/common/autofill_features.h
+@@ -234,7 +234,7 @@ BASE_DECLARE_FEATURE(kAutofillVirtualViewStructureAndroid);
+ inline constexpr base::FeatureParam<bool>
+     kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
+         &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
+-        false};
++        true};
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+ #if BUILDFLAG(IS_APPLE)
 diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
 index 054cd27a90c1a..4eda98fc42727 100644
 --- a/components/autofill/core/common/autofill_prefs.cc
