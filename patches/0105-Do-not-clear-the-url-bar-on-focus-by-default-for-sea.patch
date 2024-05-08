@@ -11,10 +11,10 @@ Subject: [PATCH] Do not clear the url bar on focus by default for search
  3 files changed, 19 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 6492e553b8f7c..60abda224309e 100644
+index 17e63b2b1d873..5a54c46b17c08 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -317,6 +317,7 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -306,6 +306,7 @@ public class SearchActivity extends AsyncInitializationActivity
          mLocationBarCoordinator.setUrlBarFocusable(true);
          mLocationBarCoordinator.setShouldShowMicButtonWhenUnfocused(true);
          mLocationBarCoordinator.getOmniboxStub().addUrlFocusChangeListener(this);
@@ -23,7 +23,7 @@ index 6492e553b8f7c..60abda224309e 100644
          // Kick off everything needed for the user to type into the box.
          handleNewIntent(getIntent());
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
-index 09f8dbf9b5e32..f46ee0cd9ddfc 100644
+index 243ee54180326..89b5ffdd63eed 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
 @@ -846,4 +846,8 @@ public class LocationBarCoordinator
@@ -36,7 +36,7 @@ index 09f8dbf9b5e32..f46ee0cd9ddfc 100644
 +    }
  }
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
-index 811dd6c27e059..d4bd04006dc21 100644
+index 78c003c5246a0..3659fa6e95b00 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
 @@ -203,6 +203,19 @@ class LocationBarMediator
@@ -59,7 +59,7 @@ index 811dd6c27e059..d4bd04006dc21 100644
      private ObservableSupplier<TabModelSelector> mTabModelSelectorSupplier;
      private boolean mIsSurfacePolishOmniboxColorEnabled;
      private SearchEngineUtils mSearchEngineUtils;
-@@ -728,7 +741,7 @@ class LocationBarMediator
+@@ -732,7 +745,7 @@ class LocationBarMediator
                              mLocationBarLayout.getMeasuredWidth(), MeasureSpec.EXACTLY));
          }
          // Reset to the default value.

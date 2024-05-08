@@ -10,25 +10,25 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  2 files changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index b45c78eadde80..b7123a0983308 100644
+index 3809289ee720c..b7f6bc8309e02 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -223,6 +223,10 @@ public class LaunchIntentDispatcher {
-                 searchActivityIntent.setClass(
-                         ContextUtils.getApplicationContext(), SearchActivity.class);
-                 searchActivityIntent.putExtra(SearchManager.QUERY, query);
-+                if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-+                    searchActivityIntent =
-+                            TabPreferencesUtils.appendNeededIncognitoExtras(mActivity, searchActivityIntent);
-+                }
-                 mActivity.startActivity(searchActivityIntent);
-             }
+@@ -221,6 +221,10 @@ public class LaunchIntentDispatcher {
+             searchActivityIntent.setClass(
+                     ContextUtils.getApplicationContext(), SearchActivity.class);
+             searchActivityIntent.putExtra(SearchManager.QUERY, query);
++            if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++                searchActivityIntent =
++                        TabPreferencesUtils.appendNeededIncognitoExtras(mActivity, searchActivityIntent);
++            }
+             mActivity.startActivity(searchActivityIntent);
          }
+         return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index a0b4d2fe6d728..ae7019b42152b 100644
+index 6d8cc1343f207..138a40bf49cbc 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -366,13 +366,19 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -390,13 +390,19 @@ public class SearchActivity extends AsyncInitializationActivity
                      @Nullable
                      @Override
                      protected OTRProfileID createOffTheRecordProfileID() {

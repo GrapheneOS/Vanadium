@@ -8,12 +8,12 @@ Subject: [PATCH] remove translate offer preference
  1 file changed, 1 insertion(+), 28 deletions(-)
 
 diff --git a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
-index 0b4da85180efb..2e0540d8cccd4 100644
+index fbf6133b8fe8d..f2434b078f7f9 100644
 --- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
 +++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
 @@ -97,34 +97,7 @@ public class LanguageSettings extends ChromeBaseSettingsFragment
                  (ContentLanguagesPreference) findPreference(PREFERRED_LANGUAGES_KEY);
-         mLanguageListPref.initialize(this, getPrefService());
+         mLanguageListPref.initialize(this, getProfile(), getPrefService());
  
 -        ChromeSwitchPreference translateSwitch =
 -                (ChromeSwitchPreference) findPreference(TRANSLATE_SWITCH_KEY);
