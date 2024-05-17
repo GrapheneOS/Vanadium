@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 1 Feb 2024 17:58:40 +0000
+Subject: [PATCH] Extend opening links from external apps in incognito for
+ share intents
+
+---
+ .../org/chromium/chrome/browser/LaunchIntentDispatcher.java | 1 +
+ .../chrome/browser/LaunchIntentDispatcherHooks.java         | 6 ++++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 3b16e0450ef9a..8e6bf5ae19cf8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -149,6 +149,7 @@ public class LaunchIntentDispatcher {
+             url = IntentHandler.getUrlFromShareIntent(mIntent);
+             if (url == null) return Action.FINISH_ACTIVITY;
+             mIntent.setData(Uri.parse(url));
++            mIntent = LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(mActivity, mIntent);
+         } else {
+             url = IntentHandler.getUrlFromIntent(mIntent);
+         }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+index 710fa25ee2826..390eb03db1101 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+@@ -35,4 +35,10 @@ final class LaunchIntentDispatcherHooks {
+ 
+         return newIntent;
+     }
++
++    static Intent maybeModifyActionSendIntents(Activity activity, Intent intent) {
++        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
++
++        return newIntent;
++    }
+ }
