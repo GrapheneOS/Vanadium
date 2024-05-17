@@ -5,13 +5,16 @@ Subject: [PATCH] Toggle for navigating external URL in incognito
 
 ---
  .../shared_preferences/SharedPrefsUtils.java  |  5 ++-
+ chrome/android/chrome_ext_java_sources.gni    |  1 +
  .../java/res/xml/privacy_preferences_ext.xml  |  5 +++
  .../chrome/browser/ChromeTabbedActivity.java  |  2 ++
- .../browser/LaunchIntentDispatcher.java       |  3 ++
+ .../browser/LaunchIntentDispatcher.java       |  1 +
+ .../browser/LaunchIntentDispatcherHooks.java  | 15 +++++++++
  .../chrome/browser/TabPreferencesUtils.java   | 32 +++++++++++++++++++
  .../privacy/settings/PrivacySettingsExt.java  | 17 ++++++++++
  .../strings/android_chrome_ext_strings.grdp   |  6 ++++
- 7 files changed, 69 insertions(+), 1 deletion(-)
+ 9 files changed, 83 insertions(+), 1 deletion(-)
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 
 diff --git a/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java b/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
 index 84784f7ec174c..0bacc94f580dc 100644
@@ -36,6 +39,16 @@ index 84784f7ec174c..0bacc94f580dc 100644
          ).contains(key);
          // clang-format on
      }
+diff --git a/chrome/android/chrome_ext_java_sources.gni b/chrome/android/chrome_ext_java_sources.gni
+index dd9fae38f4152..0d29c988b371e 100644
+--- a/chrome/android/chrome_ext_java_sources.gni
++++ b/chrome/android/chrome_ext_java_sources.gni
+@@ -6,4 +6,5 @@ chrome_ext_java_sources = [
+   "java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java",
+   "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
+   "java/src/org/chromium/chrome/browser/TabPreferencesUtils.java",
++  "java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java",
+ ]
 diff --git a/chrome/android/java/res/xml/privacy_preferences_ext.xml b/chrome/android/java/res/xml/privacy_preferences_ext.xml
 index ea1dd6c3f529c..4f6b5a3ae75a5 100644
 --- a/chrome/android/java/res/xml/privacy_preferences_ext.xml
@@ -65,19 +78,38 @@ index 4b0e20e87f310..a9ce30f93c050 100644
  
          BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 5163a2f6a0cb2..cfea75e6e156e 100644
+index 5163a2f6a0cb2..9aaf94573952d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -407,6 +407,9 @@ public class LaunchIntentDispatcher {
+@@ -407,6 +407,7 @@ public class LaunchIntentDispatcher {
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {
-+            if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-+                newIntent = TabPreferencesUtils.createIncognitoIntent(mActivity, newIntent);
-+            }
++            newIntent = LaunchIntentDispatcherHooks.maybeModifyActionViewIntents(mActivity, newIntent);
              if (!chromeTabbedTaskExists()) {
                  newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
              }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+new file mode 100644
+index 0000000000000..aaec00177de6e
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+@@ -0,0 +1,15 @@
++package org.chromium.chrome.browser;
++
++import android.app.Activity;
++import android.content.Intent;
++
++final class LaunchIntentDispatcherHooks {
++    static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
++        Intent newIntent = intent;
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            newIntent = TabPreferencesUtils.createIncognitoIntent(activity, intent);
++        }
++
++        return newIntent;
++    }
++}
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
 index 57aae64057cfb..9115cbf9c5fef 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
