@@ -57,7 +57,7 @@ index a194bf0d715e9..a918af3f744e4 100644
  
    // Before initialization, retain information about the most recently supplied
 diff --git a/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc b/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
-index 11f98643d5784..ff8dc9d791a27 100644
+index 11f98643d5784..337ecdef4d58a 100644
 --- a/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
 +++ b/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
 @@ -9,6 +9,9 @@
@@ -76,7 +76,7 @@ index 11f98643d5784..ff8dc9d791a27 100644
  
 +#if BUILDFLAG(IS_ANDROID)
 +  std::string unindexed_ruleset_data_as_str = subresource_filter::GetUnindexedRulesetData();
-+  DCHECK(has_ruleset_file || ruleset_info.resource_id || unindexed_ruleset_data_as_str.size() == 0);;
++  DCHECK(has_ruleset_file || ruleset_info.resource_id || unindexed_ruleset_data_as_str.size() != 0);
 +#else
    DCHECK(has_ruleset_file || ruleset_info.resource_id);
    DCHECK(!(has_ruleset_file && ruleset_info.resource_id));
