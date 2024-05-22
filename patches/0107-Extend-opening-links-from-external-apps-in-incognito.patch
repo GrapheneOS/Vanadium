@@ -10,19 +10,19 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index fe9bbd148b60c..ea5f494157b50 100644
+index fe9bbd148b60c..97fb584f0ec86 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -261,6 +261,7 @@ public class LaunchIntentDispatcher {
          newIntent.setAction(Intent.ACTION_VIEW);
          newIntent.setData(uri);
          newIntent.setClassName(context, CustomTabActivity.class.getName());
-+        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, intent);
++        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, newIntent);
  
          // Since configureIntentForResizableCustomTab() might change the componenet/class
          // associated with the passed intent, it needs to be called after #setClassName(context,
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index aaec00177de6e..a3a5d21f71d9f 100644
+index aaec00177de6e..6394a993ecd80 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 @@ -1,9 +1,20 @@
@@ -37,7 +37,7 @@ index aaec00177de6e..a3a5d21f71d9f 100644
 +    private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
 +        Intent newIntent = intent;
 +        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-+            newIntent = TabPreferencesUtils.createIncognitoIntent(context, intent);
++            newIntent = TabPreferencesUtils.appendNeededIncognitoExtras(context, intent);
 +        }
 +
 +        return newIntent;
