@@ -5,7 +5,8 @@ Subject: [PATCH] Disable newer privacy sandbox features by default
 
 ---
  components/privacy_sandbox/privacy_sandbox_features.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ third_party/blink/common/features.cc                   | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
 index 352fec4de1a1b..89068a3985756 100644
@@ -20,3 +21,32 @@ index 352fec4de1a1b..89068a3985756 100644
  
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 04c628d36a42e..49030c8af5de8 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -389,7 +389,7 @@ BASE_FEATURE(kBoostNonRenderBlockingStyleLoadingTaskPriority,
+ // Kill switch for the Topics API.
+ BASE_FEATURE(kBrowsingTopics,
+              "BrowsingTopics",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // If enabled, the check for whether the IP address is publicly routable will be
+ // bypassed when determining the eligibility for a page to be included in topics
+@@ -405,13 +405,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+ // is enabled.)
+ BASE_FEATURE(kBrowsingTopicsDocumentAPI,
+              "BrowsingTopicsDocumentAPI",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Decoupled with the main `kBrowsingTopics` feature, so it allows us to
+ // decouple the server side configs.
+ BASE_FEATURE(kBrowsingTopicsParameters,
+              "BrowsingTopicsParameters",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ // The number of epochs from where to calculate the topics to give to a
+ // requesting contexts.
+ const base::FeatureParam<int> kBrowsingTopicsNumberOfEpochsToExpose{
