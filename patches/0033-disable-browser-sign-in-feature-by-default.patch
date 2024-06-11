@@ -9,7 +9,7 @@ Subject: [PATCH] disable browser sign in feature by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
-index d2c034c279b4d..3ca9d8f18a2ae 100644
+index 04a721f164e85..3de7bd0df0099 100644
 --- a/chrome/browser/signin/account_consistency_mode_manager.cc
 +++ b/chrome/browser/signin/account_consistency_mode_manager.cc
 @@ -123,7 +123,7 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() {}
@@ -22,15 +22,15 @@ index d2c034c279b4d..3ca9d8f18a2ae 100644
  
  // static
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index 8dcdb224c4601..00ef4109901e8 100644
+index 8b14a48a2e84f..aaebb4a6d6aef 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -227,7 +227,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -247,7 +247,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
        prefs::kGoogleServicesSyncingUsernameMigratedToSignedIn, std::string());
    registry->RegisterBooleanPref(prefs::kAutologinEnabled, true);
    registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
 -  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
 +  registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
    registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
-   registry->RegisterBooleanPref(prefs::kExplicitBrowserSignin, false);
- }
+   registry->RegisterBooleanPref(kExplicitBrowserSigninWithoutFeatureEnabled,
+                                 false);

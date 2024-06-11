@@ -9,10 +9,10 @@ Subject: [PATCH] Support opening external web search in incognito
  2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 1dcd333c8c552..2ca117c8a08f6 100644
+index 60caa73ee3966..f09e62fdf16be 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -593,6 +593,11 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -675,6 +675,11 @@ public class SearchActivity extends AsyncInitializationActivity
          Intent intent = SearchActivityUtils.createIntentForStartActivity(this, params);
          if (intent == null) return;
  
@@ -25,7 +25,7 @@ index 1dcd333c8c552..2ca117c8a08f6 100644
              intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 9576d3131006e..e7ab84a7b4d7c 100644
+index 9576d3131006e..791a9ed59a2f3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 @@ -1,5 +1,9 @@
@@ -46,7 +46,7 @@ index 9576d3131006e..e7ab84a7b4d7c 100644
 +    static Intent modifyIntentForStartActivity(Activity activity, Intent intent) {
 +        Intent newIntent = intent;
 +        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-+            newIntent = TabPreferencesUtils.appendNeededIncognitoExtras(activity, intent);
++            newIntent = TabPreferencesUtils.appendNeededIncognitoExtras(activity, newIntent);
 +        }
 +
 +        return newIntent;
