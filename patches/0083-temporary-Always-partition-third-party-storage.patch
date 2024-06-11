@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 26 Jan 2024 14:57:11 +0000
+Subject: [PATCH] temporary: Always partition third party storage
+
+This will be removed in future milestone, but currently, sites can opt
+out to this feature via the depreciation trial, see
+https://developers.google.com/privacy-sandbox/3pcd/storage-partitioning#implementation_status
+https://developers.google.com/privacy-sandbox/blog/storage-partitioning-deprecation-trial#disablethirdpartystoragepartitioning
+---
+ third_party/blink/common/features.cc                          | 2 +-
+ .../blink/renderer/platform/runtime_enabled_features.json5    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index c86180af597be..090d867d0b06e 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -756,7 +756,7 @@ BASE_FEATURE(kDiscardInputEventsToRecentlyMovedFrames,
+ 
+ BASE_FEATURE(kDisableThirdPartyStoragePartitioningDeprecationTrial,
+              "DisableThirdPartyStoragePartitioningDeprecationTrial",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Kill switch for not WebGL DrawingBuffer using SharedImage without
+ // GpuMemoryBuffer (overlay or low latency canvas).
+diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+index cb6c363fceede..8aa42602139e7 100644
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+@@ -1250,8 +1250,8 @@
+       name: "DisableThirdPartySessionStoragePartitioningAfterGeneralPartitioning",
+       origin_trial_feature_name: "DisableThirdPartySessionStoragePartitioningAfterGeneralPartitioning",
+       origin_trial_type: "deprecation",
++      origin_trial_os: ["win", "mac", "linux", "chromeos"],
+       origin_trial_allows_insecure: true,
+-      status: "experimental",
+       base_feature: "none",
+     },
+     // This feature will represent the deprecation trial that allows first
+@@ -1261,9 +1261,9 @@
+       name: "DisableThirdPartyStoragePartitioning",
+       origin_trial_feature_name: "DisableThirdPartyStoragePartitioning",
+       origin_trial_type: "deprecation",
++      origin_trial_os: ["win", "mac", "linux", "chromeos"],
+       origin_trial_allows_insecure: true,
+       origin_trial_allows_third_party: true,
+-      status: "experimental",
+       base_feature: "none",
+       browser_process_read_write_access: true,
+     },

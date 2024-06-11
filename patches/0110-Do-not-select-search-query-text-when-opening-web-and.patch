@@ -5,12 +5,12 @@ Subject: [PATCH] Do not select search query text when opening web and global
  search
 
 ---
- .../chrome/browser/LaunchIntentDispatcher.java   |  2 +-
- .../browser/LaunchIntentDispatcherHooks.java     | 12 +++++++++++-
- .../browser/searchwidget/SearchActivity.java     |  3 ++-
- .../searchwidget/SearchActivityHooks.java        | 14 ++++++++++++++
- .../SearchActivityLocationBarLayout.java         | 16 +++++++++++++++-
- 5 files changed, 43 insertions(+), 4 deletions(-)
+ .../chrome/browser/LaunchIntentDispatcher.java    |  2 +-
+ .../browser/LaunchIntentDispatcherHooks.java      | 12 +++++++++++-
+ .../browser/searchwidget/SearchActivity.java      |  3 ++-
+ .../browser/searchwidget/SearchActivityHooks.java | 14 ++++++++++++++
+ .../SearchActivityLocationBarLayout.java          | 15 ++++++++++++++-
+ 5 files changed, 42 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 index edb1c9b177b57..e54b3eb20ff61 100644
@@ -26,7 +26,7 @@ index edb1c9b177b57..e54b3eb20ff61 100644
          }
          return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index 2aa023c3f15c1..1fdc7b7c0d4dc 100644
+index 547e85324cac5..fd771c9cd0b90 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 @@ -1,9 +1,12 @@
@@ -60,13 +60,13 @@ index 2aa023c3f15c1..1fdc7b7c0d4dc 100644
          return newIntent;
      }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 0540dc9341529..7aded2b0dcc13 100644
+index 00fa571b31258..1286efab5c9f3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -546,7 +546,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -629,7 +629,8 @@ public class SearchActivity extends AsyncInitializationActivity
+                 mIntentOrigin,
                  mSearchType,
                  SearchActivityUtils.getIntentQuery(getIntent()),
-                 mLocationBarCoordinator.getVoiceRecognitionHandler(),
 -                getWindowAndroid());
 +                getWindowAndroid(),
 +                SearchActivityHooks.getShouldSelectAllQueryTextInSearchBox(getIntent()));
@@ -74,7 +74,7 @@ index 0540dc9341529..7aded2b0dcc13 100644
  
      @Override
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 8af63bc91ed5c..834cee2781655 100644
+index bbc7996c25aaf..381f2ba321c2e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 @@ -27,4 +27,18 @@ public class SearchActivityHooks {
@@ -97,18 +97,18 @@ index 8af63bc91ed5c..834cee2781655 100644
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
-index 9b42b861ea58a..03e79a8a98726 100644
+index d4a761b82c4fb..9e93bfa32cd50 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
-@@ -120,7 +120,21 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
+@@ -112,7 +112,20 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
+             @SearchType int searchType,
              @Nullable String optionalText,
-             @NonNull VoiceRecognitionHandler voiceRecognitionHandler,
              @NonNull WindowAndroid windowAndroid) {
-+        beginQuery(origin, searchType, optionalText, voiceRecognitionHandler, windowAndroid, true);
++        beginQuery(origin, searchType, optionalText, windowAndroid, true);
 +    }
  
 +    /**
-+     * See {@link SearchActivityLocationBarLayout#beginQuery(int, int, String, VoiceRecognitionHandler, WindowAndroid)}
++     * See {@link SearchActivityLocationBarLayout#beginQuery(int, int, String, WindowAndroid)}
 +     * for details. Added parameter(s):
 +     * @param shouldSelectAllText Indicates if selection state of search query should be all selected or not.
 +     */
@@ -116,13 +116,12 @@ index 9b42b861ea58a..03e79a8a98726 100644
 +            @IntentOrigin int origin,
 +            @SearchType int searchType,
 +            @Nullable String optionalText,
-+            @NonNull VoiceRecognitionHandler voiceRecognitionHandler,
 +            @NonNull WindowAndroid windowAndroid,
 +            boolean shouldSelectAllText) {
          if (origin == IntentOrigin.CUSTOM_TAB) {
              mUrlBar.setHint(R.string.omnibox_on_cct_empty_hint);
          } else {
-@@ -132,7 +146,7 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
+@@ -124,7 +137,7 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
          mUrlCoordinator.setUrlBarData(
                  UrlBarData.forNonUrlText(optionalText == null ? "" : optionalText),
                  UrlBar.ScrollType.NO_SCROLL,

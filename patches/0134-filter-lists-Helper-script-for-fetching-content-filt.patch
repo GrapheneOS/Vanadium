@@ -11,7 +11,7 @@ Subject: [PATCH] filter-lists: Helper script for fetching content filtering
 
 diff --git a/vanadium/android_config/filter_lists/filter_list_download.py b/vanadium/android_config/filter_lists/filter_list_download.py
 new file mode 100644
-index 0000000000000..efbba1141db09
+index 0000000000000..b6e12e571947a
 --- /dev/null
 +++ b/vanadium/android_config/filter_lists/filter_list_download.py
 @@ -0,0 +1,32 @@
@@ -34,7 +34,7 @@ index 0000000000000..efbba1141db09
 +        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
 +        context.set_alpn_protocols(['http/1.3'])
 +        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-+        with urllib.request.urlopen(url=req) as res:
++        with urllib.request.urlopen(url=req, context=context, timeout=30) as res:
 +            while True:
 +                buf = res.read(4096)
 +                if not buf:
