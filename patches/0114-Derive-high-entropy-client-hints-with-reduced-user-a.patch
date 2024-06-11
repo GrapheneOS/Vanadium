@@ -15,10 +15,10 @@ Android.
  4 files changed, 55 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
-index b863e4b678150..6da8fcead0c89 100644
+index b9c1e44991042..236b366250cfb 100644
 --- a/components/embedder_support/user_agent_utils.cc
 +++ b/components/embedder_support/user_agent_utils.cc
-@@ -490,6 +490,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(const PrefService* pref_service,
+@@ -492,6 +492,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(const PrefService* pref_service,
                 : metadata;
    }
  
@@ -55,7 +55,7 @@ index b863e4b678150..6da8fcead0c89 100644
      return metadata;
    }
 diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
-index b6e63391630c3..1d823b7e752b8 100644
+index de809c7a4f9d2..98430d986b380 100644
 --- a/content/browser/client_hints/client_hints.cc
 +++ b/content/browser/client_hints/client_hints.cc
 @@ -863,6 +863,20 @@ void AddRequestClientHintsHeaders(
@@ -80,10 +80,10 @@ index b6e63391630c3..1d823b7e752b8 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 4c703b088c11d..2cd7cd2155cfc 100644
+index 090d867d0b06e..cc5463f49d279 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -558,6 +558,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -524,6 +524,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
@@ -101,10 +101,10 @@ index 4c703b088c11d..2cd7cd2155cfc 100644
  BASE_FEATURE(kClientHintsDPR,
               "ClientHintsDPR",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 3b4e6d8f74052..eef5457adc357 100644
+index 167982e679618..131493975446f 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -292,6 +292,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+@@ -277,6 +277,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  

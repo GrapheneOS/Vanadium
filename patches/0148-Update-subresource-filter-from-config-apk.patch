@@ -23,22 +23,22 @@ index 0829b5df7e80d..a289a6fecd9fb 100644
  
  chrome_ext_srcjar_deps = [
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
-index 26d77d7d63d33..c3076d9f0a70f 100644
+index d1865c0ba52a9..a472c43d8fda4 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
-@@ -76,6 +76,7 @@ import org.chromium.chrome.browser.quickactionsearchwidget.QuickActionSearchWidg
+@@ -79,6 +79,7 @@ import org.chromium.chrome.browser.quickactionsearchwidget.QuickActionSearchWidg
  import org.chromium.chrome.browser.rlz.RevenueStats;
  import org.chromium.chrome.browser.searchwidget.SearchWidgetProvider;
  import org.chromium.chrome.browser.signin.SigninCheckerProvider;
 +import org.chromium.chrome.browser.subresource_filter.RulesetUpdater;
  import org.chromium.chrome.browser.tab.state.PersistedTabData;
  import org.chromium.chrome.browser.tab.state.ShoppingPersistedTabData;
- import org.chromium.chrome.browser.tabpersistence.TabStateFileManager;
-@@ -508,6 +509,7 @@ public class ProcessInitializationHandler {
+ import org.chromium.chrome.browser.tabmodel.TabPersistentStore;
+@@ -495,6 +496,7 @@ public class ProcessInitializationHandler {
          // Asynchronously query system accessibility state so it is ready for clients.
-         deferredStartupHandler.addDeferredTask(AccessibilityState::initializeOnStartup);
-         deferredStartupHandler.addDeferredTask(TabStateFileManager::onDeferredStartup);
-+        deferredStartupHandler.addDeferredTask(RulesetUpdater::init);
+         tasks.add(AccessibilityState::initializeOnStartup);
+         tasks.add(TabPersistentStore::onDeferredStartup);
++        tasks.add(RulesetUpdater::init);
      }
  
-     private void initChannelsAsync() {
+     /**
