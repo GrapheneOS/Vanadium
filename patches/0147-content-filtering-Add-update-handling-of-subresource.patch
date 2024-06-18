@@ -1,0 +1,217 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Mon, 26 Sep 2022 23:43:14 -0400
+Subject: [PATCH] content-filtering: Add update handling of subresource filter
+ component from config apk
+
+This is a combination of 2 commits.
+
+JNI bind RulesetService.IndexAndStoreAndPublishRulesetIfNeeded()
+
+JNI bind RulesetService.GetMostRecentlyIndexedVersion()
+---
+ .../subresource_filter/android/BUILD.gn       | 38 ++++++++++
+ .../subresource_filter/RulesetUpdater.java    | 71 +++++++++++++++++++
+ .../android/ruleset_updater.cc                | 47 ++++++++++++
+ .../android/ruleset_updater.h                 | 14 ++++
+ 4 files changed, 170 insertions(+)
+ create mode 100644 chrome/browser/subresource_filter/android/BUILD.gn
+ create mode 100644 chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
+ create mode 100644 chrome/browser/subresource_filter/android/ruleset_updater.cc
+ create mode 100644 chrome/browser/subresource_filter/android/ruleset_updater.h
+
+diff --git a/chrome/browser/subresource_filter/android/BUILD.gn b/chrome/browser/subresource_filter/android/BUILD.gn
+new file mode 100644
+index 0000000000000..5a6cbb259e2bc
+--- /dev/null
++++ b/chrome/browser/subresource_filter/android/BUILD.gn
+@@ -0,0 +1,38 @@
++# Copyright 2023 Zoraver Kang
++
++import("//build/config/android/rules.gni")
++import("//third_party/jni_zero/jni_zero.gni")
++
++generate_jni("jni_headers") {
++  sources = [
++    "java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java",
++  ]
++}
++
++android_library("java") {
++  srcjar_deps = [ ":jni_headers" ]
++  sources = [
++    "java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java",
++  ]
++
++  deps = [
++    ":jni_headers",
++    "//base:base_java",
++    "//components/subresource_filter/android_config:java",
++    "//third_party/jni_zero:jni_zero_java",
++    "//vanadium/android_config/proto:browser_config_parser_java",
++    "//vanadium/android_config/proto:config_proto_java",
++  ]
++}
++
++source_set("android") {
++  sources = [
++    "ruleset_updater.cc",
++    "ruleset_updater.h",
++  ]
++  deps = [
++    ":jni_headers",
++    "//base",
++    "//components/subresource_filter/content/browser",
++  ]
++}
+diff --git a/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java b/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
+new file mode 100644
+index 0000000000000..06b2010fcfe9c
+--- /dev/null
++++ b/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
+@@ -0,0 +1,71 @@
++// Copyright 2022-2024 GrapheneOS
++// Use of this source code is governed by a GPL-2.0-style license that can be
++// found in the LICENSE file.
++
++// Initially authored by Zoraver Kang, updated by GrapheneOS
++// to fit the config apk infrastructure for Vanadium.
++
++package org.chromium.chrome.browser.subresource_filter;
++
++import org.chromium.base.Log;
++import org.chromium.components.subresource_filter.SubresourceFilterFetching;
++import org.jni_zero.JNINamespace;
++import org.jni_zero.NativeMethods;
++
++import app.vanadium.config.VanadiumConfParser;
++
++@JNINamespace("subresource_filter")
++public class RulesetUpdater {
++
++    private static final String TAG = RulesetUpdater.class.getSimpleName();
++
++    public static void init() {
++        if (!VanadiumConfParser.isInitialized()) {
++            Log.w(TAG, "config not initialized");
++            return;
++        }
++
++        update(/* ignoreVersionCheck */ false);
++    }
++
++    public static void update(boolean ignoreVersionCheck) {
++        long unindexedContentVersionCode = SubresourceFilterFetching.getUnindexedRulesetVersion();
++        if (ignoreVersionCheck) {
++            Log.d(TAG, "Will update subresource filter from config apk regardless of previous version");
++        } else {
++            if (unindexedContentVersionCode < 0) {
++                return;
++            }
++
++            long previousVersion;
++            try {
++                previousVersion = Long.parseLong(version());
++            } catch (NumberFormatException e) {
++                Log.d(TAG, "Previous version is not from config apk, treating as outdated.");
++                previousVersion = -1;
++            }
++
++            if (previousVersion >= unindexedContentVersionCode) {
++                Log.d(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
++                return;
++            }
++        }
++
++        byte[] unindexedRulesetData = SubresourceFilterFetching.getUnindexedRulesetData();
++        if (unindexedRulesetData == null) {
++            return;
++        }
++
++        RulesetUpdaterJni.get().update(Long.toString(unindexedContentVersionCode));
++    }
++
++    public static String version() {
++        return RulesetUpdaterJni.get().version();
++    }
++
++    @NativeMethods
++    interface Natives {
++        void update(String unindexedContentVersion);
++        String version();
++    }
++}
+diff --git a/chrome/browser/subresource_filter/android/ruleset_updater.cc b/chrome/browser/subresource_filter/android/ruleset_updater.cc
+new file mode 100644
+index 0000000000000..6dc7ccc340cbf
+--- /dev/null
++++ b/chrome/browser/subresource_filter/android/ruleset_updater.cc
+@@ -0,0 +1,47 @@
++// Copyright 2022-2023 Zoraver Kang
++
++#include "chrome/browser/subresource_filter/android/ruleset_updater.h"
++
++#include "base/android/jni_android.h"
++#include "base/android/jni_string.h"
++#include "chrome/browser/browser_process.h"
++#include "chrome/browser/subresource_filter/android/jni_headers/RulesetUpdater_jni.h"
++#include "components/subresource_filter/content/shared/browser/ruleset_service.h"
++#include "components/subresource_filter/core/browser/ruleset_version.h"
++
++using base::android::ConvertJavaStringToUTF8;
++using base::android::ConvertUTF8ToJavaString;
++using base::android::JavaParamRef;
++using base::android::ScopedJavaLocalRef;
++
++namespace subresource_filter {
++
++static void JNI_RulesetUpdater_Update(JNIEnv *env,
++    const JavaParamRef<jstring>& junindexed_content_version) {
++  const std::string unindexed_content_version =
++      ConvertJavaStringToUTF8(env, junindexed_content_version);
++  UpdateRuleset(unindexed_content_version);
++}
++
++// static
++void UpdateRuleset(std::string version) {
++  UnindexedRulesetInfo ruleset_info;
++  ruleset_info.content_version = version;
++
++  RulesetService *ruleset_service =
++      g_browser_process->subresource_filter_ruleset_service();
++  if (ruleset_service) {
++    ruleset_service->IndexAndStoreAndPublishRulesetIfNeeded(ruleset_info);
++  }
++}
++
++static ScopedJavaLocalRef<jstring> JNI_RulesetUpdater_Version(JNIEnv *env) {
++  RulesetService *ruleset_service =
++      g_browser_process->subresource_filter_ruleset_service();
++  if (!ruleset_service) return ScopedJavaLocalRef<jstring>(nullptr);
++
++  return ConvertUTF8ToJavaString(env,
++      ruleset_service->GetMostRecentlyIndexedVersion().content_version);
++}
++
++} // namespace subresource_filter
+diff --git a/chrome/browser/subresource_filter/android/ruleset_updater.h b/chrome/browser/subresource_filter/android/ruleset_updater.h
+new file mode 100644
+index 0000000000000..d2260b5e00f6e
+--- /dev/null
++++ b/chrome/browser/subresource_filter/android/ruleset_updater.h
+@@ -0,0 +1,14 @@
++// Copyright 2021 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef CHROME_BROWSER_SUBRESOURCE_FILTER_ANDROID_RULESET_UPDATER_H_
++#define CHROME_BROWSER_SUBRESOURCE_FILTER_ANDROID_RULESET_UPDATER_H_
++
++#include <string>
++
++namespace subresource_filter {
++void UpdateRuleset(std::string version);
++} // namespace subresource_filter
++
++#endif // CHROME_BROWSER_SUBRESOURCE_FILTER_ANDROID_RULESET_UPDATER_H_
+\ No newline at end of file

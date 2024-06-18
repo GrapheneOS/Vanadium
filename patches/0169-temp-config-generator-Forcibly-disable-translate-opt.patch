@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 29 Mar 2024 13:26:23 +0000
+Subject: [PATCH] temp: config-generator: Forcibly disable translate option on
+ toolbar shortcut options
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java   | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index b33a1423df5ad..721d3d16e05fc 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -59,6 +59,19 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(
++                                SpecType.BROWSER
++                        ))
++                                .setMinVersion(6478_000_00L)
++                                .setMaxVersion(6478_071_99L)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("AdaptiveButtonInTopToolbarTranslate")
++                                .setFlagType(FlagType.DISABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

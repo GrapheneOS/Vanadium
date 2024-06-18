@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 8 Feb 2024 15:22:13 +0000
+Subject: [PATCH] config: test: Add ConfigInfo on necessary integration test
+ targets
+
+---
+ chrome/android/chrome_public_apk_tmpl.gni | 6 ++++++
+ net/android/BUILD.gn                      | 4 ++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index a2e10ea2b9646..9d3e697672faf 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -782,5 +782,11 @@ template("chrome_public_test_apk_tmpl") {
+     target_type = "instrumentation_test_apk"
+     forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
+     forward_variables_from(invoker, "*", TESTONLY_AND_VISIBILITY)
++    if (!defined(srcjar_deps)) {
++      srcjar_deps = []
++    }
++    srcjar_deps += [
++      "//vanadium/android_config:configinfo_srcjar_apk",
++    ]
+   }
+ }
+diff --git a/net/android/BUILD.gn b/net/android/BUILD.gn
+index 7331c0abcbc44..f54c9175977a2 100644
+--- a/net/android/BUILD.gn
++++ b/net/android/BUILD.gn
+@@ -190,6 +190,10 @@ android_apk("net_test_support_apk") {
+   apk_name = "ChromiumNetTestSupport"
+   shared_libraries = [ ":net_java_test_native_support" ]
+   srcjar_deps = [ ":net_java_test_native_support__jni_registration" ]
++
++  srcjar_deps += [
++    "//vanadium/android_config:configinfo_srcjar_apk",
++  ]
+ }
+ 
+ android_resources("net_unittests_apk_resources") {
