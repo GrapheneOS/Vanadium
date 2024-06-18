@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <zkang@wpi.edu>
+Date: Fri, 16 Aug 2019 02:03:45 -0400
+Subject: [PATCH] redirect settings help icon
+
+---
+ .../chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java    | 2 +-
+ .../browser/feedback/HelpAndFeedbackLauncherDelegate.java       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
+index 372e0f52170dd..9ec386481d4b4 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
+@@ -30,7 +30,7 @@ import java.util.Map;
+  */
+ public class HelpAndFeedbackLauncherImpl implements HelpAndFeedbackLauncher {
+     protected static final String FALLBACK_SUPPORT_URL =
+-            "https://support.google.com/chrome/topic/6069782";
++            "https://grapheneos.org/usage#web-browsing";
+ 
+     private static ProfileKeyedMap<HelpAndFeedbackLauncher> sProfileToLauncherMap;
+     private final HelpAndFeedbackLauncherDelegate mDelegate;
+diff --git a/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java b/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
+index b4410a1abd95f..d2b6f4c366026 100644
+--- a/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
++++ b/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
+@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
+ 
+ /** Delegate that handles the display of the HelpAndFeedback flows. */
+ public interface HelpAndFeedbackLauncherDelegate {
+-    static final String FALLBACK_SUPPORT_URL = "https://support.google.com/chrome/topic/6069782";
++    static final String FALLBACK_SUPPORT_URL = "https://grapheneos.org/usage#web-browsing";
+ 
+     /**
+      * Starts an activity showing a help page for the specified context ID.

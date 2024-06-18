@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 28 Jun 2019 17:48:49 -0400
+Subject: [PATCH] show download prompt again by default
+
+---
+ .../download/dialogs/DownloadLocationDialogCoordinator.java | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+index 0ba61cd9726ae..99c83f3916753 100644
+--- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
++++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+@@ -196,13 +196,9 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
+     }
+ 
+     private PropertyModel getLocationDialogModel() {
+-        boolean isInitial =
+-                DownloadDialogBridge.getPromptForDownloadAndroid(mProfile)
+-                        == DownloadPromptStatus.SHOW_INITIAL;
+-
+         PropertyModel.Builder builder =
+                 new PropertyModel.Builder(DownloadLocationDialogProperties.ALL_KEYS);
+-        builder.with(DownloadLocationDialogProperties.DONT_SHOW_AGAIN_CHECKBOX_CHECKED, isInitial);
++        builder.with(DownloadLocationDialogProperties.DONT_SHOW_AGAIN_CHECKBOX_CHECKED, false);
+         builder.with(
+                 DownloadLocationDialogProperties.FILE_NAME, new File(mSuggestedPath).getName());
+         builder.with(DownloadLocationDialogProperties.SHOW_SUBTITLE, true);

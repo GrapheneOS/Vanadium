@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 23 Dec 2020 06:00:50 -0500
+Subject: [PATCH] enable split cache by default
+
+---
+ net/base/features.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 3d473c6a298ef..3f6d23fae985e 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -111,11 +111,11 @@ BASE_FEATURE(kSplitCacheByIncludeCredentials,
+ 
+ BASE_FEATURE(kSplitCacheByNetworkIsolationKey,
+              "SplitCacheByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
+              "SplitCodeCacheByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kSplitHostCacheByNetworkIsolationKey,
+              "SplitHostCacheByNetworkIsolationKey",
