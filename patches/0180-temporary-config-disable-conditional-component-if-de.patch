@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 20 Jun 2024 08:39:51 +0000
+Subject: [PATCH] temporary: config: disable conditional component if declared
+ such in config holder app
+
+---
+ .../vanadium/config/VanadiumConfConditionals.java   | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+index 39d8de8b26056..267346485195a 100644
+--- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+@@ -2,6 +2,7 @@ package app.vanadium.config;
+ 
+ import android.util.Log;
+ 
++import app.vanadium.config.proto.VanadiumConfigProto;
+ import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
+ 
+ public final class VanadiumConfConditionals {
+@@ -15,6 +16,12 @@ public final class VanadiumConfConditionals {
+     private static volatile ConditionSupplier conditionSupplier;
+ 
+     private static ConditionSupplier getConditionSupplier() {
++        if (VanadiumConfParser.isInitialized()) {
++            if (VanadiumConfParser.getFlagsFor(VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE)
++                    .containsKey("VanadiumConfCondtionalsSupport")) {
++                return null;
++            }
++        }
+         return VanadiumConfConditionals.conditionSupplier;
+     }
+ 
+@@ -37,6 +44,12 @@ public final class VanadiumConfConditionals {
+     }
+ 
+     public static void setBrowserConditionals(ConditionSupplier conditionSupplier) {
++        if (VanadiumConfParser.isInitialized()) {
++            if (VanadiumConfParser.getFlagsFor(VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE)
++                    .containsKey("VanadiumConfCondtionalsSupport")) {
++                return;
++            }
++        }
+         VanadiumConfConditionals.conditionSupplier = conditionSupplier;
+     }
+ }
