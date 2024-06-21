@@ -1,0 +1,123 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 1 May 2024 04:31:09 +0000
+Subject: [PATCH] Enforce calling app Network permission for calling app
+
+---
+ chrome/android/chrome_ext_deps.gni            |  1 +
+ .../browser/LaunchIntentDispatcher.java       |  7 +++++
+ .../browser/LaunchIntentDispatcherHooks.java  | 26 +++++++++++++++++++
+ .../src/app/vanadium/ext/CustomOSApis.java    | 19 ++++++++++++++
+ 4 files changed, 53 insertions(+)
+
+diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
+index 522092c9820ce..d605c253df533 100644
+--- a/chrome/android/chrome_ext_deps.gni
++++ b/chrome/android/chrome_ext_deps.gni
+@@ -5,6 +5,7 @@
+ chrome_ext_deps = [
+   "//chrome/browser/subresource_filter/android:java",
+   "//vanadium/android_config/proto:browser_config_parser_java",
++  "//vanadium/ext/custom_os:custom_os_apis_java",
+ ]
+ 
+ chrome_ext_srcjar_deps = [
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index e54b3eb20ff61..0e21149ca6cf3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -162,6 +162,13 @@ public class LaunchIntentDispatcher {
+             return Action.FINISH_ACTIVITY;
+         }
+ 
++        if (mActivity instanceof ChromeLauncherActivity) {
++            if (LaunchIntentDispatcherHooks.shouldPromptToOpenUrl(mActivity)) {
++                LaunchIntentDispatcherHooks.promptToOpenUrl(mActivity, url);
++                return Action.FINISH_ACTIVITY;
++            }
++        }
++
+         // Check if a LIVE WebappActivity has to be brought back to the foreground.  We can't
+         // check for a dead WebappActivity because we don't have that information without a global
+         // TabManager.  If that ever lands, code to bring back any Tab could be consolidated
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+index fd771c9cd0b90..4b1f9eafd4417 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+@@ -1,10 +1,17 @@
+ package org.chromium.chrome.browser;
+ 
++import static android.Manifest.permission.INTERNET;
++import static app.vanadium.ext.CustomOSApis.PERMISSION_RESULT_UNKNOWN;
++import static app.vanadium.ext.CustomOSApis.checkLaunchedFromActivityPermission;
++
+ import android.app.Activity;
+ import android.app.SearchManager;
+ import android.content.Context;
+ import android.content.Intent;
++import android.content.pm.PackageManager;
+ 
++import org.chromium.base.ContextUtils;
++import org.chromium.chrome.browser.searchwidget.SearchActivity;
+ import org.chromium.chrome.browser.searchwidget.SearchActivityHooks;
+ 
+ final class LaunchIntentDispatcherHooks {
+@@ -51,4 +58,23 @@ final class LaunchIntentDispatcherHooks {
+ 
+         return newIntent;
+     }
++
++    static boolean shouldPromptToOpenUrl(Activity activity) {
++        int permissionResult = checkLaunchedFromActivityPermission(activity, INTERNET);
++        if (permissionResult == PERMISSION_RESULT_UNKNOWN
++                || permissionResult == PackageManager.PERMISSION_GRANTED) {
++            return false;
++        }
++
++        return true;
++    }
++
++    static void promptToOpenUrl(Activity activity, String url) {
++        Intent redirectedIntent = new Intent(Intent.ACTION_MAIN);
++        redirectedIntent.setClass(
++                ContextUtils.getApplicationContext(), SearchActivity.class);
++        redirectedIntent.putExtra(SearchManager.QUERY, url);
++        redirectedIntent.putExtra(IntentHandler.EXTRA_INCOGNITO_MODE, true);
++        activity.startActivity(redirectedIntent);
++    }
+ }
+diff --git a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+index beaf2b4576207..06b3e69b08054 100644
+--- a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
++++ b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+@@ -1,5 +1,6 @@
+ package app.vanadium.ext;
+ 
++import android.app.Activity;
+ import android.os.Environment;
+ import android.util.Log;
+ 
+@@ -26,4 +27,22 @@ public class CustomOSApis {
+         }
+     }
+ 
++    public static final int PERMISSION_RESULT_UNKNOWN = -100;
++
++    public static int checkLaunchedFromActivityPermission(Activity activity, String permission) {
++        try {
++            Method checkLaunchedFromPermission =
++                    Activity.class.getDeclaredMethod("checkLaunchedFromPermission", String.class);
++            if (checkLaunchedFromPermission.getReturnType() != Integer.TYPE) {
++                Log.e(TAG, "Unexpected return type: checkLaunchedFromPermission must return int");
++                return PERMISSION_RESULT_UNKNOWN;
++            }
++
++            var res = checkLaunchedFromPermission.invoke(activity, permission);
++            return (int) res;
++        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
++            Log.e(TAG, "", e);
++            return PERMISSION_RESULT_UNKNOWN;
++        }
++    }
+ }
+\ No newline at end of file
