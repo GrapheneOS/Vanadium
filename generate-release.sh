@@ -5,7 +5,10 @@
 set -o errexit -o nounset -o pipefail
 
 KEYSTORE=$PWD/../vanadium.keystore
-APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/34.0.0/apksigner
+APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/35.0.0/apksigner
+if [[ ! -d $APKSIGNER ]]; then
+    APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/34.0.0/apksigner
+fi
 readonly APPS=(
     TrichromeChrome
     TrichromeLibrary
