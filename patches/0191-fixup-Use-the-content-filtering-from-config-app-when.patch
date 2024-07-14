@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sun, 14 Jul 2024 02:58:50 +0000
+Subject: [PATCH] fixup! Use the content filtering from config app when
+ available
+
+---
+ chrome/browser/component_updater/registration.cc | 3 ---
+ chrome/browser/static_library_browser_deps.gni   | 3 ++-
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/browser/component_updater/registration.cc b/chrome/browser/component_updater/registration.cc
+index 95baf360d9f1f..a3216215fbf65 100644
+--- a/chrome/browser/component_updater/registration.cc
++++ b/chrome/browser/component_updater/registration.cc
+@@ -47,7 +47,6 @@
+ #include "components/component_updater/url_param_filter_remover.h"
+ #if BUILDFLAG(IS_ANDROID)
+ #include "components/subresource_filter/android_config/subresource_filter_fetching.h"
+-#include "chrome/browser/subresource_filter/android/ruleset_updater.h"
+ #endif // BUILDFLAG(IS_ANDROID)
+ #include "components/nacl/common/buildflags.h"
+ #include "components/safe_browsing/core/common/features.h"
+@@ -138,8 +137,6 @@ void RegisterComponentsForUpdate() {
+ #if BUILDFLAG(IS_ANDROID)
+   if (!subresource_filter::IsInitialized()) {
+     RegisterSubresourceFilterComponent(cus);
+-  } else {
+-    subresource_filter::UpdateRuleset(subresource_filter::GetUnindexedRulesetVersion());
+   }
+ #endif // BUILDFLAG(IS_ANDROID)
+   RegisterOnDeviceHeadSuggestComponent(
+diff --git a/chrome/browser/static_library_browser_deps.gni b/chrome/browser/static_library_browser_deps.gni
+index 5f1021af5c06d..7d7644253dc23 100644
+--- a/chrome/browser/static_library_browser_deps.gni
++++ b/chrome/browser/static_library_browser_deps.gni
+@@ -5,5 +5,6 @@
+ assert(is_android)
+ 
+ static_library_browser_deps = [
+-  "//chrome/browser/subresource_filter/android",
++  "//chrome/browser/subresource_filter/android:android",
++  "//components/subresource_filter/android_config:android",
+ ]

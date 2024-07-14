@@ -1,0 +1,208 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 15 Jul 2024 15:29:50 +0000
+Subject: [PATCH] Include a java port of atomic file and scoped file
+ description utility classes from Apps app
+
+---
+ vanadium/ext/utils/BUILD.gn                   |  14 +++
+ .../app/vanadium/ext/utils/AtomicFile2.java   | 118 ++++++++++++++++++
+ .../ext/utils/ScopedFileDescriptor.java       |  42 +++++++
+ 3 files changed, 174 insertions(+)
+ create mode 100644 vanadium/ext/utils/BUILD.gn
+ create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java
+ create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/ScopedFileDescriptor.java
+
+diff --git a/vanadium/ext/utils/BUILD.gn b/vanadium/ext/utils/BUILD.gn
+new file mode 100644
+index 0000000000000..bc05f3660d5b3
+--- /dev/null
++++ b/vanadium/ext/utils/BUILD.gn
+@@ -0,0 +1,14 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("file_utils_java") {
++  sources = [
++    "java/src/app/vanadium/ext/utils/AtomicFile2.java",
++    "java/src/app/vanadium/ext/utils/ScopedFileDescriptor.java",
++  ]
++  deps = [
++  ]
++}
+\ No newline at end of file
+diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java
+new file mode 100644
+index 0000000000000..2bfb2196631ca
+--- /dev/null
++++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java
+@@ -0,0 +1,118 @@
++package app.vanadium.ext.utils;
++
++import android.content.Context;
++import android.os.Build;
++import android.system.ErrnoException;
++import android.system.Os;
++import android.system.OsConstants;
++import android.util.Log;
++
++
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.IOException;
++import java.io.InterruptedIOException;
++
++// Class authored by muhomorr in Apps app repository, see
++// https://github.com/GrapheneOS/Apps/commit/43e9d5218374e712f96154b269e554b2debd652d#diff-d95bcaf27889d24a999547d34ab4a980c248cd9f048aebf27524cdc103e58b47
++// and the copied documentation below:
++// android.util.AtomicFile has several issues:
++//  - ignores errors from fsync(), rename(), close()
++//  - doesn't do fsync of the containing directory
++//  - doesn't enforce having at most one writer at a time
++//  - checks for a legacy file name that was used by its older implementation
++public final class AtomicFile2 {
++
++    public static final String TAG = "cr_AtomicFile2";
++
++    public final String name;
++    public final String dirPath;
++    public final File file;
++    public final String filePath;
++    public final String tmpFilePath;
++
++    // Context.getFilesDir() is the only reliable place to write files: files from cache dir may
++    // disappear mid-write, before rename of tmpPath. Writes to files on shared storage go through
++    // the FUSE daemon, which lowers reliability and performance
++    public AtomicFile2(Context ctx, String name) {
++        this(ctx.getFilesDir(), name);
++    }
++
++    public AtomicFile2(File filesDir, String name) {
++        if (!filesDir.isDirectory()) {
++            throw new IllegalArgumentException();
++        }
++        this.name = name;
++        this.dirPath = filesDir.getPath();
++        this.file = new File(filesDir, name);
++        this.filePath = this.file.getPath();
++        this.tmpFilePath = this.filePath + ".tmp";
++    }
++
++    public byte[] read() throws IOException {
++        if (!file.exists()) {
++            return null;
++        }
++
++        try (var inputStream = new FileInputStream(file)) {
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
++                return inputStream.readAllBytes();
++            } else {
++                return readForAndroid12OrOlder(inputStream);
++            }
++        } catch (IOException e) {
++            Log.e(TAG, "", e);
++            return null;
++        }
++    }
++
++    // See java.io.InputStream#transferTo(OutputStream)
++    private byte[] readForAndroid12OrOlder(FileInputStream inputStream) throws IOException {
++        long length = file.length();
++        int remaining = length < Integer.MAX_VALUE ? (int) length : Integer.MAX_VALUE;
++        var bos = new ByteArrayOutputStream(remaining);
++        int defBufferSize = 8192;
++        byte[] buffer = new byte[defBufferSize];
++        int read;
++        while ((read = inputStream.read(buffer, 0, defBufferSize)) >= 0) {
++            bos.write(buffer, 0, read);
++        }
++        return bos.toByteArray();
++    }
++
++    public void write(byte[] bytes) throws ErrnoException, InterruptedIOException {
++        synchronized (file) {
++            writeInner(bytes);
++        }
++    }
++
++    private void writeInner(byte[] bytes) throws ErrnoException, InterruptedIOException {
++        int flags = OsConstants.O_RDWR | OsConstants.O_CREAT |
++                // in case there's a leftover file from previous failed write
++                OsConstants.O_TRUNC;
++        int mode = OsConstants.S_IRUSR | OsConstants.S_IWUSR; // 0600
++
++        try (ScopedFileDescriptor sfd =
++                     new ScopedFileDescriptor(Os.open(tmpFilePath, flags, mode))) {
++            int written = 0;
++            int len = bytes.length;
++            while (written != len) {
++                int chunkLen = len - written;
++                int writeRes = Os.write(sfd.v, bytes, written, chunkLen);
++                if (writeRes < 0 || writeRes > chunkLen) {
++                    throw new IllegalStateException("unexpected write result and chunk to write");
++                }
++                written += writeRes;
++            }
++
++            Os.fsync(sfd.v);
++        }
++
++        Os.rename(tmpFilePath, filePath);
++
++        try (var fd = new ScopedFileDescriptor(Os.open(dirPath, OsConstants.O_RDONLY, 0))) {
++            Os.fsync(fd.v);
++        }
++    }
++}
+diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/ScopedFileDescriptor.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/ScopedFileDescriptor.java
+new file mode 100644
+index 0000000000000..7934567ff189e
+--- /dev/null
++++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/ScopedFileDescriptor.java
+@@ -0,0 +1,42 @@
++package app.vanadium.ext.utils;
++
++import android.content.Context;
++import android.os.ParcelFileDescriptor;
++import android.system.ErrnoException;
++import android.system.Os;
++import android.system.OsConstants;
++import android.util.Log;
++
++import java.io.File;
++import java.io.FileDescriptor;
++import java.io.IOException;
++
++// Class authored by muhomorr in Apps app repository, see
++// https://github.com/GrapheneOS/Apps/commit/43e9d5218374e712f96154b269e554b2debd652d#diff-d95bcaf27889d24a999547d34ab4a980c248cd9f048aebf27524cdc103e58b47
++// and the copied documentation below:
++public final class ScopedFileDescriptor implements AutoCloseable {
++
++    public static final String TAG = "cr_ScopedFileDescriptor";
++
++    public final FileDescriptor v;
++
++    public ScopedFileDescriptor(FileDescriptor v) {
++        this.v = v;
++    }
++
++    // Needed for accessing the int value of fd.
++    // Strangely, access to int value of FileDescriptor is restricted behind hidden and discouraged
++    // FileDescriptor.getInt$(), but is part of public API of ParcelFileDescriptor
++    public ParcelFileDescriptor dupToFd() throws IOException {
++        return ParcelFileDescriptor.dup(v);
++    }
++
++    @Override
++    public void close() {
++        try {
++            Os.close(v);
++        } catch (ErrnoException e) {
++            Log.d(TAG, "", e);
++        }
++    }
++}
