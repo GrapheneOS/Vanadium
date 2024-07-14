@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sun, 14 Jul 2024 03:16:52 +0000
+Subject: [PATCH] fixup! Use ruleset from config apk whenever it's present
+
+---
+ .../content/shared/browser/ruleset_service.cc     |  3 ++-
+ .../browser/unindexed_ruleset_stream_generator.cc | 15 ---------------
+ 2 files changed, 2 insertions(+), 16 deletions(-)
+
+diff --git a/components/subresource_filter/content/shared/browser/ruleset_service.cc b/components/subresource_filter/content/shared/browser/ruleset_service.cc
+index 8af356180d22e..240f90569ca6f 100644
+--- a/components/subresource_filter/content/shared/browser/ruleset_service.cc
++++ b/components/subresource_filter/content/shared/browser/ruleset_service.cc
+@@ -248,7 +248,7 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
+       most_recently_indexed_version.content_version ==
+           unindexed_ruleset_info.content_version) {
+ #if BUILDFLAG(IS_ANDROID)
+-    if (!subresource_filter::IsInitialized())
++    if (!subresource_filter::IsInitializedFromConfig())
+       return;
+ #else
+     return;
+@@ -478,6 +478,7 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
+     return;
+   version.SaveToPrefs(local_state_);
+   std::move(result_callback).Run(version);
++  subresource_filter::DeleteUnindexedFile();
+ }
+ 
+ void RulesetService::OpenAndPublishRuleset(
+diff --git a/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc b/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
+index 337ecdef4d58a..11f98643d5784 100644
+--- a/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
++++ b/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
+@@ -9,9 +9,6 @@
+ #include "base/files/file_path.h"
+ #include "components/subresource_filter/core/browser/copying_file_stream.h"
+ #include "components/subresource_filter/core/browser/ruleset_version.h"
+-#if BUILDFLAG(IS_ANDROID)
+-#include "components/subresource_filter/android_config/subresource_filter_fetching.h"
+-#endif // BUILDFLAG(IS_ANDROID)
+ #include "third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl.h"
+ #include "third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite.h"
+ #include "ui/base/resource/resource_bundle.h"
+@@ -22,23 +19,11 @@ UnindexedRulesetStreamGenerator::UnindexedRulesetStreamGenerator(
+     const UnindexedRulesetInfo& ruleset_info) {
+   bool has_ruleset_file = !ruleset_info.ruleset_path.empty();
+ 
+-#if BUILDFLAG(IS_ANDROID)
+-  std::string unindexed_ruleset_data_as_str = subresource_filter::GetUnindexedRulesetData();
+-  DCHECK(has_ruleset_file || ruleset_info.resource_id || unindexed_ruleset_data_as_str.size() != 0);
+-#else
+   DCHECK(has_ruleset_file || ruleset_info.resource_id);
+   DCHECK(!(has_ruleset_file && ruleset_info.resource_id));
+-#endif // BUILDFLAG(IS_ANDROID)
+ 
+   if (has_ruleset_file) {
+     GenerateStreamFromFile(ruleset_info.ruleset_path);
+-#if BUILDFLAG(IS_ANDROID)
+-  } else if (unindexed_ruleset_data_as_str.size() != 0) {
+-    ruleset_size_ = unindexed_ruleset_data_as_str.size();
+-    string_stream_.str(unindexed_ruleset_data_as_str);
+-    ruleset_stream_ = std::make_unique<google::protobuf::io::IstreamInputStream>(
+-        &string_stream_);
+-#endif // BUILDFLAG(IS_ANDROID)
+   } else {
+     GenerateStreamFromResourceId(ruleset_info.resource_id);
+   }
