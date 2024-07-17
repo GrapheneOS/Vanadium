@@ -5,10 +5,10 @@ Subject: [PATCH] Include a java port of atomic file and scoped file descriptor
  utility classes from Apps app
 
 ---
- vanadium/ext/utils/BUILD.gn                   |  14 +++
- .../app/vanadium/ext/utils/AtomicFile2.java   | 101 ++++++++++++++++++
- .../ext/utils/ScopedFileDescriptor.java       |  42 ++++++++
- 3 files changed, 157 insertions(+)
+ vanadium/ext/utils/BUILD.gn                   | 14 +++
+ .../app/vanadium/ext/utils/AtomicFile2.java   | 96 +++++++++++++++++++
+ .../ext/utils/ScopedFileDescriptor.java       | 42 ++++++++
+ 3 files changed, 152 insertions(+)
  create mode 100644 vanadium/ext/utils/BUILD.gn
  create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java
  create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/ScopedFileDescriptor.java
@@ -36,10 +36,10 @@ index 0000000000000..bc05f3660d5b3
 \ No newline at end of file
 diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java
 new file mode 100644
-index 0000000000000..e684ba75ee4db
+index 0000000000000..329158639dd75
 --- /dev/null
 +++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/AtomicFile2.java
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,96 @@
 +package app.vanadium.ext.utils;
 +
 +import android.content.Context;
@@ -92,12 +92,7 @@ index 0000000000000..e684ba75ee4db
 +            return null;
 +        }
 +
-+        try {
-+            return Files.readAllBytes(file.toPath());
-+        } catch (IOException e) {
-+            Log.e(TAG, "", e);
-+            return null;
-+        }
++        return Files.readAllBytes(file.toPath());
 +    }
 +
 +    public boolean delete() {
