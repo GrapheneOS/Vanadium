@@ -5,31 +5,32 @@ Subject: [PATCH] Add support for upstream file-based parsing of unindexed
  content filtering component
 
 ---
- vanadium/android_config/proto/BUILD.gn        |  2 +
+ vanadium/android_config/proto/BUILD.gn        |  9 +++
  .../SubresourceFilterComponentUtils.java      | 78 +++++++++++++++++++
  .../vanadium/config/VanadiumConfParser.java   |  3 +
- 3 files changed, 83 insertions(+)
+ 3 files changed, 90 insertions(+)
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
-index 5f04b2dca6267..497fd12a4671c 100644
+index 31aef8a25d16a..12c39bc60c74b 100644
 --- a/vanadium/android_config/proto/BUILD.gn
 +++ b/vanadium/android_config/proto/BUILD.gn
-@@ -54,12 +54,14 @@ action("config_generation") {
- 
- android_library("browser_config_parser_java") {
-   sources = [
-+    "java/src/app/vanadium/config/SubresourceFilterComponentUtils.java",
-     "java/src/app/vanadium/config/VanadiumConfConditionals.java",
-     "java/src/app/vanadium/config/VanadiumConfParser.java",
-   ]
-   deps = [
+@@ -60,6 +60,15 @@ android_library("browser_config_parser_java") {
      ":config_proto_java",
      "//vanadium/android_config:configinfo_java",
-+    "//vanadium/ext/utils:file_utils_java",
    ]
++
++  # additional sources for subresource filtering component
++  sources += [
++    "java/src/app/vanadium/config/SubresourceFilterComponentUtils.java",
++  ]
++
++  deps += [
++    "//vanadium/ext/utils:file_utils_java",
++  ]
  }
  
+ android_assets("config_assets") {
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java b/vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
 new file mode 100644
 index 0000000000000..a42d38734d266
@@ -115,10 +116,10 @@ index 0000000000000..a42d38734d266
 +    }
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-index bdb3bf71cebcc..76fcd33f74909 100644
+index c056faacb11c4..c30c00e412a6a 100644
 --- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -329,6 +329,9 @@ public final class VanadiumConfParser {
+@@ -321,6 +321,9 @@ public final class VanadiumConfParser {
      private static void parseInBackground(Context ctx, SpecType specType) {
          futureParsedConfigs = executor.submit(() -> {
              parsedConfigs = parse(ctx, specType);
