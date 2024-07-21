@@ -5,11 +5,11 @@ Subject: [PATCH] Expose fetching config state for content filtering to native
  calls
 
 ---
- .../android_config/BUILD.gn                   | 36 +++++++++++++++++++
- .../SubresourceFilterFetching.java            | 30 ++++++++++++++++
- .../subresource_filter_fetching.cc            | 24 +++++++++++++
- .../subresource_filter_fetching.h             | 15 ++++++++
- 4 files changed, 105 insertions(+)
+ .../android_config/BUILD.gn                   | 36 ++++++++++++++++++
+ .../SubresourceFilterFetching.java            | 26 +++++++++++++
+ .../subresource_filter_fetching.cc            | 37 +++++++++++++++++++
+ .../subresource_filter_fetching.h             | 16 ++++++++
+ 4 files changed, 115 insertions(+)
  create mode 100644 components/subresource_filter/android_config/BUILD.gn
  create mode 100644 components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
  create mode 100644 components/subresource_filter/android_config/subresource_filter_fetching.cc
@@ -59,26 +59,27 @@ index 0000000000000..3e216ca2933dd
 +}
 diff --git a/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java b/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
 new file mode 100644
-index 0000000000000..f8bb67eaacf13
+index 0000000000000..bd702d12432a9
 --- /dev/null
 +++ b/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,26 @@
 +package org.chromium.components.subresource_filter;
 +
 +import org.jni_zero.CalledByNative;
 +import org.jni_zero.JNINamespace;
 +
-+import app.vanadium.config.SubresourceFilterComponentUtils;
 +import app.vanadium.config.VanadiumConfParser;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
 +
 +@JNINamespace("subresource_filter")
 +public class SubresourceFilterFetching {
 +
++    @CalledByNative
 +    public static long getUnindexedRulesetVersion() {
 +        return VanadiumConfParser.getVersionCodeForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
 +    }
 +
++    @CalledByNative
 +    public static byte[] getUnindexedRulesetData() {
 +        return VanadiumConfParser.getByteArrayForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
 +    }
@@ -87,18 +88,13 @@ index 0000000000000..f8bb67eaacf13
 +    public static boolean isInitialized() {
 +        return VanadiumConfParser.isInitialized();
 +    }
-+
-+    @CalledByNative
-+    public static boolean deleteUnindexedFile() {
-+        return SubresourceFilterComponentUtils.deleteComponentFileForParsing();
-+    }
 +}
 diff --git a/components/subresource_filter/android_config/subresource_filter_fetching.cc b/components/subresource_filter/android_config/subresource_filter_fetching.cc
 new file mode 100644
-index 0000000000000..b9e3c65069b7d
+index 0000000000000..ca345bc361943
 --- /dev/null
 +++ b/components/subresource_filter/android_config/subresource_filter_fetching.cc
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,37 @@
 +// Copyright 2021 The Chromium Authors
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -108,27 +104,40 @@ index 0000000000000..b9e3c65069b7d
 +#include <string>
 +
 +#include "base/android/jni_android.h"
++#include "base/android/jni_array.h"
++#include "base/strings/string_number_conversions.h"
 +#include "components/subresource_filter/android_config/subresource_filter_fetching_jni_headers/SubresourceFilterFetching_jni.h"
 +
 +namespace subresource_filter {
 +
-+bool IsInitializedFromConfig() {
++std::string GetUnindexedRulesetVersion() {
 +  JNIEnv* env = base::android::AttachCurrentThread();
-+  return Java_SubresourceFilterFetching_isInitialized(env);
++  return base::NumberToString(Java_SubresourceFilterFetching_getUnindexedRulesetVersion(env));
 +}
 +
-+bool DeleteUnindexedFile() {
++std::string GetUnindexedRulesetData() {
++  using base::android::JavaByteArrayToString;
++  using base::android::ScopedJavaLocalRef;
++
 +  JNIEnv* env = base::android::AttachCurrentThread();
-+  return Java_SubresourceFilterFetching_deleteUnindexedFile(env);
++  ScopedJavaLocalRef<jbyteArray> arr = Java_SubresourceFilterFetching_getUnindexedRulesetData(env);
++  std::string unindexed_ruleset_data_str;
++  JavaByteArrayToString(env, arr, &unindexed_ruleset_data_str);
++  return unindexed_ruleset_data_str;
++}
++
++bool IsInitialized() {
++  JNIEnv* env = base::android::AttachCurrentThread();
++  return Java_SubresourceFilterFetching_isInitialized(env);
 +}
 +
 +}
 diff --git a/components/subresource_filter/android_config/subresource_filter_fetching.h b/components/subresource_filter/android_config/subresource_filter_fetching.h
 new file mode 100644
-index 0000000000000..fc36417aa70e8
+index 0000000000000..80d8054151594
 --- /dev/null
 +++ b/components/subresource_filter/android_config/subresource_filter_fetching.h
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,16 @@
 +// Copyright 2021 The Chromium Authors
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -139,8 +148,9 @@ index 0000000000000..fc36417aa70e8
 +#include <string>
 +
 +namespace subresource_filter {
-+bool IsInitializedFromConfig();
-+bool DeleteUnindexedFile();
++std::string GetUnindexedRulesetVersion();
++std::string GetUnindexedRulesetData();
++bool IsInitialized();
 +} // namespace subresource_filter
 +
 +#endif // COMPONENTS_SUBRESOURCE_FILTER_ANDROID_CONFIG_SUBRESOURCE_FILTER_FETCHING_H_
