@@ -9,7 +9,7 @@ Subject: [PATCH] enable memory tagging in all processes
  2 files changed, 1 insertion(+), 13 deletions(-)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
-index 8fdea244f2719..176553dce1843 100644
+index 8fea070586787..b60576105ec0f 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
 @@ -38,6 +38,7 @@ by a child template that "extends" this file.
@@ -21,10 +21,10 @@ index 8fdea244f2719..176553dce1843 100644
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
 diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
-index 0caf8862d8270..e090514e47485 100644
+index c73a297111111..df73adf1f218b 100644
 --- a/base/allocator/partition_alloc_features.cc
 +++ b/base/allocator/partition_alloc_features.cc
-@@ -161,11 +161,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
+@@ -165,11 +165,7 @@ const base::FeatureParam<BackupRefPtrMode> kBackupRefPtrModeParam{
  
  BASE_FEATURE(kPartitionAllocMemoryTagging,
               "PartitionAllocMemoryTagging",
@@ -36,7 +36,7 @@ index 0caf8862d8270..e090514e47485 100644
  );
  
  constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
-@@ -190,11 +186,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+@@ -194,11 +190,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
  const base::FeatureParam<MemoryTaggingEnabledProcesses>
      kMemoryTaggingEnabledProcessesParam{
          &kPartitionAllocMemoryTagging, "enabled-processes",
@@ -48,7 +48,7 @@ index 0caf8862d8270..e090514e47485 100644
          &kMemoryTaggingEnabledProcessesOptions};
  
  BASE_FEATURE(kKillPartitionAllocMemoryTagging,
-@@ -204,12 +196,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+@@ -208,12 +200,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
  BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
  BASE_FEATURE(kPartitionAllocPermissiveMte,
               "PartitionAllocPermissiveMte",
