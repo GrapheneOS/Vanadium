@@ -4,21 +4,19 @@ Date: Sat, 16 Dec 2023 00:25:55 +0000
 Subject: [PATCH] Remove privacy guides preference UI
 
 ---
- .../chrome/browser/privacy/settings/PrivacySettings.java      | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java     | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 413e24f1dc30f..755e806c58bc8 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -135,9 +135,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
-                     UserPrefs.get(getProfile()).setBoolean(Pref.PRIVACY_GUIDE_VIEWED, true);
-                     return false;
-                 });
--        if (getProfile().isChild() || ManagedBrowserUtils.isBrowserManaged(getProfile())) {
--            getPreferenceScreen().removePreference(privacyGuidePreference);
--        }
-+        getPreferenceScreen().removePreference(privacyGuidePreference);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index ad71ef73656bf..e7d66688e13da 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -56,6 +56,8 @@ final class PrivacySettingsExt {
+                 prefFragment, PrivacySettings.PREF_SYNC_AND_SERVICES_LINK);
+         SettingsExtUtils.safelyRemovePreference(
+                 prefFragment, PrivacySettings.PREF_PRIVACY_SANDBOX);
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_PRIVACY_GUIDE);
+     }
  
-         IncognitoReauthSettingSwitchPreference incognitoReauthPreference =
-                 (IncognitoReauthSettingSwitchPreference) findPreference(PREF_INCOGNITO_LOCK);
+     static void initializePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {

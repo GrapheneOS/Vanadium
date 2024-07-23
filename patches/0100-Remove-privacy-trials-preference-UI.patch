@@ -4,19 +4,19 @@ Date: Fri, 15 Oct 2021 13:49:33 +0000
 Subject: [PATCH] Remove privacy trials preference UI
 
 ---
- .../chrome/browser/privacy/settings/PrivacySettings.java        | 2 ++
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java     | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 0870b968bacc1..413e24f1dc30f 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -144,6 +144,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
-         mIncognitoLockSettings = new IncognitoLockSettings(incognitoReauthPreference, getProfile());
-         mIncognitoLockSettings.setUpIncognitoReauthPreference(getActivity());
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index c2be97b0e7e6c..ad71ef73656bf 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -54,6 +54,8 @@ final class PrivacySettingsExt {
+         ThreadUtils.checkUiThread();
+         SettingsExtUtils.safelyRemovePreference(
+                 prefFragment, PrivacySettings.PREF_SYNC_AND_SERVICES_LINK);
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_PRIVACY_SANDBOX);
+     }
  
-+        getPreferenceScreen().removePreference(sandboxPreference);
-+
-         Preference safeBrowsingPreference = findPreference(PREF_SAFE_BROWSING);
-         safeBrowsingPreference.setSummary(
-                 SafeBrowsingSettingsFragment.getSafeBrowsingSummaryString(
+     static void initializePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {

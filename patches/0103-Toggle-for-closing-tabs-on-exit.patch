@@ -61,10 +61,10 @@ index 01e8c8217afed..ea1dd6c3f529c 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 270afdbfb54da..65a341c19d02e 100644
+index d89e2e0e783fe..46d5defdb0b18 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1627,6 +1627,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1635,6 +1635,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
  
              boolean noRestoreState =
                      CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE);
@@ -103,7 +103,7 @@ index 0000000000000..57aae64057cfb
 +
 +}
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index 6391047465ee2..98d01e921f9b8 100644
+index 46244eecf3e6c..b483c765f76f3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -26,6 +26,7 @@ import org.chromium.components.user_prefs.UserPrefs;
@@ -123,7 +123,7 @@ index 6391047465ee2..98d01e921f9b8 100644
              }
              return true;
          };
-@@ -78,6 +81,13 @@ final class PrivacySettingsExt {
+@@ -84,6 +87,13 @@ final class PrivacySettingsExt {
              searchSuggestionsPref.setOnPreferenceChangeListener(getListener(profile));
              searchSuggestionsPref.setManagedPreferenceDelegate(getDelegate(profile));
          }
@@ -137,7 +137,7 @@ index 6391047465ee2..98d01e921f9b8 100644
      }
  
      static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
-@@ -88,5 +98,11 @@ final class PrivacySettingsExt {
+@@ -94,5 +104,11 @@ final class PrivacySettingsExt {
          SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ searchSuggestionsPref,
                  /* newSummary*/ null,
                  /* newCheckedValue*/ prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));

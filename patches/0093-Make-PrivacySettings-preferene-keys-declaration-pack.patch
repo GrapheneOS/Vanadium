@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 17 May 2024 11:49:00 +0000
+Subject: [PATCH] Make PrivacySettings preferene keys declaration
+ package-private
+
+This is needed to access preference keys from PrivacySettings for
+modification in its corresponding utility/extra class.
+
+commands used:
+CHROMIUM_SRC_DIR=/path/to/chromium/src
+sed -ri 's/private static final String PREF_/static final String PREF_/g' $CHROMIUM_SRC_DIR/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+---
+ .../privacy/settings/PrivacySettings.java     | 26 +++++++++----------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index 96fb672914b02..0091d96364e62 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -54,19 +54,19 @@ import org.chromium.ui.text.SpanApplier;
+ /** Fragment to keep track of the all the privacy related preferences. */
+ public class PrivacySettings extends ChromeBaseSettingsFragment
+         implements Preference.OnPreferenceChangeListener, FragmentSettingsLauncher {
+-    private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
+-    private static final String PREF_PRELOAD_PAGES = "preload_pages";
+-    private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+-    private static final String PREF_SECURE_DNS = "secure_dns";
+-    private static final String PREF_USAGE_STATS = "usage_stats_reporting";
+-    private static final String PREF_DO_NOT_TRACK = "do_not_track";
+-    private static final String PREF_SAFE_BROWSING = "safe_browsing";
+-    private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
+-    private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
+-    private static final String PREF_PRIVACY_GUIDE = "privacy_guide";
+-    private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
+-    private static final String PREF_THIRD_PARTY_COOKIES = "third_party_cookies";
+-    private static final String PREF_TRACKING_PROTECTION = "tracking_protection";
++    static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
++    static final String PREF_PRELOAD_PAGES = "preload_pages";
++    static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
++    static final String PREF_SECURE_DNS = "secure_dns";
++    static final String PREF_USAGE_STATS = "usage_stats_reporting";
++    static final String PREF_DO_NOT_TRACK = "do_not_track";
++    static final String PREF_SAFE_BROWSING = "safe_browsing";
++    static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
++    static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
++    static final String PREF_PRIVACY_GUIDE = "privacy_guide";
++    static final String PREF_INCOGNITO_LOCK = "incognito_lock";
++    static final String PREF_THIRD_PARTY_COOKIES = "third_party_cookies";
++    static final String PREF_TRACKING_PROTECTION = "tracking_protection";
+     @VisibleForTesting static final String PREF_FP_PROTECTION = "fp_protection";
+     @VisibleForTesting static final String PREF_IP_PROTECTION = "ip_protection";
+     @VisibleForTesting static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
