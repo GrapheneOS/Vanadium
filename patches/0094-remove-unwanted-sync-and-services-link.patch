@@ -4,20 +4,19 @@ Date: Sat, 7 Aug 2021 15:01:54 -0400
 Subject: [PATCH] remove unwanted sync and services link
 
 ---
- .../chrome/browser/privacy/settings/PrivacySettings.java       | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java     | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index c56e10fb3e048..aeb18a42ab6ef 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -200,8 +200,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
-         Preference secureDnsPref = findPreference(PREF_SECURE_DNS);
-         secureDnsPref.setVisible(SecureDnsSettings.isUiEnabled());
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index fa6ef4589d6e9..c2be97b0e7e6c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -52,6 +52,8 @@ final class PrivacySettingsExt {
  
--        Preference syncAndServicesLink = findPreference(PREF_SYNC_AND_SERVICES_LINK);
--        syncAndServicesLink.setSummary(buildSyncAndServicesLink());
-+        getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES_LINK));
+     static void removeUnwantedPreferences(@NonNull PreferenceFragmentCompat prefFragment) {
+         ThreadUtils.checkUiThread();
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_SYNC_AND_SERVICES_LINK);
+     }
  
-         Preference thirdPartyCookies = findPreference(PREF_THIRD_PARTY_COOKIES);
-         Preference doNotTrackPref = findPreference(PREF_DO_NOT_TRACK);
+     static void initializePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {

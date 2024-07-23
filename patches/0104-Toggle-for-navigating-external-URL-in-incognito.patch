@@ -65,10 +65,10 @@ index ea1dd6c3f529c..4f6b5a3ae75a5 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 65a341c19d02e..a053b5937a221 100644
+index 46d5defdb0b18..46bab81b3d866 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -3147,6 +3147,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -3155,6 +3155,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
          // - we decided to close the tab, but it was opened by an external app, so we will go
          //   exit Chrome on top of closing the tab
          final boolean minimizeApp =
@@ -163,7 +163,7 @@ index 57aae64057cfb..9115cbf9c5fef 100644
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
-index 98d01e921f9b8..da4a5e6b1eba2 100644
+index b483c765f76f3..b7e8963516b1c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 @@ -27,6 +27,8 @@ final class PrivacySettingsExt {
@@ -184,7 +184,7 @@ index 98d01e921f9b8..da4a5e6b1eba2 100644
              }
              return true;
          };
-@@ -88,6 +92,13 @@ final class PrivacySettingsExt {
+@@ -94,6 +98,13 @@ final class PrivacySettingsExt {
              closeTabsOnExitPref.setOrder(PRIVACY_PREFERENCES_ORDER);
              closeTabsOnExitPref.setOnPreferenceChangeListener(getListener(profile));
          }
@@ -198,7 +198,7 @@ index 98d01e921f9b8..da4a5e6b1eba2 100644
      }
  
      static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
-@@ -104,5 +115,11 @@ final class PrivacySettingsExt {
+@@ -110,5 +121,11 @@ final class PrivacySettingsExt {
          SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ closeTabsOnExitPref,
                  /* newSummary*/ null,
                  /* newCheckedValue*/ SharedPrefsExt.CLOSE_TABS_ON_EXIT.get());

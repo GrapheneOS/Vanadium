@@ -209,10 +209,10 @@ index f00f9468e544d..66fcd9dba7bf8 100644
                  return new ResourceItem(
                          R.drawable.gm_filled_videocam_24,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index cd36af7801b56..fa3cbc17932a1 100644
+index cce77face992f..e14e64a889c10 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-@@ -761,6 +761,12 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -759,6 +759,12 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                                  ? R.string.website_settings_add_site_description_javascript_block
                                  : R.string.website_settings_add_site_description_javascript_allow;
                  break;
@@ -225,7 +225,7 @@ index cd36af7801b56..fa3cbc17932a1 100644
              case SiteSettingsCategory.Type.SOUND:
                  resource =
                          WebsitePreferenceBridge.isCategoryEnabled(
-@@ -910,6 +916,7 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -908,6 +914,7 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
          switch (mCategory.getType()) {
              case SiteSettingsCategory.Type.SOUND:
              case SiteSettingsCategory.Type.JAVASCRIPT:
@@ -234,10 +234,10 @@ index cd36af7801b56..fa3cbc17932a1 100644
              case SiteSettingsCategory.Type.FEDERATED_IDENTITY_API:
              case SiteSettingsCategory.Type.REQUEST_DESKTOP_SITE:
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index b2f8dd0d636f7..5460dd8c5b377 100644
+index c8862864a3f99..f7d59f7420460 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-@@ -136,6 +136,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -137,6 +137,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                  return "idle_detection_permission_list";
              case ContentSettingsType.JAVASCRIPT:
                  return "javascript_permission_list";
@@ -246,7 +246,7 @@ index b2f8dd0d636f7..5460dd8c5b377 100644
              case ContentSettingsType.POPUPS:
                  return "popup_permission_list";
              case ContentSettingsType.SOUND:
-@@ -542,6 +544,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -546,6 +548,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                  setUpSoundPreference(preference);
              } else if (type == ContentSettingsType.JAVASCRIPT) {
                  setUpJavascriptPreference(preference);
@@ -255,7 +255,7 @@ index b2f8dd0d636f7..5460dd8c5b377 100644
              } else if (type == ContentSettingsType.GEOLOCATION) {
                  setUpLocationPreference(preference);
              } else if (type == ContentSettingsType.NOTIFICATIONS) {
-@@ -1191,6 +1195,26 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -1199,6 +1203,26 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                  isOneTime(ContentSettingsType.JAVASCRIPT));
      }
  
@@ -337,7 +337,7 @@ index 9c259e2eea55a..2a7b8e4c4b87b 100644
          ContentSettingsType.ADS,
          ContentSettingsType.BACKGROUND_SYNC,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-index 6e6b4108130e0..b3bb67ef8a2ea 100644
+index 968b423472982..780628c74404c 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
 @@ -307,6 +307,12 @@ public final class Website implements WebsiteEntry {
@@ -354,10 +354,10 @@ index 6e6b4108130e0..b3bb67ef8a2ea 100644
              // It is possible to set the permission without having an existing exception,
              // because we always show the sound permission in Site Settings.
 diff --git a/components/browser_ui/site_settings/android/website_preference_bridge.cc b/components/browser_ui/site_settings/android/website_preference_bridge.cc
-index e2fabbb178f8b..eacfe3d4ff24f 100644
+index 66f213d4a4e0e..20d6c073d4306 100644
 --- a/components/browser_ui/site_settings/android/website_preference_bridge.cc
 +++ b/components/browser_ui/site_settings/android/website_preference_bridge.cc
-@@ -899,6 +899,7 @@ static void JNI_WebsitePreferenceBridge_SetContentSettingEnabled(
+@@ -901,6 +901,7 @@ static void JNI_WebsitePreferenceBridge_SetContentSettingEnabled(
        case ContentSettingsType::COOKIES:
        case ContentSettingsType::FEDERATED_IDENTITY_API:
        case ContentSettingsType::JAVASCRIPT:
@@ -402,7 +402,7 @@ index bd606cde2666d..dccd9c0afce8e 100644
  
    <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCATION_ASK" desc="Summary text explaining that sites need to ask for permission before knowing location and that it is the recommended setting.">
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index bc360d6d15c69..7eea4b33131c6 100644
+index 9af5fe90dae2d..da06e7576f11f 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
 @@ -588,7 +588,7 @@ void ContentSettingsRegistry::Init() {
@@ -415,10 +415,10 @@ index bc360d6d15c69..7eea4b33131c6 100644
             /*valid_settings=*/{CONTENT_SETTING_ALLOW, CONTENT_SETTING_BLOCK},
             WebsiteSettingsInfo::TOP_ORIGIN_ONLY_SCOPE,
 diff --git a/components/page_info/android/page_info_controller_android.cc b/components/page_info/android/page_info_controller_android.cc
-index 9a49fce87505a..22217294097f8 100644
+index 7207e28abba2b..91ee29cc1f3dd 100644
 --- a/components/page_info/android/page_info_controller_android.cc
 +++ b/components/page_info/android/page_info_controller_android.cc
-@@ -131,6 +131,7 @@ void PageInfoControllerAndroid::SetPermissionInfo(
+@@ -133,6 +133,7 @@ void PageInfoControllerAndroid::SetPermissionInfo(
    permissions_to_display.push_back(ContentSettingsType::IDLE_DETECTION);
    permissions_to_display.push_back(ContentSettingsType::IMAGES);
    permissions_to_display.push_back(ContentSettingsType::JAVASCRIPT);
@@ -426,7 +426,7 @@ index 9a49fce87505a..22217294097f8 100644
    permissions_to_display.push_back(ContentSettingsType::POPUPS);
    permissions_to_display.push_back(ContentSettingsType::ADS);
    permissions_to_display.push_back(
-@@ -214,6 +215,8 @@ std::optional<ContentSetting> PageInfoControllerAndroid::GetSettingToDisplay(
+@@ -216,6 +217,8 @@ std::optional<ContentSetting> PageInfoControllerAndroid::GetSettingToDisplay(
      // The javascript content setting should show up if it is blocked globally
      // to give users an easy way to create exceptions.
      return permission.default_setting;
@@ -436,7 +436,7 @@ index 9a49fce87505a..22217294097f8 100644
      // The sound content setting should always show up when the tab has played
      // audio since last navigation.
 diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
-index f6e5cf46d689b..b8386882af994 100644
+index 4778808aa0df6..825f958002e57 100644
 --- a/components/page_info/page_info.cc
 +++ b/components/page_info/page_info.cc
 @@ -103,6 +103,7 @@ ContentSettingsType kPermissionType[] = {
@@ -447,7 +447,7 @@ index f6e5cf46d689b..b8386882af994 100644
  #if !BUILDFLAG(IS_ANDROID)
      ContentSettingsType::IMAGES,
  #endif
-@@ -1265,6 +1266,11 @@ bool PageInfo::ShouldShowPermission(
+@@ -1267,6 +1268,11 @@ bool PageInfo::ShouldShowPermission(
      return false;
    }
  
@@ -460,7 +460,7 @@ index f6e5cf46d689b..b8386882af994 100644
        web_contents_->GetBrowserContext()->IsOffTheRecord();
  #if BUILDFLAG(IS_ANDROID)
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index 66fd5a32e9d5d..951a2f1426f63 100644
+index fcbd39fc15bc5..7d0aba3927409 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
 @@ -145,6 +145,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {
