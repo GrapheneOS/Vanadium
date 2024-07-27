@@ -6,8 +6,8 @@ Subject: [PATCH] Add support for conditional content filtering component based
 
 ---
  chrome/android/chrome_ext_deps.gni            |  1 +
- .../browser/ChromeApplicationImplHooks.java   | 47 +++++++++++++++++++
- 2 files changed, 48 insertions(+)
+ .../browser/ChromeApplicationImplHooks.java   | 54 +++++++++++++++++++
+ 2 files changed, 55 insertions(+)
 
 diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
 index a289a6fecd9fb..522092c9820ce 100644
@@ -22,14 +22,15 @@ index a289a6fecd9fb..522092c9820ce 100644
  
  chrome_ext_srcjar_deps = [
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-index a445c2b87e4fe..af5d46d83a725 100644
+index a445c2b87e4fe..efe9f59a423c8 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-@@ -2,16 +2,63 @@ package org.chromium.chrome.browser;
+@@ -2,16 +2,70 @@ package org.chromium.chrome.browser;
  
  import android.content.res.Configuration;
  
 +import org.chromium.base.LocaleUtils;
++import org.chromium.base.Log;
 +import org.chromium.chrome.browser.base.SplitCompatApplication;
 +import org.chromium.chrome.browser.language.settings.LanguageItem;
 +import org.chromium.chrome.browser.language.settings.LanguagesManager;
@@ -83,6 +84,12 @@ index a445c2b87e4fe..af5d46d83a725 100644
  
      public static void onConfigurationChanged(Configuration newConfig) {
 +        if (!SplitCompatApplication.isBrowserProcess()) {
++            Log.i(TAG, "Update is only ran on browser process");
++            return;
++        }
++
++        if (!ProfileManager.isInitialized()) {
++            Log.i(TAG, "Native code is not yet loaded");
 +            return;
 +        }
 +
