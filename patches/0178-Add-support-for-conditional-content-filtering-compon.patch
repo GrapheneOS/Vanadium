@@ -22,7 +22,7 @@ index a289a6fecd9fb..522092c9820ce 100644
  
  chrome_ext_srcjar_deps = [
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-index a445c2b87e4fe..efe9f59a423c8 100644
+index a445c2b87e4fe..69661acda2f5f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 @@ -2,16 +2,70 @@ package org.chromium.chrome.browser;
@@ -84,12 +84,12 @@ index a445c2b87e4fe..efe9f59a423c8 100644
  
      public static void onConfigurationChanged(Configuration newConfig) {
 +        if (!SplitCompatApplication.isBrowserProcess()) {
-+            Log.i(TAG, "Update is only ran on browser process");
++            Log.i(TAG, "Update only runs on browser process");
 +            return;
 +        }
 +
 +        if (!ProfileManager.isInitialized()) {
-+            Log.i(TAG, "Native code is not yet loaded");
++            Log.i(TAG, "ProfileManager's native code is not yet loaded");
 +            return;
 +        }
 +
