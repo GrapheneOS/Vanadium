@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: A Mak <refragable@mailbox.org>
+Date: Sat, 8 Aug 2020 11:17:59 -0700
+Subject: [PATCH] disable learn more link in incognito new tab
+
+---
+ .../chromium/chrome/browser/ntp/IncognitoDescriptionView.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
+index 35cc768c250d9..8f32de41329ff 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
+@@ -358,9 +358,9 @@ public class IncognitoDescriptionView extends LinearLayout {
+                 getContext()
+                         .getResources()
+                         .getString(R.string.new_tab_otr_subtitle_with_reading_list);
+-        boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
++        boolean learnMoreInSubtitle = false;
+ 
+-        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
++        mLearnMore.setVisibility(View.GONE);
+ 
+         if (!learnMoreInSubtitle) {
+             // Revert to the original text.

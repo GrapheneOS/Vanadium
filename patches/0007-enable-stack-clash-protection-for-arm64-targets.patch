@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 31 Jul 2024 12:35:24 +0000
+Subject: [PATCH] enable stack clash protection for arm64 targets
+
+---
+ build/config/compiler/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index f598fd188a4ce..d8e9203096789 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -371,6 +371,10 @@ config("compiler") {
+       }
+     }
+ 
++    if (target_cpu == "arm64") {
++      cflags += [ "-fstack-clash-protection" ]
++    }
++
+     if (use_lld) {
+       ldflags += [ "-fuse-ld=lld" ]
+       if (lld_path != "") {

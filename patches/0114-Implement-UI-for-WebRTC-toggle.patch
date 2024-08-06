@@ -1,0 +1,470 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 23 Jun 2022 16:38:51 +0000
+Subject: [PATCH] Implement UI for WebRTC toggle
+
+This is based on Brave's implementation for webRTC policy toggle, but reuses
+PrivacySettings logic on saving, loading preference values from
+PrefService for the said policy.
+---
+ chrome/android/chrome_ext_java_resources.gni  |  2 +
+ chrome/android/chrome_ext_java_sources.gni    |  3 +
+ .../res/layout/webrtc_policy_preference.xml   | 54 +++++++++++
+ .../java/res/xml/privacy_preferences_ext.xml  |  4 +
+ .../res/xml/webrtc_policy_preferences.xml     |  9 ++
+ .../privacy/settings/PrivacySettingsExt.java  | 11 +++
+ .../settings/WebRtcPolicyPreference.java      | 97 +++++++++++++++++++
+ .../webrtc/settings/WebRtcPolicySettings.java | 58 +++++++++++
+ .../webrtc/settings/WebRtcPolicyUtils.java    | 92 ++++++++++++++++++
+ .../strings/android_chrome_ext_strings.grdp   | 16 +++
+ 10 files changed, 346 insertions(+)
+ create mode 100644 chrome/android/java/res/layout/webrtc_policy_preference.xml
+ create mode 100644 chrome/android/java/res/xml/webrtc_policy_preferences.xml
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyPreference.java
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicySettings.java
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
+
+diff --git a/chrome/android/chrome_ext_java_resources.gni b/chrome/android/chrome_ext_java_resources.gni
+index 99618ae9ac2f1..1bda063a93c68 100644
+--- a/chrome/android/chrome_ext_java_resources.gni
++++ b/chrome/android/chrome_ext_java_resources.gni
+@@ -4,4 +4,6 @@
+ 
+ chrome_ext_java_resources = [
+   "java/res/xml/privacy_preferences_ext.xml",
++  "java/res/layout/webrtc_policy_preference.xml",
++  "java/res/xml/webrtc_policy_preferences.xml",
+ ]
+diff --git a/chrome/android/chrome_ext_java_sources.gni b/chrome/android/chrome_ext_java_sources.gni
+index b3a2278b2b251..674224b0c1c42 100644
+--- a/chrome/android/chrome_ext_java_sources.gni
++++ b/chrome/android/chrome_ext_java_sources.gni
+@@ -8,4 +8,7 @@ chrome_ext_java_sources = [
+   "java/src/org/chromium/chrome/browser/TabPreferencesUtils.java",
+   "java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java",
+   "java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java",
++  "java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyPreference.java",
++  "java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicySettings.java",
++  "java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java",
+ ]
+diff --git a/chrome/android/java/res/layout/webrtc_policy_preference.xml b/chrome/android/java/res/layout/webrtc_policy_preference.xml
+new file mode 100644
+index 0000000000000..8addab2ecf1e1
+--- /dev/null
++++ b/chrome/android/java/res/layout/webrtc_policy_preference.xml
+@@ -0,0 +1,54 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright 2021 The Brave Authors. All rights reserved.
++     Use of this source code is governed by a BSD-style license that can be
++     found in the LICENSE file. -->
++
++<LinearLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:orientation="vertical"
++    android:focusable="false">
++
++    <org.chromium.components.browser_ui.widget.RadioButtonWithDescriptionLayout
++        android:id="@+id/radio_button_layout"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent">
++
++        <org.chromium.components.browser_ui.widget.RadioButtonWithDescription
++            android:id="@+id/webrtc_policy_default"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            app:primaryText="@string/webrtc_policy_default" />
++
++        <org.chromium.components.browser_ui.widget.RadioButtonWithDescription
++            android:id="@+id/webrtc_policy_default_public_and_private_interfaces"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:minHeight="@dimen/min_touch_target_size"
++            android:paddingTop="8dp"
++            android:paddingBottom="8dp"
++            app:primaryText="@string/webrtc_policy_default_public_and_private_interfaces" />
++
++        <org.chromium.components.browser_ui.widget.RadioButtonWithDescription
++            android:id="@+id/webrtc_policy_default_public_interface_only"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:minHeight="@dimen/min_touch_target_size"
++            android:paddingTop="8dp"
++            android:paddingBottom="8dp"
++            app:primaryText="@string/webrtc_policy_default_public_interface_only" />
++
++        <org.chromium.components.browser_ui.widget.RadioButtonWithDescription
++            android:id="@+id/webrtc_policy_disable_non_proxied_udp"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:minHeight="@dimen/min_touch_target_size"
++            android:paddingTop="8dp"
++            android:paddingBottom="8dp"
++            app:primaryText="@string/webrtc_policy_disable_non_proxied_udp" />
++
++    </org.chromium.components.browser_ui.widget.RadioButtonWithDescriptionLayout>
++
++</LinearLayout>
+diff --git a/chrome/android/java/res/xml/privacy_preferences_ext.xml b/chrome/android/java/res/xml/privacy_preferences_ext.xml
+index 4f6b5a3ae75a5..6e955e33c0109 100644
+--- a/chrome/android/java/res/xml/privacy_preferences_ext.xml
++++ b/chrome/android/java/res/xml/privacy_preferences_ext.xml
+@@ -20,5 +20,9 @@ that can be found in the LICENSE file.
+         android:title="@string/open_links_in_incognito_title"
+         android:summary="@string/open_links_in_incognito_summary"
+         android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeBasePreference
++        android:key="webrtc_policy"
++        android:title="@string/webrtc_policy_title"
++        android:fragment="org.chromium.chrome.browser.webrtc.settings.WebRtcPolicySettings"/>
+ </PreferenceScreen>
+ 
+diff --git a/chrome/android/java/res/xml/webrtc_policy_preferences.xml b/chrome/android/java/res/xml/webrtc_policy_preferences.xml
+new file mode 100644
+index 0000000000000..f90f9d7231ff9
+--- /dev/null
++++ b/chrome/android/java/res/xml/webrtc_policy_preferences.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright 2021 The Brave Authors. All rights reserved.
++     Use of this source code is governed by a BSD-style license that can be
++     found in the LICENSE file. -->
++
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
++    <org.chromium.chrome.browser.webrtc.settings.WebRtcPolicyPreference
++        android:key="webrtc_policy" />
++</PreferenceScreen>
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index b7e8963516b1c..ba60d2ad9883c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -17,6 +17,7 @@ import org.chromium.chrome.browser.preferences.Pref;
+ import org.chromium.chrome.browser.profiles.Profile;
+ import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
+ import org.chromium.chrome.browser.settings.SettingsExtUtils;
++import org.chromium.chrome.browser.webrtc.settings.WebRtcPolicySettings;
+ import org.chromium.components.browser_ui.settings.ChromeBasePreference;
+ import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
+ import org.chromium.components.browser_ui.settings.SettingsUtils;
+@@ -29,6 +30,7 @@ final class PrivacySettingsExt {
+     private static final String PREF_CLOSE_TABS_ON_EXIT = SharedPrefsExt.CLOSE_TABS_ON_EXIT.getKey();
+     private static final String PREF_OPEN_LINKS_IN_INCOGNITO =
+             SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.getKey();
++    private static final String PREF_WEBRTC_POLICY = "webrtc_policy";
+ 
+     private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
+         return (pref, val) -> {
+@@ -105,6 +107,11 @@ final class PrivacySettingsExt {
+             openLinksInIncognitoPref.setOrder(PRIVACY_PREFERENCES_ORDER);
+             openLinksInIncognitoPref.setOnPreferenceChangeListener(getListener(profile));
+         }
++
++        Preference webRtcPolicyPref = prefFragment.findPreference(PREF_WEBRTC_POLICY);
++        if (webRtcPolicyPref != null) {
++            webRtcPolicyPref.setOrder(PRIVACY_PREFERENCES_ORDER);
++        }
+     }
+ 
+     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
+@@ -127,5 +134,9 @@ final class PrivacySettingsExt {
+         SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ openLinksInIncognitoPref,
+                 /* newSummary*/ null,
+                 /* newCheckedValue*/ SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.get());
++
++        Preference webRtcPolicyPref = prefFragment.findPreference(PREF_WEBRTC_POLICY);
++        SettingsExtUtils.safelyUpdatePreference(/* preference */ webRtcPolicyPref,
++                /* newSummary */ WebRtcPolicySettings.getWebRtcPolicySummaryString(prefFragment.getContext()));
+     }
+ }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyPreference.java b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyPreference.java
+new file mode 100644
+index 0000000000000..2026f9461b632
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyPreference.java
+@@ -0,0 +1,97 @@
++/* Copyright (c) 2021 The Brave Authors. All rights reserved.
++ * This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
++ * You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++package org.chromium.chrome.browser.webrtc.settings;
++
++import android.annotation.SuppressLint;
++import android.content.Context;
++import android.content.Intent;
++import android.net.Uri;
++import android.provider.Browser;
++import android.util.AttributeSet;
++import android.view.View;
++import android.widget.RadioGroup;
++import android.widget.TextView;
++
++import androidx.annotation.IntDef;
++import androidx.preference.Preference;
++import androidx.preference.PreferenceViewHolder;
++
++import org.chromium.chrome.R;
++import org.chromium.components.browser_ui.widget.RadioButtonWithDescription;
++import org.chromium.components.browser_ui.widget.RadioButtonWithDescriptionLayout;
++
++import java.util.ArrayList;
++import java.util.Collections;
++
++public class WebRtcPolicyPreference
++        extends Preference implements RadioGroup.OnCheckedChangeListener {
++    @IntDef({WebRtcPolicy.DEFAULT, WebRtcPolicy.DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES,
++            WebRtcPolicy.DEFAULT_PUBLIC_INTERFACE_ONLY, WebRtcPolicy.DISABLE_NON_PROXIED_UDP})
++    public @interface WebRtcPolicy {
++        int DEFAULT = 0;
++        int DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES = 1;
++        int DEFAULT_PUBLIC_INTERFACE_ONLY = 2;
++        int DISABLE_NON_PROXIED_UDP = 3;
++
++        int NUM_ENTRIES = 4;
++    }
++
++    private @WebRtcPolicy int mSetting;
++    private RadioButtonWithDescription mSettingRadioButton;
++    private RadioButtonWithDescriptionLayout mGroup;
++    private ArrayList<RadioButtonWithDescription> mButtons;
++
++    @SuppressLint("WrongConstant")
++    public WebRtcPolicyPreference(Context context, AttributeSet attrs) {
++        super(context, attrs);
++
++        setLayoutResource(R.layout.webrtc_policy_preference);
++
++        mButtons = new ArrayList<>(Collections.nCopies(WebRtcPolicy.NUM_ENTRIES, null));
++    }
++
++    public void initialize(@WebRtcPolicy int policy) {
++        mSetting = policy;
++    }
++
++    @Override
++    public void onBindViewHolder(PreferenceViewHolder holder) {
++        super.onBindViewHolder(holder);
++
++        mGroup = (RadioButtonWithDescriptionLayout) holder.findViewById(R.id.radio_button_layout);
++        mGroup.setOnCheckedChangeListener(this);
++
++        mButtons.set(WebRtcPolicy.DEFAULT,
++                (RadioButtonWithDescription) holder.findViewById(R.id.webrtc_policy_default));
++        mButtons.set(WebRtcPolicy.DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES,
++                (RadioButtonWithDescription) holder.findViewById(
++                        R.id.webrtc_policy_default_public_and_private_interfaces));
++        mButtons.set(WebRtcPolicy.DEFAULT_PUBLIC_INTERFACE_ONLY,
++                (RadioButtonWithDescription) holder.findViewById(
++                        R.id.webrtc_policy_default_public_interface_only));
++        mButtons.set(WebRtcPolicy.DISABLE_NON_PROXIED_UDP,
++                (RadioButtonWithDescription) holder.findViewById(
++                        R.id.webrtc_policy_disable_non_proxied_udp));
++
++        mSettingRadioButton = mButtons.get(mSetting);
++        mSettingRadioButton.setChecked(true);
++    }
++
++    @Override
++    @SuppressLint("WrongConstant")
++    public void onCheckedChanged(RadioGroup group, int checkedId) {
++        for (int i = 0; i < WebRtcPolicy.NUM_ENTRIES; i++) {
++            if (mButtons.get(i).isChecked()) {
++                mSetting = i;
++                mSettingRadioButton = mButtons.get(i);
++                break;
++            }
++        }
++        assert mSetting >= 0 && mSetting < WebRtcPolicy.NUM_ENTRIES : "No matching setting found.";
++
++        callChangeListener(mSetting);
++    }
++}
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicySettings.java
+new file mode 100644
+index 0000000000000..5ee1893382254
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicySettings.java
+@@ -0,0 +1,58 @@
++/* Copyright (c) 2021 The Brave Authors. All rights reserved.
++ * This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
++ * You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++package org.chromium.chrome.browser.webrtc.settings;
++
++import android.content.Context;
++import android.content.Intent;
++import android.net.Uri;
++import android.os.Build;
++import android.os.Bundle;
++import android.provider.Browser;
++import android.view.Menu;
++import android.view.MenuInflater;
++import android.view.MenuItem;
++
++import androidx.annotation.Nullable;
++import androidx.preference.PreferenceFragmentCompat;
++
++import org.chromium.chrome.R;
++import org.chromium.components.browser_ui.settings.SettingsUtils;
++import org.chromium.ui.UiUtils;
++
++public class WebRtcPolicySettings extends PreferenceFragmentCompat {
++    static final String PREF_WEBRTC_POLICY = "webrtc_policy";
++
++    @Override
++    public void onCreatePreferences(@Nullable Bundle savedInstanceState, String rootKey) {
++        SettingsUtils.addPreferencesFromResource(this, R.xml.webrtc_policy_preferences);
++        getActivity().setTitle(R.string.webrtc_policy_title);
++
++        WebRtcPolicyPreference webRtcPolicyPreference =
++                (WebRtcPolicyPreference) findPreference(PREF_WEBRTC_POLICY);
++        webRtcPolicyPreference.initialize(WebRtcPolicyUtils.getPolicy());
++
++        webRtcPolicyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
++            WebRtcPolicyUtils.setPolicy((int) newValue);
++            return true;
++        });
++    }
++
++    public static String getWebRtcPolicySummaryString(Context context) {
++        return WebRtcPolicyUtils.getSummary(context);
++    }
++
++    @Override
++    public void onActivityCreated(Bundle savedInstanceState) {
++        super.onActivityCreated(savedInstanceState);
++
++        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
++            UiUtils.setNavigationBarIconColor(getActivity().getWindow().getDecorView(),
++                    getResources().getBoolean(R.bool.window_light_navigation_bar));
++        }
++
++        setDivider(null);
++    }
++}
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
+new file mode 100644
+index 0000000000000..e5e6aab62fcfb
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/webrtc/settings/WebRtcPolicyUtils.java
+@@ -0,0 +1,92 @@
++// Copyright 2023 GrapheneOS
++// Use of this source code is governed by a GPLv2 only-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.webrtc.settings;
++
++import android.content.Context;
++
++import org.chromium.chrome.R;
++import org.chromium.chrome.browser.preferences.Pref;
++import org.chromium.chrome.browser.profiles.ProfileManager;
++import org.chromium.chrome.browser.webrtc.settings.WebRtcPolicyPreference.WebRtcPolicy;
++import org.chromium.components.user_prefs.UserPrefs;
++
++/**
++ * Utility class for fetching and converting native pref value for WebRTC
++ * policy to Java int equivalent and its corresponding description.
++ */
++class WebRtcPolicyUtils {
++    // Pref values mirrored in Java, copied from
++    // third_party/blink/common/peerconnection/webrtc_ip_handling_policy.cc
++    private static final String WEBRTC_DEFAULT = "default";
++    private static final String WEBRTC_DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES =
++            "default_public_and_private_interfaces";
++    private static final String WEBRTC_DEFAULT_PUBLIC_INTERFACE_ONLY =
++            "default_public_interface_only";
++    private static final String WEBRTC_DISABLE_NON_PROXIED_UDP =
++            "disable_non_proxied_udp";
++
++    static String getSummary(Context context) {
++        switch (convertToWebRtcPolicyInt(getPolicyFromNative())) {
++            case WebRtcPolicy.DEFAULT:
++                return context.getString(R.string.webrtc_policy_default);
++            case WebRtcPolicy.DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES:
++                return context.getString(
++                        R.string.webrtc_policy_default_public_and_private_interfaces);
++            case WebRtcPolicy.DEFAULT_PUBLIC_INTERFACE_ONLY:
++                return context.getString(R.string.webrtc_policy_default_public_interface_only);
++            case WebRtcPolicy.DISABLE_NON_PROXIED_UDP:
++                return context.getString(R.string.webrtc_policy_disable_non_proxied_udp);
++            default:
++                assert false;
++                return "";
++        }
++    }
++
++    static String convertToWebRtcPolicyString(@WebRtcPolicy int policy) {
++        switch (policy) {
++            case WebRtcPolicy.DEFAULT:
++                return WEBRTC_DEFAULT;
++            case WebRtcPolicy.DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES:
++                return WEBRTC_DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES;
++            case WebRtcPolicy.DEFAULT_PUBLIC_INTERFACE_ONLY:
++                return WEBRTC_DEFAULT_PUBLIC_INTERFACE_ONLY;
++            case WebRtcPolicy.DISABLE_NON_PROXIED_UDP:
++                return WEBRTC_DISABLE_NON_PROXIED_UDP;
++            default:
++                return WEBRTC_DISABLE_NON_PROXIED_UDP;
++        }
++    }
++
++    static @WebRtcPolicy int convertToWebRtcPolicyInt(String value) {
++        switch (value) {
++            case WEBRTC_DEFAULT:
++                return WebRtcPolicy.DEFAULT;
++            case WEBRTC_DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES:
++                return WebRtcPolicy.DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES;
++            case WEBRTC_DEFAULT_PUBLIC_INTERFACE_ONLY:
++                return WebRtcPolicy.DEFAULT_PUBLIC_INTERFACE_ONLY;
++            case WEBRTC_DISABLE_NON_PROXIED_UDP:
++                return WebRtcPolicy.DISABLE_NON_PROXIED_UDP;
++            default:
++                return WebRtcPolicy.DISABLE_NON_PROXIED_UDP;
++        }
++    }
++
++    private static String getPolicyFromNative() {
++        return UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
++                .getString(Pref.WEB_RTCIP_HANDLING_POLICY);
++    }
++
++    static @WebRtcPolicy int getPolicy() {
++        return convertToWebRtcPolicyInt(getPolicyFromNative());
++    }
++
++    static void setPolicy(@WebRtcPolicy int policy) {
++        UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
++                .setString(Pref.WEB_RTCIP_HANDLING_POLICY, convertToWebRtcPolicyString(policy));
++    }
++
++    private WebRtcPolicyUtils() {}
++}
+diff --git a/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp b/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+index 52b9ca2042bee..11457f2fbc577 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
++++ b/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+@@ -15,4 +15,20 @@
+   <message name="IDS_OPEN_LINKS_IN_INCOGNITO_SUMMARY" desc="Summary of opening external links in incognito tabs menu item">
+     Open links navigated by external apps in incognito tabs
+   </message>
++  <!-- WebRTC toggle -->
++  <message name="IDS_WEBRTC_POLICY_TITLE" desc="WebRTC policy setting label">
++    WebRTC IP handling policy
++  </message>
++  <message name="IDS_WEBRTC_POLICY_DEFAULT" desc="Select value">
++    Default
++  </message>
++  <message name="IDS_WEBRTC_POLICY_DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES" desc="Select value">
++    Default public and private interfaces
++  </message>
++  <message name="IDS_WEBRTC_POLICY_DEFAULT_PUBLIC_INTERFACE_ONLY" desc="Select value">
++    Default public interface only
++  </message>
++  <message name="IDS_WEBRTC_POLICY_DISABLE_NON_PROXIED_UDP" desc="Select value">
++    Disable non-proxied UDP
++  </message>
+ </grit-part>

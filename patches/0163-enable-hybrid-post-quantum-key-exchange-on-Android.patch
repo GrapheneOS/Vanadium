@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <daniel.micay@grapheneos.org>
+Date: Sat, 27 Apr 2024 13:17:05 -0400
+Subject: [PATCH] enable hybrid post-quantum key exchange on Android
+
+---
+ net/base/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 5bd353e0f61e5..e72182691fef4 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -137,7 +137,7 @@ BASE_FEATURE(kTLS13KeyUpdate,
+ 
+ BASE_FEATURE(kPostQuantumKyber,
+              "PostQuantumKyber",
+-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
++#if BUILDFLAG(IS_IOS)
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ #else
+              base::FEATURE_ENABLED_BY_DEFAULT);

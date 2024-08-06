@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 7 Aug 2021 15:01:54 -0400
+Subject: [PATCH] remove unwanted sync and services link
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java     | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index fa6ef4589d6e9..c2be97b0e7e6c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -52,6 +52,8 @@ final class PrivacySettingsExt {
+ 
+     static void removeUnwantedPreferences(@NonNull PreferenceFragmentCompat prefFragment) {
+         ThreadUtils.checkUiThread();
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_SYNC_AND_SERVICES_LINK);
+     }
+ 
+     static void initializePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {

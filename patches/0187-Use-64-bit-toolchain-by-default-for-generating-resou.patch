@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 6 Aug 2024 09:38:18 +0000
+Subject: [PATCH] Use 64-bit toolchain by default for generating resource
+ allowlist in chrome targets
+
+---
+ chrome/android/BUILD.gn | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 8ca5b88313672..bf5c3f5197bd4 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -2330,6 +2330,8 @@ if (current_toolchain == default_toolchain) {
+   template("resource_packaging") {
+     _is_monochrome = invoker.is_monochrome
+     _is_trichrome = defined(invoker.is_trichrome) && invoker.is_trichrome
++    _use_current_toolchain =
++        !defined(invoker.use_current_toolchain) || !invoker.use_current_toolchain
+     _is_bundle_module =
+         defined(invoker.is_bundle_module) && invoker.is_bundle_module
+ 
+@@ -2364,6 +2366,9 @@ if (current_toolchain == default_toolchain) {
+           #     more efficient.
+           _fat_lib_toolchain = _monochrome_browser_toolchain
+         }
++        if (_use_current_toolchain) {
++          _fat_lib_toolchain = current_toolchain
++        }
+         deps = [ ":${_lib}($_fat_lib_toolchain)" ]
+ 
+         inputs = [ get_label_info(deps[0], "root_out_dir") + _lib_path ]
+@@ -2510,6 +2515,7 @@ if (current_toolchain == default_toolchain) {
+   resource_packaging("trichrome_chrome_apk_pak_assets") {
+     is_monochrome = false
+     is_trichrome = true
++    use_current_toolchain = true
+   }
+ 
+   # Exists separately from chrome_public_base_module_java_for_test to allow
+@@ -4095,6 +4101,15 @@ if (current_toolchain == _monochrome_browser_toolchain) {
+ }
+ 
+ if (android_64bit_target_cpu) {
++  # Copied from above libmonochrome_input target, but doesn't include secondary_abi_lib target
++  if (current_toolchain == default_toolchain) {
++    # Avoiding a real link for this step allows the actual libmonochrome to
++    # run at the same time as R8.
++    libmonochrome_apk_or_bundle_tmpl("libmonochrome_inputs") {
++      collect_inputs_only = true
++    }
++  }
++
+   # 64-bit browser library targets (APK and bundle).
+   libmonochrome_apk_or_bundle_tmpl("libmonochrome_64") {
+   }

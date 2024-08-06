@@ -1,0 +1,153 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 10 Apr 2024 15:56:22 +0000
+Subject: [PATCH] config-parser: add support for parsing conditional components
+
+---
+ .../config/VanadiumConfConditionals.java      | 25 ++++++++++
+ .../vanadium/config/VanadiumConfParser.java   | 50 +++++++++++++++++--
+ 2 files changed, 72 insertions(+), 3 deletions(-)
+
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+index ec1be4d92d378..39d8de8b26056 100644
+--- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+@@ -1,8 +1,15 @@
+ package app.vanadium.config;
+ 
++import android.util.Log;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
++
+ public final class VanadiumConfConditionals {
+ 
++    public static final String TAG = "cr_VanadiumConfConditionals";
++
+     public interface ConditionSupplier {
++        boolean isUserAcceptLanguageIncluded(ComponentCondition componentCondition);
+     }
+ 
+     private static volatile ConditionSupplier conditionSupplier;
+@@ -11,6 +18,24 @@ public final class VanadiumConfConditionals {
+         return VanadiumConfConditionals.conditionSupplier;
+     }
+ 
++    static boolean isConditionSatisfied(ComponentCondition condition) {
++        ConditionSupplier curConditionSupplier = getConditionSupplier();
++        if (curConditionSupplier == null) {
++            Log.d(TAG, "Conditional component not supported");
++            return false;
++        }
++
++        if (condition == null || ComponentCondition.getDefaultInstance().equals(condition)) {
++            return false;
++        }
++
++        if (!curConditionSupplier.isUserAcceptLanguageIncluded(condition)) {
++            return false;
++        }
++
++        return true;
++    }
++
+     public static void setBrowserConditionals(ConditionSupplier conditionSupplier) {
+         VanadiumConfConditionals.conditionSupplier = conditionSupplier;
+     }
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+index d71ceca93706a..76fcd33f74909 100644
+--- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -26,7 +26,9 @@ import java.util.zip.ZipEntry;
+ import java.util.zip.ZipFile;
+ 
+ import app.vanadium.config.proto.VanadiumConfigProto.Component;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent;
+ import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentApkSpec;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
+ import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
+ import app.vanadium.config.proto.VanadiumConfigProto.Config;
+ import app.vanadium.config.proto.VanadiumConfigProto.Configs;
+@@ -77,6 +79,7 @@ public final class VanadiumConfParser {
+         private final String componentFileName;
+         private final String componentApkPkgName;
+         private final String componentApkFilePath;
++        private final List<AdditionalComponent> additionalComponents;
+ 
+         private volatile Future<byte[]> componentByteArray;
+         private volatile byte[] cachedComponentByteArray;
+@@ -87,7 +90,8 @@ public final class VanadiumConfParser {
+             this.componentFileName = component.getComponentFileName();
+             this.componentApkPkgName = component.getApkSpec().getPkgName();
+             this.componentApkFilePath = apkFilePath;
+-            this.componentByteArray = executor.submit(this::getByteArrayForComponentInternal);
++            this.additionalComponents = component.getAdditionalComponentsList();
++            this.componentByteArray = executor.submit(this::getByteArrayForMainComponentInternal);
+         }
+ 
+         private static final ParsedComponent EMPTY = new ParsedComponent(Component.getDefaultInstance(), null);
+@@ -103,8 +107,44 @@ public final class VanadiumConfParser {
+                 return null;
+             }
+ 
++            byte[] res = getByteArrayForMainComponent();
++            for (AdditionalComponent additionalComponent: additionalComponents) {
++                if (additionalComponent.getConditionsCount() != 0) {
++                    boolean isConditionSatisfied = false;
++                    for (ComponentCondition condition : additionalComponent.getConditionsList()) {
++                        if (VanadiumConfConditionals.isConditionSatisfied(condition)) {
++                            isConditionSatisfied = true;
++                            break;
++                        }
++                    }
++
++                    if (!isConditionSatisfied) {
++                        continue;
++                    }
++                }
++
++                byte[] additionalRes = getByteArrayForComponentInternalInFile(
++                        additionalComponent.getComponentFileName());
++                if (res == null) {
++                    res = additionalRes;
++                } else if (additionalRes != null) {
++                    byte[] newRes = new byte[res.length + additionalRes.length];
++                    System.arraycopy(res, 0, newRes, 0, res.length);
++                    System.arraycopy(additionalRes, 0, newRes, res.length, additionalRes.length);
++                    res = newRes;
++                }
++            }
++
++            return res;
++        }
++
++        private byte[] getByteArrayForMainComponentInternal() {
++            return getByteArrayForComponentInternalInFile(componentFileName);
++        }
++
++        private byte[] getByteArrayForComponentInternalInFile(String fileName) {
+             try (ZipFile f = new ZipFile(componentApkFilePath)) {
+-                ZipEntry e = f.getEntry(componentFileName);
++                ZipEntry e = f.getEntry(fileName);
+                 if (e == null) {
+                     Log.e(TAG, "Component file not found inside the component apk");
+                     return null;
+@@ -124,6 +164,10 @@ public final class VanadiumConfParser {
+         }
+ 
+         private byte[] getComponentByteArray() {
++            return getByteArrayForComponentInternal();
++        }
++
++        private byte[] getByteArrayForMainComponent() {
+             byte[] curComponentByteArray = cachedComponentByteArray;
+             if (curComponentByteArray != null) {
+                 if (ConfigInfo.IS_DEBUG) {
+@@ -135,7 +179,7 @@ public final class VanadiumConfParser {
+             try {
+                 curComponentByteArray = this.componentByteArray.get();
+                 if (componentByteArray.isCancelled()) {
+-                    componentByteArray = executor.submit(this::getByteArrayForComponentInternal);
++                    componentByteArray = executor.submit(this::getByteArrayForMainComponentInternal);
+                 }
+                 cachedComponentByteArray = curComponentByteArray;
+                 return curComponentByteArray;

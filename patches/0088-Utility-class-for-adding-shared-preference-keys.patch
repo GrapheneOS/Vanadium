@@ -1,0 +1,183 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 13 Mar 2023 10:29:53 +0000
+Subject: [PATCH] Utility class for adding shared preference keys
+
+---
+ base/BUILD.gn                                 |   3 +
+ .../shared_preferences/SharedPrefsUtils.java  | 136 ++++++++++++++++++
+ .../StrictPreferenceKeyChecker.java           |   4 +
+ 3 files changed, 143 insertions(+)
+ create mode 100644 base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+
+diff --git a/base/BUILD.gn b/base/BUILD.gn
+index 4ae52e5351615..ce895efc68c8d 100644
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -4953,6 +4953,9 @@ if (is_android) {
+       "android/java/src/org/chromium/base/shared_preferences/SharedPreferencesManager.java",
+       "android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java",
+     ]
++    sources += [
++      "android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java",
++    ]
+   }
+ 
+   android_library("base_cached_flags_java") {
+diff --git a/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java b/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+new file mode 100644
+index 0000000000000..d482be2d6cc06
+--- /dev/null
++++ b/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+@@ -0,0 +1,136 @@
++package org.chromium.base.shared_preferences;
++
++import org.chromium.build.annotations.CheckDiscard;
++
++import java.util.Arrays;
++
++/**
++ * Wrapper utility class for both (Base)ChromePreferenceKeys and SharedPreferencesManager,
++ * which also serves as storage of added PreferenceKeys.
++ */
++public final class SharedPrefsUtils {
++
++    public static class BoolSharedPref {
++        private final String key;
++        private boolean defValue;
++
++        BoolSharedPref(String key, boolean defValue) {
++            this.key = key;
++            this.defValue = defValue;
++        }
++
++        public String getKey() { return key; }
++
++        public boolean get() {
++            return getSharedPrefManager().readBoolean(key, defValue);
++        }
++
++        public void put(boolean newValue) {
++            getSharedPrefManager().writeBoolean(key, newValue);
++        }
++
++        public boolean putSync(boolean newValue) {
++            return getSharedPrefManager().writeBooleanSync(key, newValue);
++        }
++    }
++
++    public static class IntSharedPref {
++        private final String key;
++        private int defValue;
++        private int[] validValues;
++
++        IntSharedPref(String key, int defValue) {
++            this.key = key;
++            this.defValue = defValue;
++        }
++
++        IntSharedPref(String key, int defValue, int[] validValues) {
++            this.key = key;
++            this.defValue = defValue;
++            this.validValues = validValues;
++        }
++
++        public String getKey() { return key; }
++
++        public int get() {
++            return getSharedPrefManager().readInt(key, defValue);
++        }
++
++        public boolean validateValue(int val) {
++            if (validValues == null) {
++                return true;
++            }
++            // don't do sort() + bsearch() of validValues array, it's expected to have a small number of entries
++            for (int validValue : validValues) {
++                if (val == validValue) {
++                    return true;
++                }
++            }
++            return false;
++        }
++
++        public void put(int newValue) {
++            if (!validateValue(newValue)) {
++                return;
++            }
++            getSharedPrefManager().writeInt(key, newValue);
++        }
++
++        public boolean putSync(int newValue) {
++            if (!validateValue(newValue)) {
++                return false;
++            }
++            return getSharedPrefManager().writeIntSync(key, newValue);
++        }
++    }
++
++    public static class StringSharedPref {
++        private final String key;
++        private String defValue;
++
++        StringSharedPref(String key, String defValue) {
++            this.key = key;
++            this.defValue = defValue;
++        }
++
++        public String getKey() { return key; }
++
++        public String get() {
++            return getSharedPrefManager().readString(key, defValue);
++        }
++
++        public boolean validateValue(String val) {
++            return true;
++        }
++
++        public void put(String newValue) {
++            if (!validateValue(newValue)) {
++                return;
++            }
++            getSharedPrefManager().writeString(key, newValue);
++        }
++
++        public boolean putSync(String newValue) {
++            if (!validateValue(newValue)) {
++                return false;
++            }
++            return getSharedPrefManager().writeStringSync(key, newValue);
++        }
++    }
++
++    // Stores SharedPreferences keys and its default value
++    public static class SharedPrefsExt {
++    }
++
++    static SharedPreferencesManager getSharedPrefManager() {
++        return SharedPreferencesManager.getInstanceForRegistry(null);
++    }
++
++    @CheckDiscard("Validation is performed in tests and in debug builds.")
++    static boolean isKeyInUse(String key) {
++        // clang-format off
++        return Arrays.asList(
++        ).contains(key);
++        // clang-format on
++    }
++}
+diff --git a/base/android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java b/base/android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java
+index 91721d9dbafd0..19c0683085353 100644
+--- a/base/android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java
++++ b/base/android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java
+@@ -52,6 +52,10 @@ class StrictPreferenceKeyChecker implements PreferenceKeyChecker {
+      * @return Whether |key| is in use.
+      */
+     private boolean isKeyInUse(String key) {
++        if (SharedPrefsUtils.isKeyInUse(key)) {
++            return true;
++        }
++
+         // For non-dynamic legacy keys, a simple map check is enough.
+         if (mRegistry.mLegacyFormatKeys.contains(key)) {
+             return true;

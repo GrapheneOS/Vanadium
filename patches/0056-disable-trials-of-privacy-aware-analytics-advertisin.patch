@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 4 Aug 2021 03:29:04 -0400
+Subject: [PATCH] disable trials of privacy-aware analytics/advertising APIs
+
+---
+ components/privacy_sandbox/privacy_sandbox_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
+index 193de7198cfa7..37276c5125718 100644
+--- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
++++ b/components/privacy_sandbox/privacy_sandbox_prefs.cc
+@@ -48,7 +48,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(
+       prefs::kPrivacySandboxFirstPartySetsDataAccessAllowedInitialized, false);
+   registry->RegisterBooleanPref(
+-      prefs::kPrivacySandboxRelatedWebsiteSetsEnabled, true,
++      prefs::kPrivacySandboxRelatedWebsiteSetsEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ 
+   registry->RegisterBooleanPref(prefs::kPrivacySandboxTopicsConsentGiven,
