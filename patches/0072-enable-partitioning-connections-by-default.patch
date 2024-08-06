@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 8 Mar 2021 16:53:47 -0500
+Subject: [PATCH] enable partitioning connections by default
+
+---
+ net/base/features.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 6cb4572c238e0..5bd353e0f61e5 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -119,14 +119,14 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
+ 
+ BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
+              "PartitionConnectionsByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kEnableCrossSiteFlagNetworkIsolationKey,
+              "EnableCrossSiteFlagNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kEnableFrameSiteSharedOpaqueNetworkIsolationKey,
+              "EnableFrameSiteSharedOpaqueNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kHttpCacheKeyingExperimentControlGroup,
+              "HttpCacheKeyingExperimentControlGroup",
+              base::FEATURE_DISABLED_BY_DEFAULT);
