@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 26 Feb 2024 22:51:04 +0000
+Subject: [PATCH] Enable usage of Android Autofill by default
+
+---
+ components/autofill/core/common/autofill_features.cc | 2 +-
+ components/autofill/core/common/autofill_features.h  | 2 +-
+ components/autofill/core/common/autofill_prefs.cc    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
+index 991af89b9332d..4f788fcc5414b 100644
+--- a/components/autofill/core/common/autofill_features.cc
++++ b/components/autofill/core/common/autofill_features.cc
+@@ -778,7 +778,7 @@ BASE_FEATURE(kAutofillEnableSecurityTouchEventFilteringAndroid,
+ // Android Autofill.
+ BASE_FEATURE(kAutofillVirtualViewStructureAndroid,
+              "AutofillVirtualViewStructureAndroid",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
+index 7ec97c85e7c81..8e6ba0cd0e69c 100644
+--- a/components/autofill/core/common/autofill_features.h
++++ b/components/autofill/core/common/autofill_features.h
+@@ -245,7 +245,7 @@ BASE_DECLARE_FEATURE(kAutofillVirtualViewStructureAndroid);
+ inline constexpr base::FeatureParam<bool>
+     kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
+         &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
+-        false};
++        true};
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+ #if BUILDFLAG(IS_APPLE)
+diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
+index 5c5988144d677..c90aab700a166 100644
+--- a/components/autofill/core/common/autofill_prefs.cc
++++ b/components/autofill/core/common/autofill_prefs.cc
+@@ -107,7 +107,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+ 
+ #if BUILDFLAG(IS_ANDROID)
+   registry->RegisterBooleanPref(prefs::kAutofillUsingVirtualViewStructure,
+-                                false);
++                                true);
+   registry->RegisterBooleanPref(
+       prefs::kAutofillThirdPartyPasswordManagersAllowed, true);
+   registry->RegisterBooleanPref(

@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: csagan5 <32685696+csagan5@users.noreply.github.com>
+Date: Sun, 26 Nov 2017 22:51:43 +0100
+Subject: [PATCH] disable first run welcome page
+
+---
+ .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java   | 2 --
+ .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java  | 4 ++--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
+index 413ccd41b4bb2..43f86c227274e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
+@@ -37,14 +37,12 @@ public class FirstRunUtils {
+                 javaPrefs.readBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, false);
+         boolean nativePrefValue = isFirstRunEulaAccepted();
+         boolean isFirstRunComplete = FirstRunStatus.getFirstRunFlowComplete();
+-        if (javaPrefValue || nativePrefValue || isFirstRunComplete) {
+             if (!javaPrefValue) {
+                 javaPrefs.writeBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, true);
+             }
+             if (!nativePrefValue) {
+                 setEulaAccepted();
+             }
+-        }
+     }
+ 
+     /**
+diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
+index 4aedb8a0f1d95..cff008ce39b67 100644
+--- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
++++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
+@@ -50,8 +50,8 @@ public class FirstRunStatus {
+      * includes ToS and Sign In pages if necessary.
+      */
+     public static boolean getFirstRunFlowComplete() {
+-        return ChromeSharedPreferences.getInstance()
+-                .readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
++        setFirstRunFlowComplete(true);
++        return true;
+     }
+ 
+     /**

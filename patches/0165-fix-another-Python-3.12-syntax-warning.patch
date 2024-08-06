@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <daniel.micay@grapheneos.org>
+Date: Wed, 1 May 2024 17:30:03 -0400
+Subject: [PATCH] fix another Python 3.12 syntax warning
+
+---
+ google_apis/google_api_keys.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/google_apis/google_api_keys.py b/google_apis/google_api_keys.py
+index 17965ecbff2e4..696f07c5490f7 100755
+--- a/google_apis/google_api_keys.py
++++ b/google_apis/google_api_keys.py
+@@ -28,7 +28,7 @@ def _GetTokenFromOfficialFile(token_name):
+   if not os.path.isfile(official_path):
+     return None
+ 
+-  line_regexp = '^#define\s*%s\s*"([^"]+)"' % token_name
++  line_regexp = r'^#define\s*%s\s*"([^"]+)"' % token_name
+   line_pattern = re.compile(line_regexp)
+   def ParseLine(current_line):
+     result = line_pattern.match(current_line)

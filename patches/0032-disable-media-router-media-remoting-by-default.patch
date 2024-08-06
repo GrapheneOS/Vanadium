@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 4 Jul 2019 18:11:27 -0400
+Subject: [PATCH] disable media router media remoting by default
+
+---
+ chrome/browser/media/router/media_router_feature.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
+index 83ce8035e7e06..6cc85c85936f5 100644
+--- a/chrome/browser/media/router/media_router_feature.cc
++++ b/chrome/browser/media/router/media_router_feature.cc
+@@ -152,7 +152,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterStringPref(prefs::kMediaRouterReceiverIdHashToken, "",
+                                PrefRegistry::PUBLIC);
+   registry->RegisterBooleanPref(
+-      media_router::prefs::kMediaRouterMediaRemotingEnabled, true);
++      media_router::prefs::kMediaRouterMediaRemotingEnabled, false);
+   registry->RegisterBooleanPref(
+       media_router::prefs::kMediaRouterShowCastSessionsStartedByOtherDevices,
+       true);
