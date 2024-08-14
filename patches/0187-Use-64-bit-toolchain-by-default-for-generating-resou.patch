@@ -5,11 +5,11 @@ Subject: [PATCH] Use 64-bit toolchain by default for generating resource
  allowlist in chrome targets
 
 ---
- chrome/android/BUILD.gn | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ chrome/android/BUILD.gn | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 8ca5b88313672..bf5c3f5197bd4 100644
+index 165a1ba7bcd9e..9558b3b100166 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
 @@ -2330,6 +2330,8 @@ if (current_toolchain == default_toolchain) {
@@ -39,12 +39,13 @@ index 8ca5b88313672..bf5c3f5197bd4 100644
    }
  
    # Exists separately from chrome_public_base_module_java_for_test to allow
-@@ -4095,6 +4101,15 @@ if (current_toolchain == _monochrome_browser_toolchain) {
+@@ -4097,6 +4103,16 @@ if (current_toolchain == _monochrome_browser_toolchain) {
  }
  
  if (android_64bit_target_cpu) {
 +  # Copied from above libmonochrome_input target, but doesn't include secondary_abi_lib target
-+  if (current_toolchain == default_toolchain) {
++  if (current_toolchain == default_toolchain &&
++      current_toolchain != _monochrome_browser_toolchain) {
 +    # Avoiding a real link for this step allows the actual libmonochrome to
 +    # run at the same time as R8.
 +    libmonochrome_apk_or_bundle_tmpl("libmonochrome_inputs") {
