@@ -4,12 +4,12 @@ Date: Thu, 27 May 2021 07:30:02 -0400
 Subject: [PATCH] add trichrome browser apk targets
 
 ---
- chrome/android/BUILD.gn                   | 35 +++++++++++++++++++++++
+ chrome/android/BUILD.gn                   | 37 +++++++++++++++++++++++
  chrome/android/chrome_public_apk_tmpl.gni |  2 ++
- 2 files changed, 37 insertions(+)
+ 2 files changed, 39 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index a52a6e6b13959..4ae803cf6fc5e 100644
+index a52a6e6b13959..5effb90b62190 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
 @@ -2497,6 +2497,10 @@ if (current_toolchain == default_toolchain) {
@@ -23,7 +23,7 @@ index a52a6e6b13959..4ae803cf6fc5e 100644
  
    # Exists separately from chrome_public_base_module_java_for_test to allow
    # downstream to depend on test support packages without needing to depend on
-@@ -2872,6 +2876,37 @@ if (current_toolchain == default_toolchain) {
+@@ -2872,6 +2876,39 @@ if (current_toolchain == default_toolchain) {
        }
      }
    }
@@ -40,13 +40,15 @@ index a52a6e6b13959..4ae803cf6fc5e 100644
 +  }
 +  
 +  if (android_64bit_target_cpu) {
-+    chrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
-+      apk_name = "TrichromeChrome6432"
-+      is_trichrome = true
-+      target_type = "android_apk"
-+      static_library_provider = ":trichrome_library_64_32_apk"
-+      is_64_bit_browser = true
-+      include_32_bit_webview = true
++    if (!skip_secondary_abi_for_cq) {
++      chrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
++        apk_name = "TrichromeChrome6432"
++        is_trichrome = true
++        target_type = "android_apk"
++        static_library_provider = ":trichrome_library_64_32_apk"
++        is_64_bit_browser = true
++        include_32_bit_webview = true
++      }
 +    }
 +  
 +    chrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
