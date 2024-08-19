@@ -55,10 +55,10 @@ index 5f791fa68439e..a74503956ab04 100644
      return metadata;
    }
 diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
-index a5e5e87b7bd91..c2397936e7a2d 100644
+index 5a6e4ff06e6a7..22b5abfeed61a 100644
 --- a/content/browser/client_hints/client_hints.cc
 +++ b/content/browser/client_hints/client_hints.cc
-@@ -868,6 +868,20 @@ void AddRequestClientHintsHeaders(
+@@ -867,6 +867,20 @@ void AddRequestClientHintsHeaders(
  
    GURL url = origin.GetURL();
  
@@ -80,10 +80,10 @@ index a5e5e87b7bd91..c2397936e7a2d 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index e85a02c6e5cdc..6787aec726fa4 100644
+index 1edc92497863c..4cc0f2e0d52be 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -518,6 +518,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -508,6 +508,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
@@ -101,10 +101,10 @@ index e85a02c6e5cdc..6787aec726fa4 100644
  BASE_FEATURE(kClientHintsDPR,
               "ClientHintsDPR",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index bbaf8dc5038dc..d4fd98c7cc306 100644
+index bc6abd67dcd6f..45608094a5d0e 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -273,6 +273,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+@@ -274,6 +274,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  

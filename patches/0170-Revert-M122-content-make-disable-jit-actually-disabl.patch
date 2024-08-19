@@ -10,10 +10,10 @@ This reverts commit 64e756725e85add6b67b3c9d90698d4c547fe231.
  1 file changed, 4 insertions(+), 13 deletions(-)
 
 diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
-index 32454297cb12b..51923f09950ce 100644
+index c6741cc67eacc..fccc7392d9eca 100644
 --- a/content/browser/renderer_host/render_process_host_impl.cc
 +++ b/content/browser/renderer_host/render_process_host_impl.cc
-@@ -1735,12 +1735,9 @@ bool RenderProcessHostImpl::Init() {
+@@ -1606,12 +1606,9 @@ bool RenderProcessHostImpl::Init() {
      AppendRendererCommandLine(cmd_line.get());
  
  #if BUILDFLAG(IS_WIN)
@@ -27,7 +27,7 @@ index 32454297cb12b..51923f09950ce 100644
  #else
      std::unique_ptr<SandboxedProcessLauncherDelegate> sandbox_delegate =
          std::make_unique<RendererSandboxedProcessLauncherDelegate>();
-@@ -3390,15 +3387,9 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+@@ -3092,15 +3089,9 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
      command_line->AppendSwitch(switches::kNoZygote);
    }
  

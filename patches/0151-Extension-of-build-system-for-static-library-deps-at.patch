@@ -11,10 +11,10 @@ Subject: [PATCH] Extension of build system for static library deps at browser
  create mode 100644 chrome/browser/static_library_browser_deps.gni
 
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index db90e13763831..b8f2ad47edf7d 100644
+index fe0452e8bd462..b81bcc2fe5de7 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -52,6 +52,7 @@ assert(enable_supervised_users)
+@@ -54,6 +54,7 @@ assert(enable_supervised_users)
  if (is_android) {
    import("//build/config/android/rules.gni")
    import("//chrome/android/features/dev_ui/dev_ui_module.gni")
@@ -22,8 +22,8 @@ index db90e13763831..b8f2ad47edf7d 100644
  }
  
  if (is_win) {
-@@ -3711,6 +3712,8 @@ static_library("browser") {
-     # `IdentityManagerFactory` in facilitated payments.
+@@ -3694,6 +3695,8 @@ static_library("browser") {
+     # "browser_public_dependencies".
      allow_circular_includes_from += [ "//chrome/browser/facilitated_payments" ]
  
 +    deps += static_library_browser_deps
