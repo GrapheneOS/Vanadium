@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Jun 2024 16:15:42 +0000
+Subject: [PATCH] Skip android autofill compat checks in java and native
+ callers
+
+---
+ .../autofill/AutofillClientProviderUtils.java      | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
+index 26da288805229..186c104d3c937 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
+@@ -55,6 +55,15 @@ public class AutofillClientProviderUtils {
+             // Technically correct. Not a useful status since the feature must be set.
+             return AndroidAutofillAvailabilityStatus.SETTING_TURNED_OFF;
+         }
++        boolean skipChecks =
++                ChromeFeatureList.getFieldTrialParamByFeatureAsBoolean(
++                        ChromeFeatureList.AUTOFILL_VIRTUAL_VIEW_STRUCTURE_ANDROID,
++                        "skip_compatibility_check",
++                        true);
++        if (skipChecks) {
++            return getAndroidAutofillFrameworkAvailabilityUnchecked(prefs);
++        }
++
+         if (!prefs.getBoolean(Pref.AUTOFILL_THIRD_PARTY_PASSWORD_MANAGERS_ALLOWED)) {
+             return AndroidAutofillAvailabilityStatus.NOT_ALLOWED_BY_POLICY;
+         }
+@@ -80,6 +89,11 @@ public class AutofillClientProviderUtils {
+         if (AWG_COMPONENT_NAME.equals(componentName.flattenToString())) {
+             return AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_SERVICE_IS_GOOGLE;
+         }
++
++        return getAndroidAutofillFrameworkAvailabilityUnchecked(prefs);
++    }
++
++    private static int getAndroidAutofillFrameworkAvailabilityUnchecked(PrefService prefs) {
+         if (!prefs.getBoolean(Pref.AUTOFILL_USING_VIRTUAL_VIEW_STRUCTURE)) {
+             return AndroidAutofillAvailabilityStatus.SETTING_TURNED_OFF;
+         }

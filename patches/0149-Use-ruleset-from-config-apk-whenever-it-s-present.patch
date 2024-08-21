@@ -29,7 +29,7 @@ index b0e9583bf84af..b3a33697d2a89 100644
  
  subresource_filter_android_java_srcjar_deps = [
 diff --git a/components/subresource_filter/content/shared/browser/ruleset_service.cc b/components/subresource_filter/content/shared/browser/ruleset_service.cc
-index d3fa39b2a8d35..ddf46215b6fc6 100644
+index 4637846446503..49b4d672413e4 100644
 --- a/components/subresource_filter/content/shared/browser/ruleset_service.cc
 +++ b/components/subresource_filter/content/shared/browser/ruleset_service.cc
 @@ -28,6 +28,9 @@
@@ -39,10 +39,10 @@ index d3fa39b2a8d35..ddf46215b6fc6 100644
 +#if BUILDFLAG(IS_ANDROID)
 +#include "components/subresource_filter/android_config/subresource_filter_fetching.h"
 +#endif // BUILDFLAG(IS_ANDROID)
- #include "components/subresource_filter/content/shared/browser/ruleset_publisher_impl.h"
+ #include "components/subresource_filter/content/shared/browser/ruleset_publisher.h"
  #include "components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.h"
  #include "components/subresource_filter/core/browser/copying_file_stream.h"
-@@ -248,7 +251,12 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
+@@ -247,7 +250,12 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
    if (most_recently_indexed_version.IsCurrentFormatVersion() &&
        most_recently_indexed_version.content_version ==
            unindexed_ruleset_info.content_version) {
@@ -55,7 +55,7 @@ index d3fa39b2a8d35..ddf46215b6fc6 100644
    }
  
    // Before initialization, retain information about the most recently supplied
-@@ -476,6 +484,7 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
+@@ -471,6 +479,7 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
      return;
    version.SaveToPrefs(local_state_);
    std::move(result_callback).Run(version);
