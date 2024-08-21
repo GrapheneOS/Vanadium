@@ -10,10 +10,10 @@ Subject: [PATCH] Support for extended version name and increments
  3 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index 767e4eeb4d571..281e24f54017d 100755
+index 957bfa0306e6a..adc9798d31f74 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -314,7 +314,7 @@ def TranslateVersionCode(version_code, is_webview=False):
+@@ -317,7 +317,7 @@ def TranslateVersionCode(version_code, is_webview=False):
                                 is_next_build)
  
  
@@ -22,7 +22,7 @@ index 767e4eeb4d571..281e24f54017d 100755
    """Build dict of version codes for the specified build architecture. Eg:
  
    {
-@@ -337,7 +337,7 @@ def GenerateVersionCodes(build_number, patch_number, arch, is_next_build):
+@@ -340,7 +340,7 @@ def GenerateVersionCodes(build_number, patch_number, arch, is_next_build):
  
    Thus, this method is responsible for the final two digits of versionCode.
    """
@@ -31,7 +31,7 @@ index 767e4eeb4d571..281e24f54017d 100755
  
    if is_next_build:
      base_version_code += _NEXT_BUILD_VERSION_CODE_DIFF
-@@ -382,8 +382,8 @@ def main():
+@@ -385,8 +385,8 @@ def main():
    elif args.version_name:
      if not args.arch:
        parser.error('Required --arch')
@@ -71,7 +71,7 @@ index e8056ba1aa001..1336678964c18 100755
  
    return values
 diff --git a/chrome/version.gni b/chrome/version.gni
-index 3677614b402f6..02e7491134be8 100644
+index 10ae6eddf59f1..27b818813e8bc 100644
 --- a/chrome/version.gni
 +++ b/chrome/version.gni
 @@ -39,6 +39,33 @@ if (is_mac) {

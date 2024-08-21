@@ -1,0 +1,74 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 20 Feb 2024 04:05:46 +0000
+Subject: [PATCH] Always start child processes in jitless mode when execmem is
+ blocked
+
+---
+ .../library_loader/LibraryLoaderHooks.java    | 31 +++++++++++++++++++
+ base/base_android_library_ext.gni             |  1 +
+ 2 files changed, 32 insertions(+)
+
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+index b1a621f62770a..9f7482f21d912 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -2,8 +2,15 @@ package org.chromium.base.library_loader;
+ 
+ import android.content.Context;
+ 
++import org.chromium.base.CommandLine;
++import org.chromium.base.command_line.VanadiumCommandLineUtils;
+ import org.chromium.base.config.VanadiumConfigBridge;
+ 
++import java.util.ArrayList;
++import java.util.HashSet;
++
++import app.vanadium.ext.CustomOSApis;
++
+ class LibraryLoaderHooks {
+ 
+     static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
+@@ -12,6 +19,30 @@ class LibraryLoaderHooks {
+ 
+     static void onBeforeCommandLineSwitchLocked(Context appContext, @LibraryProcessType int type) {
+         VanadiumConfigBridge.applyFlagFromConfigs(appContext, type);
++        switch (type) {
++            case LibraryProcessType.PROCESS_BROWSER:
++            case LibraryProcessType.PROCESS_WEBVIEW:
++            case LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED:
++                return;
++            case LibraryProcessType.PROCESS_CHILD:
++            case LibraryProcessType.PROCESS_WEBVIEW_CHILD:
++                if (CommandLine.getInstance() != null) {
++                    boolean checkForOSConfigForJitless =
++                            !VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(
++                                    "disable-features").contains("check-os-config-for-jitless");
++                    if (CustomOSApis.isExecmemBlocked() && checkForOSConfigForJitless) {
++                        String jsFlagsName = "js-flags";
++                        HashSet<String> jsFlags = new HashSet<>(
++                                VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(jsFlagsName));
++                        jsFlags.add("--jitless");
++                        VanadiumCommandLineUtils.setCommaDelimitedSwitchValue(
++                                jsFlagsName, new ArrayList<>(jsFlags));
++                    }
++                }
++                break;
++            default:
++                throw new IllegalStateException();
++        }
+     }
+ 
+     static void onSubsequentCommandLineSwitchLockedCheck(Context appContext, @LibraryProcessType int type) {
+diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
+index 80fb1746d8aa9..5d007a5e9dcf8 100644
+--- a/base/base_android_library_ext.gni
++++ b/base/base_android_library_ext.gni
+@@ -19,6 +19,7 @@ base_library_loader_java_ext_java_sources = [
+ 
+ base_library_loader_java_ext_deps = [
+   "//vanadium/android_config/proto:browser_config_parser_java",
++  "//vanadium/ext/custom_os:custom_os_apis_java",
+ ]
+ 
+ base_library_loader_java_ext_srcjar_deps = [
