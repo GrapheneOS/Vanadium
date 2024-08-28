@@ -10,6 +10,7 @@ readonly APPS=(
     TrichromeChrome
     TrichromeLibrary
     TrichromeWebView
+    VanadiumConfig
 )
 
 read -p "Enter keystore passphrase: " -s keystore_pass
@@ -23,6 +24,7 @@ for d in "$@"; do
     cd release
 
     for app in ${APPS[@]}; do
+        [[ ! -f ../${app}*.apk ]] && echo "missing ${app}" && continue
         $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}*.apk --out $app.apk <<< $keystore_pass
     done
 
