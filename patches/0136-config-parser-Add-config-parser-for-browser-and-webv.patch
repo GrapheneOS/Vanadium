@@ -5,8 +5,8 @@ Subject: [PATCH] config-parser: Add config parser for browser and webview
 
 ---
  vanadium/android_config/proto/BUILD.gn        |  10 +
- .../vanadium/config/VanadiumConfParser.java   | 534 ++++++++++++++++++
- 2 files changed, 544 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 537 ++++++++++++++++++
+ 2 files changed, 547 insertions(+)
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
@@ -29,10 +29,10 @@ index e3cf1229f8920..ae2627740c4e0 100644
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..c056faacb11c4
+index 0000000000000..8ead72f2bd746
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,534 @@
+@@ -0,0 +1,537 @@
 +package app.vanadium.config;
 +
 +import android.content.BroadcastReceiver;
@@ -429,15 +429,18 @@ index 0000000000000..c056faacb11c4
 +            final ArrayMap<String, Set<String>> enabledSwitchFlags = new ArrayMap<>();
 +            final ArrayMap<String, Set<String>> disabledSwitchFlags = new ArrayMap<>();
 +
++            Spec defaultSpec = Spec.getDefaultInstance();
 +            for (Config config : configs.getConfigsList()) {
 +                Spec spec = config.getSpec();
 +                final long minVersionCode = spec.getMinVersion();
 +                final long maxVersionCode = spec.getMaxVersion();
 +                final long curVersionCode = selfPkgInfo.getLongVersionCode();
 +
-+                if (minVersionCode != 0 && minVersionCode > curVersionCode) {
++                if (minVersionCode != spec.getMinVersion()
++                        && minVersionCode > curVersionCode) {
 +                    continue;
-+                } else if (maxVersionCode != 0 && maxVersionCode < curVersionCode) {
++                } else if (maxVersionCode != spec.getMaxVersion()
++                        && maxVersionCode < curVersionCode) {
 +                    continue;
 +                } else if ((spec.getSpecTypes() & (1L << specType.getNumber())) == 0) {
 +                    continue;
