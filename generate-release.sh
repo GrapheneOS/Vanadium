@@ -24,8 +24,9 @@ for d in "$@"; do
     cd release
 
     for app in ${APPS[@]}; do
-        [[ ! -f ../${app}*.apk ]] && echo "missing ${app}" && continue
-        $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in ../${app}*.apk --out $app.apk <<< $keystore_pass
+        input=$(echo -n ../${app}*.apk)
+        [[ ! -f $input ]] && echo "missing ${app}" && continue
+        $APKSIGNER sign --ks $KEYSTORE --ks-pass file:/dev/stdin --ks-key-alias vanadium --in $input --out $app.apk <<< $keystore_pass || true
     done
 
     cd ../../../..
