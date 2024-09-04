@@ -29,7 +29,7 @@ index 9ee8c50015532..5825684be4fa5 100644
      "//base:base_java",
      "//build/android:build_java",
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 2afc2347d2a84..32673f48f0cea 100644
+index aab3b5a7910f9..e79b0fceb49dd 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 @@ -43,6 +43,7 @@ import org.chromium.android_webview.BrowserSafeModeActionList;
@@ -48,7 +48,7 @@ index 2afc2347d2a84..32673f48f0cea 100644
 +
              ThreadUtils.setWillOverrideUiThread();
              BuildInfo.setBrowserPackageInfo(packageInfo);
-             AndroidXProcessGlobalConfig androidXConfig = AndroidXProcessGlobalConfig.getConfig();
+             // Trigger the creation of the BuildInfo singleton to avoid potential issues reading
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
 new file mode 100644
 index 0000000000000..3115c1f38b690
