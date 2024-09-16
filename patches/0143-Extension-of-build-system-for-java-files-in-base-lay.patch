@@ -10,10 +10,10 @@ Subject: [PATCH] Extension of build system for java files in base layer
  create mode 100644 base/base_android_library_ext.gni
 
 diff --git a/base/BUILD.gn b/base/BUILD.gn
-index 7118b4a57086a..c843189e6afb8 100644
+index 444423245cc89..0950bbd18c9bc 100644
 --- a/base/BUILD.gn
 +++ b/base/BUILD.gn
-@@ -4451,6 +4451,12 @@ if (is_android) {
+@@ -4469,6 +4469,12 @@ if (is_android) {
        ":time_utils_java",
        ":unowned_user_data_java",
      ]
@@ -26,7 +26,7 @@ index 7118b4a57086a..c843189e6afb8 100644
      if (!is_cronet_build) {
        proguard_configs += [
          "android/proguard/chromium_apk.flags",
-@@ -4842,6 +4848,11 @@ if (is_android) {
+@@ -4867,6 +4873,11 @@ if (is_android) {
        "//third_party/androidx:androidx_annotation_annotation_java",
        "//third_party/jni_zero:jni_zero_java",
      ]
@@ -37,7 +37,7 @@ index 7118b4a57086a..c843189e6afb8 100644
 +    srcjar_deps += base_library_loader_java_ext_srcjar_deps
    }
  
-   # TODO(crbug.com/40825179): Delete these targets and inline their calls.
+   android_library("base_shared_preferences_java") {
 diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
 new file mode 100644
 index 0000000000000..38ead26ee277d

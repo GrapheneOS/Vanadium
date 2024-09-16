@@ -4,9 +4,9 @@ Date: Thu, 7 Dec 2023 08:29:57 +0000
 Subject: [PATCH] Use ruleset from config apk whenever it's present
 
 ---
- .../android/subresource_filter_android.gni               | 3 +++
- .../content/shared/browser/ruleset_service.cc            | 9 +++++++++
- 2 files changed, 12 insertions(+)
+ .../android/subresource_filter_android.gni            |  3 +++
+ .../content/shared/browser/ruleset_service.cc         | 11 +++++++++++
+ 2 files changed, 14 insertions(+)
 
 diff --git a/components/subresource_filter/android/subresource_filter_android.gni b/components/subresource_filter/android/subresource_filter_android.gni
 index b0e9583bf84af..b3a33697d2a89 100644
@@ -29,7 +29,7 @@ index b0e9583bf84af..b3a33697d2a89 100644
  
  subresource_filter_android_java_srcjar_deps = [
 diff --git a/components/subresource_filter/content/shared/browser/ruleset_service.cc b/components/subresource_filter/content/shared/browser/ruleset_service.cc
-index 4637846446503..49b4d672413e4 100644
+index 4637846446503..bf0671446a46b 100644
 --- a/components/subresource_filter/content/shared/browser/ruleset_service.cc
 +++ b/components/subresource_filter/content/shared/browser/ruleset_service.cc
 @@ -28,6 +28,9 @@
@@ -55,11 +55,13 @@ index 4637846446503..49b4d672413e4 100644
    }
  
    // Before initialization, retain information about the most recently supplied
-@@ -471,6 +479,7 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
+@@ -471,6 +479,9 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
      return;
    version.SaveToPrefs(local_state_);
    std::move(result_callback).Run(version);
++#if BUILDFLAG(IS_ANDROID)
 +  subresource_filter::DeleteUnindexedFile();
++#endif // BUILDFLAG(IS_ANDROID)
  }
  
  void RulesetService::OpenAndPublishRuleset(

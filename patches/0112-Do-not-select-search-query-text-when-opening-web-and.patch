@@ -13,10 +13,10 @@ Subject: [PATCH] Do not select search query text when opening web and global
  5 files changed, 42 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index edb1c9b177b57..e54b3eb20ff61 100644
+index 2520c8049ff1f..e78903f7ddafa 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -223,7 +223,7 @@ public class LaunchIntentDispatcher {
+@@ -231,7 +231,7 @@ public class LaunchIntentDispatcher {
                      ContextUtils.getApplicationContext(), SearchActivity.class);
              searchActivityIntent.putExtra(SearchManager.QUERY, query);
              searchActivityIntent = LaunchIntentDispatcherHooks.maybeModifySearchIntents(
@@ -60,10 +60,10 @@ index 547e85324cac5..fd771c9cd0b90 100644
          return newIntent;
      }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 1ddf5c22af03b..239c363c181dd 100644
+index 7ff843a4ef3ac..62f3e72bbe6f7 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -625,7 +625,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -623,7 +623,8 @@ public class SearchActivity extends AsyncInitializationActivity
                  mIntentOrigin,
                  mSearchType,
                  SearchActivityUtils.getIntentQuery(getIntent()),

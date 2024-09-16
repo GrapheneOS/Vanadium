@@ -6,14 +6,14 @@ Subject: [PATCH] Revert "[M122] content: make disable-jit actually disable
 
 This reverts commit 64e756725e85add6b67b3c9d90698d4c547fe231.
 ---
- .../renderer_host/render_process_host_impl.cc   | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ .../renderer_host/render_process_host_impl.cc     | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
 diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
-index c6741cc67eacc..fccc7392d9eca 100644
+index 5624843d3e153..35890c3ad281c 100644
 --- a/content/browser/renderer_host/render_process_host_impl.cc
 +++ b/content/browser/renderer_host/render_process_host_impl.cc
-@@ -1606,12 +1606,9 @@ bool RenderProcessHostImpl::Init() {
+@@ -1692,12 +1692,9 @@ bool RenderProcessHostImpl::Init() {
      AppendRendererCommandLine(cmd_line.get());
  
  #if BUILDFLAG(IS_WIN)
@@ -23,26 +23,24 @@ index c6741cc67eacc..fccc7392d9eca 100644
      std::unique_ptr<SandboxedProcessLauncherDelegate> sandbox_delegate =
          std::make_unique<RendererSandboxedProcessLauncherDelegateWin>(
 -            *cmd_line, IsPdf(), /*is_jit_disabled=*/IsPdf());
-+            *cmd_line, IsPdf(), IsJitDisabled());
++            *cmd_line, IsPdf(), /*is_jit_disabled=*/IsJitDisabled());
  #else
      std::unique_ptr<SandboxedProcessLauncherDelegate> sandbox_delegate =
          std::make_unique<RendererSandboxedProcessLauncherDelegate>();
-@@ -3092,15 +3089,9 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
-     command_line->AppendSwitch(switches::kNoZygote);
+@@ -3188,14 +3185,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
    }
  
--  if (IsJitDisabled()) {
+   if (IsJitDisabled()) {
 -    if (IsPdf()) {
 -      command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
 -                                      "--jitless");
 -    } else {
+-      // TODO(https://crbug.com/338434846): put this back to --jitless.
 -      command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
 -                                      "--no-maglev,--no-turbofan");
 -    }
--  }
-+  if (IsJitDisabled())
 +    command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
 +                                    "--jitless");
- 
-   if (features::IsTouchTextEditingRedesignEnabled()) {
-     command_line->AppendSwitchASCII(
+   } else if (AreV8OptimizationsDisabled()) {
+     command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
+                                     "--disable-optimizing-compilers");
