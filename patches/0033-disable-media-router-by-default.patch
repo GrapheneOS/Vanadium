@@ -9,10 +9,10 @@ Subject: [PATCH] disable media router by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/media/router/media_router_feature.cc b/chrome/browser/media/router/media_router_feature.cc
-index e39cbeddfd1e7..8013d5d6595a0 100644
+index f2ed705f50d7c..bb501b4c23cd5 100644
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -148,7 +148,7 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
+@@ -152,7 +152,7 @@ bool MediaRouterEnabled(content::BrowserContext* context) {
      pref_values.insert(std::make_pair(context, allowed));
      return allowed;
    }
@@ -22,7 +22,7 @@ index e39cbeddfd1e7..8013d5d6595a0 100644
  
  #if !BUILDFLAG(IS_ANDROID)
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
-index df8be30cd11b3..3ce95c71d102a 100644
+index f64a27cfcb5c0..c1663604f8ec9 100644
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
 @@ -423,7 +423,7 @@ void ProfileImpl::RegisterProfilePrefs(

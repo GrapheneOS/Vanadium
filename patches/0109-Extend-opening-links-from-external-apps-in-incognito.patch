@@ -10,17 +10,17 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index fe9bbd148b60c..97fb584f0ec86 100644
+index 922f634ae91ad..13b8e81afc886 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -261,6 +261,7 @@ public class LaunchIntentDispatcher {
+@@ -271,6 +271,7 @@ public class LaunchIntentDispatcher {
          newIntent.setAction(Intent.ACTION_VIEW);
          newIntent.setData(uri);
          newIntent.setClassName(context, CustomTabActivity.class.getName());
 +        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, newIntent);
+         // Make sure the result of the CustomTabActivity is forwarded to the client.
+         newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
  
-         // Since configureIntentForResizableCustomTab() might change the componenet/class
-         // associated with the passed intent, it needs to be called after #setClassName(context,
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 index aaec00177de6e..c282d5311d57f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
