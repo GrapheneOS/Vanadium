@@ -5,22 +5,26 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  share intents
 
 ---
- .../org/chromium/chrome/browser/LaunchIntentDispatcher.java | 1 +
+ .../org/chromium/chrome/browser/LaunchIntentDispatcher.java | 5 +++++
  .../chrome/browser/LaunchIntentDispatcherHooks.java         | 6 ++++++
- 2 files changed, 7 insertions(+)
+ 2 files changed, 11 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 5f059ef6ff070..edb1c9b177b57 100644
+index a1922e84b487d..2520c8049ff1f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -149,6 +149,7 @@ public class LaunchIntentDispatcher {
-             url = IntentHandler.getUrlFromShareIntent(mIntent);
-             if (url == null) return Action.FINISH_ACTIVITY;
-             mIntent.setData(Uri.parse(url));
+@@ -150,6 +150,11 @@ public class LaunchIntentDispatcher {
+         boolean incognito =
+                 mIntent.getBooleanExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
+ 
++        if (Intent.ACTION_SEND.equals(mIntent.getAction())
++                && "text/plain".equals(mIntent.getType())) {
 +            mIntent = LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(mActivity, mIntent);
-         } else {
-             url = IntentHandler.getUrlFromIntent(mIntent);
-         }
++        }
++
+         String url = IntentHandler.getUrlFromIntent(mIntent);
+ 
+         // Check if a web search Intent is being handled.
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 index 6cdfa50279aa0..547e85324cac5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java

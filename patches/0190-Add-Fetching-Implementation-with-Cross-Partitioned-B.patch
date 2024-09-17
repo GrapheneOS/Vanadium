@@ -40,7 +40,7 @@ index b52c014f46fcd..fb0c66e45a953 100644
      "blob/mojo_blob_reader.h",
      "blob/scoped_file.cc",
 diff --git a/storage/browser/blob/blob_url_store_impl.cc b/storage/browser/blob/blob_url_store_impl.cc
-index d9a474d6c2439..bdd06f6230350 100644
+index 64847a15c2e81..2a8d6fd71fb89 100644
 --- a/storage/browser/blob/blob_url_store_impl.cc
 +++ b/storage/browser/blob/blob_url_store_impl.cc
 @@ -14,6 +14,7 @@
@@ -51,7 +51,7 @@ index d9a474d6c2439..bdd06f6230350 100644
  #include "url/url_util.h"
  
  namespace storage {
-@@ -119,9 +120,21 @@ void BlobURLStoreImpl::ResolveAsURLLoaderFactory(
+@@ -122,9 +123,21 @@ void BlobURLStoreImpl::ResolveAsURLLoaderFactory(
      std::move(callback).Run(std::nullopt, std::nullopt);
      return;
    }
@@ -74,7 +74,7 @@ index d9a474d6c2439..bdd06f6230350 100644
                            registry_->GetUnsafeTopLevelSite(url));
  }
 diff --git a/storage/browser/blob/blob_url_store_impl_unittest.cc b/storage/browser/blob/blob_url_store_impl_unittest.cc
-index bd3d6ed6fe3bb..e398d6bae304e 100644
+index 8ae6e475bddce..8c65895ea4cea 100644
 --- a/storage/browser/blob/blob_url_store_impl_unittest.cc
 +++ b/storage/browser/blob/blob_url_store_impl_unittest.cc
 @@ -21,6 +21,7 @@
@@ -151,7 +151,7 @@ index bd3d6ed6fe3bb..e398d6bae304e 100644
    void OnBadMessage(const std::string& error) {
      bad_messages_.push_back(error);
    }
-@@ -377,6 +390,110 @@ TEST_P(BlobURLStoreImplTestP, ResolveAsURLLoaderFactory) {
+@@ -386,6 +399,110 @@ TEST_P(BlobURLStoreImplTestP, ResolveAsURLLoaderFactory) {
    download_loop.Run();
  }
  
@@ -262,7 +262,7 @@ index bd3d6ed6fe3bb..e398d6bae304e 100644
  TEST_P(BlobURLStoreImplTestP, ResolveForNavigation) {
    mojo::PendingRemote<blink::mojom::Blob> blob =
        CreateBlobFromString(kId, "hello world");
-@@ -418,11 +535,22 @@ TEST_P(BlobURLStoreImplTestP, ResolveForNavigation) {
+@@ -428,11 +545,22 @@ TEST_P(BlobURLStoreImplTestP, ResolveForNavigation) {
  INSTANTIATE_TEST_SUITE_P(
      BlobURLStoreImplTests,
      BlobURLStoreImplTestP,
@@ -341,10 +341,10 @@ index 0000000000000..901ba07756b16
 +
 +#endif  // STORAGE_BROWSER_BLOB_FEATURES_H_
 diff --git a/third_party/blink/web_tests/VirtualTestSuites b/third_party/blink/web_tests/VirtualTestSuites
-index 81d9507f2a31d..511e13024a0fc 100644
+index b1143594b0b84..a27db7d7d9bb0 100644
 --- a/third_party/blink/web_tests/VirtualTestSuites
 +++ b/third_party/blink/web_tests/VirtualTestSuites
-@@ -1160,6 +1160,16 @@
+@@ -1144,6 +1144,16 @@
      "owners": ["arichiv@chromium.org", "bingler@chromium.org"]
    },
  
@@ -358,9 +358,9 @@ index 81d9507f2a31d..511e13024a0fc 100644
 +    "owners": ["janiceliu@chromium.org"]
 +  },
 +
-   "isInputPending requires threaded compositing and layerized iframes",
-   {
-     "prefix": "threaded-composited-iframes",
+   "isInputPending requires threaded compositing and layerized iframes, so ",
+   "these tests are run exclusively with a virtual test suite that never ",
+   "expires.",
 diff --git a/third_party/blink/web_tests/virtual/block-cross-partition-blob-url-fetching/README.md b/third_party/blink/web_tests/virtual/block-cross-partition-blob-url-fetching/README.md
 new file mode 100644
 index 0000000000000..7866d21f26af9

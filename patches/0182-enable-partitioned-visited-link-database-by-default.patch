@@ -8,15 +8,15 @@ Subject: [PATCH] enable partitioned visited link database by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 4cc0f2e0d52be..2c2f4ad7eb5cc 100644
+index 5a12515270229..5ff0691a492da 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -1779,7 +1779,7 @@ const base::FeatureParam<bool> kPartialLowEndModeExcludeCanvasFontCache{
- // TODO(crbug.com/329102369): complete the partitioned hashtable implementation.
+@@ -1768,7 +1768,7 @@ const base::FeatureParam<bool> kPartialLowEndModeExcludeCanvasFontCache{
+ // top-level site, frame origin>.
  BASE_FEATURE(kPartitionVisitedLinkDatabase,
               "PartitionVisitedLinkDatabase",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
- // Enables the use of the PaintCache for Path2D objects that are rasterized
- // out of process.  Has no effect when kCanvasOopRasterization is disabled.
+ // When enabled, this flag partitions the :visited link hashtable by <link url,
+ // top-level site, frame origin> AND adds the "self link" <link url, link as a

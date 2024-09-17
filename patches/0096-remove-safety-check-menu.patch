@@ -8,15 +8,15 @@ Subject: [PATCH] remove safety check menu
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 581dacf0b9da8..5f8b64a8db74b 100644
+index 5287942681817..5aa7854e1c06d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -263,6 +263,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
+@@ -266,6 +266,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
              templateUrlService.load();
          }
  
 +        getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
 +
-         new AdaptiveToolbarStatePredictor(getProfile(), null)
+         new AdaptiveToolbarStatePredictor(getContext(), getProfile(), null)
                  .recomputeUiState(
                          uiState -> {

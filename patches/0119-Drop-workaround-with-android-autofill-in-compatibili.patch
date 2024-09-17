@@ -7,19 +7,25 @@ This causes the autofill popup to show when url is tapped. Drop in favor
 of native android autofill support compatibility with other autofill
 implementations.
 ---
- .../java/src/org/chromium/chrome/browser/omnibox/UrlBar.java    | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../src/org/chromium/chrome/browser/omnibox/UrlBar.java   | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/UrlBar.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/UrlBar.java
-index 46cb8657bf7c6..ca98948427f11 100644
+index 5c7d412da8938..97552d5eb186e 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/UrlBar.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/UrlBar.java
-@@ -456,7 +456,7 @@ public class UrlBar extends AutocompleteEditText {
+@@ -456,10 +456,10 @@ public class UrlBar extends AutocompleteEditText {
              // the domain changes. We restore this behavior by mimicking the relevant part of
              // TextView.notifyListeningManagersAfterTextChanged().
              // https://cs.android.com/android/platform/superproject/+/5d123b67756dffcfdebdb936ab2de2b29c799321:frameworks/base/core/java/android/widget/TextView.java;l=10618;drc=master;bpv=0
--            ApiHelperForO.notifyValueChangedForAutofill(this);
-+            // ApiHelperForO.notifyValueChangedForAutofill(this);
+-            final AutofillManager afm = getContext().getSystemService(AutofillManager.class);
+-            if (afm != null) {
+-                afm.notifyValueChanged(this);
+-            }
++            // final AutofillManager afm = getContext().getSystemService(AutofillManager.class);
++            // if (afm != null) {
++            //     afm.notifyValueChanged(this);
++            // }
          }
  
          limitDisplayableLength();
