@@ -4,19 +4,26 @@ Date: Tue, 18 Jun 2024 18:50:35 +0000
 Subject: [PATCH] Disable top toolbar button Translate option by default
 
 ---
- chrome/browser/flags/android/chrome_feature_list.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../settings/RadioButtonGroupAdaptiveToolbarPreference.java  | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index fe9919f2ce8c2..54b6822b7601b 100644
---- a/chrome/browser/flags/android/chrome_feature_list.cc
-+++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -410,7 +410,7 @@ static jlong JNI_ChromeFeatureMap_GetNativeMap(JNIEnv* env) {
+diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
+index bdead2c9a4b06..c26e16cd82374 100644
+--- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
++++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
+@@ -104,10 +104,15 @@ public class RadioButtonGroupAdaptiveToolbarPreference extends Preference
+                     updateVoiceButtonVisibility();
+                     updateReadAloudButtonVisibility();
+                     updatePageSummaryButtonVisibility();
++                    updateRemoveUnneededButtons();
+                 });
+         AdaptiveToolbarStats.recordRadioButtonStateAsync(mStatePredictor, /* onStartup= */ true);
+     }
  
- BASE_FEATURE(kAdaptiveButtonInTopToolbarTranslate,
-              "AdaptiveButtonInTopToolbarTranslate",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
- 
- BASE_FEATURE(kAdaptiveButtonInTopToolbarAddToBookmarks,
-              "AdaptiveButtonInTopToolbarAddToBookmarks",
++    private void updateRemoveUnneededButtons() {
++        updateButtonVisibility(mTranslateButton, false);
++    }
++
+     @Override
+     public void onCheckedChanged(RadioGroup group, int checkedId) {
+         @AdaptiveToolbarButtonVariant int previousSelection = mSelected;

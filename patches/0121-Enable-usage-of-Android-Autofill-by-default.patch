@@ -10,10 +10,10 @@ Subject: [PATCH] Enable usage of Android Autofill by default
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index 1511e0e3467dd..e1b33bc0e8aa2 100644
+index d67252ba50d20..986530025eb2b 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
-@@ -889,7 +889,7 @@ BASE_FEATURE(kAutofillEnableSecurityTouchEventFilteringAndroid,
+@@ -770,7 +770,7 @@ BASE_FEATURE(kAutofillEnableSecurityTouchEventFilteringAndroid,
  // Android Autofill.
  BASE_FEATURE(kAutofillVirtualViewStructureAndroid,
               "AutofillVirtualViewStructureAndroid",
@@ -23,10 +23,10 @@ index 1511e0e3467dd..e1b33bc0e8aa2 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
 diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
-index 707813b62787f..cae16e1f67824 100644
+index d5e503baf2a93..a1cab03e30098 100644
 --- a/components/autofill/core/common/autofill_features.h
 +++ b/components/autofill/core/common/autofill_features.h
-@@ -317,7 +317,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
+@@ -281,7 +281,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
  inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>
      kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
          &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
@@ -36,7 +36,7 @@ index 707813b62787f..cae16e1f67824 100644
  
  #endif  // BUILDFLAG(IS_ANDROID)
 diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
-index f63473ce07781..22c83f26a8092 100644
+index 141da16cf6e40..5f6be3e44b120 100644
 --- a/components/autofill/core/common/autofill_prefs.cc
 +++ b/components/autofill/core/common/autofill_prefs.cc
 @@ -109,7 +109,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
