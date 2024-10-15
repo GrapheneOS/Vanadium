@@ -5,7 +5,8 @@ Subject: [PATCH] disable seed-based field trials
 
 ---
  .../variations/service/variations_field_trial_creator_base.cc | 4 ++++
- 1 file changed, 4 insertions(+)
+ components/variations/synthetic_trial_registry.cc             | 2 ++
+ 2 files changed, 6 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
 index d97f5f584a8a3..33750928add45 100644
@@ -29,3 +30,23 @@ index d97f5f584a8a3..33750928add45 100644
  
    platform_field_trials->RegisterFeatureOverrides(feature_list.get());
  
+diff --git a/components/variations/synthetic_trial_registry.cc b/components/variations/synthetic_trial_registry.cc
+index bc35df424b2ce..5772daf741366 100644
+--- a/components/variations/synthetic_trial_registry.cc
++++ b/components/variations/synthetic_trial_registry.cc
+@@ -113,6 +113,7 @@ void SyntheticTrialRegistry::RegisterExternalExperiments(
+ 
+ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
+     const SyntheticTrialGroup& trial) {
++#if defined(FIELDTRIAL_SEED_ENABLED)
+   for (auto& entry : synthetic_trial_groups_) {
+     if (entry.id().name == trial.id().name) {
+       if (entry.id().group != trial.id().group ||
+@@ -130,6 +131,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
+   trial_group.SetStartTime(base::TimeTicks::Now());
+   synthetic_trial_groups_.push_back(trial_group);
+   NotifySyntheticTrialObservers({trial_group}, {});
++#endif // defined(FIELDTRIAL_SEED_ENABLED)
+ }
+ 
+ std::string_view SyntheticTrialRegistry::GetStudyNameForExpId(

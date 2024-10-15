@@ -24,7 +24,7 @@ index 0d29c988b371e..b3a2278b2b251 100644
 +  "java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java",
  ]
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 04c9d0a438410..eca2b2aa5f7f0 100644
+index 818dcb6e0cb21..172a48da2c094 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 @@ -370,6 +370,7 @@ public class SearchActivity extends AsyncInitializationActivity
@@ -65,13 +65,13 @@ index c5e2039fa559b..8eebd27da245d 100644
 +    }
  }
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
-index 74cc2d47cfb7e..915e04c02144c 100644
+index 466d992e1a39c..fd9bc3a8c77ef 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
 @@ -208,6 +208,19 @@ class LocationBarMediator
+     private @BrandedColorScheme int mBrandedColorScheme = BrandedColorScheme.APP_DEFAULT;
      private ObservableSupplierImpl<Boolean> mBackPressStateSupplier =
              new ObservableSupplierImpl<>();
-     private boolean mShouldClearOmniboxOnFocus = true;
 +    private boolean mShouldClearOmniboxOnFocusByDefault = true;
 +    private volatile boolean mShouldClearOmniboxOnFocusByDefaultSet = false;
 +
@@ -80,7 +80,7 @@ index 74cc2d47cfb7e..915e04c02144c 100644
 +            return;
 +        }
 +
-+        mShouldClearOmniboxOnFocus = shouldClear;
++        mUrlFocusedWithPastedText = !shouldClear;
 +        mShouldClearOmniboxOnFocusByDefault = shouldClear;
 +        mShouldClearOmniboxOnFocusByDefaultSet = true;
 +    }
@@ -88,12 +88,12 @@ index 74cc2d47cfb7e..915e04c02144c 100644
      private ObservableSupplier<TabModelSelector> mTabModelSelectorSupplier;
      private SearchEngineUtils mSearchEngineUtils;
  
-@@ -759,7 +772,7 @@ class LocationBarMediator
-                             mLocationBarLayout.getMeasuredWidth(), MeasureSpec.EXACTLY));
+@@ -762,7 +775,7 @@ class LocationBarMediator
          }
-         // Reset to the default value.
--        mShouldClearOmniboxOnFocus = true;
-+        mShouldClearOmniboxOnFocus = mShouldClearOmniboxOnFocusByDefault;
+         // Reset to the default values.
+         mUrlCoordinator.setSelectAllOnFocus(false);
+-        mUrlFocusedWithPastedText = false;
++        mUrlFocusedWithPastedText = !mShouldClearOmniboxOnFocusByDefault;
      }
  
      /**

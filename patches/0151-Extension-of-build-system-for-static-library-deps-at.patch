@@ -11,7 +11,7 @@ Subject: [PATCH] Extension of build system for static library deps at browser
  create mode 100644 chrome/browser/static_library_browser_deps.gni
 
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 59773d1765744..7c81e1b2f0332 100644
+index 7f1c26990d8d4..d242cbff9ed3a 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
 @@ -53,6 +53,7 @@ assert(enable_supervised_users)
@@ -22,9 +22,9 @@ index 59773d1765744..7c81e1b2f0332 100644
  }
  
  if (is_win) {
-@@ -3435,6 +3436,8 @@ static_library("browser") {
-     # "browser_public_dependencies".
-     allow_circular_includes_from += [ "//chrome/browser/facilitated_payments" ]
+@@ -3453,6 +3454,8 @@ static_library("browser") {
+       "//chrome/browser/ui/fast_checkout:impl",
+     ]
  
 +    deps += static_library_browser_deps
 +

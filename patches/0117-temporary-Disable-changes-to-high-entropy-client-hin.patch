@@ -15,10 +15,10 @@ reduction purposes.
  create mode 100644 android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
 
 diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
-index b8c3bfccb58fa..1cbe627a4f48f 100644
+index 2be3d2d8aab8e..447c61cc0f32c 100644
 --- a/android_webview/BUILD.gn
 +++ b/android_webview/BUILD.gn
-@@ -880,6 +880,9 @@ android_library("common_java") {
+@@ -886,6 +886,9 @@ android_library("common_java") {
      "java/src/org/chromium/android_webview/common/services/ServiceHelper.java",
      "java/src/org/chromium/android_webview/common/services/ServiceNames.java",
    ]
@@ -29,18 +29,18 @@ index b8c3bfccb58fa..1cbe627a4f48f 100644
      "//base:base_java",
      "//build/android:build_java",
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index d55667f684111..15d8176890bcc 100644
+index f6dcb9545c067..2b3c8b45dabfd 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 @@ -43,6 +43,7 @@ import org.chromium.android_webview.BrowserSafeModeActionList;
- import org.chromium.android_webview.ProductConfig;
+ import org.chromium.android_webview.ManifestMetadataUtil;
  import org.chromium.android_webview.R;
  import org.chromium.android_webview.WebViewChromiumRunQueue;
 +import org.chromium.android_webview.common.AlwaysOverridenFlagList;
  import org.chromium.android_webview.common.AwSwitches;
  import org.chromium.android_webview.common.CommandLineUtil;
  import org.chromium.android_webview.common.DeveloperModeUtils;
-@@ -464,6 +465,8 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -453,6 +454,8 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
                  }
              }
  
