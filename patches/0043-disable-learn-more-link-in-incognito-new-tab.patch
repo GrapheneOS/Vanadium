@@ -4,22 +4,19 @@ Date: Sat, 8 Aug 2020 11:17:59 -0700
 Subject: [PATCH] disable learn more link in incognito new tab
 
 ---
- .../chromium/chrome/browser/ntp/IncognitoDescriptionView.java | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../chromium/chrome/browser/ntp/IncognitoDescriptionView.java   | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
-index c51ab338383e4..a85cad0dec1a2 100644
+index 2f9e81a8d3448..df4eeff84fe03 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
-@@ -358,9 +358,9 @@ public class IncognitoDescriptionView extends LinearLayout {
-                 getContext()
-                         .getResources()
-                         .getString(R.string.new_tab_otr_subtitle_with_reading_list);
+@@ -372,7 +372,7 @@ public class IncognitoDescriptionView extends LinearLayout {
+                     }
+                 };
+ 
 -        boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
 +        boolean learnMoreInSubtitle = false;
- 
--        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
-+        mLearnMore.setVisibility(View.GONE);
+         mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
  
          if (!learnMoreInSubtitle) {
-             // Revert to the original text.
