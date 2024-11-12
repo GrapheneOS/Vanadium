@@ -32,10 +32,10 @@ Subject: [PATCH] Implement UI for JIT site settings
  create mode 100644 components/browser_ui/site_settings/android/java/res/drawable-xxxhdpi/permission_javascript_jit.png
 
 diff --git a/components/browser_ui/site_settings/android/BUILD.gn b/components/browser_ui/site_settings/android/BUILD.gn
-index 101d670018308..8491b064fcecd 100644
+index b2206986d9564..0dfdbe317d14e 100644
 --- a/components/browser_ui/site_settings/android/BUILD.gn
 +++ b/components/browser_ui/site_settings/android/BUILD.gn
-@@ -199,6 +199,7 @@ android_resources("java_resources") {
+@@ -198,6 +198,7 @@ android_resources("java_resources") {
      "java/res/drawable-hdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-hdpi/permission_background_sync.png",
      "java/res/drawable-hdpi/permission_javascript.png",
@@ -43,7 +43,7 @@ index 101d670018308..8491b064fcecd 100644
      "java/res/drawable-hdpi/permission_popups.png",
      "java/res/drawable-hdpi/permission_protected_media.png",
      "java/res/drawable-hdpi/settings_sensors.png",
-@@ -206,6 +207,7 @@ android_resources("java_resources") {
+@@ -205,6 +206,7 @@ android_resources("java_resources") {
      "java/res/drawable-mdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-mdpi/permission_background_sync.png",
      "java/res/drawable-mdpi/permission_javascript.png",
@@ -51,7 +51,7 @@ index 101d670018308..8491b064fcecd 100644
      "java/res/drawable-mdpi/permission_popups.png",
      "java/res/drawable-mdpi/permission_protected_media.png",
      "java/res/drawable-mdpi/settings_sensors.png",
-@@ -213,6 +215,7 @@ android_resources("java_resources") {
+@@ -212,6 +214,7 @@ android_resources("java_resources") {
      "java/res/drawable-xhdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-xhdpi/permission_background_sync.png",
      "java/res/drawable-xhdpi/permission_javascript.png",
@@ -59,7 +59,7 @@ index 101d670018308..8491b064fcecd 100644
      "java/res/drawable-xhdpi/permission_popups.png",
      "java/res/drawable-xhdpi/permission_protected_media.png",
      "java/res/drawable-xhdpi/settings_sensors.png",
-@@ -220,6 +223,7 @@ android_resources("java_resources") {
+@@ -219,6 +222,7 @@ android_resources("java_resources") {
      "java/res/drawable-xxhdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-xxhdpi/permission_background_sync.png",
      "java/res/drawable-xxhdpi/permission_javascript.png",
@@ -67,7 +67,7 @@ index 101d670018308..8491b064fcecd 100644
      "java/res/drawable-xxhdpi/permission_popups.png",
      "java/res/drawable-xxhdpi/permission_protected_media.png",
      "java/res/drawable-xxhdpi/settings_sensors.png",
-@@ -227,6 +231,7 @@ android_resources("java_resources") {
+@@ -226,6 +230,7 @@ android_resources("java_resources") {
      "java/res/drawable-xxxhdpi/ic_volume_up_grey600_24dp.png",
      "java/res/drawable-xxxhdpi/permission_background_sync.png",
      "java/res/drawable-xxxhdpi/permission_javascript.png",
@@ -174,7 +174,7 @@ literal 0
 Hc-jL100001
 
 diff --git a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
-index d518e29f4382e..0e05d32aa78b3 100644
+index bf55dfa9b3a9b..82621e1035d8c 100644
 --- a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
 +++ b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
 @@ -101,6 +101,10 @@ The order of the following items is from: http://crbug.com/610358.
@@ -209,10 +209,10 @@ index 782c99201b084..ae47ebac1b768 100644
                  return new ResourceItem(
                          R.drawable.gm_filled_videocam_24,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index f1d9052ab050f..5b6116af3e4a8 100644
+index d134fcba93953..37df29e46cd5b 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-@@ -769,6 +769,12 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -762,6 +762,12 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                                  ? R.string.website_settings_add_site_description_javascript_block
                                  : R.string.website_settings_add_site_description_javascript_allow;
                  break;
@@ -225,7 +225,7 @@ index f1d9052ab050f..5b6116af3e4a8 100644
              case SiteSettingsCategory.Type.SOUND:
                  resource =
                          WebsitePreferenceBridge.isCategoryEnabled(
-@@ -918,6 +924,7 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -911,6 +917,7 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
          switch (mCategory.getType()) {
              case SiteSettingsCategory.Type.SOUND:
              case SiteSettingsCategory.Type.JAVASCRIPT:
@@ -234,7 +234,7 @@ index f1d9052ab050f..5b6116af3e4a8 100644
              case SiteSettingsCategory.Type.FEDERATED_IDENTITY_API:
              case SiteSettingsCategory.Type.REQUEST_DESKTOP_SITE:
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 07d15e7ea2e5a..076aa7da77747 100644
+index d8a1f08030c43..f3cc8f459baa9 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 @@ -141,6 +141,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
@@ -246,7 +246,7 @@ index 07d15e7ea2e5a..076aa7da77747 100644
              case ContentSettingsType.POPUPS:
                  return "popup_permission_list";
              case ContentSettingsType.SOUND:
-@@ -559,6 +561,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -553,6 +555,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                  setUpSoundPreference(preference);
              } else if (type == ContentSettingsType.JAVASCRIPT) {
                  setUpJavascriptPreference(preference);
@@ -255,7 +255,7 @@ index 07d15e7ea2e5a..076aa7da77747 100644
              } else if (type == ContentSettingsType.GEOLOCATION) {
                  setUpLocationPreference(preference);
              } else if (type == ContentSettingsType.NOTIFICATIONS) {
-@@ -1216,6 +1220,26 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -1210,6 +1214,26 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                  isOneTime(ContentSettingsType.JAVASCRIPT));
      }
  
@@ -366,7 +366,7 @@ index 3182cc8133e4a..10c6be5efc6f9 100644
        case ContentSettingsType::REQUEST_DESKTOP_SITE:
        case ContentSettingsType::SENSORS:
 diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
-index 9ee714461afe5..60162968b7b43 100644
+index d85093c72cacd..f23c96c47383e 100644
 --- a/components/browser_ui/strings/android/site_settings.grdp
 +++ b/components/browser_ui/strings/android/site_settings.grdp
 @@ -70,6 +70,9 @@
@@ -379,7 +379,7 @@ index 9ee714461afe5..60162968b7b43 100644
    <message name="IDS_WEBSITE_SETTINGS_DEVICE_LOCATION" desc="Title for Location settings, which control which websites can access your location." meaning="Geolocation">
      Location
    </message>
-@@ -698,6 +701,21 @@
+@@ -697,6 +700,21 @@
      Block JavaScript for a specific site.
    </message>
  
@@ -402,10 +402,10 @@ index 9ee714461afe5..60162968b7b43 100644
  
    <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCATION_ASK" desc="Summary text explaining that sites need to ask for permission before knowing location and that it is the recommended setting.">
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index 4fe5cae0701c5..30beb19bac3b9 100644
+index 4f35fdd0b0162..9978460a3461c 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -612,7 +612,7 @@ void ContentSettingsRegistry::Init() {
+@@ -601,7 +601,7 @@ void ContentSettingsRegistry::Init() {
             ContentSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
  
    Register(ContentSettingsType::JAVASCRIPT_JIT, "javascript-jit",
@@ -436,7 +436,7 @@ index c29b57ba17642..a7471aa4403d9 100644
      // The sound content setting should always show up when the tab has played
      // audio since last navigation.
 diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
-index de497055da9fd..ff471ac788445 100644
+index 29af5213171ea..7d0e6c53500ba 100644
 --- a/components/page_info/page_info.cc
 +++ b/components/page_info/page_info.cc
 @@ -106,6 +106,7 @@ ContentSettingsType kPermissionType[] = {
@@ -447,9 +447,9 @@ index de497055da9fd..ff471ac788445 100644
  #if !BUILDFLAG(IS_ANDROID)
      ContentSettingsType::IMAGES,
  #endif
-@@ -1277,6 +1278,11 @@ bool PageInfo::ShouldShowPermission(
-     return false;
+@@ -1291,6 +1292,11 @@ bool PageInfo::ShouldShowPermission(
    }
+ #endif  // BUILDFLAG(IS_CHROMEOS)
  
 +  // Always show JIT settings UI when when it has a site-specific override.
 +  if (info.type == ContentSettingsType::JAVASCRIPT_JIT) {
@@ -460,7 +460,7 @@ index de497055da9fd..ff471ac788445 100644
        web_contents_->GetBrowserContext()->IsOffTheRecord();
  #if BUILDFLAG(IS_ANDROID)
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index 06df779c83610..5635f644713b3 100644
+index 5248b16a867d2..c98f970bb2ae3 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
 @@ -150,6 +150,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {

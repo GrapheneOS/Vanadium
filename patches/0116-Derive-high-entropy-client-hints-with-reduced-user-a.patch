@@ -11,8 +11,8 @@ Android.
  .../embedder_support/user_agent_utils.cc      | 29 +++++++++++++++++++
  content/browser/client_hints/client_hints.cc  | 14 +++++++++
  third_party/blink/common/features.cc          | 10 +++++++
- third_party/blink/public/common/features.h    |  2 ++
- 4 files changed, 55 insertions(+)
+ third_party/blink/public/common/features.h    |  3 ++
+ 4 files changed, 56 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
 index 5f791fa68439e..a74503956ab04 100644
@@ -80,10 +80,10 @@ index 5a6e4ff06e6a7..22b5abfeed61a 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index fd9676407fc73..e3d44d9ab3118 100644
+index 4c1af1fd6adeb..00e6306c771a9 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -483,6 +483,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -507,6 +507,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
@@ -97,19 +97,20 @@ index fd9676407fc73..e3d44d9ab3118 100644
 +            "ClientHintsFromReducedUA",
 +            base::FEATURE_ENABLED_BY_DEFAULT);
 +
- // Enable `sec-ch-dpr` client hint.
- BASE_FEATURE(kClientHintsDPR,
-              "ClientHintsDPR",
+ // Enable legacy `dpr` client hint.
+ BASE_FEATURE(kClientHintsDPR_DEPRECATED,
+              "ClientHintsDPR_DEPRECATED",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index d3f22b63862ca..c1d624b7c2e4f 100644
+index 1babe5b230878..1a6b7c902d7ed 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -272,6 +272,8 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+@@ -282,6 +282,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  
 +BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsLowEntropyOnly);
 +BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsFromReducedUA);
- BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDeviceMemory);
++
+ // We do intend to deprecate these when possible, do not remove the feature
+ // until they can be disabled by default.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDeviceMemory_DEPRECATED);
- BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsDPR);

@@ -14,15 +14,15 @@ The Windows sandbox prevents dynamic code generation via setting
 MITIGATION_DYNAMIC_CODE_DISABLE on certain processes; prevent dynamic
 code generation in the same processes on Linux via seccomp-bpf.
 ---
- ...renderer_main_platform_delegate_android.cc | 28 +++++++++--
+ ...renderer_main_platform_delegate_android.cc | 28 ++++++++--
  .../seccomp-bpf-helpers/baseline_policy.cc    |  6 +--
  .../policy/linux/bpf_audio_policy_linux.cc    |  3 ++
- .../policy/linux/bpf_renderer_policy_linux.cc | 25 ++++++++--
+ .../policy/linux/bpf_renderer_policy_linux.cc | 25 +++++++--
  .../policy/linux/bpf_renderer_policy_linux.h  |  8 ++-
  .../policy/linux/bpf_service_policy_linux.cc  | 21 ++++++++
  .../policy/linux/bpf_service_policy_linux.h   |  5 +-
- .../policy/linux/sandbox_seccomp_bpf_linux.cc | 49 +++++++++++++++++--
- 8 files changed, 128 insertions(+), 17 deletions(-)
+ .../policy/linux/sandbox_seccomp_bpf_linux.cc | 51 ++++++++++++++++---
+ 8 files changed, 129 insertions(+), 18 deletions(-)
 
 diff --git a/content/renderer/renderer_main_platform_delegate_android.cc b/content/renderer/renderer_main_platform_delegate_android.cc
 index c7def9142f594..952ad402036cd 100644
@@ -113,10 +113,10 @@ index e1716b97e8f21..dc25d460460d5 100644
            SyscallSets::IsSystemVSharedMemory(system_call_number)) {
          return Allow();
 diff --git a/sandbox/policy/linux/bpf_renderer_policy_linux.cc b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-index 0555a85bc6a2a..663793ac605a7 100644
+index e33f17e2f5c72..49ed51bf90fe0 100644
 --- a/sandbox/policy/linux/bpf_renderer_policy_linux.cc
 +++ b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-@@ -49,15 +49,34 @@ ResultExpr RestrictIoctl() {
+@@ -52,15 +52,34 @@ ResultExpr RestrictIoctl() {
  
  }  // namespace
  #if !BUILDFLAG(IS_ANDROID)
@@ -238,7 +238,7 @@ index 0f33163d6a87f..48626cb8111fa 100644
  
  }  // namespace policy
 diff --git a/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc b/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
-index fc05a58ea0df8..491f0784917e4 100644
+index 0f3487e6f2ffa..b03032d463650 100644
 --- a/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
 +++ b/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
 @@ -17,6 +17,8 @@
@@ -258,7 +258,7 @@ index fc05a58ea0df8..491f0784917e4 100644
  
  #if BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
  #include "sandbox/policy/linux/bpf_screen_ai_policy_linux.h"
-@@ -186,8 +189,26 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
+@@ -190,8 +193,26 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
    switch (sandbox_type) {
      case sandbox::mojom::Sandbox::kGpu:
        return GetGpuProcessSandbox(options);
@@ -287,7 +287,7 @@ index fc05a58ea0df8..491f0784917e4 100644
  #if BUILDFLAG(ENABLE_PPAPI)
      case sandbox::mojom::Sandbox::kPpapi:
        return std::make_unique<PpapiProcessPolicy>();
-@@ -209,9 +230,27 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
+@@ -213,9 +234,27 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
      case sandbox::mojom::Sandbox::kAudio:
        return std::make_unique<AudioProcessPolicy>();
      case sandbox::mojom::Sandbox::kService:
@@ -317,4 +317,13 @@ index fc05a58ea0df8..491f0784917e4 100644
 +    }
      case sandbox::mojom::Sandbox::kSpeechRecognition:
        return std::make_unique<SpeechRecognitionProcessPolicy>();
- #if BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
+ #if BUILDFLAG(IS_LINUX)
+@@ -228,7 +267,7 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
+ #endif
+ #if BUILDFLAG(IS_LINUX)
+     case sandbox::mojom::Sandbox::kVideoEffects:
+-      return std::make_unique<ServiceProcessPolicy>();
++      return std::make_unique<ServiceProcessPolicy>(true);
+ #endif  // BUILDFLAG(IS_LINUX)
+ #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_ASH)
+     case sandbox::mojom::Sandbox::kHardwareVideoDecoding:

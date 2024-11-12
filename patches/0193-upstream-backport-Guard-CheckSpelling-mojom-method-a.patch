@@ -86,24 +86,23 @@ index 8d4bdec6868d8..65e62a176bebe 100644
    }
  
 diff --git a/components/spellcheck/common/spellcheck.mojom b/components/spellcheck/common/spellcheck.mojom
-index 3ae350e2a1ca6..275bdc4d1f8c7 100644
+index 70afa217d41c6..990482e7890d7 100644
 --- a/components/spellcheck/common/spellcheck.mojom
 +++ b/components/spellcheck/common/spellcheck.mojom
-@@ -66,13 +66,13 @@ interface SpellCheckHost {
+@@ -66,12 +66,12 @@ interface SpellCheckHost {
  
    // Checks the correctness of a word with a platform-specific spell checker.
    // TODO(groby): This needs to originate from SpellcheckProvider.
 -  [EnableIf=USE_BROWSER_SPELLCHECKER, Sync]
 +  [EnableIf=USE_BROWSER_SPELLCHECKER_AND_SPELLING_SERVICE, Sync]
-   CheckSpelling(mojo_base.mojom.String16 word)
-       => (bool correct);
+   CheckSpelling(mojo_base.mojom.String16 word) => (bool correct);
  
    // Returns a list of suggestions for a given word with a platform-specific
    // spell checker.
 -  [EnableIf=USE_BROWSER_SPELLCHECKER, Sync]
 +  [EnableIf=USE_BROWSER_SPELLCHECKER_AND_SPELLING_SERVICE, Sync]
-   FillSuggestionList(mojo_base.mojom.String16 word) =>
-       (array<mojo_base.mojom.String16> suggestions);
+   FillSuggestionList(mojo_base.mojom.String16 word)
+       => (array<mojo_base.mojom.String16> suggestions);
  
 diff --git a/components/spellcheck/renderer/platform_spelling_engine.cc b/components/spellcheck/renderer/platform_spelling_engine.cc
 index b0d30fd559af4..1e8abc5211491 100644
@@ -144,7 +143,7 @@ index b0d30fd559af4..1e8abc5211491 100644
 +        // !BUILDFLAG(ENABLE_SPELLING_SERVICE)
  }
 diff --git a/components/spellcheck/renderer/spellcheck_provider_test.cc b/components/spellcheck/renderer/spellcheck_provider_test.cc
-index 1e389bb31354c..e85ec2a2055de 100644
+index cfbd7f7cbc2fa..383be0b7e5fad 100644
 --- a/components/spellcheck/renderer/spellcheck_provider_test.cc
 +++ b/components/spellcheck/renderer/spellcheck_provider_test.cc
 @@ -173,6 +173,7 @@ void TestingSpellCheckProvider::RequestTextCheck(
@@ -182,7 +181,7 @@ index 65f70952d9d7f..1117e33acb3cc 100644
    void InitializeDictionaries(InitializeDictionariesCallback callback) override;
  #endif  // BUILDFLAG(IS_WIN)
 diff --git a/components/spellcheck/renderer/spelling_engine.h b/components/spellcheck/renderer/spelling_engine.h
-index 0300d965196c6..f56973289085a 100644
+index e499c809bd585..b4c38186fac61 100644
 --- a/components/spellcheck/renderer/spelling_engine.h
 +++ b/components/spellcheck/renderer/spelling_engine.h
 @@ -35,6 +35,9 @@ class SpellingEngine {
