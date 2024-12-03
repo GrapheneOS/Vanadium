@@ -1,0 +1,40 @@
+From 86828ce4f3be77878fa916506c5d1f3c31eb6507 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 3 Dec 2024 23:42:17 +0000
+Subject: [PATCH] tmp: workaround for latest OS release to detect config app
+ build
+
+---
+ .../vanadium/config/VanadiumConfParser.java   | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+index 07ea37365ceb8..5eefaa59b85a9 100644
+--- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -300,6 +300,25 @@ public final class VanadiumConfParser {
+             return false;
+         }
+ 
++        if (android.os.Build.TIME == 1733171919 * 1000L
++                && "2024120200".equals(android.os.Build.DISPLAY)
++                && "grapheneos".equals(android.os.Build.HOST)) {
++            Log.i(TAG, "Current OS is built with config app requiring shim from the browser app "
++                    + " to be detected, if the config app is a system app");
++            PackageInfo pi = getPackageInfoOrNull(ctx, pkgName, 0);
++            if (pi == null || pi.applicationInfo == null) {
++                Log.e(TAG, "unable to verify not found package: " + pkgName);
++                return false;
++            }
++
++            if ((pi.applicationInfo.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0) {
++                Log.i(TAG, "the package " + pkgName +  " is a system app"
++                        + " applying shim for the specific OS build configuration"
++                        + ", to treat the config app as verified package");
++                return true;
++            }
++        }
++
+         return ctx.getPackageManager().hasSigningCertificate(
+                 pkgName, sha256CertDigestBytes, PackageManager.CERT_INPUT_SHA256);
+     }
