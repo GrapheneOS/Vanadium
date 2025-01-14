@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sat, 3 Sep 2022 08:15:59 +0200
+Subject: [PATCH] Support opening external web search in incognito
+
+---
+ .../chrome/browser/searchwidget/SearchActivity.java |  5 +++++
+ .../browser/searchwidget/SearchActivityHooks.java   | 13 +++++++++++++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index 6b27726fa8ba0..a821d39b16510 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -666,6 +666,11 @@ public class SearchActivity extends AsyncInitializationActivity
+         Intent intent = SearchActivityUtils.createIntentForStartActivity(this, params);
+         if (intent == null) return;
+ 
++        intent = SearchActivityHooks.modifyIntentForStartActivity(this, intent);
++        if (intent == null) {
++            return;
++        }
++
+         if (mIntentOrigin == IntentOrigin.SEARCH_WIDGET) {
+             intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
+         }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
+index 9576d3131006e..791a9ed59a2f3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
+@@ -1,5 +1,9 @@
+ package org.chromium.chrome.browser.searchwidget;
+ 
++import android.app.Activity;
++import android.content.Intent;
++
++import org.chromium.chrome.browser.TabPreferencesUtils;
+ import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
+ 
+ public class SearchActivityHooks {
+@@ -7,4 +11,13 @@ public class SearchActivityHooks {
+     static void modifyLocationBarCoordinatorBehavior(LocationBarCoordinator locationBarCoordinator) {
+         locationBarCoordinator.setShouldClearOmniboxByDefault(false);
+     }
++
++    static Intent modifyIntentForStartActivity(Activity activity, Intent intent) {
++        Intent newIntent = intent;
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            newIntent = TabPreferencesUtils.appendNeededIncognitoExtras(activity, newIntent);
++        }
++
++        return newIntent;
++    }
+ }

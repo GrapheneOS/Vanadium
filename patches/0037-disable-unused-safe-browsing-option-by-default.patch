@@ -12,7 +12,7 @@ that privacy is preserved.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/components/safe_browsing/core/common/safe_browsing_prefs.cc
-index ce0ce632e85e7..dc5ba979b83dd 100644
+index 276e657612d03..9c47c5958d2e5 100644
 --- a/components/safe_browsing/core/common/safe_browsing_prefs.cc
 +++ b/components/safe_browsing/core/common/safe_browsing_prefs.cc
 @@ -202,7 +202,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
@@ -22,5 +22,5 @@ index ce0ce632e85e7..dc5ba979b83dd 100644
 -      prefs::kSafeBrowsingEnabled, true,
 +      prefs::kSafeBrowsingEnabled, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-   registry->RegisterBooleanPref(prefs::kSafeBrowsingEnhanced, false);
-   registry->RegisterBooleanPref(prefs::kSafeBrowsingProceedAnywayDisabled,
+   if (base::FeatureList::IsEnabled(kEsbAsASyncedSetting)) {
+     registry->RegisterBooleanPref(

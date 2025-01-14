@@ -8,11 +8,11 @@ Subject: [PATCH] switch to -fstack-protector-strong
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index 26f5c511de103..52e998fdf85ff 100644
+index 8771a5dcdb5dd..3029bbb1101df 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -371,7 +371,7 @@ config("compiler") {
-       } else if ((is_posix && !is_chromeos && !is_nacl) || is_fuchsia) {
+@@ -372,7 +372,7 @@ config("compiler") {
+       } else if ((is_posix && !is_nacl) || is_fuchsia) {
          if (current_os != "aix") {
            # Not available on aix.
 -          cflags += [ "-fstack-protector" ]

@@ -1,0 +1,132 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 16 May 2024 17:56:56 +0000
+Subject: [PATCH] Do not select search query text when opening web and global
+ search
+
+---
+ .../chrome/browser/LaunchIntentDispatcher.java    |  2 +-
+ .../browser/LaunchIntentDispatcherHooks.java      | 12 +++++++++++-
+ .../browser/searchwidget/SearchActivity.java      |  3 ++-
+ .../browser/searchwidget/SearchActivityHooks.java | 14 ++++++++++++++
+ .../SearchActivityLocationBarLayout.java          | 15 ++++++++++++++-
+ 5 files changed, 42 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 6d82982b0cc77..d973d0998fe3f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -253,7 +253,7 @@ public class LaunchIntentDispatcher {
+                     ContextUtils.getApplicationContext(), SearchActivity.class);
+             searchActivityIntent.putExtra(SearchManager.QUERY, query);
+             searchActivityIntent = LaunchIntentDispatcherHooks.maybeModifySearchIntents(
+-                    mActivity, searchActivityIntent);
++                    mActivity, searchActivityIntent, intent);
+             mActivity.startActivity(searchActivityIntent);
+         }
+         return true;
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+index 547e85324cac5..fd771c9cd0b90 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+@@ -1,9 +1,12 @@
+ package org.chromium.chrome.browser;
+ 
+ import android.app.Activity;
++import android.app.SearchManager;
+ import android.content.Context;
+ import android.content.Intent;
+ 
++import org.chromium.chrome.browser.searchwidget.SearchActivityHooks;
++
+ final class LaunchIntentDispatcherHooks {
+ 
+     private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
+@@ -30,8 +33,15 @@ final class LaunchIntentDispatcherHooks {
+         return newIntent;
+     }
+ 
+-    static Intent maybeModifySearchIntents(Activity activity, Intent intent) {
++    static Intent maybeModifySearchIntents(Activity activity, Intent intent,
++            Intent originalIntent) {
+         Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
++        if (originalIntent != null) {
++            String originalAction = originalIntent.getAction();
++            boolean shoudlSelectAllText = !Intent.ACTION_WEB_SEARCH.equals(originalAction)
++                    && !SearchManager.INTENT_ACTION_GLOBAL_SEARCH.equals(originalAction);
++            newIntent.putExtra(SearchActivityHooks.EXTRA_SELECT_ALL_TEXT, shoudlSelectAllText);
++        }
+ 
+         return newIntent;
+     }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index 879267fdd9bae..b579485c276a9 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -622,7 +622,8 @@ public class SearchActivity extends AsyncInitializationActivity
+                 mIntentOrigin,
+                 mSearchType,
+                 SearchActivityUtils.getIntentQuery(getIntent()),
+-                getWindowAndroid());
++                getWindowAndroid(),
++                SearchActivityHooks.getShouldSelectAllQueryTextInSearchBox(getIntent()));
+     }
+ 
+     @Override
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
+index f3e122070da59..df7159adf0e8e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
+@@ -31,4 +31,18 @@ public class SearchActivityHooks {
+         return IntentUtils.safeGetBooleanExtra(intent,
+                 IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
+     }
++
++    public static final String EXTRA_SELECT_ALL_TEXT =
++            "org.chromium.chrome.browser.searchwidget.SELECT_ALL_TEXT";
++
++    static boolean getShouldSelectAllQueryTextInSearchBox(Intent intent) {
++        String prepopulatedIntentQuery = SearchActivityUtils.getIntentQuery(intent);
++        prepopulatedIntentQuery = prepopulatedIntentQuery != null ? prepopulatedIntentQuery : "";
++
++        if (prepopulatedIntentQuery.isEmpty()) {
++            return true;
++        }
++
++        return IntentUtils.safeGetBooleanExtra(intent, EXTRA_SELECT_ALL_TEXT, true);
++    }
+ }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
+index fb282cdea2fcd..6f5981409e76a 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
+@@ -126,7 +126,20 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
+             @SearchType int searchType,
+             @Nullable String optionalText,
+             @NonNull WindowAndroid windowAndroid) {
++        beginQuery(origin, searchType, optionalText, windowAndroid, true);
++    }
+ 
++    /**
++     * See {@link SearchActivityLocationBarLayout#beginQuery(int, int, String, WindowAndroid)}
++     * for details. Added parameter(s):
++     * @param shouldSelectAllText Indicates if selection state of search query should be all selected or not.
++     */
++    void beginQuery(
++            @IntentOrigin int origin,
++            @SearchType int searchType,
++            @Nullable String optionalText,
++            @NonNull WindowAndroid windowAndroid,
++            boolean shouldSelectAllText) {
+         // TODO(crbug.com/372036449): Move setting the hint text from the layout to using the URL
+         // bar view binder and model properties.
+         if (origin == IntentOrigin.CUSTOM_TAB) {
+@@ -147,7 +160,7 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {
+         mUrlCoordinator.setUrlBarData(
+                 UrlBarData.forNonUrlText(optionalText == null ? "" : optionalText),
+                 UrlBar.ScrollType.NO_SCROLL,
+-                SelectionState.SELECT_ALL);
++                shouldSelectAllText ? SelectionState.SELECT_ALL : SelectionState.SELECT_END);
+ 
+         if (mPendingSearchPromoDecision || (searchType != SearchType.TEXT && !mNativeInitialized)) {
+             mPendingBeginQuery = true;

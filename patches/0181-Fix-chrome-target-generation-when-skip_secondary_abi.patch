@@ -1,0 +1,96 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Sun, 28 Jul 2024 12:19:36 -0400
+Subject: [PATCH] Fix chrome target generation when skip_secondary_abi_for_cq
+ is set
+
+---
+ chrome/android/BUILD.gn | 58 +++++++++++++++++++++++------------------
+ 1 file changed, 33 insertions(+), 25 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 591d16fe0ae31..521fe88919af7 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -4262,20 +4262,24 @@ if (current_toolchain == default_toolchain &&
+     if (enable_libs_and_assets_verification) {
+       if (android_64bit_target_cpu) {
+         deps += [
+-          ":monochrome_64_32_public_bundle_validate_libs_and_assets",
+-          ":trichrome_chrome_32_64_bundle_validate_libs_and_assets",
+-          ":trichrome_chrome_32_bundle_validate_libs_and_assets",
+-          ":trichrome_chrome_64_32_bundle_validate_libs_and_assets",
+           ":trichrome_chrome_64_bundle_validate_libs_and_assets",
+-          ":trichrome_library_32_64_apk_validate_libs_and_assets",
+-          ":trichrome_library_32_apk_validate_libs_and_assets",
+-          ":trichrome_library_64_32_apk_validate_libs_and_assets",
+           ":trichrome_library_64_apk_validate_libs_and_assets",
+-          "//android_webview:trichrome_webview_32_64_bundle_validate_libs_and_assets",
+-          "//android_webview:trichrome_webview_32_bundle_validate_libs_and_assets",
+-          "//android_webview:trichrome_webview_64_32_bundle_validate_libs_and_assets",
+           "//android_webview:trichrome_webview_64_bundle_validate_libs_and_assets",
+         ]
++        if (!skip_secondary_abi_for_cq) {
++          deps += [
++            ":monochrome_64_32_public_bundle_validate_libs_and_assets",
++            ":trichrome_chrome_32_64_bundle_validate_libs_and_assets",
++            ":trichrome_chrome_32_bundle_validate_libs_and_assets",
++            ":trichrome_chrome_64_32_bundle_validate_libs_and_assets",
++            ":trichrome_library_32_64_apk_validate_libs_and_assets",
++            ":trichrome_library_32_apk_validate_libs_and_assets",
++            ":trichrome_library_64_32_apk_validate_libs_and_assets",
++            "//android_webview:trichrome_webview_32_64_bundle_validate_libs_and_assets",
++            "//android_webview:trichrome_webview_32_bundle_validate_libs_and_assets",
++            "//android_webview:trichrome_webview_64_32_bundle_validate_libs_and_assets",
++          ]
++        }
+       } else {
+         deps += [
+           ":${_main_monochrome_public_bundle_target}_validate_libs_and_assets",
+@@ -4288,27 +4292,31 @@ if (current_toolchain == default_toolchain &&
+     if (enable_manifest_verification) {
+       if (android_64bit_target_cpu) {
+         deps += [
+-          ":monochrome_32_64_public_bundle__base_bundle_module_validate_android_manifest",
+-          ":monochrome_32_public_bundle__base_bundle_module_validate_android_manifest",
+-          ":monochrome_64_32_public_bundle_validate_manifests",
+-          ":monochrome_64_32_public_bundle_validate_proguard_config",
+           ":monochrome_64_public_bundle__base_bundle_module_validate_android_manifest",
+-          ":trichrome_chrome_32_64_bundle__base_bundle_module_validate_android_manifest",
+-          ":trichrome_chrome_32_bundle__base_bundle_module_validate_android_manifest",
+-          ":trichrome_chrome_64_32_bundle__base_bundle_module_validate_android_manifest",
+           ":trichrome_chrome_64_bundle__base_bundle_module_validate_android_manifest",
+-          ":trichrome_library_32_64_apk_validate_android_manifest",
+-          ":trichrome_library_32_apk_validate_android_manifest",
+-          ":trichrome_library_64_32_apk_validate_android_manifest",
+           ":trichrome_library_64_apk_validate_android_manifest",
+-          "//android_webview:system_webview_32_64_base_bundle_module_validate_android_manifest",
+-          "//android_webview:system_webview_32_base_bundle_module_validate_android_manifest",
+           "//android_webview:system_webview_64_base_bundle_module_validate_android_manifest",
+-          "//android_webview:trichrome_webview_32_64_base_bundle_module_validate_android_manifest",
+-          "//android_webview:trichrome_webview_32_base_bundle_module_validate_android_manifest",
+-          "//android_webview:trichrome_webview_64_32_base_bundle_module_validate_android_manifest",
+           "//android_webview:trichrome_webview_64_base_bundle_module_validate_android_manifest",
+         ]
++        if (!skip_secondary_abi_for_cq) {
++          deps += [
++            ":monochrome_32_64_public_bundle__base_bundle_module_validate_android_manifest",
++            ":monochrome_32_public_bundle__base_bundle_module_validate_android_manifest",
++            ":monochrome_64_32_public_bundle_validate_manifests",
++            ":monochrome_64_32_public_bundle_validate_proguard_config",
++            ":trichrome_chrome_32_64_bundle__base_bundle_module_validate_android_manifest",
++            ":trichrome_chrome_32_bundle__base_bundle_module_validate_android_manifest",
++            ":trichrome_chrome_64_32_bundle__base_bundle_module_validate_android_manifest",
++            ":trichrome_library_32_64_apk_validate_android_manifest",
++            ":trichrome_library_32_apk_validate_android_manifest",
++            ":trichrome_library_64_32_apk_validate_android_manifest",
++            "//android_webview:system_webview_32_64_base_bundle_module_validate_android_manifest",
++            "//android_webview:system_webview_32_base_bundle_module_validate_android_manifest",
++            "//android_webview:trichrome_webview_32_64_base_bundle_module_validate_android_manifest",
++            "//android_webview:trichrome_webview_32_base_bundle_module_validate_android_manifest",
++            "//android_webview:trichrome_webview_64_32_base_bundle_module_validate_android_manifest",
++          ]
++        }
+       } else {
+         deps += [
+           ":${_main_monochrome_public_bundle_target}_validate_manifests",

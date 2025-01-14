@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 26 Jan 2024 14:57:11 +0000
+Subject: [PATCH] temporary: Always partition third party storage
+
+This will be removed in future milestone, but currently, sites can opt
+out to this feature via the depreciation trial, see
+https://developers.google.com/privacy-sandbox/3pcd/storage-partitioning#implementation_status
+https://developers.google.com/privacy-sandbox/blog/storage-partitioning-deprecation-trial#disablethirdpartystoragepartitioning
+---
+ third_party/blink/common/features.cc                            | 2 +-
+ .../blink/renderer/platform/runtime_enabled_features.json5      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 9ab75c72dc1ef..03cd21ec7c7c8 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -707,7 +707,7 @@ BASE_FEATURE(kDiscardInputEventsToRecentlyMovedFrames,
+ 
+ BASE_FEATURE(kDisableThirdPartyStoragePartitioningDeprecationTrial2,
+              "DisableThirdPartyStoragePartitioningDeprecationTrial2",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Kill switch for not WebGL DrawingBuffer using SharedImage without
+ // GpuMemoryBuffer (overlay or low latency canvas).
+diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+index db7c64eebdf34..88c88dc756fc5 100644
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+@@ -1491,9 +1491,9 @@
+       name: "DisableThirdPartyStoragePartitioning2",
+       origin_trial_feature_name: "DisableThirdPartyStoragePartitioning2",
+       origin_trial_type: "deprecation",
++      origin_trial_os: ["win", "mac", "linux", "fuchsia", "chromeos"],
+       origin_trial_allows_insecure: true,
+       origin_trial_allows_third_party: true,
+-      status: "experimental",
+       base_feature: "none",
+       browser_process_read_write_access: true,
+     },

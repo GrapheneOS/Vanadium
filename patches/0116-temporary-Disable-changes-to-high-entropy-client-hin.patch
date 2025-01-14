@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 15 Nov 2023 06:14:54 +0000
+Subject: [PATCH] temporary: Disable changes to high entropy client hints in
+ webview
+
+WebView clients can set user-agents using the standard WebView APIs
+provided in android, rendering this patchset useless for information
+reduction purposes.
+---
+ android_webview/BUILD.gn                      |  3 ++
+ .../WebViewChromiumFactoryProvider.java       |  3 ++
+ .../common/AlwaysOverridenFlagList.java       | 37 +++++++++++++++++++
+ 3 files changed, 43 insertions(+)
+ create mode 100644 android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
+
+diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
+index d7e35d69df0cf..817729f55d3d4 100644
+--- a/android_webview/BUILD.gn
++++ b/android_webview/BUILD.gn
+@@ -898,6 +898,9 @@ android_library("common_java") {
+     "java/src/org/chromium/android_webview/common/services/ServiceHelper.java",
+     "java/src/org/chromium/android_webview/common/services/ServiceNames.java",
+   ]
++  sources += [
++    "java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java",
++  ]
+   deps = [
+     "//base:base_java",
+     "//build/android:build_java",
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index f961388d11e67..b0c237b7e342e 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -43,6 +43,7 @@ import org.chromium.android_webview.BrowserSafeModeActionList;
+ import org.chromium.android_webview.ManifestMetadataUtil;
+ import org.chromium.android_webview.R;
+ import org.chromium.android_webview.WebViewChromiumRunQueue;
++import org.chromium.android_webview.common.AlwaysOverridenFlagList;
+ import org.chromium.android_webview.common.AwSwitches;
+ import org.chromium.android_webview.common.CommandLineUtil;
+ import org.chromium.android_webview.common.DeveloperModeUtils;
+@@ -454,6 +455,8 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+                 }
+             }
+ 
++            AlwaysOverridenFlagList.applyFlagOverrides(flagOverrides);
++
+             ThreadUtils.setWillOverrideUiThread();
+             BuildInfo.setBrowserPackageInfo(packageInfo);
+             // Trigger the creation of the BuildInfo singleton to avoid potential issues reading
+diff --git a/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
+new file mode 100644
+index 0000000000000..3115c1f38b690
+--- /dev/null
++++ b/android_webview/java/src/org/chromium/android_webview/common/AlwaysOverridenFlagList.java
+@@ -0,0 +1,37 @@
++package org.chromium.android_webview.common;
++
++import org.chromium.blink_public.common.BlinkFeatures;
++
++import java.util.HashMap;
++import java.util.Map;
++
++public class AlwaysOverridenFlagList {
++    private static final Flag[] sFlags = {
++        Flag.baseFeature(BlinkFeatures.CLIENT_HINTS_LOW_ENTROPY_ONLY),
++        Flag.baseFeature(BlinkFeatures.CLIENT_HINTS_FROM_REDUCED_UA)
++    };
++
++    private static final Map<String, Boolean> sOverrides = new HashMap<>();
++
++    static {
++        sOverrides.put(BlinkFeatures.CLIENT_HINTS_LOW_ENTROPY_ONLY, false);
++        sOverrides.put(BlinkFeatures.CLIENT_HINTS_FROM_REDUCED_UA, false);
++    }
++
++    public static void applyFlagOverrides(Map<String, Boolean> existingOverrideMap) {
++        Map<String, Boolean> mergedOverrideMap;
++        Flag[] mergedFlags;
++        if (existingOverrideMap != null) {
++            mergedOverrideMap = new HashMap<>(existingOverrideMap);
++            mergedOverrideMap.putAll(sOverrides);
++            mergedFlags = new Flag[ProductionSupportedFlagList.sFlagList.length + sFlags.length];
++            System.arraycopy(ProductionSupportedFlagList.sFlagList, 0, mergedFlags, 0, ProductionSupportedFlagList.sFlagList.length);
++            System.arraycopy(sFlags, 0, mergedFlags, ProductionSupportedFlagList.sFlagList.length, sFlags.length);
++        } else {
++            mergedOverrideMap = sOverrides;
++            mergedFlags = sFlags;
++        }
++        var helper = new FlagOverrideHelper(mergedFlags);
++        helper.applyFlagOverrides(mergedOverrideMap);
++    }
++}

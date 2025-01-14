@@ -4,37 +4,52 @@ Date: Tue, 25 Dec 2018 16:19:51 -0500
 Subject: [PATCH] disable seed-based field trials
 
 ---
- .../variations/service/variations_field_trial_creator_base.cc | 4 ++++
- components/variations/synthetic_trial_registry.cc             | 2 ++
- 2 files changed, 6 insertions(+)
+ .../service/variations_field_trial_creator_base.cc     | 10 ++++++++++
+ components/variations/synthetic_trial_registry.cc      |  2 ++
+ 2 files changed, 12 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
-index fbe60d2c4418e..734301f58c0f9 100644
+index 73ff906e1b51a..d4324986fd65f 100644
 --- a/components/variations/service/variations_field_trial_creator_base.cc
 +++ b/components/variations/service/variations_field_trial_creator_base.cc
-@@ -326,13 +326,17 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+@@ -263,8 +263,14 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+   }
+   // Force the variation ids selected in chrome://flags and/or specified using
+   // the command-line flag.
++#if defined(FIELDTRIAL_SEED_ENABLED)
+   auto result = http_header_provider->ForceVariationIds(
+       variation_ids, command_line_variation_ids);
++#else
++  // Pretend that it was successful without acutally forcing
++  // variation ids and command line variation ids
++  auto result = VariationsIdsProvider::ForceIdsResult::SUCCESS;
++#endif // defined(FIELDTRIAL_SEED_ENABLED)
+ 
+   switch (result) {
+     case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
+@@ -322,13 +328,17 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
  
    bool used_seed = false;
    if (!used_testing_config) {
 +#if defined(FIELDTRIAL_SEED_ENABLED)
      used_seed =
-         CreateTrialsFromSeed(*entropy_providers, feature_list.get(),
+         CreateTrialsFromSeed(entropy_providers, feature_list.get(),
                               safe_seed_manager, synthetic_trial_registry);
 +#endif
    }
  
 +#if defined(FIELDTRIAL_SEED_ENABLED)
    platform_field_trials->SetUpClientSideFieldTrials(
-       used_seed, *entropy_providers, feature_list.get());
+       used_seed, entropy_providers, feature_list.get());
 +#endif
  
    platform_field_trials->RegisterFeatureOverrides(feature_list.get());
  
 diff --git a/components/variations/synthetic_trial_registry.cc b/components/variations/synthetic_trial_registry.cc
-index bc35df424b2ce..5772daf741366 100644
+index cd3eac8828f2e..574153fb40bee 100644
 --- a/components/variations/synthetic_trial_registry.cc
 +++ b/components/variations/synthetic_trial_registry.cc
-@@ -113,6 +113,7 @@ void SyntheticTrialRegistry::RegisterExternalExperiments(
+@@ -122,6 +122,7 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
  
  void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
      const SyntheticTrialGroup& trial) {
@@ -42,7 +57,7 @@ index bc35df424b2ce..5772daf741366 100644
    for (auto& entry : synthetic_trial_groups_) {
      if (entry.id().name == trial.id().name) {
        if (entry.id().group != trial.id().group ||
-@@ -130,6 +131,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
+@@ -139,6 +140,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
    trial_group.SetStartTime(base::TimeTicks::Now());
    synthetic_trial_groups_.push_back(trial_group);
    NotifySyntheticTrialObservers({trial_group}, {});
