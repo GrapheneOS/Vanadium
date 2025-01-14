@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 25 May 2021 16:43:39 -0400
+Subject: [PATCH] remove safety check menu
+
+---
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index b985b6fc1ca03..d0b711a287777 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -301,6 +301,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
+             templateUrlService.load();
+         }
+ 
++        getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
++
+         new AdaptiveToolbarStatePredictor(getContext(), getProfile(), null)
+                 .recomputeUiState(
+                         uiState -> {

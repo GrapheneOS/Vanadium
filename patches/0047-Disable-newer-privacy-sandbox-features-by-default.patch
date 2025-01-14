@@ -9,10 +9,10 @@ Subject: [PATCH] Disable newer privacy sandbox features by default
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
-index 96957566c1659..5b35f3285b528 100644
+index 6f67ea518dbc7..388d54abf70c5 100644
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
-@@ -24,7 +24,7 @@ const base::FeatureParam<bool> kPrivacySandboxAdsNoticeCCTIncludeModeB{
+@@ -21,7 +21,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
  
  BASE_FEATURE(kPrivacySandboxSettings4,
               "PrivacySandboxSettings4",
@@ -22,10 +22,10 @@ index 96957566c1659..5b35f3285b528 100644
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index f8ce99486900e..88698fd949794 100644
+index e7224e03e80f8..9d9d41553f5fc 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -295,7 +295,7 @@ BASE_FEATURE(kBoostNonRenderBlockingStyleLoadingTaskPriority,
+@@ -255,7 +255,7 @@ BASE_FEATURE(kBoostNonRenderBlockingStyleLoadingTaskPriority,
  // Kill switch for the Topics API.
  BASE_FEATURE(kBrowsingTopics,
               "BrowsingTopics",
@@ -34,7 +34,7 @@ index f8ce99486900e..88698fd949794 100644
  
  // If enabled, the check for whether the IP address is publicly routable will be
  // bypassed when determining the eligibility for a page to be included in topics
-@@ -311,13 +311,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+@@ -271,13 +271,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
  // is enabled.)
  BASE_FEATURE(kBrowsingTopicsDocumentAPI,
               "BrowsingTopicsDocumentAPI",

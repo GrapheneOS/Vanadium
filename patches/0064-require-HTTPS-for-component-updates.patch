@@ -9,7 +9,7 @@ Subject: [PATCH] require HTTPS for component updates
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc b/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc
-index 4bf7965ade690..5873caab5b2e1 100644
+index ed1faff27df00..cd438dfce1975 100644
 --- a/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc
 +++ b/android_webview/nonembedded/component_updater/aw_component_updater_configurator.cc
 @@ -38,7 +38,7 @@ AwComponentUpdaterConfigurator::AwComponentUpdaterConfigurator(
@@ -19,18 +19,18 @@ index 4bf7965ade690..5873caab5b2e1 100644
 -          false),
 +          true),
        pref_service_(pref_service),
-       persisted_data_(
-           update_client::CreatePersistedData(pref_service, nullptr)) {}
+       persisted_data_(update_client::CreatePersistedData(
+           base::BindRepeating(
 diff --git a/chrome/browser/component_updater/chrome_component_updater_configurator.cc b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
-index 763920ed06eb3..b2f3852aa22de 100644
+index aaff7079f9171..73a12ff3b6c58 100644
 --- a/chrome/browser/component_updater/chrome_component_updater_configurator.cc
 +++ b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
-@@ -115,7 +115,7 @@ class ChromeConfigurator : public update_client::Configurator {
+@@ -114,7 +114,7 @@ class ChromeConfigurator : public update_client::Configurator {
  ChromeConfigurator::ChromeConfigurator(const base::CommandLine* cmdline,
                                         PrefService* pref_service)
      : configurator_impl_(ComponentUpdaterCommandLineConfigPolicy(cmdline),
 -                         /*require_encryption=*/false),
 +                         /*require_encryption=*/true),
        pref_service_(pref_service),
-       persisted_data_(
-           update_client::CreatePersistedData(pref_service, nullptr)) {
+       persisted_data_(update_client::CreatePersistedData(
+           base::BindRepeating(

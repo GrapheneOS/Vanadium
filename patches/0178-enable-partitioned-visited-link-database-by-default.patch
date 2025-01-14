@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Sun, 21 Jul 2024 04:49:01 +0000
+Subject: [PATCH] enable partitioned visited link database by default
+
+---
+ third_party/blink/common/features.cc                            | 2 +-
+ .../blink/renderer/platform/runtime_enabled_features.json5      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 6f2e5cdae6cd9..54a69cf8c1fc4 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -1932,7 +1932,7 @@ BASE_FEATURE_PARAM(bool,
+ // <link url, top-level site, frame origin>
+ BASE_FEATURE(kPartitionVisitedLinkDatabase,
+              "PartitionVisitedLinkDatabase",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Enables the use of the PaintCache for Path2D objects that are rasterized
+ // out of process.  Has no effect when kCanvasOopRasterization is disabled.
+diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+index 88c88dc756fc5..49ea1b0d513dd 100644
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+@@ -3175,7 +3175,7 @@
+     },
+     {
+       name: "PartitionVisitedLinkDatabaseWithSelfLinks",
+-      status: {"iOS": "", "default": "experimental"},
++      status: {"Android": "stable", "iOS": "", "default": "experimental"},
+     },
+     // This is to add an option to enable the Reveal button on password inputs while waiting ::reveal gets standardized.
+     {

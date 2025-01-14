@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 3 Nov 2024 11:54:23 +0000
+Subject: [PATCH] bugfix: disable feature(s) to preserve passkeys functionality
+
+---
+ .../blink/renderer/platform/runtime_enabled_features.json5   | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+index 49ea1b0d513dd..856955637ffab 100644
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+@@ -887,7 +887,10 @@
+       // credentials back to credential storage providers.
+       // Enabled by default on M132. Remove flag on or after M135.
+       name: "CredentialManagerReport",
+-      status: "stable",
++      status: {
++        "Android": "",
++        "default": "stable",
++      }
+     },
+     {
+       name: "CrossFramePerformanceTimeline",
