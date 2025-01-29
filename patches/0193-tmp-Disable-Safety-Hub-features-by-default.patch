@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 30 Nov 2024 07:07:47 +0000
+Subject: [PATCH] tmp: Disable Safety Hub features by default
+
+---
+ chrome/common/chrome_features.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
+index b4411274acdaf..84151f43ced30 100644
+--- a/chrome/common/chrome_features.cc
++++ b/chrome/common/chrome_features.cc
+@@ -935,7 +935,7 @@ BASE_FEATURE(kRecordWebAppDebugInfo,
+ // Enables notification permission revocation for abusive origins.
+ BASE_FEATURE(kAbusiveNotificationPermissionRevocation,
+              "AbusiveOriginNotificationPermissionRevocation",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ #if BUILDFLAG(IS_CHROMEOS_ASH)
+ // Enables permanent removal of Legacy Supervised Users on startup.
+@@ -961,13 +961,13 @@ BASE_FEATURE(kSafetyHubExtensionsOffStoreTrigger,
+ #endif
+ 
+ // Enables Safety Hub feature.
+-BASE_FEATURE(kSafetyHub, "SafetyHub", base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kSafetyHub, "SafetyHub", base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ #if BUILDFLAG(IS_ANDROID)
+ // Enables Safety Hub card in magic stack.
+ BASE_FEATURE(kSafetyHubMagicStack,
+              "SafetyHubMagicStack",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Enables Safety Hub followup work.
+ BASE_FEATURE(kSafetyHubFollowup,

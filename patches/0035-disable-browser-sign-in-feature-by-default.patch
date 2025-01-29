@@ -9,10 +9,10 @@ Subject: [PATCH] disable browser sign in feature by default
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
-index c8c3d849d0510..0a284c80461d8 100644
+index 75d4f871e93ec..bf475559b3e4b 100644
 --- a/chrome/browser/signin/account_consistency_mode_manager.cc
 +++ b/chrome/browser/signin/account_consistency_mode_manager.cc
-@@ -117,7 +117,7 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() {}
+@@ -117,7 +117,7 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() = default;
  // static
  void AccountConsistencyModeManager::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
@@ -22,7 +22,7 @@ index c8c3d849d0510..0a284c80461d8 100644
  
  // static
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
-index 5fc38ba5149de..2b6c4b57db9cf 100644
+index aefc281b823fb..55e33b94197c1 100644
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
 @@ -299,7 +299,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {

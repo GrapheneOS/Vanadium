@@ -9,7 +9,7 @@ Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
  1 file changed, 12 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-index f7269a0726899..2c72a6307b8d2 100644
+index fc1868f476b0f..d5a2dd0e89508 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 @@ -62,6 +62,9 @@ public class IdentityDiscController
@@ -43,5 +43,5 @@ index f7269a0726899..2c72a6307b8d2 100644
 +        }
 +
          if (email == null) {
-             if (SigninUtils.shouldShowNewSigninFlow()) {
-                 return mContext.getString(
+             return mContext.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
+         }

@@ -11,37 +11,46 @@ commands used:
 CHROMIUM_SRC_DIR=/path/to/chromium/src
 sed -ri 's/private static final String PREF_/static final String PREF_/g' $CHROMIUM_SRC_DIR/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 ---
- .../privacy/settings/PrivacySettings.java     | 20 +++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ .../privacy/settings/PrivacySettings.java     | 28 +++++++++----------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index ba461aef8b6b9..76c07cb7e8758 100644
+index 5664e059684f7..42af4c76f8c16 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -57,16 +57,16 @@ import org.chromium.ui.text.SpanApplier;
+@@ -60,21 +60,21 @@ import org.chromium.ui.text.SpanApplier;
  /** Fragment to keep track of the all the privacy related preferences. */
  public class PrivacySettings extends ChromeBaseSettingsFragment
          implements Preference.OnPreferenceChangeListener {
 -    private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
 -    private static final String PREF_PRELOAD_PAGES = "preload_pages";
 -    private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
++    static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
++    static final String PREF_PRELOAD_PAGES = "preload_pages";
++    static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+     // TODO(crbug.com/349860796): Remove once new settings are fully rolled out.
+-    private static final String PREF_HTTPS_FIRST_MODE_LEGACY = "https_first_mode_legacy";
 -    private static final String PREF_SECURE_DNS = "secure_dns";
 -    private static final String PREF_USAGE_STATS = "usage_stats_reporting";
 -    private static final String PREF_SAFE_BROWSING = "safe_browsing";
+-    private static final String PREF_PASSWORD_LEAK_DETECTION = "password_leak_detection";
 -    private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
 -    private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
 -    private static final String PREF_PRIVACY_GUIDE = "privacy_guide";
 -    private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
-+    static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
-+    static final String PREF_PRELOAD_PAGES = "preload_pages";
-+    static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+-    private static final String PREF_JAVASCRIPT_OPTIMIZER = "javascript_optimizer";
+-    private static final String PREF_PHONE_AS_A_SECURITY_KEY = "phone_as_a_security_key";
++    static final String PREF_HTTPS_FIRST_MODE_LEGACY = "https_first_mode_legacy";
 +    static final String PREF_SECURE_DNS = "secure_dns";
 +    static final String PREF_USAGE_STATS = "usage_stats_reporting";
 +    static final String PREF_SAFE_BROWSING = "safe_browsing";
++    static final String PREF_PASSWORD_LEAK_DETECTION = "password_leak_detection";
 +    static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
 +    static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
 +    static final String PREF_PRIVACY_GUIDE = "privacy_guide";
 +    static final String PREF_INCOGNITO_LOCK = "incognito_lock";
++    static final String PREF_JAVASCRIPT_OPTIMIZER = "javascript_optimizer";
++    static final String PREF_PHONE_AS_A_SECURITY_KEY = "phone_as_a_security_key";
      @VisibleForTesting static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      @VisibleForTesting static final String PREF_DO_NOT_TRACK = "do_not_track";
      @VisibleForTesting static final String PREF_FP_PROTECTION = "fp_protection";

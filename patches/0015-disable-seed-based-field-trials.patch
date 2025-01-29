@@ -9,10 +9,10 @@ Subject: [PATCH] disable seed-based field trials
  2 files changed, 12 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
-index 73ff906e1b51a..d4324986fd65f 100644
+index 753fc845cc205..d8fbd413acabc 100644
 --- a/components/variations/service/variations_field_trial_creator_base.cc
 +++ b/components/variations/service/variations_field_trial_creator_base.cc
-@@ -263,8 +263,14 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+@@ -260,8 +260,14 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
    }
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
@@ -27,7 +27,7 @@ index 73ff906e1b51a..d4324986fd65f 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -322,13 +328,17 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+@@ -318,13 +324,17 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
  
    bool used_seed = false;
    if (!used_testing_config) {

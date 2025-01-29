@@ -14,10 +14,10 @@ settings.
  2 files changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_default_provider.cc b/components/content_settings/core/browser/content_settings_default_provider.cc
-index 88b4ff4c0af4f..8339519f13f7e 100644
+index 8cc77db04a027..c95ef8807f4a6 100644
 --- a/components/content_settings/core/browser/content_settings_default_provider.cc
 +++ b/components/content_settings/core/browser/content_settings_default_provider.cc
-@@ -62,7 +62,7 @@ const char kObsoletePpapiBrokerDefaultPref[] =
+@@ -61,7 +61,7 @@ const char kObsoletePpapiBrokerDefaultPref[] =
  constexpr char kObsoleteFederatedIdentityDefaultPref[] =
      "profile.default_content_setting_values.fedcm_active_session";
  
@@ -26,7 +26,7 @@ index 88b4ff4c0af4f..8339519f13f7e 100644
  // This setting was accidentally bound to a UI surface intended for a different
  // setting (https://crbug.com/364820109). It should not have been settable
  // except via enterprise policy, so it is temporarily cleaned up here to revert
-@@ -72,7 +72,7 @@ constexpr char kBug364820109DefaultSettingToClear[] =
+@@ -71,7 +71,7 @@ constexpr char kBug364820109DefaultSettingToClear[] =
      "profile.default_content_setting_values.javascript_jit";
  constexpr char kBug364820109AlreadyWorkedAroundPref[] =
      "profile.did_work_around_bug_364820109_default";
@@ -35,7 +35,7 @@ index 88b4ff4c0af4f..8339519f13f7e 100644
  
  ContentSetting GetDefaultValue(const WebsiteSettingsInfo* info) {
    const base::Value& initial_default = info->initial_default_value();
-@@ -152,10 +152,10 @@ void DefaultProvider::RegisterProfilePrefs(
+@@ -151,10 +151,10 @@ void DefaultProvider::RegisterProfilePrefs(
  #endif  // !BUILDFLAG(IS_IOS)
    registry->RegisterIntegerPref(kObsoleteFederatedIdentityDefaultPref, 0);
  
@@ -48,7 +48,7 @@ index 88b4ff4c0af4f..8339519f13f7e 100644
  }
  
  DefaultProvider::DefaultProvider(PrefService* prefs,
-@@ -396,13 +396,13 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
+@@ -392,13 +392,13 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
  #endif  // !BUILDFLAG(IS_IOS)
    prefs_->ClearPref(kObsoleteFederatedIdentityDefaultPref);
  

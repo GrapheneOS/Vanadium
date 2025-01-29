@@ -13,30 +13,28 @@ https://developers.google.com/privacy-sandbox/blog/storage-partitioning-deprecat
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 9ab75c72dc1ef..03cd21ec7c7c8 100644
+index 8c736ecb32ae7..c3f11bcce9819 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -707,7 +707,7 @@ BASE_FEATURE(kDiscardInputEventsToRecentlyMovedFrames,
+@@ -697,7 +697,7 @@ BASE_FEATURE(kDiscardInputEventsToRecentlyMovedFrames,
  
- BASE_FEATURE(kDisableThirdPartyStoragePartitioningDeprecationTrial2,
-              "DisableThirdPartyStoragePartitioningDeprecationTrial2",
+ BASE_FEATURE(kDisableThirdPartyStoragePartitioning3DeprecationTrial,
+              "DisableThirdPartyStoragePartitioning3DeprecationTrial",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- // Kill switch for not WebGL DrawingBuffer using SharedImage without
- // GpuMemoryBuffer (overlay or low latency canvas).
+ // Drop input events before user sees first paint https://crbug.com/1255485
+ BASE_FEATURE(kDropInputEventsBeforeFirstPaint,
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-index 25336af76c074..baff2d11ad6a9 100644
+index 24d8368d0622c..a897caeadd848 100644
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1491,9 +1491,9 @@
-       name: "DisableThirdPartyStoragePartitioning2",
-       origin_trial_feature_name: "DisableThirdPartyStoragePartitioning2",
+@@ -1506,7 +1506,7 @@
        origin_trial_type: "deprecation",
-+      origin_trial_os: ["win", "mac", "linux", "fuchsia", "chromeos"],
        origin_trial_allows_insecure: true,
        origin_trial_allows_third_party: true,
 -      status: "experimental",
++      status: "test",
        base_feature: "none",
        browser_process_read_write_access: true,
      },

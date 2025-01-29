@@ -9,11 +9,11 @@ Subject: [PATCH] Support opening external web search in incognito
  2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 6b27726fa8ba0..a821d39b16510 100644
+index afb4319aa8802..f287409ba777d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -666,6 +666,11 @@ public class SearchActivity extends AsyncInitializationActivity
-         Intent intent = SearchActivityUtils.createIntentForStartActivity(this, params);
+@@ -659,6 +659,11 @@ public class SearchActivity extends AsyncInitializationActivity
+         Intent intent = SearchActivityUtils.createIntentForStartActivity(params);
          if (intent == null) return;
  
 +        intent = SearchActivityHooks.modifyIntentForStartActivity(this, intent);

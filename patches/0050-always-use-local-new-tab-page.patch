@@ -8,10 +8,10 @@ Subject: [PATCH] always use local new tab page
  1 file changed, 7 insertions(+)
 
 diff --git a/chrome/browser/search/search.cc b/chrome/browser/search/search.cc
-index 40c586fb4f715..cb9ab332c947d 100644
+index cb37fdb16846e..4196f8f4e0e46 100644
 --- a/chrome/browser/search/search.cc
 +++ b/chrome/browser/search/search.cc
-@@ -163,6 +163,10 @@ struct NewTabURLDetails {
+@@ -162,6 +162,10 @@ struct NewTabURLDetails {
    NewTabURLDetails(const GURL& url, NewTabURLState state)
        : url(url), state(state) {}
  
@@ -22,7 +22,7 @@ index 40c586fb4f715..cb9ab332c947d 100644
    static NewTabURLDetails ForProfile(Profile* profile) {
      // Incognito and Guest profiles have their own New Tab.
      // This function may also be called by other off-the-record profiles that
-@@ -174,6 +178,9 @@ struct NewTabURLDetails {
+@@ -173,6 +177,9 @@ struct NewTabURLDetails {
  
  #if BUILDFLAG(IS_ANDROID)
      const GURL local_url;

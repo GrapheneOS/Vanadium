@@ -238,7 +238,7 @@ index 0f33163d6a87f..48626cb8111fa 100644
  
  }  // namespace policy
 diff --git a/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc b/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
-index 0f3487e6f2ffa..b03032d463650 100644
+index 1f6067c3b0d1f..f08ca369a3bb8 100644
 --- a/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
 +++ b/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
 @@ -17,6 +17,8 @@
@@ -256,9 +256,9 @@ index 0f3487e6f2ffa..b03032d463650 100644
  #include "sandbox/policy/linux/bpf_utility_policy_linux.h"
 +#include "third_party/blink/public/common/switches.h"
  
- #if BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
- #include "sandbox/policy/linux/bpf_screen_ai_policy_linux.h"
-@@ -190,8 +193,26 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
+ #if BUILDFLAG(IS_CHROMEOS_ASH)
+ #include "chromeos/ash/components/assistant/buildflags.h"
+@@ -186,8 +189,26 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
    switch (sandbox_type) {
      case sandbox::mojom::Sandbox::kGpu:
        return GetGpuProcessSandbox(options);
@@ -287,7 +287,7 @@ index 0f3487e6f2ffa..b03032d463650 100644
  #if BUILDFLAG(ENABLE_PPAPI)
      case sandbox::mojom::Sandbox::kPpapi:
        return std::make_unique<PpapiProcessPolicy>();
-@@ -213,9 +234,27 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
+@@ -207,9 +228,27 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
      case sandbox::mojom::Sandbox::kAudio:
        return std::make_unique<AudioProcessPolicy>();
      case sandbox::mojom::Sandbox::kService:
@@ -318,7 +318,7 @@ index 0f3487e6f2ffa..b03032d463650 100644
      case sandbox::mojom::Sandbox::kSpeechRecognition:
        return std::make_unique<SpeechRecognitionProcessPolicy>();
  #if BUILDFLAG(IS_LINUX)
-@@ -228,7 +267,7 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
+@@ -222,7 +261,7 @@ std::unique_ptr<BPFBasePolicy> SandboxSeccompBPF::PolicyForSandboxType(
  #endif
  #if BUILDFLAG(IS_LINUX)
      case sandbox::mojom::Sandbox::kVideoEffects:
