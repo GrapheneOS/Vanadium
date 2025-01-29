@@ -8,15 +8,15 @@ Subject: [PATCH] enable hybrid post-quantum key exchange on Android
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 39ca47cf6c806..77c6dcef904ec 100644
+index 55f71520e99e7..786e26538b859 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
 @@ -154,7 +154,7 @@ BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
  
  BASE_FEATURE(kPostQuantumKyber,
               "PostQuantumKyber",
--#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-+#if BUILDFLAG(IS_IOS)
-              base::FEATURE_DISABLED_BY_DEFAULT);
- #else
-              base::FEATURE_ENABLED_BY_DEFAULT);
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT); // tmp: to be checked downstream.
+ 
+ BASE_FEATURE(kUseMLKEM, "UseMLKEM", base::FEATURE_ENABLED_BY_DEFAULT);
+ 

@@ -12,10 +12,10 @@ Subject: [PATCH] Add hooks for LibraryLoader on early initialization and
  create mode 100644 base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-index 8ca2fc3e4a728..b772d2264306f 100644
+index 0022222008fb2..79b0f427d7bf5 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-@@ -445,6 +445,7 @@ public class LibraryLoader {
+@@ -448,6 +448,7 @@ public class LibraryLoader {
                              mLibraryProcessType, type));
          }
          mLibraryProcessType = type;
@@ -23,7 +23,7 @@ index 8ca2fc3e4a728..b772d2264306f 100644
      }
  
      /**
-@@ -782,6 +783,13 @@ public class LibraryLoader {
+@@ -785,6 +786,13 @@ public class LibraryLoader {
      @GuardedBy("mLock")
      private void ensureCommandLineSwitchedAlreadyLocked() {
          assert isMainDexLoaded();

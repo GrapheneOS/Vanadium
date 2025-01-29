@@ -8,19 +8,19 @@ Subject: [PATCH] remove unwanted account and services section
  1 file changed, 5 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index d0b711a287777..3f6e7b7d0707e 100644
+index ec8d6ddd02353..50f2630f16073 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -302,6 +302,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
-         }
+@@ -296,6 +296,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
  
-         getPreferenceScreen().removePreference(findPreference(PREF_SAFETY_CHECK));
-+        getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION));
-+        getPreferenceScreen().removePreference(findPreference(PREF_GOOGLE_SERVICES));
+         SettingsExtUtils.safelyRemovePreference(this, PREF_SAFETY_CHECK);
+         SettingsExtUtils.safelyRemovePreference(this, PREF_SAFETY_HUB);
++        SettingsExtUtils.safelyRemovePreference(this, PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION);
++        SettingsExtUtils.safelyRemovePreference(this, PREF_GOOGLE_SERVICES);
+     }
  
-         new AdaptiveToolbarStatePredictor(getContext(), getProfile(), null)
-                 .recomputeUiState(
-@@ -423,6 +425,9 @@ public class MainSettings extends ChromeBaseSettingsFragment
+     /**
+@@ -388,6 +390,9 @@ public class MainSettings extends ChromeBaseSettingsFragment
  
      private void updateGoogleServicePreference() {
          ChromeBasePreference googleServicePreference = findPreference(PREF_GOOGLE_SERVICES);

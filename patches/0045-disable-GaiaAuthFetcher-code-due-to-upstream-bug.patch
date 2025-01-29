@@ -5,24 +5,14 @@ Subject: [PATCH] disable GaiaAuthFetcher code due to upstream bug
 
 https://bugs.chromium.org/p/chromium/issues/detail?id=1150817
 ---
- google_apis/gaia/gaia_auth_fetcher.cc | 4 ++++
- 1 file changed, 4 insertions(+)
+ google_apis/gaia/gaia_auth_fetcher.cc | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/google_apis/gaia/gaia_auth_fetcher.cc b/google_apis/gaia/gaia_auth_fetcher.cc
-index 9ba4e97c83076..7d845a351e4ea 100644
+index f2655601f16cc..40b40ebf256b9 100644
 --- a/google_apis/gaia/gaia_auth_fetcher.cc
 +++ b/google_apis/gaia/gaia_auth_fetcher.cc
-@@ -45,7 +45,9 @@
- 
- namespace {
- 
-+#if 0
- const size_t kMaxMessageSize = 1024 * 1024;  // 1MB
-+#endif
- 
- constexpr char kBadAuthenticationError[] = "BadAuthentication";
- constexpr char kBadAuthenticationShortError[] = "badauth";
-@@ -295,6 +297,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -252,6 +252,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
      const net::NetworkTrafficAnnotationTag& traffic_annotation) {
    DCHECK(!fetch_pending_) << "Tried to fetch two things at once!";
  
@@ -30,10 +20,10 @@ index 9ba4e97c83076..7d845a351e4ea 100644
    auto resource_request = std::make_unique<network::ResourceRequest>();
    resource_request->url = gaia_gurl;
    original_url_ = gaia_gurl;
-@@ -349,6 +352,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
-       base::BindOnce(&GaiaAuthFetcher::OnURLLoadComplete,
+@@ -307,6 +308,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
                       base::Unretained(this)),
-       kMaxMessageSize);
+       // Limit to 1 MiB.
+       1024 * 1024);
 +#endif
  }
  

@@ -401,10 +401,10 @@ index 0000000000000..520a22ee8756b
 +    private CrossOriginReferrerPolicyUtils() {}
 +}
 diff --git a/chrome/browser/net/profile_network_context_service.cc b/chrome/browser/net/profile_network_context_service.cc
-index 47e5679388e37..644095164bd2a 100644
+index ab19ae156407b..c2cfcbbd83a07 100644
 --- a/chrome/browser/net/profile_network_context_service.cc
 +++ b/chrome/browser/net/profile_network_context_service.cc
-@@ -92,6 +92,7 @@
+@@ -94,6 +94,7 @@
  #include "services/network/public/cpp/features.h"
  #include "services/network/public/mojom/cert_verifier_service.mojom.h"
  #include "services/network/public/mojom/first_party_sets_access_delegate.mojom.h"
@@ -412,7 +412,7 @@ index 47e5679388e37..644095164bd2a 100644
  #include "services/network/public/mojom/network_context.mojom.h"
  #include "services/network/public/mojom/network_service.mojom.h"
  #include "third_party/blink/public/common/features.h"
-@@ -393,6 +394,11 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -403,6 +404,11 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
        prefs::kEnableReferrers, profile_prefs,
        base::BindRepeating(&ProfileNetworkContextService::UpdateReferrersEnabled,
                            base::Unretained(this)));
@@ -424,7 +424,7 @@ index 47e5679388e37..644095164bd2a 100644
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
  
-@@ -506,6 +512,8 @@ void ProfileNetworkContextService::RegisterProfilePrefs(
+@@ -516,6 +522,8 @@ void ProfileNetworkContextService::RegisterProfilePrefs(
    registry->RegisterBooleanPref(prefs::kGloballyScopeHTTPAuthCacheEnabled,
                                  false);
    registry->RegisterListPref(prefs::kHSTSPolicyBypassList);
@@ -433,7 +433,7 @@ index 47e5679388e37..644095164bd2a 100644
    registry->RegisterListPref(prefs::kCACertificates);
    registry->RegisterListPref(prefs::kCACertificatesWithConstraints);
    registry->RegisterListPref(prefs::kCADistrustedCertificates);
-@@ -603,6 +611,16 @@ void ProfileNetworkContextService::UpdateReferrersEnabled() {
+@@ -612,6 +620,16 @@ void ProfileNetworkContextService::UpdateReferrersEnabled() {
        });
  }
  
@@ -451,10 +451,10 @@ index 47e5679388e37..644095164bd2a 100644
    auto* prefs = profile_->GetPrefs();
    const base::Value::List& ct_excluded =
 diff --git a/chrome/browser/net/profile_network_context_service.h b/chrome/browser/net/profile_network_context_service.h
-index a8db909140b9f..bf2d1df06d1b3 100644
+index d5dc94d9a8849..a32b132b8fd84 100644
 --- a/chrome/browser/net/profile_network_context_service.h
 +++ b/chrome/browser/net/profile_network_context_service.h
-@@ -162,6 +162,7 @@ class ProfileNetworkContextService
+@@ -165,6 +165,7 @@ class ProfileNetworkContextService
    std::string ComputeAcceptLanguage() const;
  
    void UpdateReferrersEnabled();
@@ -462,7 +462,7 @@ index a8db909140b9f..bf2d1df06d1b3 100644
  
    // Gets the current CTPolicy from preferences.
    network::mojom::CTPolicyPtr GetCTPolicy();
-@@ -230,6 +231,7 @@ class ProfileNetworkContextService
+@@ -241,6 +242,7 @@ class ProfileNetworkContextService
    BooleanPrefMember quic_allowed_;
    StringPrefMember pref_accept_language_;
    BooleanPrefMember enable_referrers_;
@@ -471,10 +471,10 @@ index a8db909140b9f..bf2d1df06d1b3 100644
  
    scoped_refptr<content_settings::CookieSettings> cookie_settings_;
 diff --git a/chrome/browser/renderer_preferences_util.cc b/chrome/browser/renderer_preferences_util.cc
-index 60554970aa2b5..3902b0fd6234e 100644
+index 4cddab821cb18..e19206730d90f 100644
 --- a/chrome/browser/renderer_preferences_util.cc
 +++ b/chrome/browser/renderer_preferences_util.cc
-@@ -110,6 +110,9 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
+@@ -112,6 +112,9 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
    prefs->accept_languages = GetLanguageListForProfile(
        profile, pref_service->GetString(language::prefs::kAcceptLanguages));
    prefs->enable_referrers = pref_service->GetBoolean(prefs::kEnableReferrers);
@@ -509,10 +509,10 @@ index 11457f2fbc577..97c468723891d 100644
      Open external links in incognito
    </message>
 diff --git a/chrome/browser/ui/prefs/pref_watcher.cc b/chrome/browser/ui/prefs/pref_watcher.cc
-index 46229f0182a15..920999100de64 100644
+index 34c7b897d762e..8768d77cd0c6b 100644
 --- a/chrome/browser/ui/prefs/pref_watcher.cc
 +++ b/chrome/browser/ui/prefs/pref_watcher.cc
-@@ -101,6 +101,8 @@ PrefWatcher::PrefWatcher(Profile* profile)
+@@ -107,6 +107,8 @@ PrefWatcher::PrefWatcher(Profile* profile)
                                       renderer_callback);
    profile_pref_change_registrar_.Add(prefs::kEnableReferrers,
                                       renderer_callback);
@@ -522,10 +522,10 @@ index 46229f0182a15..920999100de64 100644
                                       renderer_callback);
    profile_pref_change_registrar_.Add(prefs::kWebRTCIPHandlingPolicy,
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
-index aa1d0490f24bc..04dffe80ecc1f 100644
+index 44735afdf9ffb..2321b11baf25c 100644
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -1566,6 +1566,10 @@ inline constexpr char kEnableHyperlinkAuditing[] = "enable_a_ping";
+@@ -1569,6 +1569,10 @@ inline constexpr char kEnableHyperlinkAuditing[] = "enable_a_ping";
  // Whether to enable sending referrers.
  inline constexpr char kEnableReferrers[] = "enable_referrers";
  
@@ -537,7 +537,7 @@ index aa1d0490f24bc..04dffe80ecc1f 100644
  // use of Clear Key key sytems, which is always allowed as required by the spec.
  // TODO(crbug.com/40549758): This pref was used as a WebPreference which is why
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
-index 4f76cfa33ea68..01b2b13bfdc17 100644
+index f1794420f6b41..b5ee0955b02bb 100644
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
 @@ -405,6 +405,29 @@ void AddAdditionalRequestHeaders(
@@ -571,10 +571,10 @@ index 4f76cfa33ea68..01b2b13bfdc17 100644
    if (NeedsHTTPOrigin(headers, method)) {
      url::Origin origin_header_value = initiator_origin.value_or(url::Origin());
 diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
-index a0e45dfcf20ed..e6804883bd27c 100644
+index 7431b6773d9f0..e4671a6c0fb75 100644
 --- a/content/renderer/render_frame_impl.cc
 +++ b/content/renderer/render_frame_impl.cc
-@@ -4649,6 +4649,31 @@ void RenderFrameImpl::FinalizeRequestInternal(
+@@ -4652,6 +4652,31 @@ void RenderFrameImpl::FinalizeRequestInternal(
      request.SetReferrerString(WebString());
      request.SetReferrerPolicy(network::mojom::ReferrerPolicy::kNever);
    }
@@ -607,10 +607,10 @@ index a0e45dfcf20ed..e6804883bd27c 100644
  
  void RenderFrameImpl::DidLoadResourceFromMemoryCache(
 diff --git a/services/network/network_context.cc b/services/network/network_context.cc
-index f03bc67fbd156..30a6d4b61a7e0 100644
+index 8d2e38ac65ca8..5230022310dfc 100644
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -1705,6 +1705,15 @@ void NetworkContext::SetEnableReferrers(bool enable_referrers) {
+@@ -1700,6 +1700,15 @@ void NetworkContext::SetEnableReferrers(bool enable_referrers) {
    network_delegate_->set_enable_referrers(enable_referrers);
  }
  
@@ -626,7 +626,7 @@ index f03bc67fbd156..30a6d4b61a7e0 100644
  #if BUILDFLAG(IS_CT_SUPPORTED)
  void NetworkContext::SetCTPolicy(mojom::CTPolicyPtr ct_policy) {
    if (!require_ct_delegate_) {
-@@ -2585,6 +2594,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2580,6 +2589,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
    std::unique_ptr<NetworkServiceNetworkDelegate> network_delegate =
        std::make_unique<NetworkServiceNetworkDelegate>(
            params_->enable_referrers,
@@ -635,10 +635,10 @@ index f03bc67fbd156..30a6d4b61a7e0 100644
            std::move(params_->proxy_error_client), this);
    network_delegate_ = network_delegate.get();
 diff --git a/services/network/network_context.h b/services/network/network_context.h
-index 964b2634c0232..6ba4af651962f 100644
+index 48ca96ecb24ad..4a4d2c35bfd9b 100644
 --- a/services/network/network_context.h
 +++ b/services/network/network_context.h
-@@ -61,6 +61,7 @@
+@@ -60,6 +60,7 @@
  #include "services/network/public/mojom/cookie_manager.mojom-shared.h"
  #include "services/network/public/mojom/host_resolver.mojom.h"
  #include "services/network/public/mojom/network_context.mojom-forward.h"
@@ -753,10 +753,10 @@ index 86ce206d5aa0c..685cd6724b525 100644
    mojo::Remote<mojom::ProxyErrorClient> proxy_error_client_;
    raw_ptr<NetworkContext> network_context_;
 diff --git a/services/network/public/mojom/network_context.mojom b/services/network/public/mojom/network_context.mojom
-index f2c8a56442e0a..2e572961509fb 100644
+index 2ae706f12d920..22c1927a33cdb 100644
 --- a/services/network/public/mojom/network_context.mojom
 +++ b/services/network/public/mojom/network_context.mojom
-@@ -296,6 +296,12 @@ struct NetworkContextFilePaths {
+@@ -298,6 +298,12 @@ struct NetworkContextFilePaths {
    bool trigger_migration = false;
  };
  
@@ -769,7 +769,7 @@ index f2c8a56442e0a..2e572961509fb 100644
  // Socket brokers used by the ClientSocketFactory for client sockets and
  // SocketFactory for server sockets.
  [EnableIf=is_win]
-@@ -324,6 +330,10 @@ struct NetworkContextParams {
+@@ -325,6 +331,10 @@ struct NetworkContextParams {
    // If false, the referrer of requests is never populated.
    bool enable_referrers = true;
  
@@ -780,7 +780,7 @@ index f2c8a56442e0a..2e572961509fb 100644
    // If true, requests initiated with referrers that don't match their referrer
    // policy will fail.
    bool validate_referrer_policy_on_initial_request = true;
-@@ -1221,6 +1231,10 @@ interface NetworkContext {
+@@ -1248,6 +1258,10 @@ interface NetworkContext {
    // If false, the referrer of requests is never populated.
    SetEnableReferrers(bool enable_referrers);
  
@@ -792,7 +792,7 @@ index f2c8a56442e0a..2e572961509fb 100644
    // NetworkContextParams set enforce_chrome_ct_policy to true.
    // TODO(rsleevi): Remove this once Chrome-specific policies are moved out
 diff --git a/services/network/test/test_network_context.h b/services/network/test/test_network_context.h
-index 053c3e927fab1..07f95a7c04abe 100644
+index a8b1e362a81b6..6d13ebc31ec29 100644
 --- a/services/network/test/test_network_context.h
 +++ b/services/network/test/test_network_context.h
 @@ -155,6 +155,8 @@ class TestNetworkContext : public mojom::NetworkContext {
@@ -805,7 +805,7 @@ index 053c3e927fab1..07f95a7c04abe 100644
    void SetCTPolicy(mojom::CTPolicyPtr ct_policy) override {}
    void SetSCTAuditingMode(mojom::SCTAuditingMode mode) override {}
 diff --git a/third_party/blink/common/renderer_preferences/renderer_preferences_mojom_traits.cc b/third_party/blink/common/renderer_preferences/renderer_preferences_mojom_traits.cc
-index 94f5f30924e3a..b5634cbd9d9e3 100644
+index 7e3790d1689af..93a830a63053f 100644
 --- a/third_party/blink/common/renderer_preferences/renderer_preferences_mojom_traits.cc
 +++ b/third_party/blink/common/renderer_preferences/renderer_preferences_mojom_traits.cc
 @@ -52,6 +52,7 @@ bool StructTraits<blink::mojom::RendererPreferencesDataView,
@@ -817,7 +817,7 @@ index 94f5f30924e3a..b5634cbd9d9e3 100644
    out->enable_do_not_track = data.enable_do_not_track();
    out->enable_encrypted_media = data.enable_encrypted_media();
 diff --git a/third_party/blink/public/common/renderer_preferences/renderer_preferences.h b/third_party/blink/public/common/renderer_preferences/renderer_preferences.h
-index c148d0386e10f..d58a84097b531 100644
+index aa95659f810e9..ee6fffa335763 100644
 --- a/third_party/blink/public/common/renderer_preferences/renderer_preferences.h
 +++ b/third_party/blink/public/common/renderer_preferences/renderer_preferences.h
 @@ -13,6 +13,7 @@
@@ -826,9 +826,9 @@ index c148d0386e10f..d58a84097b531 100644
  #include "build/build_config.h"
 +#include "services/network/public/mojom/network_context.mojom-shared.h"
  #include "third_party/blink/public/common/common_export.h"
+ #include "third_party/blink/public/common/peerconnection/webrtc_ip_handling_url_entry.h"
  #include "third_party/blink/public/common/user_agent/user_agent_metadata.h"
- #include "ui/gfx/font_render_params.h"
-@@ -55,6 +56,9 @@ struct BLINK_COMMON_EXPORT RendererPreferences {
+@@ -50,6 +51,9 @@ struct BLINK_COMMON_EXPORT RendererPreferences {
    std::optional<base::TimeDelta> caret_blink_interval;
    bool use_custom_colors{true};
    bool enable_referrers{true};
@@ -839,10 +839,10 @@ index c148d0386e10f..d58a84097b531 100644
    bool enable_do_not_track{false};
    bool enable_encrypted_media{true};
 diff --git a/third_party/blink/public/common/renderer_preferences/renderer_preferences_mojom_traits.h b/third_party/blink/public/common/renderer_preferences/renderer_preferences_mojom_traits.h
-index 47a27d3c06fd1..8b5ebf70d2a88 100644
+index 605730f31be40..e5b7f55782653 100644
 --- a/third_party/blink/public/common/renderer_preferences/renderer_preferences_mojom_traits.h
 +++ b/third_party/blink/public/common/renderer_preferences/renderer_preferences_mojom_traits.h
-@@ -116,6 +116,11 @@ struct BLINK_COMMON_EXPORT
+@@ -118,6 +118,11 @@ struct BLINK_COMMON_EXPORT
      return data.enable_referrers;
    }
  
@@ -855,7 +855,7 @@ index 47a27d3c06fd1..8b5ebf70d2a88 100644
        const ::blink::RendererPreferences& data) {
      return data.allow_cross_origin_auth_prompt;
 diff --git a/third_party/blink/public/mojom/renderer_preferences.mojom b/third_party/blink/public/mojom/renderer_preferences.mojom
-index 172a8fa5085fc..43c8c1c4e715f 100644
+index ab7a2f6dff89a..c0b941c12d9c6 100644
 --- a/third_party/blink/public/mojom/renderer_preferences.mojom
 +++ b/third_party/blink/public/mojom/renderer_preferences.mojom
 @@ -6,6 +6,7 @@ module blink.mojom;
@@ -863,10 +863,10 @@ index 172a8fa5085fc..43c8c1c4e715f 100644
  import "mojo/public/mojom/base/string16.mojom";
  import "mojo/public/mojom/base/time.mojom";
 +import "services/network/public/mojom/network_context.mojom";
- import "ui/gfx/mojom/font_render_params.mojom";
+ import "third_party/blink/public/mojom/peerconnection/webrtc_ip_handling_policy.mojom";
  import "third_party/blink/public/mojom/user_agent/user_agent_metadata.mojom";
- 
-@@ -81,6 +82,10 @@ struct RendererPreferences {
+ import "ui/gfx/mojom/font_render_params.mojom";
+@@ -82,6 +83,10 @@ struct RendererPreferences {
    // Set to false to not send referrers.
    bool enable_referrers = true;
  

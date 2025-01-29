@@ -8,15 +8,15 @@ Subject: [PATCH] most private WebRTC IP handling policy by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_ui_prefs.cc
-index a3736220132cd..9780800939b7d 100644
+index 4d31a5695c1ff..a29af2cde8996 100644
 --- a/chrome/browser/ui/browser_ui_prefs.cc
 +++ b/chrome/browser/ui/browser_ui_prefs.cc
-@@ -107,7 +107,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -109,7 +109,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
                                  false);
  #endif
    registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
 -                               blink::kWebRTCIPHandlingDefault);
 +                               blink::kWebRTCIPHandlingDisableNonProxiedUdp);
+   registry->RegisterListPref(prefs::kWebRTCIPHandlingUrl, base::Value::List());
    registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());
    registry->RegisterBooleanPref(prefs::kWebRtcEventLogCollectionAllowed, false);
-   registry->RegisterListPref(prefs::kWebRtcLocalIpsAllowedUrls);

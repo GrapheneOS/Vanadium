@@ -24,19 +24,19 @@ index adc3d9b62be83..e23f0225b4c93 100644
      }
  
 diff --git a/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java b/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
-index 3668498c78c81..41157870defe8 100644
+index 6f5e3b8c35f54..991b3f913ad31 100644
 --- a/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
 +++ b/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
-@@ -78,6 +78,8 @@ public class VersionNumberGetter {
-         return Build.VERSION.SDK_INT >= MIN_SDK_VERSION.getValue();
+@@ -75,6 +75,8 @@ public class VersionNumberGetter {
+         return Build.VERSION.SDK_INT >= minSdkVersionParamValue;
      }
  
 +    public static final boolean ENABLE_UPDATE_DETECTION_BY_DEFAULT = false;
 +
      /**
-      * Checks if we know about a newer version available than the one we're using.  This does not
+      * Checks if we know about a newer version available than the one we're using. This does not
       * actually fire any requests over to the server: it just checks the version we stored the last
-@@ -88,6 +90,10 @@ public class VersionNumberGetter {
+@@ -85,6 +87,10 @@ public class VersionNumberGetter {
      static boolean isNewerVersionAvailable() {
          assert !ThreadUtils.runningOnUiThread();
  

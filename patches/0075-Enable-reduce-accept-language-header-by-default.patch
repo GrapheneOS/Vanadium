@@ -8,15 +8,15 @@ Subject: [PATCH] Enable reduce accept language header by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index 5cb4dab03d3f4..fe87225aaeca6 100644
+index 51aeaf38e5771..ce11007ad68d3 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -289,7 +289,7 @@ constexpr base::FeatureParam<std::string> kCacheTransparencyPervasivePayloads{
+@@ -194,7 +194,7 @@ BASE_FEATURE(kPervasivePayloadsList,
  // accept-language. https://github.com/Tanych/accept-language
  BASE_FEATURE(kReduceAcceptLanguage,
               "ReduceAcceptLanguage",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
- const base::FeatureParam<base::TimeDelta> kReduceAcceptLanguageCacheDuration{
-     &kReduceAcceptLanguage, "reduce-accept-language-cache-duration",
+ BASE_FEATURE_PARAM(base::TimeDelta,
+                    kReduceAcceptLanguageCacheDuration,

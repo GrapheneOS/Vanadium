@@ -22,11 +22,11 @@ index 665aa79d55993..c1607156642c5 100644
 +  "java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java",
  ]
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
-index 2700b5aa0c562..0d1a885b5fcc6 100644
+index 4115fd44e2181..fc9ff43ba2de0 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
-@@ -48,10 +48,17 @@ public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
- 
+@@ -40,10 +40,17 @@ import org.chromium.url.GURL;
+ public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
      public ChromeApplicationImpl() {}
  
 +    @Override
@@ -43,7 +43,7 @@ index 2700b5aa0c562..0d1a885b5fcc6 100644
          if (SplitCompatApplication.isBrowserProcess()) {
              FontPreloader.getInstance().load(getApplication());
  
-@@ -112,6 +119,8 @@ public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
+@@ -104,6 +111,8 @@ public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
      @Override
      public void onConfigurationChanged(Configuration newConfig) {
          super.onConfigurationChanged(newConfig);

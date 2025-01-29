@@ -10,10 +10,10 @@ Subject: [PATCH] Enable usage of Android Autofill by default
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index a5f6e6aeae4ae..aca631611af20 100644
+index 7ad589916fc77..f352187ad4414 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
-@@ -724,7 +724,7 @@ BASE_FEATURE(kAutofillEnableSecurityTouchEventFilteringAndroid,
+@@ -842,7 +842,7 @@ BASE_FEATURE(kAutofillThirdPartyModeContentProvider,
  // Android Autofill.
  BASE_FEATURE(kAutofillVirtualViewStructureAndroid,
               "AutofillVirtualViewStructureAndroid",
@@ -23,10 +23,10 @@ index a5f6e6aeae4ae..aca631611af20 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
 diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
-index 112c2b3ce5601..de45d2b61ca49 100644
+index df7aca0fe7dc8..7d37153ac8dcf 100644
 --- a/components/autofill/core/common/autofill_features.h
 +++ b/components/autofill/core/common/autofill_features.h
-@@ -273,7 +273,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
+@@ -324,7 +324,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
  inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>
      kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
          &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
@@ -36,10 +36,10 @@ index 112c2b3ce5601..de45d2b61ca49 100644
  
  #endif  // BUILDFLAG(IS_ANDROID)
 diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
-index bf11618ff3fc8..1bc43405bf964 100644
+index 5325a45cd74b7..96dcdfa7a6589 100644
 --- a/components/autofill/core/common/autofill_prefs.cc
 +++ b/components/autofill/core/common/autofill_prefs.cc
-@@ -109,7 +109,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -90,7 +90,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
  
  #if BUILDFLAG(IS_ANDROID)
    registry->RegisterBooleanPref(prefs::kAutofillUsingVirtualViewStructure,

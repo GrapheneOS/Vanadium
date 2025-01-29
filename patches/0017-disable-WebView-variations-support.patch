@@ -9,10 +9,10 @@ Subject: [PATCH] disable WebView variations support
  2 files changed, 10 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index 41d018cdfecf2..bdd270f9f97ac 100644
+index 223b2f84dc0f6..445757c31077a 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -249,12 +249,6 @@ public class WebViewChromiumAwInit {
+@@ -343,12 +343,6 @@ public class WebViewChromiumAwInit {
  
              AwBrowserProcess.configureChildProcessLauncher();
  
@@ -26,10 +26,10 @@ index 41d018cdfecf2..bdd270f9f97ac 100644
  
              // TODO(crbug.com/332706093): See if this can be moved before loading native.
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 63c5f5a5b2795..f961388d11e67 100644
+index 813d087fe7f43..2250510486f0f 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -522,10 +522,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -554,10 +554,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
                  }
              }
  
@@ -39,4 +39,4 @@ index 63c5f5a5b2795..f961388d11e67 100644
 -
              mShouldDisableThreadChecking = shouldDisableThreadChecking(ctx);
  
-             setSingleton(this);
+             FlagOverrideHelper helper =
