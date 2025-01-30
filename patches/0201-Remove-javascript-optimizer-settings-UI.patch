@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 30 Jan 2025 14:05:11 +0000
+Subject: [PATCH] Remove javascript optimizer settings UI
+
+---
+ .../browser/site_settings/ChromeSiteSettingsDelegate.java       | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+index d2f1a5bc7fe8d..66f21c2f0d794 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+@@ -173,6 +173,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+             case SiteSettingsCategory.Type.ZOOM:
+                 return ContentFeatureMap.isEnabled(
+                         ContentFeatureList.ACCESSIBILITY_PAGE_ZOOM_ENHANCEMENTS);
++            case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
++                return false;
+             default:
+                 return true;
+         }
