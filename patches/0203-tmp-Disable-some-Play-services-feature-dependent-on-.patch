@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 21 Feb 2025 06:12:25 +0000
+Subject: [PATCH] tmp: Disable some Play services feature dependent on storage
+ dynamic code loading
+
+---
+ .../shape_detection/BarcodeDetectionProviderImpl.java    | 9 +++++++++
+ .../org/chromium/shape_detection/TextDetectionImpl.java  | 9 +++++++++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
+index bfa0c88679ff9..00edf37dfe2dc 100644
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
+@@ -69,6 +69,15 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
+             Log.w(TAG, "Google Play Services not available");
+             return null;
+         }
++        {
++            android.content.pm.ApplicationInfo appInfo = ctx.getApplicationInfo();
++            if (appInfo != null &&
++                    (appInfo.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0) {
++                Log.i(TAG, "Disabling BarcodeDetection feature, it currently depends "
++                       + " on Google Play Services' storage dynamic code loading");
++                return null;
++            }
++        }
+         int version =
+                 PackageUtils.getPackageVersion(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE);
+         if (version < 19742000) {
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
+index 4e2a322b8df31..c6301c9c75776 100644
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
+@@ -93,6 +93,15 @@ public class TextDetectionImpl implements TextDetection {
+             Log.e(TAG, "Google Play Services not available");
+             return null;
+         }
++        {
++            android.content.pm.ApplicationInfo appInfo = ctx.getApplicationInfo();
++            if (appInfo != null &&
++                    (appInfo.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0) {
++                Log.i(TAG, "Disabling TextDetection feature, it currently depends "
++                       + " on Google Play Services' storage dynamic code loading");
++                return null;
++            }
++        }
+         return new TextDetectionImpl();
+     }
+ }
