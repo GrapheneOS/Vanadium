@@ -4,14 +4,14 @@ Date: Fri, 20 Aug 2021 16:13:42 +0000
 Subject: [PATCH] remove unwanted account and services section
 
 ---
- .../org/chromium/chrome/browser/settings/MainSettings.java   | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index ec8d6ddd02353..50f2630f16073 100644
+index 76b2faa9733aa..7a39c2c52215b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -296,6 +296,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
+@@ -293,6 +293,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
  
          SettingsExtUtils.safelyRemovePreference(this, PREF_SAFETY_CHECK);
          SettingsExtUtils.safelyRemovePreference(this, PREF_SAFETY_HUB);
@@ -20,13 +20,3 @@ index ec8d6ddd02353..50f2630f16073 100644
      }
  
      /**
-@@ -388,6 +390,9 @@ public class MainSettings extends ChromeBaseSettingsFragment
- 
-     private void updateGoogleServicePreference() {
-         ChromeBasePreference googleServicePreference = findPreference(PREF_GOOGLE_SERVICES);
-+        if (googleServicePreference == null) {
-+            return;
-+        }
-         if (ChromeFeatureList.isEnabled(
-                 ChromeFeatureList.REPLACE_SYNC_PROMOS_WITH_SIGN_IN_PROMOS)) {
-             googleServicePreference.setIcon(R.drawable.ic_google_services_48dp_with_bg);

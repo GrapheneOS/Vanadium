@@ -8,17 +8,17 @@ This patchset adds support to disable high entropy client hints or to
 populate some of it with information derived from reduced user agent in
 Android.
 ---
- .../embedder_support/user_agent_utils.cc      | 30 +++++++++++++++++++
+ .../embedder_support/user_agent_utils.cc      | 29 +++++++++++++++++++
  content/browser/client_hints/client_hints.cc  | 14 +++++++++
  third_party/blink/common/features.cc          | 10 +++++++
  third_party/blink/public/common/features.h    |  3 ++
- 4 files changed, 57 insertions(+)
+ 4 files changed, 56 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
-index 2aef8f97a9674..e507f25cd65ef 100644
+index 12eca529e6964..8b3ea22768e76 100644
 --- a/components/embedder_support/user_agent_utils.cc
 +++ b/components/embedder_support/user_agent_utils.cc
-@@ -528,6 +528,36 @@ blink::UserAgentMetadata GetUserAgentMetadata(const PrefService* pref_service,
+@@ -488,6 +488,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(const PrefService* pref_service,
                 : metadata;
    }
  
@@ -40,7 +40,6 @@ index 2aef8f97a9674..e507f25cd65ef 100644
 +        metadata.mobile ? blink::kMobileFormFactor : blink::kDesktopFormFactor};
 +    metadata.brand_full_version_list =
 +        GetUserAgentBrandList(version_info::GetMajorVersionNumber(),
-+                              enable_updated_grease_by_policy,
 +                              reduced_version_number,
 +                              blink::UserAgentBrandVersionType::kFullVersion,
 +                              std::nullopt);
@@ -56,7 +55,7 @@ index 2aef8f97a9674..e507f25cd65ef 100644
      return metadata;
    }
 diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
-index ed6b4c38f7fe8..fb80409bc647f 100644
+index 90f497dfa7d15..5d5cbec49ee94 100644
 --- a/content/browser/client_hints/client_hints.cc
 +++ b/content/browser/client_hints/client_hints.cc
 @@ -849,6 +849,20 @@ void AddRequestClientHintsHeaders(
@@ -81,10 +80,10 @@ index ed6b4c38f7fe8..fb80409bc647f 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index c3f11bcce9819..52efad49e251a 100644
+index e02c14d7884e2..8e82735889f16 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -452,6 +452,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+@@ -458,6 +458,16 @@ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
               "CheckHTMLParserBudgetLessOften",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
@@ -102,10 +101,10 @@ index c3f11bcce9819..52efad49e251a 100644
  BASE_FEATURE(kClientHintsDPR_DEPRECATED,
               "ClientHintsDPR_DEPRECATED",
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 7d5238a303a1c..1a6bcd0883c09 100644
+index 4b59f650318fc..65721f3f1273f 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -243,6 +243,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+@@ -246,6 +246,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  

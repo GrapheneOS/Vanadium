@@ -10,10 +10,10 @@ Subject: [PATCH] Enable usage of Android Autofill by default
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index 7ad589916fc77..f352187ad4414 100644
+index 916022da4cdad..74889854efaf9 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
-@@ -842,7 +842,7 @@ BASE_FEATURE(kAutofillThirdPartyModeContentProvider,
+@@ -758,7 +758,7 @@ BASE_FEATURE(kAutofillThirdPartyModeContentProvider,
  // Android Autofill.
  BASE_FEATURE(kAutofillVirtualViewStructureAndroid,
               "AutofillVirtualViewStructureAndroid",
@@ -23,10 +23,10 @@ index 7ad589916fc77..f352187ad4414 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
 diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
-index df7aca0fe7dc8..7d37153ac8dcf 100644
+index 24903e2c0a415..9ff24b58fef96 100644
 --- a/components/autofill/core/common/autofill_features.h
 +++ b/components/autofill/core/common/autofill_features.h
-@@ -324,7 +324,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
+@@ -288,7 +288,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
  inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>
      kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
          &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
@@ -36,7 +36,7 @@ index df7aca0fe7dc8..7d37153ac8dcf 100644
  
  #endif  // BUILDFLAG(IS_ANDROID)
 diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
-index 5325a45cd74b7..96dcdfa7a6589 100644
+index c8e7d29407dcf..e12848769cea7 100644
 --- a/components/autofill/core/common/autofill_prefs.cc
 +++ b/components/autofill/core/common/autofill_prefs.cc
 @@ -90,7 +90,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
