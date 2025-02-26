@@ -8,14 +8,15 @@ Subject: [PATCH] Enable HSTS upgrades for top-level navigation only by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 786e26538b859..392086cfb497f 100644
+index 439ea7af24734..77d34eab0ca8e 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -664,6 +664,6 @@ BASE_FEATURE(kNewClientCertPathBuilding,
+@@ -679,7 +679,7 @@ BASE_FEATURE(kNewClientCertPathBuilding,
  
  BASE_FEATURE(kHstsTopLevelNavigationsOnly,
               "HstsTopLevelNavigationsOnly",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
- }  // namespace net::features
+ BASE_FEATURE(kHttpCacheNoVarySearch,
+              "HttpCacheNoVarySearch",

@@ -9,22 +9,22 @@ Subject: [PATCH] Add a method to hook at Application.attachBaseContext() call
  2 files changed, 8 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
-index 2e5aa583c038b..19cbde116f0d1 100644
+index e16615e66eabe..a1fc907be50dc 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
-@@ -75,6 +75,7 @@ public class SplitChromeApplication extends SplitCompatApplication
+@@ -76,6 +76,7 @@ public class SplitChromeApplication extends SplitCompatApplication {
          } else {
              setImplSupplier(() -> createNonBrowserApplication());
          }
 +        super.postAttachBaseContext();
      }
  
-     private Context createContextForSplitNoWait(String name) {
+     private static String getPreloadClassName(String split) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-index 635c6243fe0b5..c52323e7bc222 100644
+index 7ba6378e8b97f..304078f9cdecb 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-@@ -94,6 +94,9 @@ public class SplitCompatApplication extends Application {
+@@ -98,6 +98,9 @@ public class SplitCompatApplication extends Application {
              mApplication.superStartActivity(intent, options);
          }
  
@@ -34,7 +34,7 @@ index 635c6243fe0b5..c52323e7bc222 100644
          public void onCreate() {}
  
          public void onTrimMemory(int level) {}
-@@ -123,6 +126,10 @@ public class SplitCompatApplication extends Application {
+@@ -127,6 +130,10 @@ public class SplitCompatApplication extends Application {
          super.startActivity(intent, options);
      }
  
