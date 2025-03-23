@@ -1,0 +1,606 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrew Grieve <agrieve@chromium.org>
+Date: Thu, 20 Mar 2025 07:46:28 -0700
+Subject: [PATCH] upstream: Roll Android SDK to API 36 (Backlava)
+
+Original commits from upstream:
+
+> Roll Android SDK to API 36 (Baklava)
+>
+> Also removes some obsolete entries from the README.chromium
+>
+> Does *not* change the default target_sdk (which remains at 35). This
+> will be done in a separate commit.
+>
+> Bug: 404818708
+> Change-Id: Ia8e75103c957ddc81979fd8ad8d7e4d6556bfddd
+> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6372143
+> Auto-Submit: Andrew Grieve <agrieve@chromium.org>
+> Reviewed-by: Sam Maier <smaier@chromium.org>
+> Commit-Queue: Andrew Grieve <agrieve@chromium.org>
+> Cr-Commit-Position: refs/heads/main@{#1435402}
+>
+> Android: Set android_sdk_release="b"
+>
+> This was a step missed when rolling the B SDK. Should be a no-op.
+>
+> Bug: 404818708
+> Change-Id: Ic743d0632c5bf184f29328874dc6da0e0085deb5
+> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6383136
+> Commit-Queue: Andrew Grieve <agrieve@chromium.org>
+> Auto-Submit: Andrew Grieve <agrieve@chromium.org>
+> Reviewed-by: Henrique Nakashima <hnakashima@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1436151}
+---
+ DEPS                                          | 12 ++---
+ ...view_32_64_bundle.AndroidManifest.expected |  4 +-
+ ...webview_32_bundle.AndroidManifest.expected |  4 +-
+ ...webview_64_bundle.AndroidManifest.expected |  4 +-
+ ...view_32_64_bundle.AndroidManifest.expected |  4 +-
+ ...webview_32_bundle.AndroidManifest.expected |  4 +-
+ ...view_64_32_bundle.AndroidManifest.expected |  4 +-
+ ...webview_64_bundle.AndroidManifest.expected |  4 +-
+ build/android/pylib/constants/__init__.py     |  2 +-
+ build/config/android/config.gni               |  8 +--
+ build/config/android/sdk.gni                  |  4 +-
+ ...blic_bundle__base.AndroidManifest.expected |  4 +-
+ ...blic_bundle__base.AndroidManifest.expected |  4 +-
+ ...blic_bundle__base.AndroidManifest.expected |  4 +-
+ ...ic_bundle__chrome.AndroidManifest.expected |  4 +-
+ ...ic_bundle__dev_ui.AndroidManifest.expected |  4 +-
+ ...e__stack_unwinder.AndroidManifest.expected |  4 +-
+ ...undle__test_dummy.AndroidManifest.expected |  4 +-
+ ...blic_bundle__base.AndroidManifest.expected |  4 +-
+ ...2_64_bundle__base.AndroidManifest.expected |  4 +-
+ ...e_32_bundle__base.AndroidManifest.expected |  4 +-
+ ...4_32_bundle__base.AndroidManifest.expected |  4 +-
+ ...e_64_bundle__base.AndroidManifest.expected |  4 +-
+ ...library_32_64_apk.AndroidManifest.expected |  4 +-
+ ...me_library_32_apk.AndroidManifest.expected |  4 +-
+ ...library_64_32_apk.AndroidManifest.expected |  4 +-
+ ...me_library_64_apk.AndroidManifest.expected |  4 +-
+ third_party/android_sdk/README.chromium       | 54 ++++++++-----------
+ .../android_system_sdk/README.chromium        |  6 +--
+ 29 files changed, 85 insertions(+), 93 deletions(-)
+
+diff --git a/DEPS b/DEPS
+index 32adb2d70895d..b95f7c2bd11d6 100644
+--- a/DEPS
++++ b/DEPS
+@@ -380,7 +380,7 @@ vars = {
+   # Three lines of non-changing comments so that
+   # the commit queue can handle CLs rolling android_sdk_build-tools_version
+   # and whatever else without interference from each other.
+-  'android_sdk_build-tools_version': 'DxwAZ3hD551Neu6ycuW5CPnXFrdleRBd93oX1eB_m9YC',
++  'android_sdk_build-tools_version': 'y3EsZLg4bxPmpW0oYsAHylywNyMnIwPS3kh1VbQLAFAC',
+   # Three lines of non-changing comments so that
+   # the commit queue can handle CLs rolling android_sdk_emulator_version
+   # and whatever else without interference from each other.
+@@ -388,11 +388,11 @@ vars = {
+   # Three lines of non-changing comments so that
+   # the commit queue can handle CLs rolling android_sdk_platform-tools_version
+   # and whatever else without interference from each other.
+-  'android_sdk_platform-tools_version': 'WihaseZR6cojZbkzIqwGhpTp92ztaGfqq8njBU8eTXYC',
++  'android_sdk_platform-tools_version': 'mjFmRj7k_XR9yj60pYbr9mG38FyEbU5oWdU56bZQ5cwC',
+   # Three lines of non-changing comments so that
+   # the commit queue can handle CLs rolling android_sdk_platforms_version
+   # and whatever else without interference from each other.
+-  'android_sdk_platforms_version': 'kIXA-9XuCfOESodXEdOBkW5f1ytrGWdbp3HFp1I8A_0C',
++  'android_sdk_platforms_version': '_YHemUrK49JrE7Mctdf5DDNOHu1VKBx_PTcWnZ-cbOAC',
+   # Three lines of non-changing comments so that
+   # the commit queue can handle CLs rolling feed
+   # and whatever else without interference from each other.
+@@ -1623,7 +1623,7 @@ deps = {
+       'packages': [
+           {
+               'package': 'chromium/third_party/android_system_sdk/public',
+-              'version': 'XzzECzCzGLrccJS1U-HdmM5VMh9BotgQ_mWhFQ464PwC',
++              'version': 'Pfb3HDUW_uRir_VVTCYkGhf6bnPPF55NUJO2WXOxIe0C',
+           },
+       ],
+       'condition': 'checkout_android and non_git_source',
+@@ -1732,7 +1732,7 @@ deps = {
+   'src/third_party/android_sdk/public': {
+       'packages': [
+           {
+-              'package': 'chromium/third_party/android_sdk/public/build-tools/35.0.0',
++              'package': 'chromium/third_party/android_sdk/public/build-tools/36.0.0',
+               'version': Var('android_sdk_build-tools_version'),
+           },
+           {
+@@ -1744,7 +1744,7 @@ deps = {
+               'version': Var('android_sdk_platform-tools_version'),
+           },
+           {
+-              'package': 'chromium/third_party/android_sdk/public/platforms/android-35',
++              'package': 'chromium/third_party/android_sdk/public/platforms/android-36',
+               'version': Var('android_sdk_platforms_version'),
+           },
+           {
+diff --git a/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected
+index 243696340e5ee..63c1e54b2d929 100644
+--- a/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=1"
+     android:versionName="#.#.#.#">
+diff --git a/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected
+index f2273f7cc322c..ea92c3834c87c 100644
+--- a/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=0"
+     android:versionName="#.#.#.#">
+diff --git a/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected
+index c3bf43c553ef6..c45d4bf264eba 100644
+--- a/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=4"
+     android:versionName="#.#.#.#">
+diff --git a/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected
+index 784234041c8af..77a6aff3bb121 100644
+--- a/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=31"
+     android:versionName="#.#.#.#">
+diff --git a/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected
+index 78fb32d6bf00b..a6a06718ce7b3 100644
+--- a/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=30"
+     android:versionName="#.#.#.#">
+diff --git a/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected
+index ed789588dcd06..709892a520f2e 100644
+--- a/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=33"
+     android:versionName="#.#.#.#">
+diff --git a/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected
+index 1fc6527a8fe5c..add64001817c1 100644
+--- a/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.webview"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=34"
+     android:versionName="#.#.#.#">
+diff --git a/build/android/pylib/constants/__init__.py b/build/android/pylib/constants/__init__.py
+index 481f78a92ce6f..8b9c45f9a4a72 100644
+--- a/build/android/pylib/constants/__init__.py
++++ b/build/android/pylib/constants/__init__.py
+@@ -114,7 +114,7 @@ DEVICE_PERF_OUTPUT_DIR = (
+ 
+ SCREENSHOTS_DIR = os.path.join(DIR_SOURCE_ROOT, 'out_screenshots')
+ 
+-ANDROID_SDK_BUILD_TOOLS_VERSION = '35.0.0'
++ANDROID_SDK_BUILD_TOOLS_VERSION = '36.0.0'
+ ANDROID_SDK_ROOT = os.path.join(DIR_SOURCE_ROOT, 'third_party', 'android_sdk',
+                                 'public')
+ ANDROID_SDK_TOOLS = os.path.join(ANDROID_SDK_ROOT,
+diff --git a/build/config/android/config.gni b/build/config/android/config.gni
+index 5480b31d91ce5..03352acf9a9b6 100644
+--- a/build/config/android/config.gni
++++ b/build/config/android/config.gni
+@@ -134,12 +134,12 @@ if (is_android) {
+ 
+   public_android_sdk_root = "//third_party/android_sdk/public"
+   public_android_sdk_build_tools =
+-      "${public_android_sdk_root}/build-tools/35.0.0"
+-  public_android_sdk_platform_version = "35"
+-  if (android_sdk_release == "v") {
++      "${public_android_sdk_root}/build-tools/36.0.0"
++  public_android_sdk_platform_version = "36"
++  if (android_sdk_release == "b") {
+     default_android_sdk_root = public_android_sdk_root
+     default_android_sdk_platform_version = public_android_sdk_platform_version
+-    default_android_sdk_build_tools_version = "35.0.0"
++    default_android_sdk_build_tools_version = "36.0.0"
+     public_android_sdk = true
+   }
+ 
+diff --git a/build/config/android/sdk.gni b/build/config/android/sdk.gni
+index d666ebea623fd..cf1a836feb348 100644
+--- a/build/config/android/sdk.gni
++++ b/build/config/android/sdk.gni
+@@ -4,7 +4,7 @@
+ 
+ # The default SDK release used by public builds. Value may differ in
+ # internal builds.
+-default_android_sdk_release = "v"
++default_android_sdk_release = "b"
+ 
+ # SDK releases against which public builds are supported.
+-public_sdk_releases = [ "v" ]
++public_sdk_releases = [ "b" ]
+diff --git a/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected
+index e37e793d6eb32..f457770c11224 100644
+--- a/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=21"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected
+index 3a4f902d26cab..0a4f3c46f5f10 100644
+--- a/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=20"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected
+index 06db4971cc642..18e9035a0a902 100644
+--- a/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=22"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/monochrome_64_32_public_bundle__chrome.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_32_public_bundle__chrome.AndroidManifest.expected
+index 0b4dc29442b50..c38823b97d7d0 100644
+--- a/chrome/android/expectations/monochrome_64_32_public_bundle__chrome.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_32_public_bundle__chrome.AndroidManifest.expected
+@@ -4,8 +4,8 @@
+     xmlns:dist="http://schemas.android.com/apk/distribution"
+     featureSplit="chrome"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=22"
+     android:versionName="#.#.#.#">
+   <dist:module dist:onDemand="false">  # DIFF-ANCHOR: 2805007f
+diff --git a/chrome/android/expectations/monochrome_64_32_public_bundle__dev_ui.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_32_public_bundle__dev_ui.AndroidManifest.expected
+index 59a8e585f0908..faa57888e1a52 100644
+--- a/chrome/android/expectations/monochrome_64_32_public_bundle__dev_ui.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_32_public_bundle__dev_ui.AndroidManifest.expected
+@@ -4,8 +4,8 @@
+     xmlns:dist="http://schemas.android.com/apk/distribution"
+     featureSplit="dev_ui"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=22"
+     android:versionName="#.#.#.#">
+   <dist:module dist:onDemand="true" dist:title="@string/dev_ui_module_title">  # DIFF-ANCHOR: 671a5c9f
+diff --git a/chrome/android/expectations/monochrome_64_32_public_bundle__stack_unwinder.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_32_public_bundle__stack_unwinder.AndroidManifest.expected
+index 2fa3bb59ac67d..8ef5c2daea5c3 100644
+--- a/chrome/android/expectations/monochrome_64_32_public_bundle__stack_unwinder.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_32_public_bundle__stack_unwinder.AndroidManifest.expected
+@@ -4,8 +4,8 @@
+     xmlns:dist="http://schemas.android.com/apk/distribution"
+     featureSplit="stack_unwinder"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=22"
+     android:versionName="#.#.#.#">
+   <dist:module dist:onDemand="true" dist:title="@string/stack_unwinder_module_title">  # DIFF-ANCHOR: 2d9e963c
+diff --git a/chrome/android/expectations/monochrome_64_32_public_bundle__test_dummy.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_32_public_bundle__test_dummy.AndroidManifest.expected
+index 0a9f3fedb4757..925108899c1d4 100644
+--- a/chrome/android/expectations/monochrome_64_32_public_bundle__test_dummy.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_32_public_bundle__test_dummy.AndroidManifest.expected
+@@ -4,8 +4,8 @@
+     xmlns:dist="http://schemas.android.com/apk/distribution"
+     featureSplit="test_dummy"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=22"
+     android:versionName="#.#.#.#">
+   <dist:module dist:onDemand="true" dist:title="@string/test_dummy_module_title">  # DIFF-ANCHOR: d029b25b
+diff --git a/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected
+index d1b3eaa776d62..d6940c98d59f0 100644
+--- a/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=24"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/trichrome_chrome_32_64_bundle__base.AndroidManifest.expected b/chrome/android/expectations/trichrome_chrome_32_64_bundle__base.AndroidManifest.expected
+index dc21f22aa1654..b075a54786106 100644
+--- a/chrome/android/expectations/trichrome_chrome_32_64_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_chrome_32_64_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=31"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/trichrome_chrome_32_bundle__base.AndroidManifest.expected b/chrome/android/expectations/trichrome_chrome_32_bundle__base.AndroidManifest.expected
+index 83bdd7b19b08b..ec42d897b25f1 100644
+--- a/chrome/android/expectations/trichrome_chrome_32_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_chrome_32_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=30"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/trichrome_chrome_64_32_bundle__base.AndroidManifest.expected b/chrome/android/expectations/trichrome_chrome_64_32_bundle__base.AndroidManifest.expected
+index 025997259f3b8..9c5586d01b75a 100644
+--- a/chrome/android/expectations/trichrome_chrome_64_32_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_chrome_64_32_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=33"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/trichrome_chrome_64_bundle__base.AndroidManifest.expected b/chrome/android/expectations/trichrome_chrome_64_bundle__base.AndroidManifest.expected
+index 39fbde9be02ae..46d20ca964baa 100644
+--- a/chrome/android/expectations/trichrome_chrome_64_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_chrome_64_bundle__base.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.chrome.stable"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:isolatedSplits="true"
+     android:versionCode="OFFSET=34"
+     android:versionName="#.#.#.#">
+diff --git a/chrome/android/expectations/trichrome_library_32_64_apk.AndroidManifest.expected b/chrome/android/expectations/trichrome_library_32_64_apk.AndroidManifest.expected
+index a3857150d1329..878a64a957bf3 100644
+--- a/chrome/android/expectations/trichrome_library_32_64_apk.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_library_32_64_apk.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.trichromelibrary"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=31"
+     android:versionName="#.#.#.#">
+   <uses-feature android:glEsVersion="0x00020000"/>
+diff --git a/chrome/android/expectations/trichrome_library_32_apk.AndroidManifest.expected b/chrome/android/expectations/trichrome_library_32_apk.AndroidManifest.expected
+index 8680add01de3e..b2c67bf99938f 100644
+--- a/chrome/android/expectations/trichrome_library_32_apk.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_library_32_apk.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.trichromelibrary"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=30"
+     android:versionName="#.#.#.#">
+   <uses-feature android:glEsVersion="0x00020000"/>
+diff --git a/chrome/android/expectations/trichrome_library_64_32_apk.AndroidManifest.expected b/chrome/android/expectations/trichrome_library_64_32_apk.AndroidManifest.expected
+index 7aede862814af..f1b3848e3f8b8 100644
+--- a/chrome/android/expectations/trichrome_library_64_32_apk.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_library_64_32_apk.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.trichromelibrary"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=33"
+     android:versionName="#.#.#.#">
+   <uses-feature android:glEsVersion="0x00020000"/>
+diff --git a/chrome/android/expectations/trichrome_library_64_apk.AndroidManifest.expected b/chrome/android/expectations/trichrome_library_64_apk.AndroidManifest.expected
+index 275799917bc56..7a54cbee6e609 100644
+--- a/chrome/android/expectations/trichrome_library_64_apk.AndroidManifest.expected
++++ b/chrome/android/expectations/trichrome_library_64_apk.AndroidManifest.expected
+@@ -2,8 +2,8 @@
+ <manifest
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     package="org.chromium.trichromelibrary"
+-    platformBuildVersionCode="35"
+-    platformBuildVersionName="15"
++    platformBuildVersionCode="36"
++    platformBuildVersionName="16"
+     android:versionCode="OFFSET=34"
+     android:versionName="#.#.#.#">
+   <uses-feature android:glEsVersion="0x00020000"/>
+diff --git a/third_party/android_sdk/README.chromium b/third_party/android_sdk/README.chromium
+index 6cf7a4438d078..7badb6b767761 100644
+--- a/third_party/android_sdk/README.chromium
++++ b/third_party/android_sdk/README.chromium
+@@ -1,14 +1,11 @@
+ Name: Android SDK
+ URL: http://developer.android.com/sdk/index.html
+-Version: 35
+-  Android SDK Build-Tools 35.0.0
+-  Android SDK Command-line Tools 7.0
++Version: 36
++  Android SDK Build-Tools 36.0.0
++  Android SDK Command-line Tools (auto-rolled)
+   Android SDK Emulator 31.2.10
+-  Android SDK Patch Applier v4
+-  Android SDK Platform-Tools 35.0.1
+-  Android SDK Platform API 35
+-  Android SDK Sources 31
+-  Google Cloud Messaging for Android Library, rev 3
++  Android SDK Platform-Tools 36.0.0
++  Android SDK Platform API 36
+ Security Critical: no
+ Shipped: yes
+ License: Apache-2.0
+@@ -19,28 +16,23 @@ The Android SDK provide API libraries and developer tools necessary to
+ build, test and debug for Android.
+ 
+ Update Instructions:
+-* What to update:
++* Update //infra/config/subprojects/chromium/ci/chromium.infra.star to have the new package versions be packaged
++  * Trigger: https://ci.chromium.org/p/chromium/builders/ci/android-sdk-packager
++* Update //clank/third_party/android_system_sdk/public/3pp/3pp.pb to have the system SDK be packaged
++  * Trigger internal 3pp bot
++* Update //DEPS with new instance IDs from the triggered bots
++* Run `gclient sync` to fetch the updated files.
++* Update version-related variables in //build/config/android/config.gni
++* Update version variable in build/android/pylib/constants/__init__.py
++* Updating versions in this file (overall Version == Platform API version)
++* Updating version in this //third_party/android_system_sdk/README.chromium
++
++Adding new sdk packages:
++* Find available ones here:
+   * public/cmdline-tools/latest/bin/sdkmanager --list
+     * Note the 'Available Updates:' section of the output.
+-* How to update packages:
+-  * Find the latest build on the android-sdk-packager builder. Get the CIPD
+-    instance id from its logs and update //DEPS:
+-    https://ci.chromium.org/p/chromium/builders/ci/android-sdk-packager
+-  * Run `gclient sync` to fetch the updated files for the new instances in
+-    //DEPS.
+-  * Run `public/cmdline-tools/latest/bin/sdkmanager --list_installed` and make
+-    sure that the packages are the new version.
+-  * Run `cat public/cmdline-tools/latest/source.properties` to check the
+-    version of cmdline-tools (this is not included in --list_installed).
+-  * Update this file with the new version.
+-* Adding new sdk packages:
+-  * Prepare the CIPD yaml files for packages in the cipd/ directory.
+-  * Add them to android-sdk-packager buildbucket configuation file:
+-    infra/config/subprojects/chromium/ci/chromium.infra.star
+-  * Submit the changes into gerrit (See crrev.com/c/2241994 as a reference)
+-  * Follow the update instructions to get a build from the CI builder.
+-* Updating this file:
+-  * The overall Version field should correspond to the Platform API version.
+-* Updating other things:
+-  * Use "git log third_party/android_sdk/README.chromium" to find previous
+-    update commits and see what sorts of changes to make.
++* Prepare the CIPD yaml files for packages in the cipd/ directory.
++* Add them to android-sdk-packager buildbucket configuation file:
++  infra/config/subprojects/chromium/ci/chromium.infra.star
++* Submit the changes into gerrit (See crrev.com/c/2241994 as a reference)
++* Follow the update instructions to get a build from the CI builder.
+diff --git a/third_party/android_system_sdk/README.chromium b/third_party/android_system_sdk/README.chromium
+index b5b8ff959f3e8..f692c45bfdcc2 100644
+--- a/third_party/android_system_sdk/README.chromium
++++ b/third_party/android_system_sdk/README.chromium
+@@ -1,7 +1,7 @@
+ Name: Android System SDK
+ URL: https://android.googlesource.com/platform/frameworks/base
+-Short Name:  Android System SDK
+-Version: AP31.240517.022
++Short Name: Android System SDK
++Version: 13057076
+ License: GPL-2.0-with-classpath-exception
+ License File: LICENSE
+ Security Critical: No
+@@ -9,7 +9,7 @@ Shipped: no
+ 
+ Description:
+ System SDK stubs for compiling Android Webview and Monochrome targets.
+-Revision is the BUILD ID of the Android release build.
++Version is the BUILD ID of the SDK.
+ 
+ Because prebuilt system SDKs are not distributed publicly, Googlers will need to
+ follow http://go/clank-webview/rolling_the_android_sdk.md to update this.
