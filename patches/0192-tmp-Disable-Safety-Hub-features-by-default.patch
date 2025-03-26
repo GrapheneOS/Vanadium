@@ -8,19 +8,19 @@ Subject: [PATCH] tmp: Disable Safety Hub features by default
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 9641075358f7c..15929c0633c27 100644
+index f439fa7c11f06..736bc18b74041 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -964,7 +964,7 @@ BASE_FEATURE(kRecordWebAppDebugInfo,
+@@ -987,7 +987,7 @@ BASE_FEATURE(kRecordWebAppDebugInfo,
  // Enables notification permission revocation for abusive origins.
  BASE_FEATURE(kAbusiveNotificationPermissionRevocation,
               "AbusiveOriginNotificationPermissionRevocation",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- #if BUILDFLAG(IS_CHROMEOS_ASH)
+ #if BUILDFLAG(IS_CHROMEOS)
  // Enables permanent removal of Legacy Supervised Users on startup.
-@@ -990,17 +990,17 @@ BASE_FEATURE(kSafetyHubExtensionsOffStoreTrigger,
+@@ -1013,17 +1013,17 @@ BASE_FEATURE(kSafetyHubExtensionsOffStoreTrigger,
  #endif
  
  // Enables Safety Hub feature.

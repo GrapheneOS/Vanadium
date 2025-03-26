@@ -10,10 +10,10 @@ Subject: [PATCH] Match skipping compatibility check default value checks in
  2 files changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
-index d100dd0b1c819..cd5c2dfc6242d 100644
+index 2a416db803b9c..26cd80c7c47f8 100644
 --- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
 +++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
-@@ -127,6 +127,13 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
+@@ -129,6 +129,13 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
          if (prefs().getBoolean(Pref.AUTOFILL_USING_VIRTUAL_VIEW_STRUCTURE)) {
              return false; // Always allow to flip back to built-in password management.
          }
@@ -27,7 +27,7 @@ index d100dd0b1c819..cd5c2dfc6242d 100644
          switch (AutofillClientProviderUtils.getAndroidAutofillFrameworkAvailability(prefs())) {
              case AndroidAutofillAvailabilityStatus.NOT_ALLOWED_BY_POLICY:
                  return true;
-@@ -137,11 +144,17 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
+@@ -139,11 +146,17 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
              case AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_MANAGER_NOT_AVAILABLE:
              case AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_NOT_SUPPORTED:
              case AndroidAutofillAvailabilityStatus.UNKNOWN_ANDROID_AUTOFILL_SERVICE:

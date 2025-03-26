@@ -16,10 +16,10 @@ settings.
  6 files changed, 17 insertions(+), 12 deletions(-)
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-index ea138bb081384..85ce695c1ce37 100644
+index f8f4157b5b5c2..316d046f1d626 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-@@ -102,12 +102,12 @@ public class ContentSettingsResources {
+@@ -107,12 +107,12 @@ public class ContentSettingsResources {
              case ContentSettingsType.ADS:
                  return new ResourceItem(
                          R.drawable.web_asset,
@@ -37,12 +37,12 @@ index ea138bb081384..85ce695c1ce37 100644
              case ContentSettingsType.ANTI_ABUSE:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 42bf0e9ff99b6..3fbd349284c41 100644
+index eee0192f3011e..005c3aa9b7385 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-@@ -1064,10 +1064,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
-                                 mSite.getAddress().getOrigin())
-                         && findPreference(getPreferenceKey(ContentSettingsType.ADS)) != null;
+@@ -1098,10 +1098,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+                         && findPreference(assumeNonNull(getPreferenceKey(ContentSettingsType.ADS)))
+                                 != null;
  
 -        if (!adBlockingActivated) {
 -            removePreferenceSafely(PREF_INTRUSIVE_ADS_INFO);
@@ -52,12 +52,12 @@ index 42bf0e9ff99b6..3fbd349284c41 100644
 +        removePreferenceSafely(PREF_INTRUSIVE_ADS_INFO_DIVIDER);
      }
  
-     private SiteSettingsCategory getWarningCategory() {
+     @RequiresNonNull({"mSite"})
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
-index 960dcce151620..5260b60cd2167 100644
+index 9c17b3456b460..822c8b377bc93 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
-@@ -163,8 +163,6 @@ public class SiteSettings extends BaseSiteSettingsFragment
+@@ -178,8 +178,6 @@ public class SiteSettings extends BaseSiteSettingsFragment
                  p.setSummary(ContentSettingsResources.getGeolocationAllowedSummary());
              } else if (Type.CLIPBOARD == prefCategory && !checked) {
                  p.setSummary(ContentSettingsResources.getClipboardBlockedListSummary());
@@ -67,7 +67,7 @@ index 960dcce151620..5260b60cd2167 100644
                  p.setSummary(ContentSettingsResources.getSoundBlockedListSummary());
              } else if (Type.REQUEST_DESKTOP_SITE == prefCategory) {
 diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
-index 45e89805f74ec..b96f410cfe0fa 100644
+index 4234408c8a6e0..f92abff051a3c 100644
 --- a/components/browser_ui/strings/android/site_settings.grdp
 +++ b/components/browser_ui/strings/android/site_settings.grdp
 @@ -16,6 +16,9 @@
@@ -81,7 +81,7 @@ index 45e89805f74ec..b96f410cfe0fa 100644
      Auto-verify
    </message>
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index 5c3b769cc3df6..69eeb3df561e2 100644
+index 98dd0c356a370..5e7cfb2b17d43 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
 @@ -174,8 +174,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {

@@ -8,13 +8,13 @@ Subject: [PATCH] Remove javascript optimizer settings UI
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
-index 988e6c7d4700a..4eb837c33f189 100644
+index e4f4dd7fdaf34..59f484d1e35ba 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
-@@ -172,6 +172,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
-             case SiteSettingsCategory.Type.ZOOM:
-                 return ContentFeatureMap.isEnabled(
-                         ContentFeatureList.ACCESSIBILITY_PAGE_ZOOM_ENHANCEMENTS);
+@@ -166,6 +166,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+             case SiteSettingsCategory.Type.REQUEST_DESKTOP_SITE:
+                 // Desktop Android always requests desktop sites, so hide the category.
+                 return !BuildConfig.IS_DESKTOP_ANDROID;
 +            case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
 +                return false;
              default:

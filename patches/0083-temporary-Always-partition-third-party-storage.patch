@@ -13,23 +13,23 @@ https://developers.google.com/privacy-sandbox/blog/storage-partitioning-deprecat
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 42eca7721180a..e02c14d7884e2 100644
+index 10fa1e1e0eacb..852b9e79b3d06 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -717,7 +717,7 @@ BASE_FEATURE(kDiscardInputEventsToRecentlyMovedFrames,
+@@ -696,7 +696,7 @@ BASE_FEATURE(kDiscardInputEventsToRecentlyMovedFrames,
  
  BASE_FEATURE(kDisableThirdPartyStoragePartitioning3DeprecationTrial,
               "DisableThirdPartyStoragePartitioning3DeprecationTrial",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- // Drop input events before user sees first paint https://crbug.com/1255485
- BASE_FEATURE(kDropInputEventsBeforeFirstPaint,
+ // Drop input events at the browser process until the process receives the first
+ // signal that the renderer has sent a frame to cc (https://crbug.com/40057499).
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-index b6f5a0ec57929..4c6a5ba829442 100644
+index 201d85a3b2135..0cce0abf58d9d 100644
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1540,7 +1540,7 @@
+@@ -1624,7 +1624,7 @@
        origin_trial_type: "deprecation",
        origin_trial_allows_insecure: true,
        origin_trial_allows_third_party: true,
