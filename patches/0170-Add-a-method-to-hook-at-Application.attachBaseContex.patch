@@ -9,22 +9,22 @@ Subject: [PATCH] Add a method to hook at Application.attachBaseContext() call
  2 files changed, 8 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
-index e16615e66eabe..a1fc907be50dc 100644
+index c9b0281fbcb41..54b3a32e8e7b0 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
-@@ -76,6 +76,7 @@ public class SplitChromeApplication extends SplitCompatApplication {
-         } else {
-             setImplSupplier(() -> createNonBrowserApplication());
-         }
+@@ -81,6 +81,7 @@ public class SplitChromeApplication extends SplitCompatApplication {
+         // We need to call setImplSupplier before continuing attachBaseContext. See
+         // crbug.com/395261363 for details.
+         super.attachBaseContext(context);
 +        super.postAttachBaseContext();
      }
  
-     private static String getPreloadClassName(String split) {
+     private static @Nullable String getPreloadClassName(String split) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-index 7ba6378e8b97f..304078f9cdecb 100644
+index 564f5fc239966..72049d66e8645 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-@@ -98,6 +98,9 @@ public class SplitCompatApplication extends Application {
+@@ -102,6 +102,9 @@ public class SplitCompatApplication extends Application {
              mApplication.superStartActivity(intent, options);
          }
  
@@ -34,7 +34,7 @@ index 7ba6378e8b97f..304078f9cdecb 100644
          public void onCreate() {}
  
          public void onTrimMemory(int level) {}
-@@ -127,6 +130,10 @@ public class SplitCompatApplication extends Application {
+@@ -132,6 +135,10 @@ public class SplitCompatApplication extends Application {
          super.startActivity(intent, options);
      }
  

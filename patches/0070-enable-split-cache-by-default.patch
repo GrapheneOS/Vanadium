@@ -4,14 +4,14 @@ Date: Wed, 23 Dec 2020 06:00:50 -0500
 Subject: [PATCH] enable split cache by default
 
 ---
- net/base/features.cc | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/base/features.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index fb4f185994fc6..53e072c2d1497 100644
+index 62e8b367a9b52..de5ffa9b43900 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -122,23 +122,23 @@ const base::FeatureParam<base::TimeDelta>
+@@ -122,19 +122,19 @@ const base::FeatureParam<base::TimeDelta>
  
  BASE_FEATURE(kSplitCacheByIncludeCredentials,
               "SplitCacheByIncludeCredentials",
@@ -27,20 +27,6 @@ index fb4f185994fc6..53e072c2d1497 100644
               "SplitCacheByCrossSiteMainFrameNavigationBoolean",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
- 
- BASE_FEATURE(kSplitCacheByMainFrameNavigationInitiator,
-              "SplitCacheByMainFrameNavigationInitiator",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
- 
- BASE_FEATURE(kSplitCacheByNavigationInitiator,
-              "SplitCacheByNavigationInitiator",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
- 
- BASE_FEATURE(kHttpCacheKeyingExperimentControlGroup2024,
-              "HttpCacheKeyingExperimentControlGroup2024",
-@@ -146,7 +146,7 @@ BASE_FEATURE(kHttpCacheKeyingExperimentControlGroup2024,
  
  BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
               "SplitCodeCacheByNetworkIsolationKey",

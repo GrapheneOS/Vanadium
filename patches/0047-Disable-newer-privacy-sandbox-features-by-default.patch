@@ -5,11 +5,12 @@ Subject: [PATCH] Disable newer privacy sandbox features by default
 
 ---
  components/privacy_sandbox/privacy_sandbox_features.cc | 2 +-
- third_party/blink/common/features.cc                   | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ services/network/public/cpp/features.cc                | 2 +-
+ third_party/blink/common/features.cc                   | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
-index 328542222bb95..3a9adc4936456 100644
+index 5a7503fc27556..03cdd3b9053c2 100644
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
 @@ -21,7 +21,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
@@ -21,20 +22,24 @@ index 328542222bb95..3a9adc4936456 100644
  
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
-diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 34f5b77f9dc8a..4e72fdcead1eb 100644
---- a/third_party/blink/common/features.cc
-+++ b/third_party/blink/common/features.cc
-@@ -250,7 +250,7 @@ BASE_FEATURE(kBoostNonRenderBlockingStyleLoadingTaskPriority,
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index 6b15452e54321..0fcfb765c1987 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -439,7 +439,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
  // Kill switch for the Topics API.
  BASE_FEATURE(kBrowsingTopics,
               "BrowsingTopics",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- // If enabled, the check for whether the IP address is publicly routable will be
- // bypassed when determining the eligibility for a page to be included in topics
-@@ -266,13 +266,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+ // Enable the shared storage API. Note that enabling this feature does not
+ // automatically expose this API to the web, it only allows the element to be
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 18e5ae64bc200..0f6fb49ef20fe 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -245,13 +245,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
  // is enabled.)
  BASE_FEATURE(kBrowsingTopicsDocumentAPI,
               "BrowsingTopicsDocumentAPI",

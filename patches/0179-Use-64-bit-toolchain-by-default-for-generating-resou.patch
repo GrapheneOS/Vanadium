@@ -9,10 +9,10 @@ Subject: [PATCH] Use 64-bit toolchain by default for generating resource
  1 file changed, 16 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 25d5b18bdebc7..62353862b0718 100644
+index fdb5381bfda74..5bd6621eeeeea 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -1663,6 +1663,8 @@ if (current_toolchain == default_toolchain) {
+@@ -1675,6 +1675,8 @@ if (current_toolchain == default_toolchain) {
    template("resource_packaging") {
      _is_monochrome = invoker.is_monochrome
      _is_trichrome = defined(invoker.is_trichrome) && invoker.is_trichrome
@@ -21,7 +21,7 @@ index 25d5b18bdebc7..62353862b0718 100644
      _is_bundle_module =
          defined(invoker.is_bundle_module) && invoker.is_bundle_module
  
-@@ -1697,6 +1699,9 @@ if (current_toolchain == default_toolchain) {
+@@ -1709,6 +1711,9 @@ if (current_toolchain == default_toolchain) {
            #     more efficient.
            _fat_lib_toolchain = _monochrome_browser_toolchain
          }
@@ -31,7 +31,7 @@ index 25d5b18bdebc7..62353862b0718 100644
          deps = [ ":${_lib}($_fat_lib_toolchain)" ]
  
          inputs = [ get_label_info(deps[0], "root_out_dir") + _lib_path ]
-@@ -1843,6 +1848,7 @@ if (current_toolchain == default_toolchain) {
+@@ -1855,6 +1860,7 @@ if (current_toolchain == default_toolchain) {
    resource_packaging("trichrome_chrome_apk_pak_assets") {
      is_monochrome = false
      is_trichrome = true
@@ -39,7 +39,7 @@ index 25d5b18bdebc7..62353862b0718 100644
    }
  
    # Exists separately from chrome_public_base_module_java_for_test to allow
-@@ -3467,6 +3473,16 @@ if (current_toolchain == _monochrome_browser_toolchain) {
+@@ -3500,6 +3506,16 @@ if (current_toolchain == _monochrome_browser_toolchain) {
  }
  
  if (android_64bit_target_cpu) {

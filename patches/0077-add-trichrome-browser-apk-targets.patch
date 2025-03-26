@@ -4,15 +4,15 @@ Date: Thu, 27 May 2021 07:30:02 -0400
 Subject: [PATCH] add trichrome browser apk targets
 
 ---
- chrome/android/BUILD.gn                   | 37 +++++++++++++++++++++++
+ chrome/android/BUILD.gn                   | 42 +++++++++++++++++++++++
  chrome/android/chrome_public_apk_tmpl.gni |  2 ++
- 2 files changed, 39 insertions(+)
+ 2 files changed, 44 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 254a9d5811e72..f8feda1ba823b 100644
+index 378ce42f26eec..c4bf0d67b3a18 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -1830,6 +1830,10 @@ if (current_toolchain == default_toolchain) {
+@@ -1842,6 +1842,10 @@ if (current_toolchain == default_toolchain) {
      is_trichrome = true
      is_bundle_module = true
    }
@@ -23,7 +23,7 @@ index 254a9d5811e72..f8feda1ba823b 100644
  
    # Exists separately from chrome_public_base_module_java_for_test to allow
    # downstream to depend on test support packages without needing to depend on
-@@ -2209,6 +2213,39 @@ if (current_toolchain == default_toolchain) {
+@@ -2223,6 +2227,44 @@ if (current_toolchain == default_toolchain) {
        }
      }
    }
@@ -33,14 +33,19 @@ index 254a9d5811e72..f8feda1ba823b 100644
 +    is_trichrome = true
 +    target_type = "android_apk"
 +    static_library_provider = ":trichrome_library_apk"
-+    if (android_64bit_target_cpu) {
++    if (defined(android_app_secondary_abi)) {
 +      is_64_bit_browser = false
 +      include_64_bit_webview = true
++      include_32_bit_webview = true
++    } else {
++      is_64_bit_browser = true
++      include_64_bit_webview = true
++      include_32_bit_webview = false
 +    }
 +  }
 +  
 +  if (android_64bit_target_cpu) {
-+    if (!skip_secondary_abi_for_cq) {
++    if (defined(android_app_secondary_abi)) {
 +      chrome_public_apk_or_module_tmpl("trichrome_chrome_64_32_apk") {
 +        apk_name = "TrichromeChrome6432"
 +        is_trichrome = true
@@ -64,7 +69,7 @@ index 254a9d5811e72..f8feda1ba823b 100644
    # As compared to chrome_public_test_apk, this target contains only unit tests
    # that require on device capabilities. These tests are smaller, more tightly
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index b1ab5a7b2a452..025d55b392da0 100644
+index 44d95c96a3dea..934dba44f6a11 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
 @@ -476,6 +476,8 @@ template("chrome_common_apk_or_module_tmpl") {
