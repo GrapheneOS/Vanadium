@@ -9,10 +9,10 @@ Subject: [PATCH] Fix chrome target generation when skip_secondary_abi_for_cq
  1 file changed, 33 insertions(+), 25 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 5bd6621eeeeea..54a388eec1a15 100644
+index b086b392c0a9c..d3a50cefb2002 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -3573,20 +3573,24 @@ if (current_toolchain == default_toolchain &&
+@@ -3574,20 +3574,24 @@ if (current_toolchain == default_toolchain &&
      if (enable_libs_and_assets_verification) {
        if (android_64bit_target_cpu) {
          deps += [
@@ -47,7 +47,7 @@ index 5bd6621eeeeea..54a388eec1a15 100644
        } else {
          deps += [
            ":${_main_monochrome_public_bundle_target}_validate_libs_and_assets",
-@@ -3599,27 +3603,31 @@ if (current_toolchain == default_toolchain &&
+@@ -3600,27 +3604,31 @@ if (current_toolchain == default_toolchain &&
      if (enable_manifest_verification) {
        if (android_64bit_target_cpu) {
          deps += [
