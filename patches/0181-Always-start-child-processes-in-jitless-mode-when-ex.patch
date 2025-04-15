@@ -10,7 +10,7 @@ Subject: [PATCH] Always start child processes in jitless mode when execmem is
  2 files changed, 32 insertions(+)
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
-index b1a621f62770a..9f7482f21d912 100644
+index b1a621f62770a..43c4fa9301949 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 @@ -2,8 +2,15 @@ package org.chromium.base.library_loader;
@@ -44,7 +44,7 @@ index b1a621f62770a..9f7482f21d912 100644
 +                    boolean checkForOSConfigForJitless =
 +                            !VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(
 +                                    "disable-features").contains("check-os-config-for-jitless");
-+                    if (CustomOSApis.isExecmemBlocked() && checkForOSConfigForJitless) {
++                    if (checkForOSConfigForJitless && CustomOSApis.isExecmemBlocked()) {
 +                        String jsFlagsName = "js-flags";
 +                        HashSet<String> jsFlags = new HashSet<>(
 +                                VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(jsFlagsName));
