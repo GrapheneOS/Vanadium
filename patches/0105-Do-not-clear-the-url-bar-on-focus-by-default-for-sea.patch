@@ -24,10 +24,10 @@ index 0d29c988b371e..b3a2278b2b251 100644
 +  "java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java",
  ]
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index b3902814d4ba7..f12a0d4f31f93 100644
+index 8bd18b9ec275d..23d8b84fd2c22 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -372,6 +372,7 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -373,6 +373,7 @@ public class SearchActivity extends AsyncInitializationActivity
          mLocationBarCoordinator.setUrlBarFocusable(true);
          mLocationBarCoordinator.setShouldShowMicButtonWhenUnfocused(true);
          mLocationBarCoordinator.getOmniboxStub().addUrlFocusChangeListener(this);
@@ -52,12 +52,12 @@ index 0000000000000..9576d3131006e
 +    }
 +}
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
-index a2f970edc2963..ee306f9e1d64d 100644
+index 8813f92f83602..b105fcd5d6b43 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
-@@ -838,4 +838,8 @@ public class LocationBarCoordinator
-     public @NonNull Optional<OmniboxSuggestionsVisualState> getOmniboxSuggestionsVisualState() {
-         return Optional.of(mAutocompleteCoordinator);
+@@ -848,4 +848,8 @@ public class LocationBarCoordinator
+     public void updateButtonBackground(@DrawableRes int backgroundResId) {
+         mLocationBarMediator.updateButtonBackground(backgroundResId);
      }
 +
 +    public void setShouldClearOmniboxByDefault(boolean shouldClear) {
@@ -65,10 +65,10 @@ index a2f970edc2963..ee306f9e1d64d 100644
 +    }
  }
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
-index 9ec75b5d81c80..25a82809d6834 100644
+index b462572d62492..8325cfe14507d 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarMediator.java
-@@ -210,6 +210,19 @@ class LocationBarMediator
+@@ -211,6 +211,19 @@ class LocationBarMediator
      private @BrandedColorScheme int mBrandedColorScheme = BrandedColorScheme.APP_DEFAULT;
      private ObservableSupplierImpl<Boolean> mBackPressStateSupplier =
              new ObservableSupplierImpl<>();
@@ -88,7 +88,7 @@ index 9ec75b5d81c80..25a82809d6834 100644
      private ObservableSupplier<TabModelSelector> mTabModelSelectorSupplier;
      private SearchEngineUtils mSearchEngineUtils;
  
-@@ -771,7 +784,7 @@ class LocationBarMediator
+@@ -773,7 +786,7 @@ class LocationBarMediator
          }
          // Reset to the default values.
          mUrlCoordinator.setSelectAllOnFocus(false);

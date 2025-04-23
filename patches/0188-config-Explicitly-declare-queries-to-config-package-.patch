@@ -29,7 +29,7 @@ index 4a9d33f5b5461..43f875f2a5c47 100644
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
 diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
-index 723c77a2d2551..ed91c7444a2c2 100644
+index 52077248eae1a..08af2feda6cc6 100644
 --- a/android_webview/system_webview_apk_tmpl.gni
 +++ b/android_webview/system_webview_apk_tmpl.gni
 @@ -14,6 +14,7 @@ import("//chrome/version.gni")
@@ -40,14 +40,14 @@ index 723c77a2d2551..ed91c7444a2c2 100644
  
  declare_args() {
    # Android package name to use when compiling the system_webview_apk and
-@@ -80,6 +81,7 @@ template("system_webview_apk_or_module_tmpl") {
+@@ -74,6 +75,7 @@ template("system_webview_apk_or_module_tmpl") {
      variables = [
        "force_32_bit=$_force_32_bit",
        "manifest_package=$_manifest_package",
 +      "config_apk_package=$config_apk_package",
      ]
      if (_is_trichrome) {
-       variables += trichrome_jinja_variables +
+       variables +=
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
 index bc51ce9131b4b..6496e58344ff3 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
@@ -69,7 +69,7 @@ index bc51ce9131b4b..6496e58344ff3 100644
  
  monochrome_android_manifest_jinja_variables =
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index e14a6b51c889e..c2625c777d344 100644
+index 2cd7ee75cd61a..1af9637717cea 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -186,6 +186,12 @@ by a child template that "extends" this file.

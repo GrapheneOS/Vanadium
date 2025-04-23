@@ -8,13 +8,13 @@ Subject: [PATCH] set default search engine to DuckDuckGo
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/search_engines/template_url_prepopulate_data.cc b/components/search_engines/template_url_prepopulate_data.cc
-index 8be949b97b11c..53d6cfde51635 100644
+index d514502637b10..7b28621e9134b 100644
 --- a/components/search_engines/template_url_prepopulate_data.cc
 +++ b/components/search_engines/template_url_prepopulate_data.cc
-@@ -283,7 +283,7 @@ void ClearPrepopulatedEnginesInPrefs(PrefService* prefs) {
+@@ -296,7 +296,7 @@ void ClearPrepopulatedEnginesInPrefs(PrefService* prefs) {
  std::unique_ptr<TemplateURLData> GetPrepopulatedFallbackSearch(
      PrefService& prefs,
-     CountryID country_id) {
+     CountryId country_id) {
 -  return FindPrepopulatedEngineInternal(prefs, country_id, google.id,
 +  return FindPrepopulatedEngineInternal(prefs, country_id, duckduckgo.id,
                                          /*use_first_as_fallback=*/true);

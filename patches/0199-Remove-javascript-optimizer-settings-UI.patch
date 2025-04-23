@@ -8,13 +8,13 @@ Subject: [PATCH] Remove javascript optimizer settings UI
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
-index e4f4dd7fdaf34..59f484d1e35ba 100644
+index 6a70a5d78d285..19f6ac5bcd575 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
-@@ -166,6 +166,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
-             case SiteSettingsCategory.Type.REQUEST_DESKTOP_SITE:
-                 // Desktop Android always requests desktop sites, so hide the category.
+@@ -167,6 +167,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
                  return !BuildConfig.IS_DESKTOP_ANDROID;
+             case SiteSettingsCategory.Type.SERIAL_PORT:
+                 return DeviceFeatureMap.isEnabled(DeviceFeatureList.BLUETOOTH_RFCOMM_ANDROID);
 +            case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
 +                return false;
              default:

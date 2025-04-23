@@ -4,14 +4,14 @@ Date: Wed, 23 Dec 2020 06:00:50 -0500
 Subject: [PATCH] enable split cache by default
 
 ---
- net/base/features.cc | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/base/features.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 62e8b367a9b52..de5ffa9b43900 100644
+index a02089f5e7270..a3df8911dfca8 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -122,19 +122,19 @@ const base::FeatureParam<base::TimeDelta>
+@@ -122,11 +122,11 @@ const base::FeatureParam<base::TimeDelta>
  
  BASE_FEATURE(kSplitCacheByIncludeCredentials,
               "SplitCacheByIncludeCredentials",
@@ -23,10 +23,9 @@ index 62e8b367a9b52..de5ffa9b43900 100644
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
- BASE_FEATURE(kSplitCacheByCrossSiteMainFrameNavigationBoolean,
-              "SplitCacheByCrossSiteMainFrameNavigationBoolean",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
+ // Note: Use of this feature is gated on the HTTP cache itself being
+ // partitioned, which is controlled by the kSplitCacheByNetworkIsolationKey
+@@ -137,7 +137,7 @@ BASE_FEATURE(kSplitCacheByCrossSiteMainFrameNavigationBoolean,
  
  BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
               "SplitCodeCacheByNetworkIsolationKey",

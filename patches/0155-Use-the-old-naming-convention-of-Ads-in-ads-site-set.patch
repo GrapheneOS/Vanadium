@@ -7,19 +7,19 @@ The upstream's word choice on blocking ads does not apply in Vanadium.
 All sites are blocked with ads unless added as exception on a website
 settings.
 ---
- .../site_settings/ContentSettingsResources.java           | 8 ++++----
- .../browser_ui/site_settings/SingleWebsiteSettings.java   | 6 ++----
- .../components/browser_ui/site_settings/SiteSettings.java | 2 --
- components/browser_ui/strings/android/site_settings.grdp  | 3 +++
- components/page_info/page_info_ui.cc                      | 4 ++--
- components/site_settings_strings.grdp                     | 6 ++++++
- 6 files changed, 17 insertions(+), 12 deletions(-)
+ .../site_settings/ContentSettingsResources.java      | 12 ++++++------
+ .../site_settings/SingleWebsiteSettings.java         |  6 ++----
+ .../browser_ui/site_settings/SiteSettings.java       |  2 --
+ .../browser_ui/strings/android/site_settings.grdp    |  3 +++
+ components/page_info/page_info_ui.cc                 |  4 ++--
+ components/site_settings_strings.grdp                |  6 ++++++
+ 6 files changed, 19 insertions(+), 14 deletions(-)
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-index f8f4157b5b5c2..316d046f1d626 100644
+index ee5b3de68e013..172ff67e6c7b6 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-@@ -107,12 +107,12 @@ public class ContentSettingsResources {
+@@ -160,15 +160,15 @@ public class ContentSettingsResources {
              case ContentSettingsType.ADS:
                  return new ResourceItem(
                          R.drawable.web_asset,
@@ -29,18 +29,23 @@ index f8f4157b5b5c2..316d046f1d626 100644
                          ContentSettingValues.BLOCK,
 -                        R.string.site_settings_page_intrusive_allowed_sub_label,
 -                        R.string.site_settings_page_intrusive_blocked_sub_label,
--                        R.string.site_settings_page_intrusive_ads_a11y);
+-                        R.string.site_settings_page_intrusive_ads_a11y,
 +                        0,
++                        0,
++                        0,
+                         R.drawable.ad_off_24px,
+-                        R.string.site_settings_page_intrusive_allowed_sub_label,
+-                        R.string.site_settings_page_intrusive_blocked_sub_label);
 +                        0,
 +                        0);
  
              case ContentSettingsType.ANTI_ABUSE:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index eee0192f3011e..005c3aa9b7385 100644
+index d902eec5668b2..a830d384fbc74 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-@@ -1098,10 +1098,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -1188,10 +1188,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                          && findPreference(assumeNonNull(getPreferenceKey(ContentSettingsType.ADS)))
                                  != null;
  
@@ -54,7 +59,7 @@ index eee0192f3011e..005c3aa9b7385 100644
  
      @RequiresNonNull({"mSite"})
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
-index 9c17b3456b460..822c8b377bc93 100644
+index 23298093b000c..fe57f89588300 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
 @@ -178,8 +178,6 @@ public class SiteSettings extends BaseSiteSettingsFragment
@@ -67,7 +72,7 @@ index 9c17b3456b460..822c8b377bc93 100644
                  p.setSummary(ContentSettingsResources.getSoundBlockedListSummary());
              } else if (Type.REQUEST_DESKTOP_SITE == prefCategory) {
 diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
-index 4234408c8a6e0..f92abff051a3c 100644
+index 8f1a9ee7c2893..08c7b6cbf737e 100644
 --- a/components/browser_ui/strings/android/site_settings.grdp
 +++ b/components/browser_ui/strings/android/site_settings.grdp
 @@ -16,6 +16,9 @@
@@ -81,7 +86,7 @@ index 4234408c8a6e0..f92abff051a3c 100644
      Auto-verify
    </message>
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index 98dd0c356a370..5e7cfb2b17d43 100644
+index 2bc96f6412713..7d52eb311d896 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
 @@ -174,8 +174,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {
@@ -96,7 +101,7 @@ index 98dd0c356a370..5e7cfb2b17d43 100644
         IDS_SITE_SETTINGS_TYPE_SOUND_MID_SENTENCE},
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
 diff --git a/components/site_settings_strings.grdp b/components/site_settings_strings.grdp
-index 0a64bb60417a1..8b9cfedcdb00b 100644
+index e6c599b9284bd..1d4fb31954980 100644
 --- a/components/site_settings_strings.grdp
 +++ b/components/site_settings_strings.grdp
 @@ -7,6 +7,12 @@

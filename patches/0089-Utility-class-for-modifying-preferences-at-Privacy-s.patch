@@ -49,10 +49,10 @@ index 0000000000000..a352cd657b1b9
 +</PreferenceScreen>
 +
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 375f6db0d2802..d48cddaba3de2 100644
+index 1f97766db2839..5b175be2f8bb8 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -89,6 +89,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -86,6 +86,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
  
          SettingsUtils.addPreferencesFromResource(this, R.xml.privacy_preferences);
  
@@ -61,16 +61,16 @@ index 375f6db0d2802..d48cddaba3de2 100644
          Preference fpProtectionPreference = findPreference(PREF_FP_PROTECTION);
          fpProtectionPreference.setVisible(shouldShowFpProtectionUi());
  
-@@ -257,6 +259,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
-         phoneAsASecurityKey.setVisible(
-                 DeviceFeatureMap.isEnabled(DeviceFeatureList.WEBAUTHN_ENABLE_PAASK_SETTING));
+@@ -250,6 +252,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+                         SingleCategorySettings.EXTRA_TITLE,
+                         javascriptOptimizerPref.getTitle().toString());
  
 +        PrivacySettingsExt.removeUnwantedPreferences(this);
 +
          updatePreferences();
      }
  
-@@ -437,6 +441,9 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -430,6 +434,9 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
                              : ContentSettingsResources.getThirdPartyCookieListSummary(
                                      UserPrefs.get(getProfile()).getInteger(COOKIE_CONTROLS_MODE)));
          }
