@@ -12,10 +12,10 @@ Subject: [PATCH] Add hooks for LibraryLoader on early initialization and
  create mode 100644 base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-index a752ab77daf2a..23d051f385bec 100644
+index af32e358f36a6..cacc3774078a3 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-@@ -437,6 +437,7 @@ public class LibraryLoader {
+@@ -433,6 +433,7 @@ public class LibraryLoader {
                              mLibraryProcessType, type));
          }
          mLibraryProcessType = type;
@@ -23,20 +23,20 @@ index a752ab77daf2a..23d051f385bec 100644
      }
  
      /**
-@@ -774,6 +775,13 @@ public class LibraryLoader {
-     @GuardedBy("mLock")
-     private void ensureCommandLineSwitchedAlreadyLocked() {
-         assert isMainDexLoaded();
+@@ -770,6 +771,13 @@ public class LibraryLoader {
+         if (!CommandLine.isInitialized()) {
+             CommandLine.init(null);
+         }
 +
-+        if (!mCommandLineSwitched) {
++        if (!CommandLine.hasSwitchedToNative()) {
 +            LibraryLoaderHooks.onBeforeCommandLineSwitchLocked(ContextUtils.getApplicationContext(), mLibraryProcessType);
 +        } else {
 +            LibraryLoaderHooks.onSubsequentCommandLineSwitchLockedCheck(ContextUtils.getApplicationContext(), mLibraryProcessType);
 +        }
 +
-         if (mCommandLineSwitched) {
-             return;
-         }
+         CommandLine.getInstance().switchToNativeImpl();
+     }
+ 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 new file mode 100644
 index 0000000000000..255768f85f8fd
