@@ -57,3 +57,8 @@ config_apk_is_debug = false
 
 # Disables secondary arch support when compiling, reducing build time and apk size
 enable_android_secondary_abi = target_os == "x64"
+
+# Explicitly disable static analysis as intended for official builds.
+# See //build/config/android/config.gni line 90-92 as of M136
+# Without this, autoninja unnecessarily prints warnings on some build environment.
+android_static_analysis = "off"
