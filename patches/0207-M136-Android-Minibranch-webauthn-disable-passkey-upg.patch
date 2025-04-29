@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martin Kreichgauer <martinkr@google.com>
+Date: Mon, 28 Apr 2025 10:34:51 -0700
+Subject: [PATCH] [M136 Android Minibranch] webauthn: disable passkey upgrade
+ flag on Android
+
+Conditional create hasn't been wired up for Android yet, so this should
+have been a no-op. But getClientCapabilities() feature detection
+also considers the flag state, and thus on Android it is currently
+reported as available by mistake.
+
+(cherry picked from commit f3926d592747e0cbfa72a655e41688a24a58b38c)
+
+Fixed: 412772588
+Change-Id: I90b8ea3c111dab0a52744cec09b7d7b1c729ce6e
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6481576
+Commit-Queue: Martin Kreichgauer <martinkr@google.com>
+Reviewed-by: Adam Langley <agl@chromium.org>
+Auto-Submit: Martin Kreichgauer <martinkr@google.com>
+Commit-Queue: Adam Langley <agl@chromium.org>
+Cr-Original-Commit-Position: refs/heads/main@{#1450340}
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6495391
+Reviewed-by: Krishna Govind <govind@chromium.org>
+Bot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>
+Owners-Override: Krishna Govind <govind@chromium.org>
+Cr-Commit-Position: refs/branch-heads/7103_44@{#3}
+Cr-Branched-From: 6b4787deae5d3229930654f6d396fd8668c29a6d-refs/branch-heads/7103@{#1417}
+Cr-Branched-From: e09430c64983fc906f37a9f7e6806275c9b67b86-refs/heads/main@{#1440670}
+---
+ device/fido/features.cc | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/device/fido/features.cc b/device/fido/features.cc
+index 80668ef074c91..4af56ca7fc8d8 100644
+--- a/device/fido/features.cc
++++ b/device/fido/features.cc
+@@ -124,7 +124,12 @@ BASE_FEATURE(kDigitalCredentialsHybridLinking,
+ // Default enabled in M136. Remove in or after M139.
+ BASE_FEATURE(kWebAuthnPasskeyUpgrade,
+              "WebAuthenticationPasskeyUpgrade",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++#if BUILDFLAG(IS_ANDROID)
++             base::FEATURE_DISABLED_BY_DEFAULT
++#else
++             base::FEATURE_ENABLED_BY_DEFAULT
++#endif
++);
+ 
+ // Disabled by default.
+ BASE_FEATURE(kWebAuthnEnclaveAttestation,
