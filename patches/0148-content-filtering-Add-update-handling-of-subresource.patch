@@ -114,12 +114,12 @@ index 0000000000000..47e3c615c01bf
 +            try {
 +                previousVersion = Long.parseLong(version());
 +            } catch (NumberFormatException e) {
-+                Log.d(TAG, "Previous version is not from config apk, treating as outdated.");
++                Log.w(TAG, "Previous version is not from config apk, treating as outdated.");
 +                previousVersion = -1;
 +            }
 +
 +            if (previousVersion >= unindexedContentVersionCode) {
-+                Log.d(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
++                Log.i(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
 +                return;
 +            }
 +        }
