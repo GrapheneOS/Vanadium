@@ -66,7 +66,7 @@ index 0000000000000..5a6cbb259e2bc
 +}
 diff --git a/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java b/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
 new file mode 100644
-index 0000000000000..47e3c615c01bf
+index 0000000000000..2d2f85714c7cb
 --- /dev/null
 +++ b/chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
 @@ -0,0 +1,80 @@
@@ -114,12 +114,12 @@ index 0000000000000..47e3c615c01bf
 +            try {
 +                previousVersion = Long.parseLong(version());
 +            } catch (NumberFormatException e) {
-+                Log.d(TAG, "Previous version is not from config apk, treating as outdated.");
++                Log.w(TAG, "Previous version is not from config apk, treating as outdated.");
 +                previousVersion = -1;
 +            }
 +
 +            if (previousVersion >= unindexedContentVersionCode) {
-+                Log.d(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
++                Log.i(TAG, "Not updating the subresource filter from config apk, previous version fetched is up to date");
 +                return;
 +            }
 +        }
