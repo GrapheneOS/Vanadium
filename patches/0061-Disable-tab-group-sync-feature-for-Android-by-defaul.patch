@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 29 Apr 2025 16:16:10 +0000
+Subject: [PATCH] Disable tab group sync feature for Android by default
+
+---
+ components/saved_tab_groups/public/features.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/saved_tab_groups/public/features.cc b/components/saved_tab_groups/public/features.cc
+index 4eb9f9278f5fa..38e29150c2777 100644
+--- a/components/saved_tab_groups/public/features.cc
++++ b/components/saved_tab_groups/public/features.cc
+@@ -24,12 +24,12 @@ constexpr char kGroupCleanUpTimeIntervalInSecondsFinchKey[] =
+ // is enabled.
+ BASE_FEATURE(kTabGroupSyncAndroid,
+              "TabGroupSyncAndroid",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Feature flag used to enable tab group revisit surface.
+ BASE_FEATURE(kTabGroupPaneAndroid,
+              "TabGroupPaneAndroid",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Feature flag used to determine whether the network layer is disabled for
+ // tab group sync.
