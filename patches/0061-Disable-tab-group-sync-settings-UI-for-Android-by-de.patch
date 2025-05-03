@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 29 Apr 2025 16:16:10 +0000
+Subject: [PATCH] Disable tab group sync settings UI for Android by default
+
+---
+ components/saved_tab_groups/public/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/saved_tab_groups/public/features.cc b/components/saved_tab_groups/public/features.cc
+index 4eb9f9278f5fa..16e23665066f0 100644
+--- a/components/saved_tab_groups/public/features.cc
++++ b/components/saved_tab_groups/public/features.cc
+@@ -56,7 +56,7 @@ BASE_FEATURE(kTabGroupSyncDelegateAndroid,
+ // honored. This feature flag should be used only in case of an emergency.
+ BASE_FEATURE(kTabGroupSyncAutoOpenKillSwitch,
+              "TabGroupSyncAutoOpenKillSwitch",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Feature flag to restrict download on synced tabs if the navigation is
+ // triggered without attention..
