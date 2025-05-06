@@ -5,16 +5,16 @@ Subject: [PATCH] filter-lists: Helper script for fetching content filtering
  ruleset
 
 ---
- .../filter_lists/filter_list_download.py      | 33 +++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ .../filter_lists/filter_list_download.py      | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
  create mode 100644 vanadium/android_config/filter_lists/filter_list_download.py
 
 diff --git a/vanadium/android_config/filter_lists/filter_list_download.py b/vanadium/android_config/filter_lists/filter_list_download.py
 new file mode 100644
-index 0000000000000..ceded1528970f
+index 0000000000000..694bcd8f39922
 --- /dev/null
 +++ b/vanadium/android_config/filter_lists/filter_list_download.py
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,31 @@
 +#!/usr/bin/env python3
 +#
 +# SPDX-License-Identifier: GPL-v2.0
@@ -32,8 +32,6 @@ index 0000000000000..ceded1528970f
 +        if not url.startswith("https://"):
 +            continue
 +        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-+        context.minimum_version = ssl.TLSVersion.TLSv1_3
-+        context.maximum_version = ssl.TLSVersion.TLSv1_3
 +        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 +        with urllib.request.urlopen(url=req, context=context, timeout=30) as res:
 +            while True:
