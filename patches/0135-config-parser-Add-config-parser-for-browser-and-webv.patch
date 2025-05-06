@@ -29,7 +29,7 @@ index e3cf1229f8920..ae2627740c4e0 100644
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..8ead72f2bd746
+index 0000000000000..48b26e59ba7a4
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 @@ -0,0 +1,537 @@
@@ -436,10 +436,10 @@ index 0000000000000..8ead72f2bd746
 +                final long maxVersionCode = spec.getMaxVersion();
 +                final long curVersionCode = selfPkgInfo.getLongVersionCode();
 +
-+                if (minVersionCode != spec.getMinVersion()
++                if (minVersionCode != defaultSpec.getMinVersion()
 +                        && minVersionCode > curVersionCode) {
 +                    continue;
-+                } else if (maxVersionCode != spec.getMaxVersion()
++                } else if (maxVersionCode != defaultSpec.getMaxVersion()
 +                        && maxVersionCode < curVersionCode) {
 +                    continue;
 +                } else if ((spec.getSpecTypes() & (1L << specType.getNumber())) == 0) {
