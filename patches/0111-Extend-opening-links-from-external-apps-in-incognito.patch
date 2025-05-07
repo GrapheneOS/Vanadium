@@ -1,41 +1,58 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
-Date: Thu, 1 Feb 2024 17:58:40 +0000
+Date: Thu, 1 Feb 2024 17:58:19 +0000
 Subject: [PATCH] Extend opening links from external apps in incognito for
- share intents
+ custom tabs
 
 ---
- .../org/chromium/chrome/browser/LaunchIntentDispatcher.java | 5 +++++
- .../chrome/browser/LaunchIntentDispatcherHooks.java         | 6 ++++++
- 2 files changed, 11 insertions(+)
+ .../chrome/browser/LaunchIntentDispatcher.java  |  1 +
+ .../browser/LaunchIntentDispatcherHooks.java    | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 1475b403e276d..b9ce45d2fa351 100644
+index a1015ba58bfbb..6d17a039a60d5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -172,6 +172,11 @@ public class LaunchIntentDispatcher {
-         boolean incognito =
-                 mIntent.getBooleanExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
+@@ -294,6 +294,7 @@ public class LaunchIntentDispatcher {
+         newIntent.setAction(Intent.ACTION_VIEW);
+         newIntent.setData(uri);
+         newIntent.setClassName(context, CustomTabActivity.class.getName());
++        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, newIntent);
+         // Make sure the result of the CustomTabActivity is forwarded to the client.
+         newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
  
-+        if (Intent.ACTION_SEND.equals(mIntent.getAction())
-+                && "text/plain".equals(mIntent.getType())) {
-+            mIntent = LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(mActivity, mIntent);
-+        }
-+
-         String url = IntentHandler.getUrlFromIntent(mIntent);
- 
-         // Check if a web search Intent is being handled.
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index 6cdfa50279aa0..547e85324cac5 100644
+index aaec00177de6e..c282d5311d57f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-@@ -35,4 +35,10 @@ final class LaunchIntentDispatcherHooks {
+@@ -1,9 +1,20 @@
+ package org.chromium.chrome.browser;
+ 
+ import android.app.Activity;
++import android.content.Context;
+ import android.content.Intent;
+ 
+ final class LaunchIntentDispatcherHooks {
++
++    private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
++        Intent newIntent = intent;
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            newIntent = TabPreferencesUtils.appendNeededIncognitoExtras(context, newIntent);
++        }
++
++        return newIntent;
++    }
++
+     static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
+         Intent newIntent = intent;
+         if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
+@@ -12,4 +23,10 @@ final class LaunchIntentDispatcherHooks {
  
          return newIntent;
      }
 +
-+    static Intent maybeModifyActionSendIntents(Activity activity, Intent intent) {
-+        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
++    static Intent maybeModifyCustomTabIntents(Context context, Intent intent) {
++        Intent newIntent = maybeCreateIncognitoTabIntentFor(context, intent);
 +
 +        return newIntent;
 +    }
