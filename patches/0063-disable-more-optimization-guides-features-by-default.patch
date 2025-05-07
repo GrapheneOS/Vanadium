@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 25 Apr 2022 06:19:32 -0400
+Subject: [PATCH] disable more optimization guides features by default
+
+---
+ .../core/optimization_guide_features.cc                   | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
+index ed9b172489432..128dfa6468461 100644
+--- a/components/optimization_guide/core/optimization_guide_features.cc
++++ b/components/optimization_guide/core/optimization_guide_features.cc
+@@ -59,7 +59,7 @@ BASE_FEATURE(kRemoteOptimizationGuideFetching,
+ 
+ BASE_FEATURE(kRemoteOptimizationGuideFetchingAnonymousDataConsent,
+              "OptimizationHintsFetchingAnonymousDataConsent",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Enables the prediction of optimization targets.
+ BASE_FEATURE(kOptimizationTargetPrediction,
+@@ -70,7 +70,7 @@ BASE_FEATURE(kOptimizationTargetPrediction,
+ BASE_FEATURE(kOptimizationGuideModelDownloading,
+              "OptimizationGuideModelDownloading",
+ #if BUILDFLAG(BUILD_WITH_TFLITE_LIB)
+-             base::FEATURE_ENABLED_BY_DEFAULT
++             base::FEATURE_DISABLED_BY_DEFAULT
+ #else   // BUILD_WITH_TFLITE_LIB
+              base::FEATURE_DISABLED_BY_DEFAULT
+ #endif  // !BUILD_WITH_TFLITE_LIB
+@@ -118,7 +118,7 @@ BASE_FEATURE(kModelQualityLogging,
+ // Enables fetching personalized metadata from Optimization Guide Service.
+ BASE_FEATURE(kOptimizationGuidePersonalizedFetching,
+              "OptimizationPersonalizedHintsFetching",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // An emergency kill switch feature to stop serving certain model versions per
+ // optimization target. This is useful in exceptional situations when a bad
+@@ -157,7 +157,7 @@ BASE_FEATURE(kLogOnDeviceMetricsOnStartup,
+ // Whether to download the text safety classifier model.
+ BASE_FEATURE(kTextSafetyClassifier,
+              "TextSafetyClassifier",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Whether to scan the full text when running the language detection in the text
+ // safety classifier.

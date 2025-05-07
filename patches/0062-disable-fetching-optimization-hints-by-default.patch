@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 25 Apr 2022 06:19:32 -0400
+Subject: [PATCH] disable fetching optimization hints by default
+
+---
+ .../optimization_guide/core/optimization_guide_features.cc      | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
+index 4393d2f2e4552..ed9b172489432 100644
+--- a/components/optimization_guide/core/optimization_guide_features.cc
++++ b/components/optimization_guide/core/optimization_guide_features.cc
+@@ -50,7 +50,7 @@ constexpr auto enabled_by_default_mobile_only =
+ // hints for what optimizations can be applied on a page load.
+ BASE_FEATURE(kOptimizationHints,
+              "OptimizationHints",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Enables fetching from a remote Optimization Guide Service.
+ BASE_FEATURE(kRemoteOptimizationGuideFetching,
