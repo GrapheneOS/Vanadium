@@ -5,14 +5,14 @@ Subject: [PATCH] filter-lists: Update script to also include saving sha256
  digest
 
 ---
- .../android_config/filter_lists/filter_list_download.py   | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ .../android_config/filter_lists/filter_list_download.py    | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/vanadium/android_config/filter_lists/filter_list_download.py b/vanadium/android_config/filter_lists/filter_list_download.py
-index 694bcd8f39922..6787c89ebb6a5 100644
+index 257d00449c0b5..dfa45787fd654 100644
 --- a/vanadium/android_config/filter_lists/filter_list_download.py
 +++ b/vanadium/android_config/filter_lists/filter_list_download.py
-@@ -3,14 +3,16 @@
+@@ -3,6 +3,8 @@
  # SPDX-License-Identifier: GPL-v2.0
  
  import argparse
@@ -21,16 +21,15 @@ index 694bcd8f39922..6787c89ebb6a5 100644
  import os
  import ssl
  import sys
- import urllib.request
+@@ -11,6 +13,7 @@ import urllib.request
  
--
  def FetchAndGenerateFilterList(args):
-     urls = list(set(args.urls))
+     urls = sorted(list(set(args.urls)))
 +    hasher = hashlib.new('sha256')
      for url in urls:
          if not url.startswith("https://"):
              continue
-@@ -22,6 +24,10 @@ def FetchAndGenerateFilterList(args):
+@@ -23,6 +26,10 @@ def FetchAndGenerateFilterList(args):
                  if not buf:
                      break
                  args.output.write(buf)
