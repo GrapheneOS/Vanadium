@@ -12,7 +12,7 @@ Subject: [PATCH] add support for german-specific language content filtering
  4 files changed, 26 insertions(+)
 
 diff --git a/DEPS b/DEPS
-index 2fedf81ab0f17..4f3a4f63cc120 100644
+index f93fcb0d184cc..576431789e951 100644
 --- a/DEPS
 +++ b/DEPS
 @@ -5784,6 +5784,16 @@ hooks = [
@@ -25,7 +25,7 @@ index 2fedf81ab0f17..4f3a4f63cc120 100644
 +    'action': ['python3',
 +              'src/vanadium/android_config/filter_lists/filter_list_download.py',
 +              '--output',
-+              'src/vanadium/android_config/filter_lists/filter_lists_germany.txt',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_germany.txt',
 +              '--urls',
 +              'https://easylist.to/easylistgermany/easylistgermany.txt']
 +  },
@@ -45,7 +45,7 @@ index bb36a0ba6a200..72e386926ca0f 100644
    ]
  }
 diff --git a/vanadium/android_config/filter_lists/BUILD.gn b/vanadium/android_config/filter_lists/BUILD.gn
-index aedd0eaa93493..f700443572f7a 100644
+index 311f4facef0d5..c22e1585195c7 100644
 --- a/vanadium/android_config/filter_lists/BUILD.gn
 +++ b/vanadium/android_config/filter_lists/BUILD.gn
 @@ -14,4 +14,12 @@ generate_unindexed_ruleset_assets("ruleset_assets") {
@@ -56,7 +56,7 @@ index aedd0eaa93493..f700443572f7a 100644
 +
 +generate_unindexed_ruleset_assets("ruleset_germany_assets") {
 +  inputs = [
-+    "//vanadium/android_config/filter_lists/filter_lists_germany.txt",
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_germany.txt",
 +  ]
 +
 +  asset_file_name = "unindexed_ruleset_germany"
