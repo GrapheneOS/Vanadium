@@ -8,12 +8,12 @@ Subject: [PATCH] disable learn more link in incognito new tab
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
-index 648973c609695..3b0630cf394b6 100644
+index f162cb0c929c2..a90543f2bfa62 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
-@@ -365,8 +365,8 @@ public class IncognitoDescriptionView extends LinearLayout {
-                         R.color.default_text_color_link_light,
-                         (view) -> mLearnMore.callOnClick());
+@@ -426,8 +426,8 @@ public class IncognitoDescriptionView extends LinearLayout {
+                 new ChromeClickableSpan(
+                         mLearnMore.getSpanColor(), (view) -> mLearnMore.callOnClick());
  
 -        boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
 -        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);

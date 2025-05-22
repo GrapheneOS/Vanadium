@@ -4,17 +4,18 @@ Date: Fri, 28 Jun 2019 16:56:37 -0400
 Subject: [PATCH] stop ignoring download location prompt setting
 
 ---
- .../DownloadLocationDialogCoordinator.java       | 16 ----------------
- 1 file changed, 16 deletions(-)
+ .../DownloadLocationDialogCoordinator.java      | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
 diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
-index 9a992ea271fef..0ba61cd9726ae 100644
+index 1d960b0a7a104..7d1fd1c732dad 100644
 --- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
 +++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
-@@ -142,22 +142,6 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
-      * @param dirs An list of available download directories.
-      */
-     private void onDirectoryOptionsRetrieved(ArrayList<DirectoryOption> dirs) {
+@@ -158,23 +158,6 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
+         assertNonNull(mModalDialogManager);
+         assertNonNull(mSuggestedPath);
+         assertNonNull(mProfile);
+-
 -        // If there is only one directory available, don't show the default dialog, and set the
 -        // download directory to default. Dialog will still show for other types of dialogs, like
 -        // name conflict or disk error or if Incognito download warning is needed.

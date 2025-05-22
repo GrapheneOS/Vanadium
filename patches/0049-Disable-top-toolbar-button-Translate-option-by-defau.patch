@@ -8,13 +8,13 @@ Subject: [PATCH] Disable top toolbar button Translate option by default
  1 file changed, 5 insertions(+)
 
 diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
-index b10df6c9a86fa..83ee5d507016d 100644
+index b3021b530d305..17a74186023c6 100644
 --- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
 +++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
-@@ -152,8 +152,13 @@ public class RadioButtonGroupAdaptiveToolbarPreference extends Preference
+@@ -169,8 +169,13 @@ public class RadioButtonGroupAdaptiveToolbarPreference extends Preference
+         updateVoiceButtonVisibility();
          updateReadAloudButtonVisibility();
          updatePageSummaryButtonVisibility();
-         updateOpenInBrowserButtonVisibility();
 +        updateRemoveUnneededButtons();
          mButtonsInitialized = true;
      }
@@ -24,4 +24,4 @@ index b10df6c9a86fa..83ee5d507016d 100644
 +    }
  
      @Override
-     public void onCheckedChanged(RadioGroup group, int checkedId) {
+     public void onCheckedChanged(@Nullable RadioGroup group, int checkedId) {

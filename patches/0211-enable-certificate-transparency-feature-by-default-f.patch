@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 14 May 2025 05:22:22 +0000
+Subject: [PATCH] enable certificate transparency feature by default for
+ browser
+
+---
+ chrome/browser/browser_features.cc | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/chrome/browser/browser_features.cc b/chrome/browser/browser_features.cc
+index fdf45d1c2c8ea..a2599a833ceb5 100644
+--- a/chrome/browser/browser_features.cc
++++ b/chrome/browser/browser_features.cc
+@@ -49,11 +49,7 @@ BASE_FEATURE(kBookmarkTriggerForPrerender2,
+ // switch.
+ BASE_FEATURE(kCertificateTransparencyAskBeforeEnabling,
+              "CertificateTransparencyAskBeforeEnabling",
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+              base::FEATURE_ENABLED_BY_DEFAULT);
+-#else
+-             base::FEATURE_DISABLED_BY_DEFAULT);
+-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ 
+ // Enables using network time for certificate verification. If enabled, network
+ // time will be used to verify certificate validity, however certificates that

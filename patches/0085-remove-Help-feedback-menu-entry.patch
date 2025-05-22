@@ -4,16 +4,16 @@ Date: Thu, 15 Apr 2021 02:14:37 -0400
 Subject: [PATCH] remove Help & feedback menu entry
 
 ---
- .../browser/app/appmenu/AppMenuPropertiesDelegateImpl.java      | 2 ++
+ .../browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java    | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-index 6e7a92c95e4ad..f1d5d80467b2c 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-@@ -596,6 +596,8 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
-         menu.findItem(R.id.reader_mode_prefs_id)
-                 .setVisible(isCurrentTabNotNull && shouldShowReaderModePrefs(currentTab));
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
+index de654a68cf184..b1f47270a7ac9 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
+@@ -304,6 +304,8 @@ public class TabbedAppMenuPropertiesDelegate extends AppMenuPropertiesDelegateIm
+         menu.findItem(R.id.reader_mode_menu_id)
+                 .setVisible(DomDistillerFeatures.showAlwaysOnEntryPoint());
  
 +        menu.findItem(R.id.help_id).setVisible(false);
 +

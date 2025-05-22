@@ -10,10 +10,10 @@ Subject: [PATCH] Support for extended version name and increments
  3 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index df72ff54c0eb2..106140bc5caaa 100755
+index fcd97d2ff81fd..2e7f2a06da17a 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -317,7 +317,7 @@ def TranslateVersionCode(version_code, is_webview=False):
+@@ -319,7 +319,7 @@ def TranslateVersionCode(version_code, is_webview=False):
                                 is_next_build)
  
  
@@ -22,7 +22,7 @@ index df72ff54c0eb2..106140bc5caaa 100755
    """Build dict of version codes for the specified build architecture. Eg:
  
    {
-@@ -340,7 +340,7 @@ def GenerateVersionCodes(build_number, patch_number, arch):
+@@ -342,7 +342,7 @@ def GenerateVersionCodes(build_number, patch_number, arch):
  
    Thus, this method is responsible for the final two digits of versionCode.
    """
@@ -31,7 +31,7 @@ index df72ff54c0eb2..106140bc5caaa 100755
  
    mfg, bitness = _ARCH_TO_MFG_AND_BITNESS[arch]
  
-@@ -378,8 +378,8 @@ def main():
+@@ -380,8 +380,8 @@ def main():
    elif args.version_name:
      if not args.arch:
        parser.error('Required --arch')

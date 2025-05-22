@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 12 Dec 2024 07:09:40 +0000
+Subject: [PATCH] Reduce user agent and client hints for webview
+
+---
+ android_webview/browser/aw_field_trials.cc     |  4 ----
+ android_webview/common/aw_features.cc          |  2 +-
+ .../vanadium/config/host/ConfigGenerator.java  | 18 ++++++++++++++++++
+ 3 files changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
+index 23367a41e3b72..d2c5e81d66ac3 100644
+--- a/android_webview/browser/aw_field_trials.cc
++++ b/android_webview/browser/aw_field_trials.cc
+@@ -112,10 +112,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+   // HDR does not support webview yet. See crbug.com/1493153 for an explanation.
+   aw_feature_overrides.DisableFeature(ui::kAndroidHDR);
+ 
+-  // Disable Reducing User Agent minor version on WebView.
+-  aw_feature_overrides.DisableFeature(
+-      blink::features::kReduceUserAgentMinorVersion);
+-
+   // Disable fenced frames on WebView.
+   aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
+ 
+diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
+index 2c318f6070e0c..689f7efc6f9fa 100644
+--- a/android_webview/common/aw_features.cc
++++ b/android_webview/common/aw_features.cc
+@@ -171,7 +171,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
+ // This enables reducing webview user-agent android version and device model.
+ BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
+              "WebViewReduceUAAndroidVersionDeviceModel",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // This enables WebView crashes.
+ BASE_FEATURE(kWebViewEnableCrash,
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 84ffa5ba4a43d..5f219a93183df 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -44,6 +44,24 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.WEBVIEW))
++                                .setMaxVersion(7103_087_99)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("ReduceUserAgentMinorVersion")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                        ,
++                        flag(flagParams -> flagParams.setFlagName("WebViewReduceUAAndroidVersionDeviceModel")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                        ,
++                        flag(flagParams -> flagParams.setFlagName("ClientHintsFromReducedUA")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 
