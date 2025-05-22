@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 26 Feb 2025 09:46:02 +0000
+Subject: [PATCH] Support for excluding crashpad in compiling chrome targets
+
+---
+ chrome/android/chrome_ext_args.gni        | 1 +
+ chrome/android/chrome_public_apk_tmpl.gni | 4 ++++
+ chrome/android/trichrome.gni              | 5 +++++
+ 3 files changed, 10 insertions(+)
+
+diff --git a/chrome/android/chrome_ext_args.gni b/chrome/android/chrome_ext_args.gni
+index 4c76245f15f45..34ce37bea69b4 100644
+--- a/chrome/android/chrome_ext_args.gni
++++ b/chrome/android/chrome_ext_args.gni
+@@ -3,4 +3,5 @@
+ # found in the LICENSE file.
+ 
+ declare_args() {
++  include_crashpad = false
+ }
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index c97c8ea79bf54..e4b7fafa9124b 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -9,6 +9,7 @@ import("//build/config/android/rules.gni")
+ import("//build/config/compiler/compiler.gni")
+ import("//build/config/locales.gni")
+ import("//build/toolchain/gcc_toolchain.gni")
++import("//chrome/android/chrome_ext_args.gni")
+ import("//chrome/android/features/dev_ui/dev_ui_module.gni")
+ import("//chrome/android/modules/chrome_bundle_tmpl.gni")
+ import("//chrome/android/trichrome.gni")
+@@ -664,6 +665,9 @@ template("chrome_common_apk_or_module_tmpl") {
+     }
+ 
+     # TODO(agrieve): Use Crashpad trampoline in chrome_public_apk.
++    if (!include_crashpad) {
++      # Empty loadable module for now until stub crashpad shared object is needed.
++    } else
+     if (!_is_monochrome && !_is_trichrome) {
+       deps +=
+           [ "//components/crash/core/app:chrome_crashpad_handler_named_as_so" ]
+diff --git a/chrome/android/trichrome.gni b/chrome/android/trichrome.gni
+index 65c97d56a00df..30342f2c4ddc0 100644
+--- a/chrome/android/trichrome.gni
++++ b/chrome/android/trichrome.gni
+@@ -6,6 +6,7 @@ import("//build/config/android/abi.gni")
+ import("//build/config/android/channel.gni")
+ import("//build/config/android/config.gni")
+ import("//build/config/android/rules.gni")
++import("//chrome/android/chrome_ext_args.gni")
+ import("//chrome/android/modules/buildflags.gni")
+ import("//chrome/version.gni")
+ import("//device/vr/buildflags/buildflags.gni")
+@@ -155,6 +156,10 @@ template("trichrome_library_apk_tmpl") {
+     # https://chromium.googlesource.com/chromium/src/+/main/docs/android_native_libraries.md#Crashpad-Packaging
+     loadable_modules = []
+     secondary_abi_loadable_modules = []
++    if (!include_crashpad) {
++      not_needed([ "_secondary_out_dir" ])
++      # Empty loadable module for now until stub crashpad shared object is needed.
++    } else
+     if (_include_primary_abi) {
+       deps += [
+         "//third_party/crashpad/crashpad/handler:crashpad_handler_trampoline",

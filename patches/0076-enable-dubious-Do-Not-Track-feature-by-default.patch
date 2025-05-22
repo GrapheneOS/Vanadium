@@ -8,15 +8,15 @@ Subject: [PATCH] enable dubious Do Not Track feature by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/privacy_sandbox/tracking_protection_prefs.cc b/components/privacy_sandbox/tracking_protection_prefs.cc
-index e4e71aaaab650..20e83574a780a 100644
+index a987d3093edaa..1366aef733897 100644
 --- a/components/privacy_sandbox/tracking_protection_prefs.cc
 +++ b/components/privacy_sandbox/tracking_protection_prefs.cc
-@@ -47,7 +47,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
-                              base::Time());
+@@ -12,7 +12,7 @@ namespace privacy_sandbox::tracking_protection {
  
+ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(
 -      prefs::kEnableDoNotTrack, false,
 +      prefs::kEnableDoNotTrack, true,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-   registry->RegisterBooleanPref(prefs::kUserBypass3pcExceptionsMigrated, false);
- 
+   registry->RegisterBooleanPref(
+       prefs::kFingerprintingProtectionEnabled, true,

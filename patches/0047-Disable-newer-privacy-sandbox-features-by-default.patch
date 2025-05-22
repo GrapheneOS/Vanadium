@@ -10,7 +10,7 @@ Subject: [PATCH] Disable newer privacy sandbox features by default
  3 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
-index 57681d208b3dd..af43988a14e39 100644
+index 03301e5ff2980..7ec6cb743b4fd 100644
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
 @@ -21,7 +21,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
@@ -23,10 +23,10 @@ index 57681d208b3dd..af43988a14e39 100644
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index f5989ac40527c..6e1f9d71210c5 100644
+index 50aeaa0a1beee..fbdcfee51ed92 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -464,7 +464,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
+@@ -476,7 +476,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
  // Kill switch for the Topics API.
  BASE_FEATURE(kBrowsingTopics,
               "BrowsingTopics",
@@ -36,10 +36,10 @@ index f5989ac40527c..6e1f9d71210c5 100644
  // Enable the shared storage API. Note that enabling this feature does not
  // automatically expose this API to the web, it only allows the element to be
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 720c38313bd13..f4a12ccc6792f 100644
+index 012857a0e2db0..240475e677c31 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -251,13 +251,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+@@ -249,13 +249,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
  // is enabled.)
  BASE_FEATURE(kBrowsingTopicsDocumentAPI,
               "BrowsingTopicsDocumentAPI",
