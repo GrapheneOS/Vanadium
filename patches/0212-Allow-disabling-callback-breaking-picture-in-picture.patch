@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 26 May 2025 08:54:30 +0000
+Subject: [PATCH] Allow disabling callback breaking picture-in-picture
+ functionality via command line
+
+---
+ .../browser/fullscreen/FullscreenHtmlApiHandlerBase.java    | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java b/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
+index a326a5b1e637a..b89851c7b615f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
+@@ -236,7 +236,11 @@ public abstract class FullscreenHtmlApiHandlerBase
+             implements MultiWindowModeStateDispatcher.MultiWindowModeObserver {
+         @Override
+         public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+-            if (mTab != null && !mIsInMultiWindowMode && isInMultiWindowMode) {
++            var cmdLine = org.chromium.base.CommandLine.getInstance();
++            boolean disableExitFullscreenCallback = cmdLine != null
++                    && cmdLine.hasSwitch("skip-fullscreen-callback-for-pip-compat");
++            if (mTab != null && !mIsInMultiWindowMode && isInMultiWindowMode
++                    && !disableExitFullscreenCallback) {
+                 onExitFullscreen(mTab);
+             }
+             mIsInMultiWindowMode = isInMultiWindowMode;
