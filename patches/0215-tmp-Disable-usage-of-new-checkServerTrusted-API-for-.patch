@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 14 May 2025 12:25:22 +0000
+Subject: [PATCH] tmp: Disable usage of new checkServerTrusted API for bp1f
+ builds
+
+This is necessary to allow testing of downstream builds with bp1f build
+targets, which treats the current sdk as 36. However, the API used
+hasn't been included in the current open source codebase as of May 2025.
+---
+ .../app/vanadium/config/host/ConfigGenerator.java        | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 26539a1d94262..c01e2b8c19d4c 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -80,6 +80,15 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW))
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("disable-new-check-server-trusted-api")
++                                .setFlagType(FlagType.ENABLED_SWITCH)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

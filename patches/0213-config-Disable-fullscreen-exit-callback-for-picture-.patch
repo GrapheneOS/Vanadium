@@ -1,18 +1,15 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
-Date: Wed, 14 May 2025 12:25:22 +0000
-Subject: [PATCH] tmp: Disable usage of new checkServerTrusted API for bp1f
- builds
+From: fgei <fgei@gmail.com>
+Date: Mon, 26 May 2025 08:55:39 +0000
+Subject: [PATCH] config: Disable fullscreen exit callback for
+ picture-in-picture compat
 
-This is necessary to allow testing of downstream builds with bp1f build
-targets, which treats the current sdk as 36. However, the API used
-hasn't been included in the current open source codebase as of May 2025.
 ---
  .../app/vanadium/config/host/ConfigGenerator.java        | 9 +++++++++
  1 file changed, 9 insertions(+)
 
 diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-index 393c351296e4c..29a3099ef81d3 100644
+index 393c351296e4c..26539a1d94262 100644
 --- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 +++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 @@ -71,6 +71,15 @@ public class ConfigGenerator {
@@ -20,10 +17,10 @@ index 393c351296e4c..29a3099ef81d3 100644
                  ))
          ));
 +        configList.add(config(configParams -> configParams.setSpec(
-+                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW))
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER))
 +                        ))
 +                .addAllFlags(flags(
-+                        flag(flagParams -> flagParams.setFlagName("disable-new-check-server-trusted-api")
++                        flag(flagParams -> flagParams.setFlagName("skip-fullscreen-callback-for-pip-compat")
 +                                .setFlagType(FlagType.ENABLED_SWITCH)
 +                        )
 +                ))
