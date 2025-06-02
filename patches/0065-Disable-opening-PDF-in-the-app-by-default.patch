@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <quh4gko8.vanadium@gmail.com>
+Date: Sun, 1 Jun 2025 15:36:35 +0000
+Subject: [PATCH] Disable opening PDF in the app by default
+
+---
+ content/public/common/content_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
+index 2016abf289e54..fe96d72f83aeb 100644
+--- a/content/public/common/content_features.cc
++++ b/content/public/common/content_features.cc
+@@ -1380,7 +1380,7 @@ BASE_FEATURE(kAccessibilityManageBroadcastReceiverOnBackground,
+ // Enable open PDF inline on Android.
+ BASE_FEATURE(kAndroidOpenPdfInline,
+              "AndroidOpenPdfInline",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // A feature to enable launch handler and file handler api for Chrome on Android
+ BASE_FEATURE(kAndroidWebAppLaunchHandler,
