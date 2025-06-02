@@ -1,82 +1,59 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: fgei <fgei@gmail.com>
-Date: Thu, 1 Feb 2024 17:58:40 +0000
+Date: Thu, 1 Feb 2024 17:58:19 +0000
 Subject: [PATCH] Extend opening links from external apps in incognito for
- search tabs
+ custom tabs
 
 ---
- .../chrome/browser/LaunchIntentDispatcher.java        |  2 ++
- .../chrome/browser/LaunchIntentDispatcherHooks.java   |  6 ++++++
- .../chrome/browser/searchwidget/SearchActivity.java   |  3 ++-
- .../browser/searchwidget/SearchActivityHooks.java     | 11 +++++++++++
- 4 files changed, 21 insertions(+), 1 deletion(-)
+ .../chrome/browser/LaunchIntentDispatcher.java  |  1 +
+ .../browser/LaunchIntentDispatcherHooks.java    | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 1acc03b34f775..f6fbffa0693b3 100644
+index 500a772a2d34a..1acc03b34f775 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -288,6 +288,8 @@ public class LaunchIntentDispatcher {
-             searchActivityIntent.setClass(
-                     ContextUtils.getApplicationContext(), SearchActivity.class);
-             searchActivityIntent.putExtra(SearchManager.QUERY, query);
-+            searchActivityIntent = LaunchIntentDispatcherHooks.maybeModifySearchIntents(
-+                    mActivity, searchActivityIntent);
-             mActivity.startActivity(searchActivityIntent);
-         }
-         return true;
+@@ -333,6 +333,7 @@ public class LaunchIntentDispatcher {
+         newIntent.setAction(Intent.ACTION_VIEW);
+         newIntent.setData(uri);
+         newIntent.setClassName(context, CustomTabActivity.class.getName());
++        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, newIntent);
+         // Make sure the result of the CustomTabActivity is forwarded to the client.
+         newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+ 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index c282d5311d57f..6cdfa50279aa0 100644
+index aaec00177de6e..c282d5311d57f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-@@ -29,4 +29,10 @@ final class LaunchIntentDispatcherHooks {
+@@ -1,9 +1,20 @@
+ package org.chromium.chrome.browser;
  
-         return newIntent;
-     }
+ import android.app.Activity;
++import android.content.Context;
+ import android.content.Intent;
+ 
+ final class LaunchIntentDispatcherHooks {
 +
-+    static Intent maybeModifySearchIntents(Activity activity, Intent intent) {
-+        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
++    private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
++        Intent newIntent = intent;
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            newIntent = TabPreferencesUtils.appendNeededIncognitoExtras(context, newIntent);
++        }
 +
 +        return newIntent;
 +    }
- }
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 500c6e4a0b318..262d10087503f 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -490,7 +490,8 @@ public class SearchActivity extends AsyncInitializationActivity
- 
-     @Override
-     protected OneshotSupplier<ProfileProvider> createProfileProvider() {
--        boolean isIncognito = SearchActivityUtils.getIntentIncognitoStatus(getIntent());
-+        boolean isIncognito = SearchActivityUtils.getIntentIncognitoStatus(getIntent())
-+                || SearchActivityHooks.shouldOpenInIncognito(getIntent());
-         ActivityProfileProvider profileProvider =
-                 new ActivityProfileProvider(getLifecycleDispatcher());
-         profileProvider.onAvailable(
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 791a9ed59a2f3..f3e122070da59 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-@@ -3,6 +3,8 @@ package org.chromium.chrome.browser.searchwidget;
- import android.app.Activity;
- import android.content.Intent;
- 
-+import org.chromium.base.IntentUtils;
-+import org.chromium.chrome.browser.IntentHandler;
- import org.chromium.chrome.browser.TabPreferencesUtils;
- import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
- 
-@@ -20,4 +22,13 @@ public class SearchActivityHooks {
++
+     static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
+         Intent newIntent = intent;
+         if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
+@@ -12,4 +23,10 @@ final class LaunchIntentDispatcherHooks {
  
          return newIntent;
      }
 +
-+    static boolean shouldOpenInIncognito(Intent intent) {
-+        if (!IntentUtils.isTrustedIntentFromSelf(intent)) {
-+            return false;
-+        }
++    static Intent maybeModifyCustomTabIntents(Context context, Intent intent) {
++        Intent newIntent = maybeCreateIncognitoTabIntentFor(context, intent);
 +
-+        return IntentUtils.safeGetBooleanExtra(intent,
-+                IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
++        return newIntent;
 +    }
  }

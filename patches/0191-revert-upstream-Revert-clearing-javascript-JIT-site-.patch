@@ -1,0 +1,117 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 14 Oct 2024 07:34:38 +0000
+Subject: [PATCH] revert-upstream: Revert clearing javascript JIT site settings
+
+The bugfix upstream made is intended to clear the javascript JIT site
+settings which was wired to a different site settings UI intended to
+disable javascript optimizers instead of javascript JIT. Since the
+said setting is exposed in Vanadium, do not clear javascript JIT site
+settings.
+---
+ .../browser/content_settings_default_provider.cc     | 12 ++++++------
+ .../core/browser/content_settings_pref_provider.cc   | 12 ++++++------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/components/content_settings/core/browser/content_settings_default_provider.cc b/components/content_settings/core/browser/content_settings_default_provider.cc
+index cf2cd2a839cde..59d6b26725c20 100644
+--- a/components/content_settings/core/browser/content_settings_default_provider.cc
++++ b/components/content_settings/core/browser/content_settings_default_provider.cc
+@@ -62,7 +62,7 @@ const char kObsoletePpapiBrokerDefaultPref[] =
+ constexpr char kObsoleteFederatedIdentityDefaultPref[] =
+     "profile.default_content_setting_values.fedcm_active_session";
+ 
+-#if !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ // This setting was accidentally bound to a UI surface intended for a different
+ // setting (https://crbug.com/364820109). It should not have been settable
+ // except via enterprise policy, so it is temporarily cleaned up here to revert
+@@ -72,7 +72,7 @@ constexpr char kBug364820109DefaultSettingToClear[] =
+     "profile.default_content_setting_values.javascript_jit";
+ constexpr char kBug364820109AlreadyWorkedAroundPref[] =
+     "profile.did_work_around_bug_364820109_default";
+-#endif  // !BUILDFLAG(IS_IOS)
++#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ 
+ ContentSetting GetDefaultValue(const WebsiteSettingsInfo* info) {
+   const base::Value& initial_default = info->initial_default_value();
+@@ -125,10 +125,10 @@ void DefaultProvider::RegisterProfilePrefs(
+ #endif  // !BUILDFLAG(IS_IOS)
+   registry->RegisterIntegerPref(kObsoleteFederatedIdentityDefaultPref, 0);
+ 
+-#if !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+   // TODO(https://crbug.com/367181093): clean this up.
+   registry->RegisterBooleanPref(kBug364820109AlreadyWorkedAroundPref, false);
+-#endif  // !BUILDFLAG(IS_IOS)
++#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ }
+ 
+ DefaultProvider::DefaultProvider(PrefService* prefs,
+@@ -366,13 +366,13 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
+ #endif  // !BUILDFLAG(IS_IOS)
+   prefs_->ClearPref(kObsoleteFederatedIdentityDefaultPref);
+ 
+-#if !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+   // TODO(https://crbug.com/367181093): clean this up.
+   if (!prefs_->GetBoolean(kBug364820109AlreadyWorkedAroundPref)) {
+     prefs_->ClearPref(kBug364820109DefaultSettingToClear);
+     prefs_->SetBoolean(kBug364820109AlreadyWorkedAroundPref, true);
+   }
+-#endif  // !BUILDFLAG(IS_IOS)
++#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ }
+ 
+ void DefaultProvider::RecordHistogramMetrics() {
+diff --git a/components/content_settings/core/browser/content_settings_pref_provider.cc b/components/content_settings/core/browser/content_settings_pref_provider.cc
+index c6976132e4588..20ce80f6a5636 100644
+--- a/components/content_settings/core/browser/content_settings_pref_provider.cc
++++ b/components/content_settings/core/browser/content_settings_pref_provider.cc
+@@ -58,7 +58,7 @@ const char
+ constexpr char kObsoleteFederatedIdentityActiveSesssionExceptionsPref[] =
+     "profile.content_settings.exceptions.fedcm_active_session";
+ 
+-#if !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ // This setting was accidentally bound to a UI surface intended for a different
+ // setting (https://crbug.com/364820109). It should not have been settable
+ // except via enterprise policy, so it is temporarily cleaned up here to revert
+@@ -68,7 +68,7 @@ constexpr char kBug364820109ExceptionSettingToClear[] =
+     "profile.content_settings.exceptions.javascript_jit";
+ constexpr char kBug364820109AlreadyWorkedAroundPref[] =
+     "profile.did_work_around_bug_364820109_exceptions";
+-#endif  // !BUILDFLAG(IS_IOS)
++#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ 
+ }  // namespace
+ 
+@@ -106,10 +106,10 @@ void PrefProvider::RegisterProfilePrefs(
+       kObsoleteGetDisplayMediaSetAutoSelectAllScreensAllowedForUrlsExceptionsPref);
+   registry->RegisterListPref(
+       kObsoleteFederatedIdentityActiveSesssionExceptionsPref);
+-#if !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+   // TODO(https://crbug.com/367181093): clean this up.
+   registry->RegisterBooleanPref(kBug364820109AlreadyWorkedAroundPref, false);
+-#endif  // !BUILDFLAG(IS_IOS)
++#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ }
+ 
+ PrefProvider::PrefProvider(PrefService* prefs,
+@@ -445,13 +445,13 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
+       kObsoleteGetDisplayMediaSetAutoSelectAllScreensAllowedForUrlsExceptionsPref);
+   prefs_->ClearPref(kObsoleteFederatedIdentityActiveSesssionExceptionsPref);
+ 
+-#if !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+   // TODO(https://crbug.com/367181093): clean this up.
+   if (!prefs_->GetBoolean(kBug364820109AlreadyWorkedAroundPref)) {
+     prefs_->ClearPref(kBug364820109ExceptionSettingToClear);
+     prefs_->SetBoolean(kBug364820109AlreadyWorkedAroundPref, true);
+   }
+-#endif  // !BUILDFLAG(IS_IOS)
++#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+ }
+ 
+ void PrefProvider::SetClockForTesting(const base::Clock* clock) {

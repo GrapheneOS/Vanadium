@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Wed, 10 Apr 2024 15:55:52 +0000
+Subject: [PATCH] config: Add new definitions for additional components and its
+ conditions
+
+---
+ vanadium/android_config/proto/config.proto | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/vanadium/android_config/proto/config.proto b/vanadium/android_config/proto/config.proto
+index 7ffeea7f9cd6b..a7d170ea7f260 100644
+--- a/vanadium/android_config/proto/config.proto
++++ b/vanadium/android_config/proto/config.proto
+@@ -65,6 +65,7 @@ message Component {
+   int64 version_code = 3;
+   repeated Flag dependent_flags = 4;
+   ComponentApkSpec apk_spec = 5;
++  repeated AdditionalComponent additional_components = 6;
+ 
+   // Next tag: 2
+   enum ComponentType {
+@@ -79,4 +80,13 @@ message Component {
+     string pkg_name = 1;
+     repeated bytes sha256_certs = 2;
+   }
++
++  message AdditionalComponent {
++    string component_file_name = 2;
++    repeated ComponentCondition conditions = 100;
++  }
++
++  message ComponentCondition {
++    string language = 1;
++  }
+ }
