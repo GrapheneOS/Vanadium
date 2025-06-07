@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: GrapheneOS <contact@grapheneos.org>
+Date: Sat, 7 Jun 2025 09:49:08 -0400
+Subject: [PATCH] Revert "tmp: config: Enable Local Network Permission access
+ and prompt"
+
+This reverts commit f4d89c8e76faa94236f97e5e976d0e0e57110f0c.
+---
+ .../app/vanadium/config/host/ConfigGenerator.java      | 10 ----------
+ 1 file changed, 10 deletions(-)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index b7f2829983335..26539a1d94262 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -80,16 +80,6 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
+-        configList.add(config(configParams -> configParams.setSpec(
+-                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER))
+-                                .setMaxVersion(7151_072_99)
+-                        ))
+-                .addAllFlags(flags(
+-                        flag(flagParams -> flagParams.setFlagName("LocalNetworkAccessChecks:LocalNetworkAccessChecksWarn/false")
+-                                .setFlagType(FlagType.ENABLED_FEATURE)
+-                        )
+-                ))
+-        ));
+         return sortConfigs(configList);
+     }
+ 
