@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -o errexit -o nounset -o pipefail
+
+[[ $# -eq 1 ]] || {
+    echo "Expected 2 arguments, got $# arguments"
+    exit 1
+}
+
+out_dir=$1
+path_to_store_mapping=$2
+mkdir -p ${path_to_store_mapping}
+cp -r ${out_dir{/Default ${path_to_store_mapping}
+cp ${out_dir}/Default/apks/*.apk.mapping ${path_to_store_mapping}
