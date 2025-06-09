@@ -1,0 +1,99 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wojciech Zwonarz <wzwonarz@google.com>
+Date: Mon, 9 Jun 2025 03:29:05 -0700
+Subject: [PATCH] Fix exiting from fullscreen mode when going to PIP
+
+On Pixel phones on some pages when playing video in full screen mode and
+home button is pushed the page should transition into video PIP. The
+onMultiWindowMode callback implementation prevents it as it exits FS
+when entering multi window mode.
+
+(cherry picked from commit 592da5455de5e3a0b8a9aa117d0d9aae99df3808)
+
+Bug: 416443642
+Change-Id: I39d54311a438f932ebb2b3cf629da1881a806e93
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6586687
+Reviewed-by: Sirisha Kavuluru <skavuluru@google.com>
+Reviewed-by: Charles Hager <clhager@google.com>
+Commit-Queue: Wojciech Zwonarz <wzwonarz@google.com>
+Cr-Original-Commit-Position: refs/heads/main@{#1471121}
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6625071
+Bot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>
+Auto-Submit: Erhu Akpobaro <eakpobaro@google.com>
+Commit-Queue: Erhu Akpobaro <eakpobaro@google.com>
+Reviewed-by: Erhu Akpobaro <eakpobaro@google.com>
+Owners-Override: Erhu Akpobaro <eakpobaro@google.com>
+Cr-Commit-Position: refs/branch-heads/7228@{#4}
+Cr-Branched-From: 24d0c249ce6f69af9740ed07bfd76bcb3d27caaf-refs/heads/main@{#1471082}
+---
+ .../FullscreenHtmlApiHandlerBase.java         | 32 +++++++++++++------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java b/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
+index a326a5b1e637a..e96ee2ec07d6b 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
+@@ -236,8 +236,18 @@ public abstract class FullscreenHtmlApiHandlerBase
+             implements MultiWindowModeStateDispatcher.MultiWindowModeObserver {
+         @Override
+         public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+-            if (mTab != null && !mIsInMultiWindowMode && isInMultiWindowMode) {
+-                onExitFullscreen(mTab);
++            if (ChromeFeatureList.isEnabled(ChromeFeatureList.DISPLAY_EDGE_TO_EDGE_FULLSCREEN)) {
++                // Fix for https://crbug.com/416443642 exiting from full screen mode when
++                // transition to PIP is done.
++                // When playing video in full screen mode and the home button is pushed the page
++                // should transition into PIP. Keeping it the same for desktops, as PIP can be
++                // entered when Chrome is playing video in background.
++                if (mTab != null
++                        && !mActivity.isInPictureInPictureMode() // Not in the PIP mode
++                        && !mIsInMultiWindowMode // Window was in the fullscreen mode
++                        && isInMultiWindowMode) { // Window is not in fullscreen anymore
++                    onExitFullscreen(mTab);
++                }
+             }
+             mIsInMultiWindowMode = isInMultiWindowMode;
+         }
+@@ -455,7 +465,7 @@ public abstract class FullscreenHtmlApiHandlerBase
+                                     mDisplayEdgeToEdgeFullscreenToBeExited = false;
+                                 }
+                             };
+-                    enterFullscreenMode(resultCb);
++                    maybeEnterActivityFullscreenMode(resultCb);
+                 }
+             }
+ 
+@@ -495,7 +505,7 @@ public abstract class FullscreenHtmlApiHandlerBase
+         // when the window was in free form mode. This prevent exiting window fullscreen mode when
+         // user requested it independently.
+         if (mDisplayEdgeToEdgeFullscreenToBeExited) {
+-            maybeExitFullscreenMode(null);
++            maybeExitActivityFullscreenMode(null);
+             mDisplayEdgeToEdgeFullscreenToBeExited = false;
+         }
+ 
+@@ -801,15 +811,19 @@ public abstract class FullscreenHtmlApiHandlerBase
+         window.setAttributes(attrs);
+     }
+ 
+-    private void enterFullscreenMode(OutcomeReceiver<Void, Throwable> callback) {
+-        runRequestFullscreenMode(callback, Activity.FULLSCREEN_MODE_REQUEST_ENTER);
++    private void maybeEnterActivityFullscreenMode(OutcomeReceiver<Void, Throwable> callback) {
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
++            runRequestActivityFullscreenMode(callback, Activity.FULLSCREEN_MODE_REQUEST_ENTER);
++        }
+     }
+ 
+-    private void maybeExitFullscreenMode(OutcomeReceiver<Void, Throwable> callback) {
+-        runRequestFullscreenMode(callback, Activity.FULLSCREEN_MODE_REQUEST_EXIT);
++    private void maybeExitActivityFullscreenMode(OutcomeReceiver<Void, Throwable> callback) {
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
++            runRequestActivityFullscreenMode(callback, Activity.FULLSCREEN_MODE_REQUEST_EXIT);
++        }
+     }
+ 
+-    private void runRequestFullscreenMode(
++    private void runRequestActivityFullscreenMode(
+             OutcomeReceiver<Void, Throwable> callback, int fullscreenModeRequest) {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+             mActivity.requestFullscreenMode(fullscreenModeRequest, callback);
