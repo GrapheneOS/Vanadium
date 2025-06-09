@@ -1,0 +1,269 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chris Thompson <cthomp@chromium.org>
+Date: Tue, 6 May 2025 08:13:14 -0700
+Subject: [PATCH] [LNA] Add subframe navigation support to LNA permission
+
+This expands the implementation of
+OnLocalNetworkAccessPermissionRequired() to also support the case of
+subframe navigations (looking up and requesting the permission for the
+embedding frame). This also sets up the Worker context case, which will
+be added in a followup CL (crbug.com/404887282).
+
+This also adds new unit tests to cover each different context type.
+
+Bug: 404887285
+Change-Id: I69ee7b69d78fa3681946dcb3a84cd14d5077576f
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6450961
+Reviewed-by: Hubert Chao <hchao@chromium.org>
+Commit-Queue: Chris Thompson <cthomp@chromium.org>
+Reviewed-by: Camille Lamy <clamy@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1456351}
+---
+ content/browser/storage_partition_impl.cc     | 127 +++++++++++-------
+ .../storage_partition_impl_unittest.cc        |  65 ++++++++-
+ 2 files changed, 144 insertions(+), 48 deletions(-)
+
+diff --git a/content/browser/storage_partition_impl.cc b/content/browser/storage_partition_impl.cc
+index 2b63e244ddaae..b64480cd027e0 100644
+--- a/content/browser/storage_partition_impl.cc
++++ b/content/browser/storage_partition_impl.cc
+@@ -2199,57 +2199,92 @@ void StoragePartitionImpl::OnLocalNetworkAccessPermissionRequired(
+   const URLLoaderNetworkContext& context =
+       url_loader_network_observers_.current_context();
+ 
+-  // Currently requesting the Local Network Access permission is restricted to
+-  // document contexts (subresource requests).
+-  // TODO(crbug.com/404887282): Add support for allowing requests from workers
+-  // if the user has previously granted the permission.
+-  // TODO(crbug.com/404887285): Add support for having subframe navigation
+-  // requests query and trigger the permission prompt.
+-  if (context.type() != ContextType::kRenderFrameHostContext ||
+-      !context.navigation_or_document()) {
+-    std::move(callback).Run(false);
+-    return;
+-  }
+-  RenderFrameHost* rfh = context.navigation_or_document()->GetDocument();
+-  if (!rfh) {
+-    std::move(callback).Run(false);
+-    return;
+-  }
++  // Three different cases are handled here depending on the request context:
++  //   1. Document context (ContextType::kRenderFrameHostContext) covers fetch()
++  //      and subresource requests. These should check for existing permission
++  //      state, and if the state is ASK trigger the permission prompt. These
++  //      should also handle being delegated into subframe documents.
++  //   2. Navigation context (ContextType::kNavigationRequestContext) covers
++  //      subframe navigations. These should check for existing permission
++  //      state, and if the state is ASK trigger the permission prompt. Nested
++  //      subframes should be allowed iff permission policy delegated the
++  //      permission into the embedding frame.
++  //   3. Worker context (ContextType::kServiceWorkerContext) covers requests
++  //      from workers. These may not have an existing document around. These
++  //      should check for the permission state, but NOT trigger the permission
++  //      prompt.
+ 
+-  PermissionController* permission_controller =
+-      browser_context_->GetPermissionController();
+-  DCHECK(permission_controller);
++  // Currently requesting the Local Network Access permission is restricted to
++  // subresource requests and subframe navigation requests.
++  // TODO(crbug.com/404887285): Denying permission for a subframe navigation
++  // results in an error page with text that isn't quite true anymore: "The
++  // connection is blocked because it was initiated by a public page to connect
++  // to devices or servers on your private network. Reload this page to allow
++  // the connection." The last sentence should be removed.
++
++  // Handle document (Case 1) and navigation (Case 2) contexts.
++  if (context.navigation_or_document()) {
++    RenderFrameHost* rfh = nullptr;
++    if (context.navigation_or_document()->GetDocument()) {
++      // Get the document that is making the request.
++      rfh = context.navigation_or_document()->GetDocument();
++    } else if (context.navigation_or_document()->GetNavigationRequest()) {
++      // Get the document that is embedding the frame being navigated.
++      rfh = context.navigation_or_document()
++                ->GetNavigationRequest()
++                ->GetParentFrameOrOuterDocument();
++    }
++    if (!rfh) {
++      std::move(callback).Run(false);
++      return;
++    }
+ 
+-  auto status = permission_controller->GetPermissionStatusForCurrentDocument(
+-      content::PermissionDescriptorUtil::
+-          CreatePermissionDescriptorForPermissionType(
+-              blink::PermissionType::LOCAL_NETWORK_ACCESS),
+-      rfh);
+-  if (status == blink::mojom::PermissionStatus::GRANTED) {
++    PermissionController* permission_controller =
++        browser_context_->GetPermissionController();
++    DCHECK(permission_controller);
++    auto status = permission_controller->GetPermissionStatusForCurrentDocument(
++        content::PermissionDescriptorUtil::
++            CreatePermissionDescriptorForPermissionType(
++                blink::PermissionType::LOCAL_NETWORK_ACCESS),
++        rfh);
++    if (status == blink::mojom::PermissionStatus::GRANTED) {
++      std::move(callback).Run(true);
++      return;
++    } else if (status == blink::mojom::PermissionStatus::DENIED) {
++      std::move(callback).Run(false);
++      return;
++    } else {
++      // PermissionStatus is ASK, so request the permission. Converts the result
++      // into a boolean to pass back to `callback`, capturing whether the
++      // permission is granted or not.
++      permission_controller->RequestPermissionFromCurrentDocument(
++          rfh,
++          PermissionRequestDescription(
++              content::PermissionDescriptorUtil::
++                  CreatePermissionDescriptorForPermissionType(
++                      blink::PermissionType::LOCAL_NETWORK_ACCESS)),
++          base::BindOnce(
++              [](OnLocalNetworkAccessPermissionRequiredCallback cb,
++                 PermissionStatus status) {
++                std::move(cb).Run(status ==
++                                  blink::mojom::PermissionStatus::GRANTED);
++              },
++              std::move(callback)));
++      return;
++    }
++  } else if (context.type() == ContextType::kServiceWorkerContext) {
++    // TODO(crbug.com/404887282): Add support for gating requests from workers
++    // on whether the user previously granted the permission. This will require
++    // plumbing through the `window_id` for the fetch to identify the worker
++    // context and then using that to get the worker origin to use when calling
++    // PermissionController::GetPermissionStatusForWorker().
+     std::move(callback).Run(true);
+     return;
+-  } else if (status == blink::mojom::PermissionStatus::DENIED) {
+-    std::move(callback).Run(false);
+-    return;
+-  } else {
+-    // PermissionStatus is ASK, so request the permission. Converts the result
+-    // into a boolean to pass back to `callback`, capturing whether the
+-    // permission is granted or not.
+-    permission_controller->RequestPermissionFromCurrentDocument(
+-        rfh,
+-        PermissionRequestDescription(
+-            content::PermissionDescriptorUtil::
+-                CreatePermissionDescriptorForPermissionType(
+-                    blink::PermissionType::LOCAL_NETWORK_ACCESS)),
+-        base::BindOnce(
+-            [](OnLocalNetworkAccessPermissionRequiredCallback cb,
+-               PermissionStatus status) {
+-              std::move(cb).Run(status ==
+-                                blink::mojom::PermissionStatus::GRANTED);
+-            },
+-            std::move(callback)));
+-    return;
+   }
++
++  // Otherwise default to denying local network access.
++  std::move(callback).Run(false);
++  return;
+ }
+ 
+ void StoragePartitionImpl::OnCertificateRequested(
+diff --git a/content/browser/storage_partition_impl_unittest.cc b/content/browser/storage_partition_impl_unittest.cc
+index f3445acef1e9d..a497533012038 100644
+--- a/content/browser/storage_partition_impl_unittest.cc
++++ b/content/browser/storage_partition_impl_unittest.cc
+@@ -67,6 +67,7 @@
+ #include "content/browser/interest_group/interest_group_permissions_checker.h"
+ #include "content/browser/private_aggregation/private_aggregation_manager.h"
+ #include "content/browser/private_aggregation/private_aggregation_test_utils.h"
++#include "content/browser/renderer_host/navigation_request.h"
+ #include "content/public/browser/browser_task_traits.h"
+ #include "content/public/browser/browser_thread.h"
+ #include "content/public/browser/browsing_data_filter_builder.h"
+@@ -77,7 +78,10 @@
+ #include "content/public/common/content_features.h"
+ #include "content/public/common/content_switches.h"
+ #include "content/public/test/browser_task_environment.h"
++#include "content/public/test/mock_render_process_host.h"
++#include "content/public/test/navigation_simulator.h"
+ #include "content/public/test/test_browser_context.h"
++#include "content/public/test/test_renderer_host.h"
+ #include "content/public/test/test_utils.h"
+ #include "content/services/auction_worklet/public/mojom/bidder_worklet.mojom.h"
+ #include "net/base/network_isolation_key.h"
+@@ -2594,10 +2598,65 @@ TEST_F(StoragePartitionImplTest, PrivateNetworkAccessPermission) {
+   EXPECT_FALSE(grant_permission.Get());
+ }
+ 
+-TEST_F(StoragePartitionImplTest, LocalNetworkAccessPermission) {
++// Local network access tests require there to be a (minimal) frame setup.
++using StoragePartitionImplLocalNetworkAccessTest = RenderViewHostTestHarness;
++
++// Tests triggering the Local Network Access permission check for a subresource
++// request.
++TEST_F(StoragePartitionImplLocalNetworkAccessTest,
++       LocalNetworkAccessPermission_SubresourceContext) {
++  base::test::ScopedFeatureList features(
++      network::features::kLocalNetworkAccessChecks);
++  StoragePartitionImpl* partition = static_cast<StoragePartitionImpl*>(
++      browser_context()->GetDefaultStoragePartition());
++
++  mojo::Remote<network::mojom::URLLoaderNetworkServiceObserver> observer(
++      partition->CreateURLLoaderNetworkObserverForFrame(
++          process()->GetDeprecatedID(), main_rfh()->GetRoutingID()));
++
++  base::test::TestFuture<bool> grant_permission;
++  observer->OnLocalNetworkAccessPermissionRequired(
++      base::BindOnce(grant_permission.GetCallback()));
++  EXPECT_FALSE(grant_permission.Get());
++}
++
++// Tests triggering the Local Network Access permission check for a subframe
++// navigation context.
++TEST_F(StoragePartitionImplLocalNetworkAccessTest,
++       LocalNetworkAccessPermission_SubframeNavigationContext) {
+   base::test::ScopedFeatureList features(
+       network::features::kLocalNetworkAccessChecks);
++  StoragePartitionImpl* partition = static_cast<StoragePartitionImpl*>(
++      browser_context()->GetDefaultStoragePartition());
++
++  // Set up a frame tree with a subframe, start a navigation in the subframe,
++  // and get the NavigationRequest for that navigation.
++  NavigateAndCommit(GURL("https://foo.com"));
++  content::RenderFrameHost* sub_frame =
++      content::RenderFrameHostTester::For(main_rfh())
++          ->AppendChild(std::string("child"));
++  std::unique_ptr<content::NavigationSimulator> simulator =
++      content::NavigationSimulator::CreateRendererInitiated(
++          GURL("http://test.local"), sub_frame);
++  simulator->Start();
++  NavigationRequest* request =
++      NavigationRequest::From(simulator->GetNavigationHandle());
++
++  mojo::Remote<network::mojom::URLLoaderNetworkServiceObserver> observer(
++      partition->CreateURLLoaderNetworkObserverForNavigationRequest(*request));
++
++  base::test::TestFuture<bool> grant_permission;
++  observer->OnLocalNetworkAccessPermissionRequired(
++      base::BindOnce(grant_permission.GetCallback()));
++  EXPECT_FALSE(grant_permission.Get());
++}
+ 
++// Tests triggering the Local Network Access permission check for a worker
++// request.
++TEST_F(StoragePartitionImplLocalNetworkAccessTest,
++       LocalNetworkAccessPermission_WorkerContext) {
++  base::test::ScopedFeatureList features(
++      network::features::kLocalNetworkAccessChecks);
+   StoragePartitionImpl* partition = static_cast<StoragePartitionImpl*>(
+       browser_context()->GetDefaultStoragePartition());
+ 
+@@ -2608,7 +2667,9 @@ TEST_F(StoragePartitionImplTest, LocalNetworkAccessPermission) {
+   base::test::TestFuture<bool> grant_permission;
+   observer->OnLocalNetworkAccessPermissionRequired(
+       base::BindOnce(grant_permission.GetCallback()));
+-  EXPECT_FALSE(grant_permission.Get());
++  // TODO(crbug.com/404887282): Once support for checking permission in service
++  // workers is added, this should be changed to EXPECT_FALSE().
++  EXPECT_TRUE(grant_permission.Get());
+ }
+ 
+ TEST_F(StoragePartitionImplTest, ClearDataStorageKeyDeletesPartitionedCookies) {
