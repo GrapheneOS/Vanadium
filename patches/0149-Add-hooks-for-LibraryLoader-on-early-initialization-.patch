@@ -12,10 +12,10 @@ Subject: [PATCH] Add hooks for LibraryLoader on early initialization and
  create mode 100644 base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-index af32e358f36a6..cacc3774078a3 100644
+index a8f0dd8694b7f..88204665fb5b5 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-@@ -433,6 +433,7 @@ public class LibraryLoader {
+@@ -435,6 +435,7 @@ public class LibraryLoader {
                              mLibraryProcessType, type));
          }
          mLibraryProcessType = type;
@@ -23,7 +23,7 @@ index af32e358f36a6..cacc3774078a3 100644
      }
  
      /**
-@@ -770,6 +771,13 @@ public class LibraryLoader {
+@@ -772,6 +773,13 @@ public class LibraryLoader {
          if (!CommandLine.isInitialized()) {
              CommandLine.init(null);
          }

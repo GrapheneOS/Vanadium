@@ -10,16 +10,16 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  2 files changed, 11 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index f6fbffa0693b3..8ba619d0ec23e 100644
+index 79711843e1cf9..1b808e8811ebd 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -212,6 +212,11 @@ public class LaunchIntentDispatcher {
+@@ -169,6 +169,11 @@ public class LaunchIntentDispatcher {
          boolean incognito =
                  mIntent.getBooleanExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
  
 +        if (Intent.ACTION_SEND.equals(mIntent.getAction())
 +                && "text/plain".equals(mIntent.getType())) {
-+            mIntent = LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(mActivity, mIntent);
++            LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(mActivity, mIntent);
 +        }
 +
          String url = IntentHandler.getUrlFromIntent(mIntent);

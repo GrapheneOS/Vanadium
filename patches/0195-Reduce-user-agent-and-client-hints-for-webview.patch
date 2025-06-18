@@ -10,10 +10,10 @@ Subject: [PATCH] Reduce user agent and client hints for webview
  3 files changed, 19 insertions(+), 5 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
-index 23367a41e3b72..d2c5e81d66ac3 100644
+index d9c002f49e95a..ef2f1f4bee627 100644
 --- a/android_webview/browser/aw_field_trials.cc
 +++ b/android_webview/browser/aw_field_trials.cc
-@@ -112,10 +112,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+@@ -113,10 +113,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
    // HDR does not support webview yet. See crbug.com/1493153 for an explanation.
    aw_feature_overrides.DisableFeature(ui::kAndroidHDR);
  
@@ -25,10 +25,10 @@ index 23367a41e3b72..d2c5e81d66ac3 100644
    aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
  
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index 2c318f6070e0c..689f7efc6f9fa 100644
+index 1fa7179d243c9..217916f4b072a 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -171,7 +171,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
+@@ -179,7 +179,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
  // This enables reducing webview user-agent android version and device model.
  BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
               "WebViewReduceUAAndroidVersionDeviceModel",

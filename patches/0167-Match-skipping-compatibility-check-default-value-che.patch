@@ -10,10 +10,10 @@ Subject: [PATCH] Match skipping compatibility check default value checks in
  2 files changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
-index 2a416db803b9c..26cd80c7c47f8 100644
+index ae43532d78359..3b35bd0b5c919 100644
 --- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
 +++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
-@@ -129,6 +129,13 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
+@@ -132,6 +132,13 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
          if (prefs().getBoolean(Pref.AUTOFILL_USING_VIRTUAL_VIEW_STRUCTURE)) {
              return false; // Always allow to flip back to built-in password management.
          }
@@ -27,7 +27,7 @@ index 2a416db803b9c..26cd80c7c47f8 100644
          switch (AutofillClientProviderUtils.getAndroidAutofillFrameworkAvailability(prefs())) {
              case AndroidAutofillAvailabilityStatus.NOT_ALLOWED_BY_POLICY:
                  return true;
-@@ -139,11 +146,17 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
+@@ -142,11 +149,17 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
              case AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_MANAGER_NOT_AVAILABLE:
              case AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_NOT_SUPPORTED:
              case AndroidAutofillAvailabilityStatus.UNKNOWN_ANDROID_AUTOFILL_SERVICE:
@@ -46,10 +46,10 @@ index 2a416db803b9c..26cd80c7c47f8 100644
                                  ChromeFeatureList.getFieldTrialParamByFeature(
                                          ChromeFeatureList.AUTOFILL_VIRTUAL_VIEW_STRUCTURE_ANDROID,
 diff --git a/chrome/browser/ui/autofill/autofill_client_provider.cc b/chrome/browser/ui/autofill/autofill_client_provider.cc
-index d65a240c06493..77727168a40a9 100644
+index 9b37d4adae8f7..434f8f1a6f472 100644
 --- a/chrome/browser/ui/autofill/autofill_client_provider.cc
 +++ b/chrome/browser/ui/autofill/autofill_client_provider.cc
-@@ -85,7 +85,11 @@ bool UsesVirtualViewStructureForAutofill(PrefService& prefs) {
+@@ -96,7 +96,11 @@ std::string GetTrialGroupForPackage() {
  }  // namespace
  
  AutofillClientProvider::AutofillClientProvider(PrefService* prefs)
@@ -60,5 +60,5 @@ index d65a240c06493..77727168a40a9 100644
 +#endif // BUILDFLAG(IS_ANDROID)
 +    ) {
  #if BUILDFLAG(IS_ANDROID)
+   DelayRegisteringFieldTrialForA11yDeprecation();
    RecordWhetherAndroidPrefResets(*prefs, uses_platform_autofill_);
-   // Ensure the pref is reset if platform autofill is restricted.

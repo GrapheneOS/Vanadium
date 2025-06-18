@@ -4,40 +4,19 @@ Date: Sun, 26 Nov 2017 22:51:43 +0100
 Subject: [PATCH] disable first run welcome page
 
 ---
- .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java   | 2 --
- .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java  | 4 ++--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java   | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-index 413ccd41b4bb2..43f86c227274e 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-@@ -37,14 +37,12 @@ public class FirstRunUtils {
-                 javaPrefs.readBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, false);
-         boolean nativePrefValue = isFirstRunEulaAccepted();
-         boolean isFirstRunComplete = FirstRunStatus.getFirstRunFlowComplete();
--        if (javaPrefValue || nativePrefValue || isFirstRunComplete) {
-             if (!javaPrefValue) {
-                 javaPrefs.writeBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, true);
-             }
-             if (!nativePrefValue) {
-                 setEulaAccepted();
-             }
--        }
-     }
- 
-     /**
 diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-index ae781f16eb405..140eed1380ab0 100644
+index ae781f16eb405..d4dfde1c2845e 100644
 --- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
 +++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-@@ -52,8 +52,8 @@ public class FirstRunStatus {
+@@ -52,8 +52,7 @@ public class FirstRunStatus {
       * includes ToS and Sign In pages if necessary.
       */
      public static boolean getFirstRunFlowComplete() {
 -        return ChromeSharedPreferences.getInstance()
 -                .readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
-+        setFirstRunFlowComplete(true);
 +        return true;
      }
  

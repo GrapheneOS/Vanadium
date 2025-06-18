@@ -9,7 +9,7 @@ Subject: [PATCH] enable subresource filter on all sites
  2 files changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/components/subresource_filter/core/browser/subresource_filter_features.cc b/components/subresource_filter/core/browser/subresource_filter_features.cc
-index 33c2e0878108e..272b9c9aa43ef 100644
+index c52ce737dcb3b..9ef25f55fa56c 100644
 --- a/components/subresource_filter/core/browser/subresource_filter_features.cc
 +++ b/components/subresource_filter/core/browser/subresource_filter_features.cc
 @@ -136,7 +136,9 @@ std::vector<Configuration> FillEnabledPresetConfigurations(
@@ -47,10 +47,10 @@ index 33c2e0878108e..272b9c9aa43ef 100644
  Configuration::Configuration(mojom::ActivationLevel activation_level,
                               ActivationScope activation_scope,
 diff --git a/components/subresource_filter/core/browser/subresource_filter_features.h b/components/subresource_filter/core/browser/subresource_filter_features.h
-index 22f56f69d0d31..8fb68c0ca0dfc 100644
+index 41ba85bc9fc8a..dde45bf2471c3 100644
 --- a/components/subresource_filter/core/browser/subresource_filter_features.h
 +++ b/components/subresource_filter/core/browser/subresource_filter_features.h
-@@ -125,6 +125,7 @@ struct Configuration {
+@@ -124,6 +124,7 @@ struct Configuration {
    static Configuration MakePresetForLiveRunOnPhishingSites();
    static Configuration MakePresetForPerformanceTestingDryRunOnAllSites();
    static Configuration MakePresetForLiveRunForBetterAds();
@@ -58,7 +58,7 @@ index 22f56f69d0d31..8fb68c0ca0dfc 100644
  
    ActivationConditions activation_conditions;
    ActivationOptions activation_options;
-@@ -231,6 +232,7 @@ extern const char kDisablePresetsParameterName[];
+@@ -230,6 +231,7 @@ extern const char kDisablePresetsParameterName[];
  extern const char kPresetLiveRunOnPhishingSites[];
  extern const char kPresetPerformanceTestingDryRunOnAllSites[];
  extern const char kPresetLiveRunForBetterAds[];

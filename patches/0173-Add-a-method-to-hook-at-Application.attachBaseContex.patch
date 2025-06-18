@@ -9,10 +9,10 @@ Subject: [PATCH] Add a method to hook at Application.attachBaseContext() call
  2 files changed, 8 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
-index c9b0281fbcb41..54b3a32e8e7b0 100644
+index a87d0d49b51b1..2f620a0ad25e7 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
-@@ -81,6 +81,7 @@ public class SplitChromeApplication extends SplitCompatApplication {
+@@ -87,6 +87,7 @@ public class SplitChromeApplication extends SplitCompatApplication {
          // We need to call setImplSupplier before continuing attachBaseContext. See
          // crbug.com/395261363 for details.
          super.attachBaseContext(context);
@@ -21,7 +21,7 @@ index c9b0281fbcb41..54b3a32e8e7b0 100644
  
      private static @Nullable String getPreloadClassName(String split) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-index 564f5fc239966..72049d66e8645 100644
+index 35c62159ad908..d8fc46effed20 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
 @@ -102,6 +102,9 @@ public class SplitCompatApplication extends Application {
