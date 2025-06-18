@@ -36,10 +36,10 @@ index 6accdb5dcb695..a513f8eeee38c 100644
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.components.browser_ui.site_settings.SingleCategorySettings"
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-index 371b87b72bb39..1594ce2acb4d0 100644
+index 183df6b5c1a71..6c02f0a450f95 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-@@ -374,6 +374,19 @@ public class ContentSettingsResources {
+@@ -369,6 +369,19 @@ public class ContentSettingsResources {
                          R.string.website_settings_javascript_allow,
                          R.string.website_settings_javascript_block);
  
@@ -60,10 +60,10 @@ index 371b87b72bb39..1594ce2acb4d0 100644
                  return new ResourceItem(
                          R.drawable.settings_v8,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index bc7aab1aca9de..19c0852ca482a 100644
+index 48eb5daddf866..fdf6cbd8f838c 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-@@ -807,6 +807,10 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -812,6 +812,10 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                  return isCategoryEnabled()
                          ? R.string.website_settings_add_site_description_javascript_block
                          : R.string.website_settings_add_site_description_javascript_allow;
@@ -74,7 +74,7 @@ index bc7aab1aca9de..19c0852ca482a 100644
              case SiteSettingsCategory.Type.SOUND:
                  return isCategoryEnabled()
                          ? R.string.website_settings_add_site_description_sound_block
-@@ -938,6 +942,7 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -943,6 +947,7 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
          switch (mCategory.getType()) {
              case SiteSettingsCategory.Type.SOUND:
              case SiteSettingsCategory.Type.JAVASCRIPT:
@@ -83,7 +83,7 @@ index bc7aab1aca9de..19c0852ca482a 100644
              case SiteSettingsCategory.Type.FEDERATED_IDENTITY_API:
              case SiteSettingsCategory.Type.REQUEST_DESKTOP_SITE:
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 17009d5fbd528..7184f1d1b0585 100644
+index 2260f9dda3ff4..dc05f3a3f8af1 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 @@ -151,6 +151,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
@@ -104,7 +104,7 @@ index 17009d5fbd528..7184f1d1b0585 100644
              } else if (type == ContentSettingsType.GEOLOCATION) {
                  setUpLocationPreference(preference);
              } else if (type == ContentSettingsType.NOTIFICATIONS) {
-@@ -1398,6 +1402,26 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -1402,6 +1406,26 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                  isOneTime(ContentSettingsType.JAVASCRIPT));
      }
  
@@ -132,7 +132,7 @@ index 17009d5fbd528..7184f1d1b0585 100644
       * Updates the ads list preference based on whether the site is a candidate for blocking. This
       * has some custom behavior.
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
-index 7c0a65ac74234..8e3003514b0b4 100644
+index e40cc5e547022..df4f588f117a4 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 @@ -78,6 +78,7 @@ public class SiteSettingsCategory {
@@ -186,10 +186,10 @@ index 0734cd8a19972..4a792783b7d07 100644
          ContentSettingsType.ADS,
          ContentSettingsType.BACKGROUND_SYNC,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-index 126b65a720020..19eae7edf8bc3 100644
+index 097ba38d3cd85..66571596a188d 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-@@ -317,6 +317,12 @@ public final class Website implements WebsiteEntry {
+@@ -318,6 +318,12 @@ public final class Website implements WebsiteEntry {
              } else {
                  RecordUserAction.record("JavascriptContentSetting.DisableBy.SiteSettings");
              }
@@ -257,10 +257,10 @@ index 2790e823c3532..27899531a10e9 100644
  
    <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCATION_ASK" desc="Summary text explaining that sites need to ask for permission before knowing location and that it is the recommended setting.">
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index e90ef49b365f4..0d73ff221fb01 100644
+index b38d80d348bdb..c31cdcb59a201 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -613,7 +613,7 @@ void ContentSettingsRegistry::Init() {
+@@ -604,7 +604,7 @@ void ContentSettingsRegistry::Init() {
             ContentSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
  
    Register(ContentSettingsType::JAVASCRIPT_JIT, "javascript-jit",
@@ -291,10 +291,10 @@ index b2015b2d4c732..31495573d32e7 100644
      // The sound content setting should always show up when the tab has played
      // audio since last navigation.
 diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
-index ca4edac214c52..57a94f06c1cb1 100644
+index 86c90bb653d4a..f8bb5140323c6 100644
 --- a/components/page_info/page_info.cc
 +++ b/components/page_info/page_info.cc
-@@ -106,6 +106,7 @@ ContentSettingsType kPermissionType[] = {
+@@ -107,6 +107,7 @@ ContentSettingsType kPermissionType[] = {
      ContentSettingsType::SENSORS,
      ContentSettingsType::NOTIFICATIONS,
      ContentSettingsType::JAVASCRIPT,
@@ -302,7 +302,7 @@ index ca4edac214c52..57a94f06c1cb1 100644
  #if !BUILDFLAG(IS_ANDROID)
      ContentSettingsType::IMAGES,
  #endif
-@@ -1323,6 +1324,11 @@ bool PageInfo::ShouldShowPermission(
+@@ -1337,6 +1338,11 @@ bool PageInfo::ShouldShowPermission(
    }
  #endif  // BUILDFLAG(IS_CHROMEOS)
  

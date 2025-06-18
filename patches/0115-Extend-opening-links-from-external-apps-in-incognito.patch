@@ -12,10 +12,10 @@ Subject: [PATCH] Extend opening links from external apps in incognito for
  4 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 1acc03b34f775..f6fbffa0693b3 100644
+index b5e6cd94ad236..79711843e1cf9 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -288,6 +288,8 @@ public class LaunchIntentDispatcher {
+@@ -245,6 +245,8 @@ public class LaunchIntentDispatcher {
              searchActivityIntent.setClass(
                      ContextUtils.getApplicationContext(), SearchActivity.class);
              searchActivityIntent.putExtra(SearchManager.QUERY, query);
@@ -40,7 +40,7 @@ index c282d5311d57f..6cdfa50279aa0 100644
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 500c6e4a0b318..262d10087503f 100644
+index cf94a93f70ee3..5284a0a7348e2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 @@ -490,7 +490,8 @@ public class SearchActivity extends AsyncInitializationActivity

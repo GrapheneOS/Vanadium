@@ -4,11 +4,12 @@ Date: Tue, 6 Mar 2018 00:27:41 -0500
 Subject: [PATCH] disable showing popular sites by default
 
 ---
- components/ntp_tiles/features.cc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ components/ntp_tiles/features.cc           | 2 +-
+ components/ntp_tiles/most_visited_sites.cc | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
-index b7353c48a6923..158476da9a2e9 100644
+index d142c1aa45e45..fd9e3cb948293 100644
 --- a/components/ntp_tiles/features.cc
 +++ b/components/ntp_tiles/features.cc
 @@ -15,7 +15,7 @@ const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
@@ -20,11 +21,35 @@ index b7353c48a6923..158476da9a2e9 100644
  
  BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
               "NTPMostLikelyFaviconsFromServer",
-@@ -23,6 +23,6 @@ BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
+diff --git a/components/ntp_tiles/most_visited_sites.cc b/components/ntp_tiles/most_visited_sites.cc
+index 2aae51db257bf..f69d71898e796 100644
+--- a/components/ntp_tiles/most_visited_sites.cc
++++ b/components/ntp_tiles/most_visited_sites.cc
+@@ -256,9 +256,11 @@ void MostVisitedSites::AddMostVisitedURLsObserver(Observer* observer,
+   if (!is_observing_) {
+     is_observing_ = true;
+     if (popular_sites_ && NeedPopularSites(prefs_, GetMaxNumSites())) {
++#if defined(ENABLE_POPULAR_SITES)
+       popular_sites_->MaybeStartFetch(
+           false, base::BindOnce(&MostVisitedSites::OnPopularSitesDownloaded,
+                                 base::Unretained(this)));
++#endif // defined(ENABLE_POPULAR_SITES)
+     }
  
- BASE_FEATURE(kUsePopularSitesSuggestions,
-              "UsePopularSitesSuggestions",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
+     if (top_sites_) {
+@@ -551,6 +553,7 @@ MostVisitedSites::CreatePopularSitesSections(
+     return sections;
+   }
  
- }  // namespace ntp_tiles
++#if defined(ENABLE_POPULAR_SITES)
+   const std::set<std::string> no_hosts;
+   for (const auto& section_type_and_sites : popular_sites()->sections()) {
+     SectionType type = section_type_and_sites.first;
+@@ -568,6 +571,7 @@ MostVisitedSites::CreatePopularSitesSections(
+                                   /*num_max_tiles=*/GetMaxNumSites());
+     }
+   }
++#endif // defined(ENABLE_POPULAR_SITES)
+   return sections;
+ }
+ 

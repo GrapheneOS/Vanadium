@@ -11,7 +11,7 @@ Subject: [PATCH] Extension of build system for static library deps at browser
  create mode 100644 chrome/browser/static_library_browser_deps.gni
 
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 76d6f00ba209b..eae55c0584916 100644
+index 36fe07a692e9b..228df697f744c 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
 @@ -55,6 +55,7 @@ assert(enable_supervised_users)
@@ -22,8 +22,8 @@ index 76d6f00ba209b..eae55c0584916 100644
  }
  
  if (is_win) {
-@@ -3537,6 +3538,8 @@ static_library("browser") {
-       "//chrome/browser/android:tabs_impl",
+@@ -3593,6 +3594,8 @@ static_library("browser") {
+       "//chrome/browser/ui/android/tab_model:impl",
      ]
  
 +    deps += static_library_browser_deps
