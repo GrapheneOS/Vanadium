@@ -1,0 +1,65 @@
+diff --git a/components/search_engines/template_url_prepopulate_data.h b/components/search_engines/template_url_prepopulate_data.h
+index 2f5d6c512d0e..6a3fc1b41c42 100644
+--- a/components/search_engines/template_url_prepopulate_data.h
++++ b/components/search_engines/template_url_prepopulate_data.h
+@@
+   extern const PrepopulatedEngine duckduckgo;
++  extern const PrepopulatedEngine mullvad_leta;
+ 
+ }  // namespace TemplateURLPrepopulateData
+ 
+ #endif  // COMPONENTS_SEARCH_ENGINES_TEMPLATE_URL_PREPOPULATE_DATA_H_
+diff --git a/components/search_engines/template_url_prepopulate_data.cc b/components/search_engines/template_url_prepopulate_data.cc
+index d514502637b1..7b28621e9134 100644
+--- a/components/search_engines/template_url_prepopulate_data.cc
++++ b/components/search_engines/template_url_prepopulate_data.cc
+@@
+ const PrepopulatedEngine duckduckgo = {
+   L"DuckDuckGo",
+   L"duckduckgo.com",
+   "https://duckduckgo.com/favicon.ico",
+   "https://duckduckgo.com/?q={searchTerms}",
+   "UTF-8",
+   "https://duckduckgo.com/ac/?q={searchTerms}&type=list",
+   nullptr,
+   SEARCH_ENGINE_DUCKDUCKGO,
+   1000,
+ };
+ 
++const PrepopulatedEngine mullvad_leta = {
++  L"Mullvad Leta",
++  L"leta.mullvad.net",
++  "https://leta.mullvad.net/favicon.ico",
++  "https://leta.mullvad.net/search?q={searchTerms}",
++  "UTF-8",
++  nullptr,  // suggest_url
++  nullptr,  // instant_url
++  SEARCH_ENGINE_OTHER,
++  1001,
++};
++
+ 
+-static const PrepopulatedEngine* const kAllEngines[] = {
+-  &bing,
+-  &duckduckgo,
+-  &google,
+-  &yahoo,
++static const PrepopulatedEngine* const kAllEngines[] = {
++  &bing,
++  &duckduckgo,
++  &mullvad_leta,
++  &google,
++  &yahoo,
+ };
+ 
+ std::unique_ptr<TemplateURLData> GetPrepopulatedFallbackSearch(
+     PrefService& prefs,
+     CountryId country_id) {
+-  return FindPrepopulatedEngineInternal(prefs, country_id, duckduckgo.id,
++  // Point the fallback at Mullvad Leta instead of DuckDuckGo.
++  return FindPrepopulatedEngineInternal(prefs, country_id, mullvad_leta.id,
+                                         /*use_first_as_fallback=*/true);
+ }
+ 
+ }  // namespace TemplateURLPrepopulateData
+
