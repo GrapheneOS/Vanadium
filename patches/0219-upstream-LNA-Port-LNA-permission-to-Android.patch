@@ -30,6 +30,7 @@ Cr-Commit-Position: refs/heads/main@{#1477311}
  .../flags/android/chrome_feature_list.cc      |  1 +
  .../browser/flags/ChromeFeatureList.java      |  1 +
  .../permissions/permission_manager_factory.cc |  5 --
+ chrome/browser/prefs/browser_prefs.cc         |  3 +-
  .../res/xml/site_settings_preferences.xml     |  4 ++
  .../ContentSettingsResources.java             | 12 +++++
  .../site_settings/SingleCategorySettings.java |  2 +
@@ -62,7 +63,7 @@ Cr-Commit-Position: refs/heads/main@{#1477311}
  ...LOCAL_NETWORK_ACCESS_INFOBAR_TEXT.png.sha1 |  1 +
  ...LocalNetworkAccessRestrictionsEnabled.json |  3 +-
  .../android/permissions_resource_id.h         |  2 +
- 42 files changed, 201 insertions(+), 40 deletions(-)
+ 43 files changed, 202 insertions(+), 42 deletions(-)
  create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_LOCAL_NETWORK_ACCESS_PERMISSION_TITLE.png.sha1
  create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_A11Y.png.sha1
  create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_ASK.png.sha1
@@ -320,6 +321,23 @@ index f98909faf5b24..8c37593f24243 100644
    // Depends on Chrome specific policies not available on WebLayer.
    permission_contexts[ContentSettingsType::MEDIASTREAM_CAMERA] =
        std::make_unique<MediaStreamDevicePermissionContext>(
+diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
+index bab4996a003cf..6b9dc8ae3b765 100644
+--- a/chrome/browser/prefs/browser_prefs.cc
++++ b/chrome/browser/prefs/browser_prefs.cc
+@@ -2300,11 +2300,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+   registry->RegisterBooleanPref(
+       prefs::kAccessibilityMainNodeAnnotationsEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
++#endif  // !BUILDFLAG(IS_ANDROID)
+ 
+-  // TODO(crbug.com/400455013): Add LNA support on Android
+   registry->RegisterBooleanPref(
+       prefs::kManagedLocalNetworkAccessRestrictionsEnabled, false);
+-#endif  // !BUILDFLAG(IS_ANDROID)
+ 
+ #if BUILDFLAG(IS_ANDROID)
+   registry->RegisterBooleanPref(prefs::kVirtualKeyboardResizesLayoutByDefault,
 diff --git a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
 index a513f8eeee38c..5af8f6b29a273 100644
 --- a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
