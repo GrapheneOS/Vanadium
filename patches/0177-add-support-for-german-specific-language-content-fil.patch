@@ -12,7 +12,7 @@ Subject: [PATCH] add support for german-specific language content filtering
  4 files changed, 26 insertions(+)
 
 diff --git a/DEPS b/DEPS
-index bda8bc3039f67..6c9cdfa2ae31d 100644
+index bda8bc3039f67..0246f13bd74a4 100644
 --- a/DEPS
 +++ b/DEPS
 @@ -5740,6 +5740,16 @@ hooks = [
@@ -63,13 +63,13 @@ index 311f4facef0d5..c22e1585195c7 100644
  }
 \ No newline at end of file
 diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-index 7959eab6e4d39..84ffa5ba4a43d 100644
+index 84cba48c34f61..9fe7b9be64ae0 100644
 --- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 +++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 @@ -34,6 +34,13 @@ public class ConfigGenerator {
                          component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
                                  .setComponentFileName("unindexed_ruleset")
-                                 .setVersionCode(1L)
+                                 .setVersionCode(2L)
 +                                .addAllAdditionalComponents(additionalComponents(
 +                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_germany")
 +                                                .addAllConditions(componentConditions(
