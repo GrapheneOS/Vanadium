@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 17 Jun 2025 13:29:59 +0000
+Subject: [PATCH] Disable Local Network access feature in webview
+
+---
+ android_webview/browser/aw_field_trials.cc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
+index 5e4b7ff99ae75..dddbd42c33dcf 100644
+--- a/android_webview/browser/aw_field_trials.cc
++++ b/android_webview/browser/aw_field_trials.cc
+@@ -317,4 +317,7 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+   // TODO(crbug.com/422161917): Revert this for the ablation study.
+   aw_feature_overrides.EnableFeature(
+       features::kServiceWorkerBackgroundUpdateForRegisteredStorageKeys);
++
++  // Disable Local Network Access checks for WebView
++  aw_feature_overrides.DisableFeature(network::features::kLocalNetworkAccessChecks);
+ }
