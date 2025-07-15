@@ -5,23 +5,19 @@ Subject: [PATCH] fixup! Expose fetching config state for content filtering to
  native calls
 
 ---
- .../subresource_filter/SubresourceFilterFetching.java       | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../subresource_filter/SubresourceFilterFetching.java           | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java b/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
-index f8bb67eaacf13..1dcb42d5b6fec 100644
+index f8bb67eaacf13..28b1610d64d05 100644
 --- a/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
 +++ b/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
-@@ -11,7 +11,11 @@ import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
+@@ -11,7 +11,7 @@ import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
  public class SubresourceFilterFetching {
  
      public static long getUnindexedRulesetVersion() {
 -        return VanadiumConfParser.getVersionCodeForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
-+        long configVersionCode = VanadiumConfParser.getConfigVersionCode();
-+        if (configVersionCode < 0) {
-+            return configVersionCode;
-+        }
-+        return configVersionCode * 1_000 + VanadiumConfParser.getVersionCodeForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
++        return VanadiumConfParser.getConfigVersionCode();
      }
  
      public static byte[] getUnindexedRulesetData() {
