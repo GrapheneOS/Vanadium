@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 15 Jul 2025 08:10:58 +0000
+Subject: [PATCH] fixup! config-parser: Add config parser for browser and
+ webview
+
+---
+ .../java/src/app/vanadium/config/VanadiumConfParser.java | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+index 7b8639ab7ea79..1bac8425d30cd 100644
+--- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -237,6 +237,15 @@ public final class VanadiumConfParser {
+         return parsedComponent.getComponentByteArray();
+     }
+ 
++    public static long getConfigVersionCode() {
++        if (!isInitialized()) {
++            Log.e(TAG, "No parsed config found, parsing not initialized");
++            return -1L;
++        }
++
++        return getParsedConfigs().configVersionCode;
++    }
++
+     public static long getVersionCodeForComponent(ComponentType componentType) {
+         if (!isInitialized()) {
+             Log.e(TAG, "No parsed config found, parsing not initialized");

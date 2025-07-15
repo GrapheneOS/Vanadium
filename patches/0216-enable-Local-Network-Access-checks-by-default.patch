@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 4 Jun 2025 06:35:07 +0000
+Subject: [PATCH] enable Local Network Access checks by default
+
+---
+ services/network/public/cpp/features.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index f591823cebff3..b51b799bf686d 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -219,14 +219,14 @@ BASE_FEATURE(kPrivateNetworkAccessPermissionPrompt,
+ // https://github.com/explainers-by-googlers/local-network-access
+ BASE_FEATURE(kLocalNetworkAccessChecks,
+              "LocalNetworkAccessChecks",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // If true, local network access checks will only be warnings.
+ BASE_FEATURE_PARAM(bool,
+                    kLocalNetworkAccessChecksWarn,
+                    &kLocalNetworkAccessChecks,
+                    /*name=*/"LocalNetworkAccessChecksWarn",
+-                   /*default_value=*/true);
++                   /*default_value=*/false);
+ 
+ // If enabled, then the network service will parse the Cookie-Indices header.
+ // This does not currently control changing cache behavior according to the
