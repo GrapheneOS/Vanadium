@@ -1,0 +1,881 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chris Thompson <cthomp@chromium.org>
+Date: Mon, 23 Jun 2025 08:38:37 -0700
+Subject: [PATCH] upstream: [LNA] Port LNA permission to Android
+
+This change exposes the existing Local Network Access permission
+(previously implemented for Desktop) to Android, adds icons and strings
+for the Android UI, and adds integrations into Android Site Settings
+and Page Info. This is gated on the LocalNetworkAccessChecks feature
+flag, which is now exposed to Java. Related Site Settings and Page Info
+tests are also updated to cover the new permission type.
+
+Screenshots in https://crbug.com/400455013#comment15
+
+Bug: 400455013
+Change-Id: Ie3b57c745b3c7496db5c6db2e94c32e65e1a0517
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6635930
+Commit-Queue: Chris Thompson <cthomp@chromium.org>
+Reviewed-by: Christian Dullweber <dullweber@chromium.org>
+Reviewed-by: Igor <igorcov@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1477311}
+---
+ .../ChromeSiteSettingsDelegate.java           |  2 +
+ .../PageInfoDiscoverabilityTest.java          |  4 ++
+ .../site_settings/SiteSettingsTest.java       | 50 ++++++++++++++++++-
+ chrome/browser/about_flags.cc                 | 14 +-----
+ .../browser/chrome_content_browser_client.cc  |  3 --
+ chrome/browser/flag_descriptions.cc           |  4 +-
+ chrome/browser/flag_descriptions.h            |  4 +-
+ .../flags/android/chrome_feature_list.cc      |  1 +
+ .../browser/flags/ChromeFeatureList.java      |  1 +
+ .../permissions/permission_manager_factory.cc |  5 --
+ chrome/browser/prefs/browser_prefs.cc         |  3 +-
+ .../res/xml/site_settings_preferences.xml     |  4 ++
+ .../ContentSettingsResources.java             | 12 +++++
+ .../site_settings/SingleCategorySettings.java |  2 +
+ .../site_settings/SingleWebsiteSettings.java  |  2 +
+ .../site_settings/SiteSettingsCategory.java   |  8 ++-
+ .../site_settings/SiteSettingsUtil.java       |  1 +
+ .../android/website_preference_bridge.cc      |  1 +
+ .../strings/android/site_settings.grdp        | 25 ++++++++++
+ ...L_NETWORK_ACCESS_PERMISSION_TITLE.png.sha1 |  1 +
+ ...ATEGORY_LOCAL_NETWORK_ACCESS_A11Y.png.sha1 |  1 +
+ ...CATEGORY_LOCAL_NETWORK_ACCESS_ASK.png.sha1 |  1 +
+ ...GORY_LOCAL_NETWORK_ACCESS_BLOCKED.png.sha1 |  1 +
+ ...SETTINGS_LOCAL_NETWORK_ACCESS_ASK.png.sha1 |  1 +
+ ...TTINGS_LOCAL_NETWORK_ACCESS_BLOCK.png.sha1 |  1 +
+ ...L_NETWORK_ACCESS_PAGE_DESCRIPTION.png.sha1 |  1 +
+ .../permission_context_utils.cc               |  4 ++
+ components/page_info/android/DEPS             |  1 +
+ .../android/page_info_controller_android.cc   |  7 ++-
+ components/page_info/page_info.cc             |  3 --
+ components/permissions/android/BUILD.gn       |  2 +
+ .../android/res/drawable/router_24.xml        | 17 +++++++
+ .../android/res/drawable/router_off_24.xml    | 17 +++++++
+ ...local_network_access_permission_context.cc |  5 ++
+ .../local_network_access_permission_context.h | 10 +++-
+ components/permissions/permission_request.cc  |  3 ++
+ components/permissions/permission_util.cc     |  3 +-
+ components/permissions/request_type.cc        |  7 +--
+ components/permissions/request_type.h         |  3 +-
+ components/permissions_strings.grdp           |  3 ++
+ ...LOCAL_NETWORK_ACCESS_INFOBAR_TEXT.png.sha1 |  1 +
+ ...LocalNetworkAccessRestrictionsEnabled.json |  3 +-
+ .../android/permissions_resource_id.h         |  2 +
+ 43 files changed, 202 insertions(+), 42 deletions(-)
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_LOCAL_NETWORK_ACCESS_PERMISSION_TITLE.png.sha1
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_A11Y.png.sha1
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_ASK.png.sha1
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_BLOCKED.png.sha1
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_ASK.png.sha1
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_BLOCK.png.sha1
+ create mode 100644 components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_PAGE_DESCRIPTION.png.sha1
+ create mode 100644 components/permissions/android/res/drawable/router_24.xml
+ create mode 100644 components/permissions/android/res/drawable/router_off_24.xml
+ create mode 100644 components/permissions_strings_grdp/IDS_LOCAL_NETWORK_ACCESS_INFOBAR_TEXT.png.sha1
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+index 6066ec6acfc9d..2070d3e609df6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+@@ -169,6 +169,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+                 return DeviceFeatureMap.isEnabled(DeviceFeatureList.BLUETOOTH_RFCOMM_ANDROID);
+             case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
+                 return false;
++            case SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS:
++                return ChromeFeatureList.isEnabled(ChromeFeatureList.LOCAL_NETWORK_ACCESS);
+             default:
+                 return true;
+         }
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/page_info/PageInfoDiscoverabilityTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/page_info/PageInfoDiscoverabilityTest.java
+index 18741425ac363..373e30c337c1a 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/page_info/PageInfoDiscoverabilityTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/page_info/PageInfoDiscoverabilityTest.java
+@@ -135,6 +135,10 @@ public class PageInfoDiscoverabilityTest {
+                                     ContentSettingsType
+                                             .FEDERATED_IDENTITY_IDENTITY_PROVIDER_REGISTRATION,
+                                     false));
++            parameters.add(
++                    new ParameterSet()
++                            .name("RequestType.kLocalNetworkAccess")
++                            .value(ContentSettingsType.LOCAL_NETWORK_ACCESS, true));
+             parameters.add(
+                     new ParameterSet()
+                             .name("RequestType.kMicStream")
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/site_settings/SiteSettingsTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/site_settings/SiteSettingsTest.java
+index cb8065be6a8bf..d45a7040b9bb0 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/site_settings/SiteSettingsTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/site_settings/SiteSettingsTest.java
+@@ -1451,7 +1451,7 @@ public class SiteSettingsTest {
+     public void testOnlyExpectedPreferencesShown() {
+         // If you add a category in the SiteSettings UI, please update this total AND add a test for
+         // it below, named "testOnlyExpectedPreferences<Category>".
+-        Assert.assertEquals(35, SiteSettingsCategory.Type.NUM_ENTRIES);
++        Assert.assertEquals(36, SiteSettingsCategory.Type.NUM_ENTRIES);
+     }
+ 
+     @Test
+@@ -1716,6 +1716,26 @@ public class SiteSettingsTest {
+                 });
+     }
+ 
++    @Test
++    @SmallTest
++    @Feature({"Preferences"})
++    @DisableFeatures(ChromeFeatureList.PERMISSION_SITE_SETTING_RADIO_BUTTON)
++    public void testOnlyExpectedPreferencesLocalNetworkAccessWithToggle() {
++        testExpectedPreferences(
++                SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS, BINARY_TOGGLE, BINARY_TOGGLE);
++    }
++
++    @Test
++    @SmallTest
++    @Feature({"Preferences"})
++    @EnableFeatures(ChromeFeatureList.PERMISSION_SITE_SETTING_RADIO_BUTTON)
++    public void testOnlyExpectedPreferencesLocalNetworkAccess() {
++        testExpectedPreferences(
++                SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS,
++                BINARY_RADIO_BUTTON_AND_INFO_TEXT,
++                BINARY_RADIO_BUTTON_AND_INFO_TEXT);
++    }
++
+     @Test
+     @SmallTest
+     @Feature({"Preferences"})
+@@ -2669,6 +2689,34 @@ public class SiteSettingsTest {
+                 .run();
+     }
+ 
++    @Test
++    @SmallTest
++    @Feature({"Preferences"})
++    @EnableFeatures(ChromeFeatureList.PERMISSION_SITE_SETTING_RADIO_BUTTON)
++    public void testAllowLocalNetworkAccess() {
++        new TwoStatePermissionTestCaseWithRadioButton(
++                        "LocalNetworkAccess",
++                        SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS,
++                        ContentSettingsType.LOCAL_NETWORK_ACCESS,
++                        true)
++                .withExpectedPrefKeysAtStart(SingleCategorySettings.INFO_TEXT_KEY)
++                .run();
++    }
++
++    @Test
++    @SmallTest
++    @Feature({"Preferences"})
++    @EnableFeatures(ChromeFeatureList.PERMISSION_SITE_SETTING_RADIO_BUTTON)
++    public void testBlockLocalNetworkAccess() {
++        new TwoStatePermissionTestCaseWithRadioButton(
++                        "LocalNetworkAccess",
++                        SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS,
++                        ContentSettingsType.LOCAL_NETWORK_ACCESS,
++                        false)
++                .withExpectedPrefKeysAtStart(SingleCategorySettings.INFO_TEXT_KEY)
++                .run();
++    }
++
+     @Test
+     @SmallTest
+     @Feature({"Preferences"})
+diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
+index c535d2bdb2acf..99c0d509a0195 100644
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -426,19 +426,12 @@ const FeatureEntry::Choice kPullToRefreshChoices[] = {
+      switches::kPullToRefresh, "2"}};
+ #endif  // USE_AURA
+ 
+-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
+-    BUILDFLAG(IS_CHROMEOS)
+-
+ const FeatureEntry::FeatureParam kLocalNetworkAccessChecksBlock[] = {
+     {"LocalNetworkAccessChecksWarn", "false"}};
+-
+ const FeatureEntry::FeatureVariation kLocalNetworkAccessChecksVariations[] = {
+     {"(Blocking)", kLocalNetworkAccessChecksBlock,
+      std::size(kLocalNetworkAccessChecksBlock), nullptr}};
+ 
+-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
+-        // BUILDFLAG(IS_CHROME_OS)
+-
+ const FeatureEntry::Choice kEnableBenchmarkingChoices[] = {
+     {flag_descriptions::kEnableBenchmarkingChoiceDisabled, "", ""},
+     {flag_descriptions::kEnableBenchmarkingChoiceDefaultFeatureStates,
+@@ -12318,19 +12311,14 @@ const FeatureEntry kFeatureEntries[] = {
+      FEATURE_VALUE_TYPE(features::kDisplayEdgeToEdgeFullscreen)},
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
+-    BUILDFLAG(IS_CHROMEOS)
+     {"local-network-access-check",
+      flag_descriptions::kLocalNetworkAccessChecksName,
+-     flag_descriptions::kLocalNetworkAccessChecksDescription, kOsDesktop,
++     flag_descriptions::kLocalNetworkAccessChecksDescription, kOsAll,
+      FEATURE_WITH_PARAMS_VALUE_TYPE(
+          network::features::kLocalNetworkAccessChecks,
+          kLocalNetworkAccessChecksVariations,
+          "LocalNetworkAccessChecks")},
+ 
+-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
+-        // BUILDFLAG(IS_CHROME_OS)
+-
+ #if BUILDFLAG(IS_CHROMEOS)
+     {"notebook-lm-app-preinstall",
+      flag_descriptions::kNotebookLmAppPreinstallName,
+diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
+index afa44031a366b..198f001d199a8 100644
+--- a/chrome/browser/chrome_content_browser_client.cc
++++ b/chrome/browser/chrome_content_browser_client.cc
+@@ -7565,15 +7565,12 @@ ChromeContentBrowserClient::ShouldOverridePrivateNetworkRequestPolicy(
+   }
+ #endif
+ 
+-// TODO(crbug.com/400455013): Add LNA support on Android
+-#if !BUILDFLAG(IS_ANDROID)
+   Profile* profile = Profile::FromBrowserContext(browser_context);
+   if (profile->GetPrefs()->GetBoolean(
+           prefs::kManagedLocalNetworkAccessRestrictionsEnabled)) {
+     return content::ContentBrowserClient::PrivateNetworkRequestPolicyOverride::
+         kBlockInsteadOfWarn;
+   }
+-#endif
+ 
+   return content::ContentBrowserClient::PrivateNetworkRequestPolicyOverride::
+       kDefault;
+diff --git a/chrome/browser/flag_descriptions.cc b/chrome/browser/flag_descriptions.cc
+index e5ce52737c7f7..e4168946d2739 100644
+--- a/chrome/browser/flag_descriptions.cc
++++ b/chrome/browser/flag_descriptions.cc
+@@ -8166,13 +8166,13 @@ const char kZeroCopyVideoCaptureDescription[] =
+ const char kFollowingFeedSidepanelName[] = "Following feed in the sidepanel";
+ const char kFollowingFeedSidepanelDescription[] =
+     "Enables the following feed in the sidepanel.";
++#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
++        // BUILDFLAG(IS_CHROMEOS)
+ 
+ const char kLocalNetworkAccessChecksName[] = "Local Network Access Checks";
+ const char kLocalNetworkAccessChecksDescription[] =
+     "Enables Local Network Access checks. "
+     "See: https://chromestatus.com/feature/5152728072060928";
+-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+-        // BUILDFLAG(IS_CHROMEOS)
+ 
+ #if BUILDFLAG(IS_ANDROID)
+ const char kTaskManagerClankName[] = "Task Manager on Clank";
+diff --git a/chrome/browser/flag_descriptions.h b/chrome/browser/flag_descriptions.h
+index 9afb760cb9e85..8989397384aa4 100644
+--- a/chrome/browser/flag_descriptions.h
++++ b/chrome/browser/flag_descriptions.h
+@@ -4826,11 +4826,11 @@ extern const char kScreenlockReauthCardDescription[];
+     BUILDFLAG(IS_CHROMEOS)
+ extern const char kFollowingFeedSidepanelName[];
+ extern const char kFollowingFeedSidepanelDescription[];
++#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
++        // BUILDFLAG(IS_CHROMEOS)
+ 
+ extern const char kLocalNetworkAccessChecksName[];
+ extern const char kLocalNetworkAccessChecksDescription[];
+-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+-        // BUILDFLAG(IS_CHROMEOS)
+ 
+ #if BUILDFLAG(IS_ANDROID)
+ extern const char kTaskManagerClankName[];
+diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
+index 4aa855768647c..c5d8bb56e7dd3 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -394,6 +394,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &kWebOtpCrossDeviceSimpleString,
+     &kWebApkMinShellVersion,
+     &kGridTabSwitcherUpdate,
++    &network::features::kLocalNetworkAccessChecks,
+     &notifications::features::kUseChimeAndroidSdk,
+     &paint_preview::kPaintPreviewDemo,
+     &language::kCctAutoTranslate,
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 4f639e5ae58d0..52b4bed3c6d48 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -421,6 +421,7 @@ public abstract class ChromeFeatureList {
+     public static final String LINKED_SERVICES_SETTING = "LinkedServicesSetting";
+     public static final String LOADING_PREDICTOR_LIMIT_PRECONNECT_SOCKET_COUNT =
+             "LoadingPredictorLimitPreconnectSocketCount";
++    public static final String LOCAL_NETWORK_ACCESS = "LocalNetworkAccessChecks";
+     public static final String LOCK_BACK_PRESS_HANDLER_AT_START = "LockBackPressHandlerAtStart";
+     public static final String LOGIN_DB_DEPRECATION_ANDROID = "LoginDbDeprecationAndroid";
+     public static final String LOOKALIKE_NAVIGATION_URL_SUGGESTIONS_UI =
+diff --git a/chrome/browser/permissions/permission_manager_factory.cc b/chrome/browser/permissions/permission_manager_factory.cc
+index f98909faf5b24..8c37593f24243 100644
+--- a/chrome/browser/permissions/permission_manager_factory.cc
++++ b/chrome/browser/permissions/permission_manager_factory.cc
+@@ -129,11 +129,6 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
+   permission_contexts[ContentSettingsType::LOCAL_FONTS] =
+       std::make_unique<LocalFontsPermissionContext>(profile);
+ 
+-  // TODO(crbug.com/400455013): Move to CreateDefaultPermissionContexts() once
+-  // support for Android is ready.
+-  permission_contexts[ContentSettingsType::LOCAL_NETWORK_ACCESS] =
+-      std::make_unique<LocalNetworkAccessPermissionContext>(profile);
+-
+   // Depends on Chrome specific policies not available on WebLayer.
+   permission_contexts[ContentSettingsType::MEDIASTREAM_CAMERA] =
+       std::make_unique<MediaStreamDevicePermissionContext>(
+diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
+index bab4996a003cf..6b9dc8ae3b765 100644
+--- a/chrome/browser/prefs/browser_prefs.cc
++++ b/chrome/browser/prefs/browser_prefs.cc
+@@ -2300,11 +2300,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+   registry->RegisterBooleanPref(
+       prefs::kAccessibilityMainNodeAnnotationsEnabled, false,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
++#endif  // !BUILDFLAG(IS_ANDROID)
+ 
+-  // TODO(crbug.com/400455013): Add LNA support on Android
+   registry->RegisterBooleanPref(
+       prefs::kManagedLocalNetworkAccessRestrictionsEnabled, false);
+-#endif  // !BUILDFLAG(IS_ANDROID)
+ 
+ #if BUILDFLAG(IS_ANDROID)
+   registry->RegisterBooleanPref(prefs::kVirtualKeyboardResizesLayoutByDefault,
+diff --git a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
+index a513f8eeee38c..5af8f6b29a273 100644
+--- a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
++++ b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
+@@ -88,6 +88,10 @@ The order of the following items is from: http://crbug.com/610358.
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.components.browser_ui.site_settings.SingleCategorySettings"
+         android:key="idle_detection" />
++    <!-- Local Network Access -->
++    <org.chromium.components.browser_ui.settings.ChromeBasePreference
++        android:fragment="org.chromium.components.browser_ui.site_settings.SingleCategorySettings"
++        android:key="local_network_access" />
+ 
+     <!-- CONTENT SETTINGS section -->
+     <PreferenceCategory android:title="@string/site_settings_content_category"/>
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
+index 0ad62da6799a4..4ae0e9bbfda6b 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
+@@ -395,6 +395,18 @@ public class ContentSettingsResources {
+                         R.string.website_settings_javascript_optimizer_allowed,
+                         R.string.website_settings_javascript_optimizer_blocked);
+ 
++            case ContentSettingsType.LOCAL_NETWORK_ACCESS:
++                return new ResourceItem(
++                        R.drawable.router_24,
++                        R.string.local_network_access_permission_title,
++                        ContentSettingValues.ASK,
++                        ContentSettingValues.BLOCK,
++                        R.string.website_settings_category_local_network_access_ask,
++                        R.string.website_settings_category_local_network_access_blocked,
++                        R.string.website_settings_category_local_network_access_a11y,
++                        R.drawable.router_off_24,
++                        R.string.website_settings_local_network_access_ask,
++                        R.string.website_settings_local_network_access_block);
+             case ContentSettingsType.MEDIASTREAM_CAMERA:
+                 return new ResourceItem(
+                                 R.drawable.gm_filled_videocam_24,
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+index fdf6cbd8f838c..f3f55d8688f7a 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+@@ -1236,6 +1236,8 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+                 return R.string.website_settings_file_editing_page_description;
+             } else if (mCategory.getType() == SiteSettingsCategory.Type.SERIAL_PORT) {
+                 return R.string.website_settings_serial_port_page_description;
++            } else if (mCategory.getType() == SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS) {
++                return R.string.website_settings_local_network_access_page_description;
+             }
+         }
+         return -1;
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+index 2bc57024702dc..de4572e6fdb15 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+@@ -187,6 +187,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+                 return "clipboard_permission_list";
+             case ContentSettingsType.FILE_SYSTEM_WRITE_GUARD:
+                 return "file_system_write_guard_permission_list";
++            case ContentSettingsType.LOCAL_NETWORK_ACCESS:
++                return "local_network_access";
+             default:
+                 return null;
+         }
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
+index df4f588f117a4..82408d2f38c65 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
+@@ -79,6 +79,7 @@ public class SiteSettingsCategory {
+         Type.JAVASCRIPT_OPTIMIZER,
+         Type.SERIAL_PORT,
+         Type.JAVASCRIPT_JIT,
++        Type.LOCAL_NETWORK_ACCESS,
+         Type.NUM_ENTRIES
+     })
+     @Retention(RetentionPolicy.SOURCE)
+@@ -121,9 +122,10 @@ public class SiteSettingsCategory {
+         int JAVASCRIPT_OPTIMIZER = 33;
+         int SERIAL_PORT = 34;
+         int JAVASCRIPT_JIT = 35;
++        int LOCAL_NETWORK_ACCESS = 36;
+ 
+         /** Number of handled categories used for calculating array sizes. */
+-        int NUM_ENTRIES = 36;
++        int NUM_ENTRIES = 37;
+     }
+ 
+     private final BrowserContextHandle mBrowserContextHandle;
+@@ -246,6 +248,8 @@ public class SiteSettingsCategory {
+                 return ContentSettingsType.JAVASCRIPT_OPTIMIZER;
+             case Type.JAVASCRIPT_JIT:
+                 return ContentSettingsType.JAVASCRIPT_JIT;
++            case Type.LOCAL_NETWORK_ACCESS:
++                return ContentSettingsType.LOCAL_NETWORK_ACCESS;
+             case Type.MICROPHONE:
+                 return ContentSettingsType.MEDIASTREAM_MIC;
+             case Type.NFC:
+@@ -339,6 +343,8 @@ public class SiteSettingsCategory {
+                 return "javascript_optimizer";
+             case Type.JAVASCRIPT_JIT:
+                 return "javascript_jit";
++            case Type.LOCAL_NETWORK_ACCESS:
++                return "local_network_access";
+             case Type.MICROPHONE:
+                 return "microphone";
+             case Type.NFC:
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
+index 4a792783b7d07..515a1406d3e57 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
+@@ -52,6 +52,7 @@ public class SiteSettingsUtil {
+         ContentSettingsType.AUTO_DARK_WEB_CONTENT,
+         ContentSettingsType.REQUEST_DESKTOP_SITE,
+         ContentSettingsType.JAVASCRIPT_OPTIMIZER,
++        ContentSettingsType.LOCAL_NETWORK_ACCESS,
+     };
+ 
+     static final int[] CHOOSER_PERMISSIONS = {
+diff --git a/components/browser_ui/site_settings/android/website_preference_bridge.cc b/components/browser_ui/site_settings/android/website_preference_bridge.cc
+index bfd8de496b8f9..0a4c05c6ac0fd 100644
+--- a/components/browser_ui/site_settings/android/website_preference_bridge.cc
++++ b/components/browser_ui/site_settings/android/website_preference_bridge.cc
+@@ -885,6 +885,7 @@ static void JNI_WebsitePreferenceBridge_SetContentSettingEnabled(
+       case ContentSettingsType::GEOLOCATION:
+       case ContentSettingsType::HAND_TRACKING:
+       case ContentSettingsType::IDLE_DETECTION:
++      case ContentSettingsType::LOCAL_NETWORK_ACCESS:
+       case ContentSettingsType::MEDIASTREAM_CAMERA:
+       case ContentSettingsType::MEDIASTREAM_MIC:
+       case ContentSettingsType::NFC:
+diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
+index fc9bb43d05757..6f4e52b1114ec 100644
+--- a/components/browser_ui/strings/android/site_settings.grdp
++++ b/components/browser_ui/strings/android/site_settings.grdp
+@@ -133,6 +133,9 @@
+   <message name="IDS_STORAGE_ACCESS_PERMISSION_TITLE" desc="Title of the permission to allow embedded content to access cookies and site data [CHAR_LIMIT=32]">
+     Embedded content
+   </message>
++  <message name="IDS_LOCAL_NETWORK_ACCESS_PERMISSION_TITLE" desc="Title of the permission for Local Network Access [CHAR_LIMIT=32]">
++    Local network access
++  </message>
+ 
+   <!-- Site settings global toggles -->
+ 
+@@ -1220,6 +1223,28 @@
+     Don't allow sites to connect to serial ports
+   </message>
+ 
++  <!-- Local Network Access -->
++  <message name="IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_PAGE_DESCRIPTION" desc="Description of the local network access content setting.">
++    Sites can use this feature to look for and connect to any device on your local network
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_ASK" desc="Summary text explaining that sites need to ask for permission before they can connect to any devices on the user's local network.">
++    Sites can ask to connect to any device on your local network
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_BLOCKED" desc="Summary text explaining that sites are blocked from making local network requests.">
++    Don’t allow sites to connect to any device on your local network
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_A11Y" desc="The screen reader announcement describing a toggle with two states, controling whether sites can request permission to connect to devices on the user's local network. It is important to keep this string as two full sentences terminated by a period.">
++    When on, sites can ask to connect to any device on your local network. When off, sites can’t connect to devices on your local network.
++  </message>
++
++  <message name="IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_ASK" desc="Primary text corresponding to the ask button in the Local Network Access permission radio button group.">
++    Sites can ask to connect to any device on your local network
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_BLOCK" desc="Primary text corresponding to the block button in the Local Network Access permission radio button group.">
++    Don’t allow sites to connect to any device on your local network
++  </message>
++
++
+   <!-- Advanced protection -->
+   <message name="IDS_SETTINGS_PRIVACY_AND_SECURITY_ADVANCED_PROTECTION_SECTION_TITLE" desc="Title for section on privacy settings page. Section displays information about how Android-OS advanced-protection 'on' setting affects Vanadium settings. Section is shown for for a few days after the user has turned on advanced-protection in Android-OS-settings.">
+     Advanced Protection is on
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_LOCAL_NETWORK_ACCESS_PERMISSION_TITLE.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_LOCAL_NETWORK_ACCESS_PERMISSION_TITLE.png.sha1
+new file mode 100644
+index 0000000000000..01dda4836e970
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_LOCAL_NETWORK_ACCESS_PERMISSION_TITLE.png.sha1
+@@ -0,0 +1 @@
++7755ceaa2a93de3591cc0cfaaa7762b02226f143
+\ No newline at end of file
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_A11Y.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_A11Y.png.sha1
+new file mode 100644
+index 0000000000000..f77605804d1b2
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_A11Y.png.sha1
+@@ -0,0 +1 @@
++910c3108f2e3f32f045dcdbfb2c54541b3324f34
+\ No newline at end of file
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_ASK.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_ASK.png.sha1
+new file mode 100644
+index 0000000000000..f77605804d1b2
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_ASK.png.sha1
+@@ -0,0 +1 @@
++910c3108f2e3f32f045dcdbfb2c54541b3324f34
+\ No newline at end of file
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_BLOCKED.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_BLOCKED.png.sha1
+new file mode 100644
+index 0000000000000..419fc68ae380b
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_CATEGORY_LOCAL_NETWORK_ACCESS_BLOCKED.png.sha1
+@@ -0,0 +1 @@
++e434cc9fdbe83c141363d4161158cdab08bdeb72
+\ No newline at end of file
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_ASK.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_ASK.png.sha1
+new file mode 100644
+index 0000000000000..4d3a41376795d
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_ASK.png.sha1
+@@ -0,0 +1 @@
++a898fcc382471521df93375a3e2ab53629af1d73
+\ No newline at end of file
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_BLOCK.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_BLOCK.png.sha1
+new file mode 100644
+index 0000000000000..4d3a41376795d
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_BLOCK.png.sha1
+@@ -0,0 +1 @@
++a898fcc382471521df93375a3e2ab53629af1d73
+\ No newline at end of file
+diff --git a/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_PAGE_DESCRIPTION.png.sha1 b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_PAGE_DESCRIPTION.png.sha1
+new file mode 100644
+index 0000000000000..4d3a41376795d
+--- /dev/null
++++ b/components/browser_ui/strings/android/site_settings_grdp/IDS_WEBSITE_SETTINGS_LOCAL_NETWORK_ACCESS_PAGE_DESCRIPTION.png.sha1
+@@ -0,0 +1 @@
++a898fcc382471521df93375a3e2ab53629af1d73
+\ No newline at end of file
+diff --git a/components/embedder_support/permission_context_utils.cc b/components/embedder_support/permission_context_utils.cc
+index 3f006e5b5785f..37f52acd38869 100644
+--- a/components/embedder_support/permission_context_utils.cc
++++ b/components/embedder_support/permission_context_utils.cc
+@@ -11,6 +11,7 @@
+ #include "components/permissions/contexts/clipboard_sanitized_write_permission_context.h"
+ #include "components/permissions/contexts/geolocation_permission_context.h"
+ #include "components/permissions/contexts/keyboard_lock_permission_context.h"
++#include "components/permissions/contexts/local_network_access_permission_context.h"
+ #include "components/permissions/contexts/midi_permission_context.h"
+ #include "components/permissions/contexts/midi_sysex_permission_context.h"
+ #include "components/permissions/contexts/nfc_permission_context.h"
+@@ -108,6 +109,9 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
+   permission_contexts[ContentSettingsType::KEYBOARD_LOCK] =
+       std::make_unique<permissions::KeyboardLockPermissionContext>(
+           browser_context);
++  permission_contexts[ContentSettingsType::LOCAL_NETWORK_ACCESS] =
++      std::make_unique<permissions::LocalNetworkAccessPermissionContext>(
++          browser_context);
+   permission_contexts[ContentSettingsType::MIDI] =
+       std::make_unique<permissions::MidiPermissionContext>(browser_context);
+   permission_contexts[ContentSettingsType::MIDI_SYSEX] =
+diff --git a/components/page_info/android/DEPS b/components/page_info/android/DEPS
+index ea8b7f5a70586..eb0d84514b0e8 100644
+--- a/components/page_info/android/DEPS
++++ b/components/page_info/android/DEPS
+@@ -20,6 +20,7 @@ include_rules = [
+   "+device/vr/buildflags/buildflags.h",
+   "+device/vr/public/cpp",
+   "+net/cert",
++  "+services/network/public/cpp/features.h",
+   "+ui/android",
+   "+ui/base/l10n/l10n_util.h",
+ ]
+diff --git a/components/page_info/android/page_info_controller_android.cc b/components/page_info/android/page_info_controller_android.cc
+index 31495573d32e7..27f4ecfda2bda 100644
+--- a/components/page_info/android/page_info_controller_android.cc
++++ b/components/page_info/android/page_info_controller_android.cc
+@@ -28,6 +28,7 @@
+ #include "content/public/common/content_features.h"
+ #include "content/public/common/content_switches.h"
+ #include "device/vr/buildflags/buildflags.h"
++#include "services/network/public/cpp/features.h"
+ #include "url/origin.h"
+ 
+ // Must come after all headers that specialize FromJniType() / ToJniType().
+@@ -162,7 +163,11 @@ void PageInfoControllerAndroid::SetPermissionInfo(
+     permissions_to_display.push_back(
+         ContentSettingsType::FEDERATED_IDENTITY_API);
+   }
+-    permissions_to_display.push_back(ContentSettingsType::STORAGE_ACCESS);
++  permissions_to_display.push_back(ContentSettingsType::STORAGE_ACCESS);
++  if (base::FeatureList::IsEnabled(
++          network::features::kLocalNetworkAccessChecks)) {
++    permissions_to_display.push_back(ContentSettingsType::LOCAL_NETWORK_ACCESS);
++  }
+ 
+   std::map<ContentSettingsType, ContentSetting>
+       user_specified_settings_to_display;
+diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
+index f8bb5140323c6..93e5a93af0ce9 100644
+--- a/components/page_info/page_info.cc
++++ b/components/page_info/page_info.cc
+@@ -154,10 +154,7 @@ ContentSettingsType kPermissionType[] = {
+ #if BUILDFLAG(IS_CHROMEOS)
+     ContentSettingsType::WEB_PRINTING,
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+-#if !BUILDFLAG(IS_ANDROID)
+-    // TODO(crbug.com/400455013): Enable on Android.
+     ContentSettingsType::LOCAL_NETWORK_ACCESS,
+-#endif  // BUIDLFLAG(IS_ANDROID)
+ };
+ 
+ // The list of setting types which request permission for a pair of requesting
+diff --git a/components/permissions/android/BUILD.gn b/components/permissions/android/BUILD.gn
+index 0069f22f8de3d..bc7008639839c 100644
+--- a/components/permissions/android/BUILD.gn
++++ b/components/permissions/android/BUILD.gn
+@@ -87,6 +87,8 @@ android_resources("java_resources") {
+     "res/drawable/nfc_off_24px.xml",
+     "res/drawable/open_in_new_off_24px.xml",
+     "res/drawable/permission_icon_background.xml",
++    "res/drawable/router_24.xml",
++    "res/drawable/router_off_24.xml",
+     "res/drawable/sensors_off_24px.xml",
+     "res/drawable/smartphone_24px.xml",
+     "res/drawable/sync_24px.xml",
+diff --git a/components/permissions/android/res/drawable/router_24.xml b/components/permissions/android/res/drawable/router_24.xml
+new file mode 100644
+index 0000000000000..b7ab7435fd845
+--- /dev/null
++++ b/components/permissions/android/res/drawable/router_24.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++Copyright 2025 The Chromium Authors
++Use of this source code is governed by a BSD-style license that can be
++found in the LICENSE file.
++-->
++
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="960"
++    android:viewportHeight="960"
++    android:tint="?attr/colorControlNormal">
++  <path
++      android:fillColor="@android:color/white"
++      android:pathData="M202.87,848.13Q165.09,848.13 138.48,821.52Q111.87,794.91 111.87,757.13L111.87,597.13Q111.87,559.35 138.48,532.74Q165.09,506.13 202.87,506.13L591.39,506.13L591.39,362.87L682.39,362.87L682.39,506.13L756.89,506.13Q794.67,506.13 821.28,532.74Q847.89,559.35 847.89,597.13L847.89,757.13Q847.89,794.91 821.28,821.52Q794.67,848.13 756.89,848.13L202.87,848.13ZM202.87,757.13L756.89,757.13Q756.89,757.13 756.89,757.13Q756.89,757.13 756.89,757.13L756.89,597.13Q756.89,597.13 756.89,597.13Q756.89,597.13 756.89,597.13L202.87,597.13Q202.87,597.13 202.87,597.13Q202.87,597.13 202.87,597.13L202.87,757.13Q202.87,757.13 202.87,757.13Q202.87,757.13 202.87,757.13ZM282.87,717.13Q299.87,717.13 311.37,705.63Q322.87,694.13 322.87,677.13Q322.87,660.13 311.37,648.63Q299.87,637.13 282.87,637.13Q265.87,637.13 254.37,648.63Q242.87,660.13 242.87,677.13Q242.87,694.13 254.37,705.63Q265.87,717.13 282.87,717.13ZM418.09,717.13Q435.09,717.13 446.59,705.63Q458.09,694.13 458.09,677.13Q458.09,660.13 446.59,648.63Q435.09,637.13 418.09,637.13Q401.09,637.13 389.59,648.63Q378.09,660.13 378.09,677.13Q378.09,694.13 389.59,705.63Q401.09,717.13 418.09,717.13ZM553.3,717.13Q570.3,717.13 581.8,705.63Q593.3,694.13 593.3,677.13Q593.3,660.13 581.8,648.63Q570.3,637.13 553.3,637.13Q536.3,637.13 524.8,648.63Q513.3,660.13 513.3,677.13Q513.3,694.13 524.8,705.63Q536.3,717.13 553.3,717.13ZM566.41,328.8L506.26,268.65Q532.26,244.17 565.34,229.82Q598.41,215.46 636.89,215.46Q675.37,215.46 708.45,229.82Q741.52,244.17 767.52,268.65L707.37,328.8Q693.37,315.28 675.63,307.28Q657.89,299.28 636.89,299.28Q615.89,299.28 598.15,307.28Q580.41,315.28 566.41,328.8ZM464.26,226.65L405.87,168.02Q449.87,123.54 509.3,97.71Q568.74,71.87 636.89,71.87Q705.04,71.87 764.48,97.71Q823.91,123.54 867.91,168.02L809.52,226.65Q776.52,193.65 732.19,174.55Q687.85,155.46 636.89,155.46Q585.93,155.46 541.6,174.55Q497.26,193.65 464.26,226.65ZM202.87,757.13Q202.87,757.13 202.87,757.13Q202.87,757.13 202.87,757.13L202.87,597.13Q202.87,597.13 202.87,597.13Q202.87,597.13 202.87,597.13L202.87,597.13Q202.87,597.13 202.87,597.13Q202.87,597.13 202.87,597.13L202.87,757.13Q202.87,757.13 202.87,757.13Q202.87,757.13 202.87,757.13Z"/>
++</vector>
+diff --git a/components/permissions/android/res/drawable/router_off_24.xml b/components/permissions/android/res/drawable/router_off_24.xml
+new file mode 100644
+index 0000000000000..be035b96f708b
+--- /dev/null
++++ b/components/permissions/android/res/drawable/router_off_24.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++Copyright 2025 The Chromium Authors
++Use of this source code is governed by a BSD-style license that can be
++found in the LICENSE file.
++-->
++
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="960"
++    android:viewportHeight="960"
++    android:tint="?attr/colorControlNormal">
++  <path
++      android:fillColor="@android:color/white"
++      android:pathData="M566.41,328.8L506.26,268.65Q532.26,244.17 565.34,229.82Q598.41,215.46 636.89,215.46Q675.37,215.46 708.45,229.82Q741.52,244.17 767.52,268.65L707.37,328.8Q693.37,315.28 675.63,307.28Q657.89,299.28 636.89,299.28Q615.89,299.28 598.15,307.28Q580.41,315.28 566.41,328.8ZM464.26,226.65L405.87,168.02Q449.87,123.54 509.3,97.71Q568.74,71.87 636.89,71.87Q705.04,71.87 764.48,97.71Q823.91,123.54 867.91,168.02L809.52,226.65Q776.52,193.65 732.19,174.55Q687.85,155.46 636.89,155.46Q585.93,155.46 541.6,174.55Q497.26,193.65 464.26,226.65ZM847.89,729.83L591.39,473.33L591.39,362.87L682.39,362.87L682.39,506.13L756.89,506.13Q794.67,506.13 821.28,532.74Q847.89,559.35 847.89,597.13L847.89,729.83ZM202.87,757.13L637.87,757.13L477.87,597.13L202.87,597.13Q202.87,597.13 202.87,597.13Q202.87,597.13 202.87,597.13L202.87,757.13Q202.87,757.13 202.87,757.13Q202.87,757.13 202.87,757.13ZM800.57,919.83L728.87,848.13L202.87,848.13Q165.09,848.13 138.48,821.52Q111.87,794.91 111.87,757.13L111.87,597.13Q111.87,559.35 138.48,532.74Q165.09,506.13 202.87,506.13L386.87,506.13L40.65,159.91L100.04,100.52L859.96,860.44L800.57,919.83ZM282.87,717.13Q265.87,717.13 254.37,705.63Q242.87,694.13 242.87,677.13Q242.87,660.13 254.37,648.63Q265.87,637.13 282.87,637.13Q299.87,637.13 311.37,648.63Q322.87,660.13 322.87,677.13Q322.87,694.13 311.37,705.63Q299.87,717.13 282.87,717.13ZM418.09,717.13Q401.09,717.13 389.59,705.63Q378.09,694.13 378.09,677.13Q378.09,660.13 389.59,648.63Q401.09,637.13 418.09,637.13Q435.09,637.13 446.59,648.63Q458.09,660.13 458.09,677.13Q458.09,694.13 446.59,705.63Q435.09,717.13 418.09,717.13ZM553.3,717.13Q536.3,717.13 524.8,705.63Q513.3,694.13 513.3,677.13Q513.3,660.13 524.8,648.63Q536.3,637.13 553.3,637.13Q570.3,637.13 581.8,648.63Q593.3,660.13 593.3,677.13Q593.3,694.13 581.8,705.63Q570.3,717.13 553.3,717.13ZM202.87,757.13L202.87,757.13L202.87,597.13L202.87,597.13Q202.87,597.13 202.87,597.13Q202.87,597.13 202.87,597.13L202.87,757.13Q202.87,757.13 202.87,757.13Q202.87,757.13 202.87,757.13Z"/>
++</vector>
+diff --git a/components/permissions/contexts/local_network_access_permission_context.cc b/components/permissions/contexts/local_network_access_permission_context.cc
+index cf5c5e3a56ddb..a56af3ddb3e83 100644
+--- a/components/permissions/contexts/local_network_access_permission_context.cc
++++ b/components/permissions/contexts/local_network_access_permission_context.cc
+@@ -5,8 +5,11 @@
+ #include "components/permissions/contexts/local_network_access_permission_context.h"
+ 
+ #include "components/content_settings/core/common/content_settings_types.h"
++#include "content/public/browser/browser_context.h"
+ #include "services/network/public/mojom/permissions_policy/permissions_policy_feature.mojom.h"
+ 
++namespace permissions {
++
+ LocalNetworkAccessPermissionContext::LocalNetworkAccessPermissionContext(
+     content::BrowserContext* browser_context)
+     : PermissionContextBase(
+@@ -16,3 +19,5 @@ LocalNetworkAccessPermissionContext::LocalNetworkAccessPermissionContext(
+ 
+ LocalNetworkAccessPermissionContext::~LocalNetworkAccessPermissionContext() =
+     default;
++
++}  // namespace permissions
+diff --git a/components/permissions/contexts/local_network_access_permission_context.h b/components/permissions/contexts/local_network_access_permission_context.h
+index 6c5bc73f8b74d..8c79415d29792 100644
+--- a/components/permissions/contexts/local_network_access_permission_context.h
++++ b/components/permissions/contexts/local_network_access_permission_context.h
+@@ -7,8 +7,14 @@
+ 
+ #include "components/permissions/permission_context_base.h"
+ 
++namespace content {
++class BrowserContext;
++}
++
++namespace permissions {
++
+ class LocalNetworkAccessPermissionContext
+-    : public permissions::PermissionContextBase {
++    : public PermissionContextBase {
+  public:
+   explicit LocalNetworkAccessPermissionContext(
+       content::BrowserContext* browser_context);
+@@ -20,4 +26,6 @@ class LocalNetworkAccessPermissionContext
+       const LocalNetworkAccessPermissionContext&) = delete;
+ };
+ 
++}  // namespace permissions
++
+ #endif  // COMPONENTS_PERMISSIONS_CONTEXTS_LOCAL_NETWORK_ACCESS_PERMISSION_CONTEXT_H_
+diff --git a/components/permissions/permission_request.cc b/components/permissions/permission_request.cc
+index 39fb034ad2eec..cb7d0b514ff1c 100644
+--- a/components/permissions/permission_request.cc
++++ b/components/permissions/permission_request.cc
+@@ -94,6 +94,9 @@ PermissionRequest::GetDialogAnnotatedMessageText(
+     case RequestType::kIdleDetection:
+       message_id = IDS_IDLE_DETECTION_INFOBAR_TEXT;
+       break;
++    case RequestType::kLocalNetworkAccess:
++      message_id = IDS_LOCAL_NETWORK_ACCESS_INFOBAR_TEXT;
++      break;
+     case RequestType::kMicStream:
+       message_id = IDS_MEDIA_CAPTURE_AUDIO_ONLY_INFOBAR_TEXT;
+       break;
+diff --git a/components/permissions/permission_util.cc b/components/permissions/permission_util.cc
+index b379cc24f7722..cff1e9027a309 100644
+--- a/components/permissions/permission_util.cc
++++ b/components/permissions/permission_util.cc
+@@ -144,10 +144,9 @@ RequestTypeForUma PermissionUtil::GetUmaValueForRequestType(
+     // TODO(crbug.com/40214907): Enable on Android
+     case RequestType::kLocalFonts:
+       return RequestTypeForUma::PERMISSION_LOCAL_FONTS;
+-    // TODO(crbug.com/400455013): Enable on Android.
++#endif
+     case RequestType::kLocalNetworkAccess:
+       return RequestTypeForUma::PERMISSION_LOCAL_NETWORK_ACCESS;
+-#endif
+     case RequestType::kGeolocation:
+       return RequestTypeForUma::PERMISSION_GEOLOCATION;
+     case RequestType::kHandTracking:
+diff --git a/components/permissions/request_type.cc b/components/permissions/request_type.cc
+index e7df97af6099b..9f6a176153cc1 100644
+--- a/components/permissions/request_type.cc
++++ b/components/permissions/request_type.cc
+@@ -50,6 +50,8 @@ int GetIconIdAndroid(RequestType type) {
+       return IDR_ANDROID_INFOBAR_IDENTITY_PROVIDER;
+     case RequestType::kIdleDetection:
+       return IDR_ANDROID_INFOBAR_IDLE_DETECTION;
++    case RequestType::kLocalNetworkAccess:
++      return IDR_ANDROID_INFOBAR_LOCAL_NETWORK_ACCESS;
+     case RequestType::kMicStream:
+       return IDR_ANDROID_INFOBAR_MEDIA_STREAM_MIC;
+     case RequestType::kMidiSysex:
+@@ -243,10 +245,9 @@ std::optional<RequestType> ContentSettingsTypeToRequestTypeIfExists(
+ #if !BUILDFLAG(IS_ANDROID)
+     case ContentSettingsType::WINDOW_MANAGEMENT:
+       return RequestType::kWindowManagement;
+-    // TODO(crbug.com/400455013): Enable on Android.
++#endif
+     case ContentSettingsType::LOCAL_NETWORK_ACCESS:
+       return RequestType::kLocalNetworkAccess;
+-#endif
+     case ContentSettingsType::TOP_LEVEL_STORAGE_ACCESS:
+       return RequestType::kTopLevelStorageAccess;
+     case ContentSettingsType::FILE_SYSTEM_WRITE_GUARD:
+@@ -421,9 +422,9 @@ const char* PermissionKeyForRequestType(permissions::RequestType request_type) {
+       return "keyboard_lock";
+     case permissions::RequestType::kLocalFonts:
+       return "local_fonts";
++#endif
+     case permissions::RequestType::kLocalNetworkAccess:
+       return "local_network_access";
+-#endif
+     case permissions::RequestType::kMicStream:
+       return "mic_stream";
+     case permissions::RequestType::kMidiSysex:
+diff --git a/components/permissions/request_type.h b/components/permissions/request_type.h
+index f92d6405b1a75..9d221517c5559 100644
+--- a/components/permissions/request_type.h
++++ b/components/permissions/request_type.h
+@@ -38,9 +38,8 @@ enum class RequestType {
+   kIdleDetection,
+ #if !BUILDFLAG(IS_ANDROID)
+   kLocalFonts,
+-  // TODO(crbug.com/400455013): Add Android support.
+-  kLocalNetworkAccess,
+ #endif
++  kLocalNetworkAccess,
+   kMicStream,
+   kMidiSysex,
+   kMultipleDownloads,
+diff --git a/components/permissions_strings.grdp b/components/permissions_strings.grdp
+index 5214284cd0c56..31f3e16e36820 100644
+--- a/components/permissions_strings.grdp
++++ b/components/permissions_strings.grdp
+@@ -30,6 +30,9 @@
+     <message name="IDS_IDLE_DETECTION_INFOBAR_TEXT" desc="Text requesting permission for a site to know when the user is idle.">
+       <ph name="URL">$1<ex>google.com</ex></ph> wants to know when you're actively using this device
+     </message>
++    <message name="IDS_LOCAL_NETWORK_ACCESS_INFOBAR_TEXT" desc="Text requesting permission for a site to access the user's local network.">
++      <ph name="URL">$1<ex>google.com</ex></ph> wants to look for and connect to any device on your local network
++    </message>
+     <message name="IDS_NOTIFICATION_QUIET_PERMISSION_PROMPT_TITLE" desc="Text used as notification title when requesting permission for Web Notifications via a notification.">
+       Notifications for <ph name="ORIGIN">$1<ex>example.com</ex></ph> are blocked
+     </message>
+diff --git a/components/permissions_strings_grdp/IDS_LOCAL_NETWORK_ACCESS_INFOBAR_TEXT.png.sha1 b/components/permissions_strings_grdp/IDS_LOCAL_NETWORK_ACCESS_INFOBAR_TEXT.png.sha1
+new file mode 100644
+index 0000000000000..5c192e5e41b38
+--- /dev/null
++++ b/components/permissions_strings_grdp/IDS_LOCAL_NETWORK_ACCESS_INFOBAR_TEXT.png.sha1
+@@ -0,0 +1 @@
++ca5fc34fbc8fe2fb908f95e6e498730faf8f40e8
+\ No newline at end of file
+diff --git a/components/policy/test/data/pref_mapping/LocalNetworkAccessRestrictionsEnabled.json b/components/policy/test/data/pref_mapping/LocalNetworkAccessRestrictionsEnabled.json
+index 539e268aca834..076ef68e58f0d 100644
+--- a/components/policy/test/data/pref_mapping/LocalNetworkAccessRestrictionsEnabled.json
++++ b/components/policy/test/data/pref_mapping/LocalNetworkAccessRestrictionsEnabled.json
+@@ -4,7 +4,8 @@
+       "win",
+       "linux",
+       "mac",
+-      "chromeos"
++      "chromeos",
++      "android"
+     ],
+     "simple_policy_pref_mapping_test": {
+       "pref_name": "managed_local_network_access_restrictions_enabled",
+diff --git a/components/resources/android/permissions_resource_id.h b/components/resources/android/permissions_resource_id.h
+index 456e841839c30..737aa279a5858 100644
+--- a/components/resources/android/permissions_resource_id.h
++++ b/components/resources/android/permissions_resource_id.h
+@@ -37,6 +37,8 @@ DECLARE_RESOURCE_ID(IDR_ANDROID_INFOBAR_IDENTITY_PROVIDER,
+                     R.drawable.gm_filled_devices_24)
+ DECLARE_RESOURCE_ID(IDR_ANDROID_INFOBAR_IDLE_DETECTION,
+                     R.drawable.gm_filled_devices_24)
++DECLARE_RESOURCE_ID(IDR_ANDROID_INFOBAR_LOCAL_NETWORK_ACCESS,
++                    R.drawable.router_24)
+ DECLARE_RESOURCE_ID(IDR_ANDROID_INFOBAR_MEDIA_STREAM_CAMERA,
+                     R.drawable.gm_filled_videocam_24)
+ DECLARE_RESOURCE_ID(IDR_ANDROID_INFOBAR_MEDIA_STREAM_MIC,
