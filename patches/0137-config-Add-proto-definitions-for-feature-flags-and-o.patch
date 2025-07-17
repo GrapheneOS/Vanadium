@@ -5,9 +5,9 @@ Subject: [PATCH] config: Add proto definitions for feature flags and
  out-of-band component shipping
 
 ---
- vanadium/android_config/proto/BUILD.gn     | 12 ++++
- vanadium/android_config/proto/config.proto | 82 ++++++++++++++++++++++
- 2 files changed, 94 insertions(+)
+ vanadium/android_config/proto/BUILD.gn     | 12 +++
+ vanadium/android_config/proto/config.proto | 92 ++++++++++++++++++++++
+ 2 files changed, 104 insertions(+)
  create mode 100644 vanadium/android_config/proto/BUILD.gn
  create mode 100644 vanadium/android_config/proto/config.proto
 
@@ -31,10 +31,10 @@ index 0000000000000..7ccfd430aa163
 +}
 diff --git a/vanadium/android_config/proto/config.proto b/vanadium/android_config/proto/config.proto
 new file mode 100644
-index 0000000000000..7ffeea7f9cd6b
+index 0000000000000..9cc568cf41f31
 --- /dev/null
 +++ b/vanadium/android_config/proto/config.proto
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,92 @@
 +// Copyright 2023 GrapheneOS
 +// Use of this source code is governed by a GPL-2.0 style license that can be
 +// found in the LICENSE file.
@@ -99,9 +99,10 @@ index 0000000000000..7ffeea7f9cd6b
 +message Component {
 +  ComponentType component_type = 1;
 +  string component_file_name = 2;
-+  int64 version_code = 3;
++  reserved 3; // was int64 version_code = 3;
 +  repeated Flag dependent_flags = 4;
-+  ComponentApkSpec apk_spec = 5;
++  reserved 5; // was ComponentApkSpec apk_spec = 5;
++  repeated AdditionalComponent additional_components = 6;
 +
 +  // Next tag: 2
 +  enum ComponentType {
@@ -112,8 +113,17 @@ index 0000000000000..7ffeea7f9cd6b
 +  // Information on where the component file is stored.
 +  // When not set, it's assumed to be found in the config apk.
 +  // Next tag: 3
-+  message ComponentApkSpec {
-+    string pkg_name = 1;
-+    repeated bytes sha256_certs = 2;
++  // message ComponentApkSpec {
++  //   string pkg_name = 1;
++  //   repeated bytes sha256_certs = 2;
++  // }
++
++  message AdditionalComponent {
++    string component_file_name = 2;
++    repeated ComponentCondition conditions = 100;
++  }
++
++  message ComponentCondition {
++    string language = 1;
 +  }
 +}
