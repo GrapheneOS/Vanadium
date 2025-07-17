@@ -12,10 +12,10 @@ Subject: [PATCH] Add support for upstream file-based parsing of unindexed
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
-index 31aef8a25d16a..12c39bc60c74b 100644
+index 5f04b2dca6267..dca5909c10d87 100644
 --- a/vanadium/android_config/proto/BUILD.gn
 +++ b/vanadium/android_config/proto/BUILD.gn
-@@ -60,6 +60,15 @@ android_library("browser_config_parser_java") {
+@@ -61,6 +61,15 @@ android_library("browser_config_parser_java") {
      ":config_proto_java",
      "//vanadium/android_config:configinfo_java",
    ]
@@ -116,10 +116,10 @@ index 0000000000000..a42d38734d266
 +    }
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-index a789f599ae723..1526ffcd0f67f 100644
+index e32b793506445..e01315cd59b17 100644
 --- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -285,6 +285,9 @@ public final class VanadiumConfParser {
+@@ -318,6 +318,9 @@ public final class VanadiumConfParser {
      private static void parseInBackground(Context ctx, SpecType specType) {
          futureParsedConfigs = executor.submit(() -> {
              parsedConfigs = parse(ctx, specType);

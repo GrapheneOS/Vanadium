@@ -3,23 +3,34 @@ From: fgei <fgei@gmail.com>
 Date: Fri, 29 Dec 2023 05:21:43 +0000
 Subject: [PATCH] config-parser: Add config parser for browser and webview
 
+Squashed with support for conditional component parsing in
+the config app (VanadiumConfig).
+
+Changes since:
+  - 138.0.7204.157.1:
+    - removed unused support for multiple apks holding component files
+    - simplified parsing support of components from a single config app
+    - unify versioning for component files based on config app
 ---
- vanadium/android_config/proto/BUILD.gn        |  10 +
- .../vanadium/config/VanadiumConfParser.java   | 501 ++++++++++++++++++
- 2 files changed, 511 insertions(+)
+ vanadium/android_config/proto/BUILD.gn        |  11 +
+ .../config/VanadiumConfConditionals.java      |  42 ++
+ .../vanadium/config/VanadiumConfParser.java   | 488 ++++++++++++++++++
+ 3 files changed, 541 insertions(+)
+ create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 
 diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
-index e3cf1229f8920..ae2627740c4e0 100644
+index e3cf1229f8920..c50128b1f40e8 100644
 --- a/vanadium/android_config/proto/BUILD.gn
 +++ b/vanadium/android_config/proto/BUILD.gn
-@@ -51,3 +51,13 @@ action("config_generation") {
+@@ -51,3 +51,14 @@ action("config_generation") {
      ":config_generator_java",
    ]
  }
 +
 +android_library("browser_config_parser_java") {
 +  sources = [
++    "java/src/app/vanadium/config/VanadiumConfConditionals.java",
 +    "java/src/app/vanadium/config/VanadiumConfParser.java",
 +  ]
 +  deps = [
@@ -27,12 +38,60 @@ index e3cf1229f8920..ae2627740c4e0 100644
 +    "//vanadium/android_config:configinfo_java",
 +  ]
 +}
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+new file mode 100644
+index 0000000000000..39d8de8b26056
+--- /dev/null
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+@@ -0,0 +1,42 @@
++package app.vanadium.config;
++
++import android.util.Log;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
++
++public final class VanadiumConfConditionals {
++
++    public static final String TAG = "cr_VanadiumConfConditionals";
++
++    public interface ConditionSupplier {
++        boolean isUserAcceptLanguageIncluded(ComponentCondition componentCondition);
++    }
++
++    private static volatile ConditionSupplier conditionSupplier;
++
++    private static ConditionSupplier getConditionSupplier() {
++        return VanadiumConfConditionals.conditionSupplier;
++    }
++
++    static boolean isConditionSatisfied(ComponentCondition condition) {
++        ConditionSupplier curConditionSupplier = getConditionSupplier();
++        if (curConditionSupplier == null) {
++            Log.d(TAG, "Conditional component not supported");
++            return false;
++        }
++
++        if (condition == null || ComponentCondition.getDefaultInstance().equals(condition)) {
++            return false;
++        }
++
++        if (!curConditionSupplier.isUserAcceptLanguageIncluded(condition)) {
++            return false;
++        }
++
++        return true;
++    }
++
++    public static void setBrowserConditionals(ConditionSupplier conditionSupplier) {
++        VanadiumConfConditionals.conditionSupplier = conditionSupplier;
++    }
++}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..a789f599ae723
+index 0000000000000..e32b793506445
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,501 @@
+@@ -0,0 +1,488 @@
 +package app.vanadium.config;
 +
 +import android.content.Context;
@@ -61,7 +120,9 @@ index 0000000000000..a789f599ae723
 +import java.util.zip.ZipFile;
 +
 +import app.vanadium.config.proto.VanadiumConfigProto.Component;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentApkSpec;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
 +import app.vanadium.config.proto.VanadiumConfigProto.Config;
 +import app.vanadium.config.proto.VanadiumConfigProto.Configs;
@@ -82,15 +143,13 @@ index 0000000000000..a789f599ae723
 +        private final SparseArray<ParsedComponent> components;
 +        private final long configVersionCode;
 +        private final String configApkFilePath;
-+        private final boolean hasOtherComponentApks;
 +
 +        ParsedConfigs(SparseArray<ParsedFlagSet> flags, SparseArray<ParsedComponent> components,
-+                      long configVersionCode, String configApkFilePath, boolean hasOtherComponentApks) {
++                      long configVersionCode, String configApkFilePath) {
 +            this.flags = flags;
 +            this.components = components;
 +            this.configVersionCode = configVersionCode;
 +            this.configApkFilePath = configApkFilePath;
-+            this.hasOtherComponentApks = hasOtherComponentApks;
 +        }
 +
 +        private ParsedFlagSet getFlagSetOrDefault(FlagType flagType) {
@@ -102,44 +161,78 @@ index 0000000000000..a789f599ae723
 +        }
 +
 +        private static final ParsedConfigs EMPTY = new ParsedConfigs(
-+                new SparseArray<>(0), new SparseArray<>(0),
-+                -1L, null, false);
++                new SparseArray<>(0), new SparseArray<>(0), -1L, null);
 +    }
 +
 +    private static final class ParsedComponent {
 +        private final ComponentType componentType;
-+        private final long componentVersionCode;
 +        private final String componentFileName;
-+        private final String componentApkPkgName;
-+        private final String componentApkFilePath;
++        private final List<AdditionalComponent> additionalComponents;
 +
 +        private volatile Future<byte[]> componentByteArray;
 +        private volatile byte[] cachedComponentByteArray;
 +
-+        private ParsedComponent(Component component, String apkFilePath) {
++        private ParsedComponent(Component component) {
 +            this.componentType = component.getComponentType();
-+            this.componentVersionCode = component.getVersionCode();
 +            this.componentFileName = component.getComponentFileName();
-+            this.componentApkPkgName = component.getApkSpec().getPkgName();
-+            this.componentApkFilePath = apkFilePath;
-+            this.componentByteArray = executor.submit(this::getByteArrayForComponentInternal);
++            this.additionalComponents = component.getAdditionalComponentsList();
 +        }
 +
-+        private static final ParsedComponent EMPTY = new ParsedComponent(Component.getDefaultInstance(), null);
++        private static final ParsedComponent EMPTY = new ParsedComponent(Component.getDefaultInstance());
 +
-+        private byte[] getByteArrayForComponentInternal() {
++        private void initializeComponentByteArrayFetching(String configApkFilePath) {
++            this.componentByteArray = executor.submit(() -> getByteArrayForMainComponentInternal(configApkFilePath));
++        }
++
++        private byte[] getByteArrayForComponentInternal(String configApkFilePath) {
 +            if (componentFileName == null) {
 +                Log.e(TAG, "component file name not provided");
 +                return null;
 +            }
 +
-+            if (componentApkFilePath == null) {
++            if (configApkFilePath == null) {
 +                Log.d(TAG, "No file path provided");
 +                return null;
 +            }
 +
-+            try (ZipFile f = new ZipFile(componentApkFilePath)) {
-+                ZipEntry e = f.getEntry(componentFileName);
++            byte[] res = getByteArrayForMainComponent(configApkFilePath);
++            for (AdditionalComponent additionalComponent: additionalComponents) {
++                if (additionalComponent.getConditionsCount() != 0) {
++                    boolean isConditionSatisfied = false;
++                    for (ComponentCondition condition : additionalComponent.getConditionsList()) {
++                        if (VanadiumConfConditionals.isConditionSatisfied(condition)) {
++                            isConditionSatisfied = true;
++                            break;
++                        }
++                    }
++
++                    if (!isConditionSatisfied) {
++                        continue;
++                    }
++                }
++
++                byte[] additionalRes = getByteArrayForComponentInternalInFile(
++                        configApkFilePath, additionalComponent.getComponentFileName());
++                if (res == null) {
++                    res = additionalRes;
++                } else if (additionalRes != null) {
++                    byte[] newRes = new byte[res.length + additionalRes.length];
++                    System.arraycopy(res, 0, newRes, 0, res.length);
++                    System.arraycopy(additionalRes, 0, newRes, res.length, additionalRes.length);
++                    res = newRes;
++                }
++            }
++
++            return res;
++        }
++
++        private byte[] getByteArrayForMainComponentInternal(String configApkFilePath) {
++            return getByteArrayForComponentInternalInFile(configApkFilePath, componentFileName);
++        }
++
++        private byte[] getByteArrayForComponentInternalInFile(String configApkFilePath, String fileName) {
++            try (ZipFile f = new ZipFile(configApkFilePath)) {
++                ZipEntry e = f.getEntry(fileName);
 +                if (e == null) {
 +                    Log.e(TAG, "Component file not found inside the component apk");
 +                    return null;
@@ -158,7 +251,11 @@ index 0000000000000..a789f599ae723
 +            }
 +        }
 +
-+        private byte[] getComponentByteArray() {
++        private byte[] getComponentByteArray(String configApkFilePath) {
++            return getByteArrayForComponentInternal(configApkFilePath);
++        }
++
++        private byte[] getByteArrayForMainComponent(String configApkFilePath) {
 +            byte[] curComponentByteArray = cachedComponentByteArray;
 +            if (curComponentByteArray != null) {
 +                if (ConfigInfo.IS_DEBUG) {
@@ -170,7 +267,7 @@ index 0000000000000..a789f599ae723
 +            try {
 +                curComponentByteArray = this.componentByteArray.get();
 +                if (componentByteArray.isCancelled()) {
-+                    componentByteArray = executor.submit(this::getByteArrayForComponentInternal);
++                    componentByteArray = executor.submit(() -> getByteArrayForMainComponentInternal(configApkFilePath));
 +                }
 +                cachedComponentByteArray = curComponentByteArray;
 +                return curComponentByteArray;
@@ -219,28 +316,23 @@ index 0000000000000..a789f599ae723
 +            return null;
 +        }
 +
-+        ParsedComponent parsedComponent = getParsedConfigs().getComponentOrDefault(componentType);
++        ParsedConfigs parsedConfigs = getParsedConfigs();
++        ParsedComponent parsedComponent = parsedConfigs.getComponentOrDefault(componentType);
 +        if (parsedComponent.componentType != componentType) {
 +            Log.e(TAG, "", new IllegalStateException("Mismatched component type"));
 +            return null;
 +        }
 +
-+        return parsedComponent.getComponentByteArray();
++        return parsedComponent.getComponentByteArray(parsedConfigs.configApkFilePath);
 +    }
 +
-+    public static long getVersionCodeForComponent(ComponentType componentType) {
++    public static long getConfigVersionCode() {
 +        if (!isInitialized()) {
 +            Log.e(TAG, "No parsed config found, parsing not initialized");
 +            return -1L;
 +        }
 +
-+        ParsedComponent parsedComponent = getParsedConfigs().components.get(componentType.getNumber(), ParsedComponent.EMPTY);
-+        if (parsedComponent.componentType != componentType) {
-+            Log.e(TAG, "", new IllegalStateException("Mismatched component type"));
-+            return -1L;
-+        }
-+
-+        return parsedComponent.componentVersionCode;
++        return getParsedConfigs().configVersionCode;
 +    }
 +
 +    public static void initForBrowser(Context ctx) {
@@ -359,11 +451,9 @@ index 0000000000000..a789f599ae723
 +
 +        if (parsedConfigs != null) {
 +            if (configVersionCode <= parsedConfigs.configVersionCode) {
-+                if (!parsedConfigs.hasOtherComponentApks) {
-+                    Log.w(TAG, "Only update to newer versions are allowed to update parsed config," +
-+                            " returning the previously parsed config");
-+                    return parsedConfigs;
-+                }
++                Log.w(TAG, "Only update to newer versions are allowed to update parsed config," +
++                        " returning the previously parsed config");
++                return parsedConfigs;
 +            }
 +        }
 +
@@ -433,57 +523,13 @@ index 0000000000000..a789f599ae723
 +
 +                for (Component component : config.getComponentsList()) {
 +                    int componentType = component.getComponentType().getNumber();
-+                    String componentApkFilePath = configApkFilePath;
 +                    if (ComponentType.forNumber(componentType) == null) {
 +                        continue;
 +                    }
 +
-+                    // If there is a specified ComponentApkSpec, check if it has non-empty, non-default values.
-+                    if (component.hasApkSpec()) {
-+                        ComponentApkSpec componentApkSpec = component.getApkSpec();
-+                        String componentPkgName = componentApkSpec.getPkgName();
-+                        List<ByteString> sha256Certs = componentApkSpec.getSha256CertsList();
-+                        // No need to verify the config app again, default instance implies it has the component file.
-+                        // Also, no supplied component package name implies the config app has the component file.
-+                        // Config app will be attached later as dependency of current process.
-+                        final boolean componentFromConfigApp =
-+                                componentApkSpec.equals(ComponentApkSpec.getDefaultInstance())
-+                                        || componentPkgName.isEmpty()
-+                                        || componentPkgName.equals(ConfigInfo.CONFIG_APK_PACKAGE);
-+
-+                        boolean verified = componentFromConfigApp;
-+                        for (int i = 0; i < sha256Certs.size(); i++) {
-+                            if (verified) {
-+                                break;
-+                            }
-+
-+                            byte[] sha256CertBytes = sha256Certs.get(i).toByteArray();
-+                            if (verifyPackage(ctx, componentPkgName, sha256CertBytes)) {
-+                                verified = true;
-+                                break;
-+                            }
-+                        }
-+
-+                        if (!verified) {
-+                            continue;
-+                        }
-+
-+                        if (!componentFromConfigApp) {
-+                            PackageInfo componentApkPkgInfo = getPackageInfoOrNull(ctx,
-+                                    componentPkgName, PackageManager.MATCH_DISABLED_COMPONENTS);
-+                            if (componentApkPkgInfo == null || componentApkPkgInfo.applicationInfo == null) {
-+                                Log.w(TAG, "component package " + componentPkgName + " not found, not adding the component");
-+                                continue;
-+                            }
-+
-+                            attachPackageAsCurrentProcessDependency(ctx, componentPkgName);
-+
-+                            hasOtherComponentApks = true;
-+                            componentApkFilePath = componentApkPkgInfo.applicationInfo.publicSourceDir;
-+                        }
-+                    }
-+
-+                    pendingComponents.put(componentType, new ParsedComponent(component, componentApkFilePath));
++                    ParsedComponent parsedComponent = new ParsedComponent(component);
++                    parsedComponent.initializeComponentByteArrayFetching(configApkFilePath);
++                    pendingComponents.put(componentType, parsedComponent);
 +                    appendFlagsToTypes.accept(component.getDependentFlagsList());
 +                }
 +            }
@@ -496,7 +542,7 @@ index 0000000000000..a789f599ae723
 +            // Restart is required for config changes to take effect.
 +            attachPackageAsCurrentProcessDependency(ctx, ConfigInfo.CONFIG_APK_PACKAGE);
 +            return new ParsedConfigs(pendingFlags, pendingComponents, configVersionCode,
-+                    configApkFilePath, hasOtherComponentApks);
++                    configApkFilePath);
 +        }
 +    }
 +
@@ -529,7 +575,7 @@ index 0000000000000..a789f599ae723
 +    }
 +
 +    private static boolean isEligible() {
-+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
++        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 +    }
 +
 +    private VanadiumConfParser() {}

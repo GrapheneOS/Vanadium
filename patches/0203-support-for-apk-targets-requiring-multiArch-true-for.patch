@@ -1,13 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Mon, 14 Jul 2025 15:23:12 +0000
-Subject: [PATCH] support for apk targets requiring multiArch=true
+Subject: [PATCH] support for apk targets requiring multiArch=true for
+ installation
 
 ---
  build/config/android/abi.gni            | 8 ++++++++
- build/config/android/internal_rules.gni | 6 ++++++
+ build/config/android/internal_rules.gni | 3 +++
  build/config/android/rules.gni          | 6 ++++++
- 3 files changed, 20 insertions(+)
+ 3 files changed, 17 insertions(+)
 
 diff --git a/build/config/android/abi.gni b/build/config/android/abi.gni
 index 8f6c5b19946df..054c0dd18b9f2 100644
@@ -26,20 +27,15 @@ index 8f6c5b19946df..054c0dd18b9f2 100644
 +  android_app_secondary_abi_for_placeholder = "mips"
 +}
 diff --git a/build/config/android/internal_rules.gni b/build/config/android/internal_rules.gni
-index 2d1d775a4c33c..72e1a0bdb0148 100644
+index 2d1d775a4c33c..a9ba150e06dfb 100644
 --- a/build/config/android/internal_rules.gni
 +++ b/build/config/android/internal_rules.gni
-@@ -2744,8 +2744,14 @@ if (enable_java_templates) {
-         _native_lib_placeholders != []) {
-       _args += [ "--android-abi=$android_app_abi" ]
+@@ -2746,6 +2746,9 @@ if (enable_java_templates) {
      }
-+    _requires_multi_abi = defined(invoker.requires_multi_abi) && invoker.requires_multi_abi
      if (defined(android_app_secondary_abi)) {
        _args += [ "--secondary-android-abi=$android_app_secondary_abi" ]
-+    } else if (_requires_multi_abi) {
++    } else if (defined(invoker.requires_multi_abi) && invoker.requires_multi_abi) {
 +      _args += [ "--secondary-android-abi=$android_app_secondary_abi_for_placeholder" ]
-+    }
-+    if (_requires_multi_abi) {
 +      _args += [ "--is-multi-abi" ]
      }
      if (defined(invoker.loadable_modules) && invoker.loadable_modules != []) {
