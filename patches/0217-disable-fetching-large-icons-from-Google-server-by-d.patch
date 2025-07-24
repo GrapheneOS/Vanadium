@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 24 Jul 2025 16:04:26 +0000
+Subject: [PATCH] disable fetching large icons from Google server by default
+
+---
+ components/favicon/core/large_icon_service_impl.cc | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/components/favicon/core/large_icon_service_impl.cc b/components/favicon/core/large_icon_service_impl.cc
+index 18ac105875875..ffe0579c9d944 100644
+--- a/components/favicon/core/large_icon_service_impl.cc
++++ b/components/favicon/core/large_icon_service_impl.cc
+@@ -8,6 +8,7 @@
+ #include <optional>
+ #include <string>
+ 
++#include "base/feature_list.h"
+ #include "base/functional/bind.h"
+ #include "base/location.h"
+ #include "base/logging.h"
+@@ -27,6 +28,11 @@
+ 
+ namespace favicon {
+ 
++// Kill switch for fetching icons via Google Server
++BASE_FEATURE(kFetchLargeIconsOnGoogleServer,
++             "FetchLargeIconsOnGoogleServer",
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
+ namespace {
+ 
+ using favicon_base::GoogleFaviconServerRequestStatus;
+@@ -282,6 +288,14 @@ void LargeIconServiceImpl::
+         bool should_trim_page_url_path,
+         const net::NetworkTrafficAnnotationTag& traffic_annotation,
+         favicon_base::GoogleFaviconServerCallback callback) {
++  // Treat as if invalid URL when fetching large icons from Google server if disabled.
++  if (!base::FeatureList::IsEnabled(kFetchLargeIconsOnGoogleServer)) {
++    FinishServerRequestAsynchronously(
++        std::move(callback),
++        GoogleFaviconServerRequestStatus::FAILURE_SERVER_URL_INVALID);
++    return;
++  }
++
+   if (net::NetworkChangeNotifier::IsOffline()) {
+     // By exiting early when offline, we avoid caching the failure and thus
+     // allow icon fetches later when coming back online.

@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 24 Jul 2025 15:19:01 +0000
+Subject: [PATCH] bugfix: avoid crashes on Web Reporting API calls
+
+---
+ .../renderer/core/frame/reporting_context.cc  | 30 +++++++++++--------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/third_party/blink/renderer/core/frame/reporting_context.cc b/third_party/blink/renderer/core/frame/reporting_context.cc
+index 4a121f1283142..fe91f84ce3a64 100644
+--- a/third_party/blink/renderer/core/frame/reporting_context.cc
++++ b/third_party/blink/renderer/core/frame/reporting_context.cc
+@@ -195,11 +195,27 @@ void ReportingContext::SendToReportingAPI(Report* report,
+     return;
+   }
+ 
++  KURL url = KURL(report->url());
++  if (type == ReportType::kCSPHash) {
++    const CSPHashReportBody* body =
++        static_cast<CSPHashReportBody*>(report->body());
++    GetReportingService()->QueueCSPHashReport(
++        url, endpoint, body->subresourceURL(), body->hash(), body->type(),
++        body->destination());
++    return;
++  } else if (type == ReportType::kIntegrityViolation) {
++    const IntegrityViolationReportBody* body =
++        static_cast<IntegrityViolationReportBody*>(report->body());
++    GetReportingService()->QueueIntegrityViolationReport(
++        url, endpoint, body->documentURL(), body->blockedURL(),
++        body->destination(), body->reportOnly());
++    return;
++  }
++
+   const LocationReportBody* location_body =
+       static_cast<LocationReportBody*>(report->body());
+   int line_number = location_body->lineNumber().value_or(0);
+   int column_number = location_body->columnNumber().value_or(0);
+-  KURL url = KURL(report->url());
+ 
+   if (type == ReportType::kCSPViolation) {
+     // Send the CSP violation report.
+@@ -212,12 +228,6 @@ void ReportingContext::SendToReportingAPI(Report* report,
+         body->originalPolicy() ? body->originalPolicy() : "",
+         body->sourceFile(), body->sample(), body->disposition().AsString(),
+         body->statusCode(), line_number, column_number);
+-  } else if (type == ReportType::kCSPHash) {
+-    const CSPHashReportBody* body =
+-        static_cast<CSPHashReportBody*>(report->body());
+-    GetReportingService()->QueueCSPHashReport(
+-        url, endpoint, body->subresourceURL(), body->hash(), body->type(),
+-        body->destination());
+   } else if (type == ReportType::kDeprecation) {
+     // Send the deprecation report.
+     const DeprecationReportBody* body =
+@@ -226,12 +236,6 @@ void ReportingContext::SendToReportingAPI(Report* report,
+         url, body->id(), body->AnticipatedRemoval(),
+         body->message().IsNull() ? g_empty_string : body->message(),
+         body->sourceFile(), line_number, column_number);
+-  } else if (type == ReportType::kIntegrityViolation) {
+-    const IntegrityViolationReportBody* body =
+-        static_cast<IntegrityViolationReportBody*>(report->body());
+-    GetReportingService()->QueueIntegrityViolationReport(
+-        url, endpoint, body->documentURL(), body->blockedURL(),
+-        body->destination(), body->reportOnly());
+   } else if (type == ReportType::kPermissionsPolicyViolation) {
+     // Send the permissions policy violation report.
+     const PermissionsPolicyViolationReportBody* body =
