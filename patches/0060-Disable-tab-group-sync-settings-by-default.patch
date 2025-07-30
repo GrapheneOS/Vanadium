@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 29 Apr 2025 16:16:10 +0000
+Subject: [PATCH] Disable tab group sync settings by default
+
+---
+ .../android/tab_group_sync_service_factory_android.cc           | 1 +
+ chrome/browser/tab_group_sync/feature_utils.cc                  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/tab_group_sync/android/tab_group_sync_service_factory_android.cc b/chrome/browser/tab_group_sync/android/tab_group_sync_service_factory_android.cc
+index 1ddfe17357b9d..10704a3337506 100644
+--- a/chrome/browser/tab_group_sync/android/tab_group_sync_service_factory_android.cc
++++ b/chrome/browser/tab_group_sync/android/tab_group_sync_service_factory_android.cc
+@@ -16,6 +16,7 @@ JNI_TabGroupSyncServiceFactory_GetForProfile(JNIEnv* env, Profile* profile) {
+   CHECK(profile);
+   tab_groups::TabGroupSyncService* service =
+       tab_groups::TabGroupSyncServiceFactory::GetForProfile(profile);
++  if (!service) return base::android::ScopedJavaLocalRef<jobject>(nullptr);
+   CHECK(service);
+   return tab_groups::TabGroupSyncService::GetJavaObject(service);
+ }
+diff --git a/chrome/browser/tab_group_sync/feature_utils.cc b/chrome/browser/tab_group_sync/feature_utils.cc
+index 1991526c9e49d..35a9e20a4c558 100644
+--- a/chrome/browser/tab_group_sync/feature_utils.cc
++++ b/chrome/browser/tab_group_sync/feature_utils.cc
+@@ -35,7 +35,7 @@ bool IsTabGroupSyncEnabled(PrefService* pref_service) {
+   // deprecate this after a milestone.
+   pref_service->ClearPref(tab_groups::prefs::kSyncableTabGroups);
+ 
+-  return true;
++  return false;
+ #else
+   return IsTabGroupSyncServiceDesktopMigrationEnabled();
+ #endif  // BUILDFLAG(IS_ANDROID)
