@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 14 Feb 2023 21:35:28 +0000
+Subject: [PATCH] Enable reduce accept language header by default
+
+---
+ services/network/public/cpp/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index 75143b47e7a4f..7c9e44cfa8caa 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -182,7 +182,7 @@ BASE_FEATURE(kOmitCorsClientCert,
+ // accept-language. https://github.com/Tanych/accept-language
+ BASE_FEATURE(kReduceAcceptLanguage,
+              "ReduceAcceptLanguage",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE_PARAM(base::TimeDelta,
+                    kReduceAcceptLanguageCacheDuration,

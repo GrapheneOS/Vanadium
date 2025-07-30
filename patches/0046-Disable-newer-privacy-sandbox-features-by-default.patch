@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 25 Sep 2023 09:26:57 +0000
+Subject: [PATCH] Disable newer privacy sandbox features by default
+
+---
+ components/privacy_sandbox/privacy_sandbox_features.cc | 2 +-
+ services/network/public/cpp/features.cc                | 2 +-
+ third_party/blink/common/features.cc                   | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
+index 8286afc26e6a8..617cebd1f0f9c 100644
+--- a/components/privacy_sandbox/privacy_sandbox_features.cc
++++ b/components/privacy_sandbox/privacy_sandbox_features.cc
+@@ -24,7 +24,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
+ 
+ BASE_FEATURE(kPrivacySandboxSettings4,
+              "PrivacySandboxSettings4",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
+ const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index 237286e2be02b..75143b47e7a4f 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -460,7 +460,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
+ // Kill switch for the Topics API.
+ BASE_FEATURE(kBrowsingTopics,
+              "BrowsingTopics",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Enable the shared storage API. Note that enabling this feature does not
+ // automatically expose this API to the web, it only allows the element to be
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index e59a86e42aa30..7a2dfb06b0ff5 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -246,13 +246,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+ // is enabled.)
+ BASE_FEATURE(kBrowsingTopicsDocumentAPI,
+              "BrowsingTopicsDocumentAPI",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Decoupled with the main `kBrowsingTopics` feature, so it allows us to
+ // decouple the server side configs.
+ BASE_FEATURE(kBrowsingTopicsParameters,
+              "BrowsingTopicsParameters",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ // The periodic topics calculation interval.
+ BASE_FEATURE_PARAM(base::TimeDelta,
+                    kBrowsingTopicsTimePeriodPerEpoch,

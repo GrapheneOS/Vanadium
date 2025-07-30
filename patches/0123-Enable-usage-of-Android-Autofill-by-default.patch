@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 26 Feb 2024 22:51:04 +0000
+Subject: [PATCH] Enable usage of Android Autofill by default
+
+---
+ components/autofill/core/common/autofill_features.h | 2 +-
+ components/autofill/core/common/autofill_prefs.cc   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
+index 01baca64bb438..77b6e510e9450 100644
+--- a/components/autofill/core/common/autofill_features.h
++++ b/components/autofill/core/common/autofill_features.h
+@@ -310,7 +310,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
+ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>
+     kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
+         &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
+-        VirtualViewStructureSkipChecks::kDontSkip,
++        VirtualViewStructureSkipChecks::kSkipAllChecks,
+         &kVirtualViewStructureSkipChecksOption};
+ 
+ #endif  // BUILDFLAG(IS_ANDROID)
+diff --git a/components/autofill/core/common/autofill_prefs.cc b/components/autofill/core/common/autofill_prefs.cc
+index 4b7678e61bd31..4cc12db8b6b39 100644
+--- a/components/autofill/core/common/autofill_prefs.cc
++++ b/components/autofill/core/common/autofill_prefs.cc
+@@ -89,7 +89,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+                                 false);
+ 
+ #if BUILDFLAG(IS_ANDROID)
+-  registry->RegisterBooleanPref(kAutofillUsingVirtualViewStructure, false);
++  registry->RegisterBooleanPref(kAutofillUsingVirtualViewStructure, true);
+   registry->RegisterBooleanPref(kAutofillThirdPartyPasswordManagersAllowed,
+                                 true);
+   registry->RegisterBooleanPref(
