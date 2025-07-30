@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 10 Dec 2020 10:09:18 -0500
+Subject: [PATCH] disable WebView variations support
+
+---
+ .../com/android/webview/chromium/WebViewChromiumAwInit.java | 6 ------
+ .../webview/chromium/WebViewChromiumFactoryProvider.java    | 4 ----
+ 2 files changed, 10 deletions(-)
+
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
+index d00463c0774a6..f7dbdbbbca448 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
+@@ -410,12 +410,6 @@ public class WebViewChromiumAwInit {
+ 
+                     AwBrowserProcess.configureChildProcessLauncher();
+ 
+-                    // finishVariationsInitLocked() must precede native initialization so
+-                    // the seed is available when AwFeatureListCreator::SetUpFieldTrials()
+-                    // runs.
+-                    if (!FastVariationsSeedSafeModeAction.hasRun()) {
+-                        finishVariationsInitLocked();
+-                    }
+                 });
+         tasks.addLast(AwBrowserProcess::start);
+         tasks.addLast(
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index 1410a9ac61999..2f5c0a6696acb 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -577,10 +577,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             mAwInit.setStartupTaskExperimentEnabled(enableStartupTasksExperiment);
+             AwBrowserMainParts.setWebViewStartupTasksLogicIsEnabled(enableStartupTasksExperiment);
+ 
+-            if (!FastVariationsSeedSafeModeAction.hasRun()) {
+-                mAwInit.startVariationsInit();
+-            }
+-
+             mShouldDisableThreadChecking = shouldDisableThreadChecking(ctx);
+ 
+             FlagOverrideHelper helper =

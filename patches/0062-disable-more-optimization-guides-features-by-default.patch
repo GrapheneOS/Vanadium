@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 25 Apr 2022 06:19:32 -0400
+Subject: [PATCH] disable more optimization guides features by default
+
+---
+ .../optimization_guide/core/optimization_guide_features.cc  | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
+index 38289cb01a01c..c8e1930a722ce 100644
+--- a/components/optimization_guide/core/optimization_guide_features.cc
++++ b/components/optimization_guide/core/optimization_guide_features.cc
+@@ -66,7 +66,7 @@ BASE_FEATURE(kOptimizationTargetPrediction,
+ BASE_FEATURE(kOptimizationGuideModelDownloading,
+              "OptimizationGuideModelDownloading",
+ #if BUILDFLAG(BUILD_WITH_TFLITE_LIB)
+-             base::FEATURE_ENABLED_BY_DEFAULT
++             base::FEATURE_DISABLED_BY_DEFAULT
+ #else   // BUILD_WITH_TFLITE_LIB
+              base::FEATURE_DISABLED_BY_DEFAULT
+ #endif  // !BUILD_WITH_TFLITE_LIB
+@@ -115,7 +115,7 @@ BASE_FEATURE(kModelQualityLogging,
+ // (on-demand fetching).
+ BASE_FEATURE(kOptimizationGuidePersonalizedFetching,
+              "OptimizationPersonalizedHintsFetching",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // An emergency kill switch feature to stop serving certain model versions per
+ // optimization target. This is useful in exceptional situations when a bad
+@@ -154,7 +154,7 @@ BASE_FEATURE(kLogOnDeviceMetricsOnStartup,
+ // Whether to download the text safety classifier model.
+ BASE_FEATURE(kTextSafetyClassifier,
+              "TextSafetyClassifier",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Whether to scan the full text when running the language detection in the text
+ // safety classifier.

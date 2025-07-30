@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 30 Jan 2025 14:05:11 +0000
+Subject: [PATCH] Remove javascript optimizer settings UI
+
+---
+ .../browser/site_settings/ChromeSiteSettingsDelegate.java       | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+index f3a17e9e45bfa..e93d34ce325ab 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+@@ -169,6 +169,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+                 return DeviceFeatureMap.isEnabled(DeviceFeatureList.BLUETOOTH_RFCOMM_ANDROID);
+             case SiteSettingsCategory.Type.LOCAL_NETWORK_ACCESS:
+                 return ChromeFeatureList.isEnabled(ChromeFeatureList.LOCAL_NETWORK_ACCESS);
++            case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
++                return false;
+             default:
+                 return true;
+         }
