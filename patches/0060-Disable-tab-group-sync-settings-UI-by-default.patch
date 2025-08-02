@@ -1,0 +1,93 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 29 Apr 2025 16:16:10 +0000
+Subject: [PATCH] Disable tab group sync settings UI by default
+
+---
+ .../chrome/browser/tasks/tab_management/TabsSettings.java | 5 ++++-
+ chrome/browser/flags/android/chrome_feature_list.cc       | 1 +
+ .../chromium/chrome/browser/flags/ChromeFeatureList.java  | 2 ++
+ components/saved_tab_groups/public/features.cc            | 8 ++++++++
+ components/saved_tab_groups/public/features.h             | 2 ++
+ 5 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
+index bdd0f02ce4e7d..0d1aff49c3da7 100644
+--- a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
++++ b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
+@@ -19,6 +19,7 @@ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.auxiliary_search.AuxiliarySearchConfigManager;
+ import org.chromium.chrome.browser.auxiliary_search.AuxiliarySearchControllerFactory;
+ import org.chromium.chrome.browser.auxiliary_search.AuxiliarySearchUtils;
++import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
+ import org.chromium.chrome.browser.preferences.Pref;
+ import org.chromium.chrome.browser.settings.ChromeBaseSettingsFragment;
+@@ -80,7 +81,9 @@ public class TabsSettings extends ChromeBaseSettingsFragment {
+         ChromeSwitchPreference autoOpenSyncedTabGroupsSwitch =
+                 (ChromeSwitchPreference) findPreference(PREF_AUTO_OPEN_SYNCED_TAB_GROUPS_SWITCH);
+         boolean isTabGroupSyncAutoOpenConfigurable =
+-                TabGroupSyncFeatures.isTabGroupSyncEnabled(getProfile());
++                TabGroupSyncFeatures.isTabGroupSyncEnabled(getProfile())
++                        && ChromeFeatureList.isEnabled(
++                                ChromeFeatureList.TAB_GROUP_SYNC_AUTO_OPEN_KILL_SWITCH);
+         if (!isTabGroupSyncAutoOpenConfigurable) {
+             autoOpenSyncedTabGroupsSwitch.setVisible(false);
+             return;
+diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
+index 4d91a336a4c55..dd85a7f468aa9 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -471,6 +471,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &syncer::kWebApkBackupAndRestoreBackend,
+     &syncer::kUnoPhase2FollowUp,
+     &syncer::kSyncEnablePasswordsSyncErrorMessageAlternative,
++    &tab_groups::kTabGroupSyncAutoOpenKillSwitch,
+     &tab_groups::kUseAlternateHistorySyncIllustration,
+     &visited_url_ranking::features::kGroupSuggestionService,
+     &visited_url_ranking::features::kVisitedURLRankingService,
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 13c2b0530bfa1..a931c12ade275 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -610,6 +610,8 @@ public abstract class ChromeFeatureList {
+     public static final String TAB_GROUP_ENTRY_POINTS_ANDROID = "TabGroupEntryPointsAndroid";
+     public static final String TAB_GROUP_PARITY_BOTTOM_SHEET_ANDROID =
+             "TabGroupParityBottomSheetAndroid";
++    public static final String TAB_GROUP_SYNC_AUTO_OPEN_KILL_SWITCH =
++            "TabGroupSyncAutoOpenKillSwitch";
+     public static final String TAB_STATE_FLAT_BUFFER = "TabStateFlatBuffer";
+     public static final String TAB_STRIP_CONTEXT_MENU = "TabStripContextMenuAndroid";
+     public static final String TAB_STRIP_DENSITY_CHANGE_ANDROID = "TabStripDensityChangeAndroid";
+diff --git a/components/saved_tab_groups/public/features.cc b/components/saved_tab_groups/public/features.cc
+index 32b35ac6fdb25..c4b77391b6b6c 100644
+--- a/components/saved_tab_groups/public/features.cc
++++ b/components/saved_tab_groups/public/features.cc
+@@ -37,6 +37,14 @@ BASE_FEATURE(kTabGroupSyncDelegateAndroid,
+              "TabGroupSyncDelegateAndroid",
+              base::FEATURE_ENABLED_BY_DEFAULT);
+ 
++// Feature flag to disable auto-open of saved tab groups. Note that the
++// settings page for auto open will still be visible, and when user is allowed
++// to change. However the written pref from the user selection will not be
++// honored. This feature flag should be used only in case of an emergency.
++BASE_FEATURE(kTabGroupSyncAutoOpenKillSwitch,
++             "TabGroupSyncAutoOpenKillSwitch",
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
+ // Feature flag to restrict download on synced tabs if the navigation is
+ // triggered without attention..
+ BASE_FEATURE(kRestrictDownloadOnSyncedTabs,
+diff --git a/components/saved_tab_groups/public/features.h b/components/saved_tab_groups/public/features.h
+index 473045460df16..daf91efc8509b 100644
+--- a/components/saved_tab_groups/public/features.h
++++ b/components/saved_tab_groups/public/features.h
+@@ -18,6 +18,8 @@ BASE_DECLARE_FEATURE(kTabGroupSyncServiceDesktopMigration);
+ 
+ BASE_DECLARE_FEATURE(kTabGroupSyncDelegateAndroid);
+ 
++BASE_DECLARE_FEATURE(kTabGroupSyncAutoOpenKillSwitch);
++
+ BASE_DECLARE_FEATURE(kRestrictDownloadOnSyncedTabs);
+ 
+ BASE_DECLARE_FEATURE(kUseAlternateHistorySyncIllustration);
