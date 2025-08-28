@@ -4,15 +4,15 @@ Date: Tue, 25 Dec 2018 16:19:51 -0500
 Subject: [PATCH] disable seed-based field trials
 
 ---
- .../service/variations_field_trial_creator_base.cc     | 10 ++++++++++
+ .../service/variations_field_trial_creator.cc          | 10 ++++++++++
  components/variations/synthetic_trial_registry.cc      |  2 ++
  2 files changed, 12 insertions(+)
 
-diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
-index 8e7106ac16fe0..7ceef14b44642 100644
---- a/components/variations/service/variations_field_trial_creator_base.cc
-+++ b/components/variations/service/variations_field_trial_creator_base.cc
-@@ -251,8 +251,14 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
+index 2787a0fee8398..41fec9f707b7c 100644
+--- a/components/variations/service/variations_field_trial_creator.cc
++++ b/components/variations/service/variations_field_trial_creator.cc
+@@ -249,8 +249,14 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
    }
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
@@ -27,7 +27,7 @@ index 8e7106ac16fe0..7ceef14b44642 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -317,13 +323,17 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+@@ -315,13 +321,17 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {

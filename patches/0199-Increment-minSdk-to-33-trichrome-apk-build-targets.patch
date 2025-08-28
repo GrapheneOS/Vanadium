@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 29 Apr 2025 05:31:59 +0000
+Subject: [PATCH] Increment minSdk to 33 trichrome apk build targets
+
+---
+ android_webview/BUILD.gn                  | 1 +
+ chrome/android/chrome_public_apk_tmpl.gni | 2 +-
+ chrome/android/trichrome.gni              | 2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/android_webview/BUILD.gn b/android_webview/BUILD.gn
+index e6b51da0cfe21..873e499f8b7b7 100644
+--- a/android_webview/BUILD.gn
++++ b/android_webview/BUILD.gn
+@@ -239,6 +239,7 @@ if (_is_default_toolchain) {
+     system_webview_apk_or_module_tmpl(target_name) {
+       forward_variables_from(invoker, "*")
+       is_trichrome = true
++      min_sdk_version = 33
+       deps = upstream_only_webview_deps
+     }
+   }
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index 485047f3395d6..9830527186837 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -269,7 +269,7 @@ template("chrome_common_apk_or_module_tmpl") {
+     if (defined(invoker.min_sdk_version)) {
+       min_sdk_version = invoker.min_sdk_version
+     } else if (_is_trichrome) {
+-      min_sdk_version = 29
++      min_sdk_version = 33
+     }
+     if (defined(invoker.version_name)) {
+       version_name = invoker.version_name
+diff --git a/chrome/android/trichrome.gni b/chrome/android/trichrome.gni
+index 9513e2a4dc123..5705a5cb33ac0 100644
+--- a/chrome/android/trichrome.gni
++++ b/chrome/android/trichrome.gni
+@@ -100,7 +100,7 @@ template("trichrome_library_apk_tmpl") {
+     app_as_shared_lib = true
+     version_name = chrome_version_name
+     version_code = _version_code
+-    min_sdk_version = 29
++    min_sdk_version = 33
+ 
+     # Only the .build_config.json is used from this target, and it's fine if
+     # it contains more assets than we need (always use the 64_32 variant).

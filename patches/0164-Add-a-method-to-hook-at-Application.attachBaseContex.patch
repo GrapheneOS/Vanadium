@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 6 May 2024 17:28:58 +0000
+Subject: [PATCH] Add a method to hook at Application.attachBaseContext() call
+
+---
+ .../chrome/browser/base/SplitChromeApplication.java        | 1 +
+ .../chrome/browser/base/SplitCompatApplication.java        | 7 +++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
+index 8a927db2a5fc5..8954b546f387a 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitChromeApplication.java
+@@ -82,6 +82,7 @@ public class SplitChromeApplication extends SplitCompatApplication {
+         // We need to call setImplSupplier before continuing attachBaseContext. See
+         // crbug.com/395261363 for details.
+         super.attachBaseContext(context);
++        super.postAttachBaseContext();
+     }
+ 
+     private static @Nullable String getPreloadClassName(String split) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
+index e83ee76b74e48..4ea0618dd54a8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
+@@ -98,6 +98,9 @@ public class SplitCompatApplication extends Application {
+             mApplication.superStartActivity(intent, options);
+         }
+ 
++        @CallSuper
++        public void postAttachBaseContext() {}
++
+         public void onCreate() {}
+ 
+         public void onTrimMemory(int level) {}
+@@ -128,6 +131,10 @@ public class SplitCompatApplication extends Application {
+         super.startActivity(intent, options);
+     }
+ 
++    final void postAttachBaseContext() {
++        getImpl().postAttachBaseContext();
++    }
++
+     // Called by the framework for ALL processes. Runs before ContentProviders are created.
+     // Quirk: context.getApplicationContext() returns null during this method.
+     @Override

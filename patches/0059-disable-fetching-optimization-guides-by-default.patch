@@ -8,15 +8,15 @@ Subject: [PATCH] disable fetching optimization guides by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 87a32130d5902..ef5bd0095d6a3 100644
+index 7dec04561cba3..e8c5fe22127db 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -55,7 +55,7 @@ BASE_FEATURE(kOptimizationHints,
- // Enables fetching from a remote Optimization Guide Service.
- BASE_FEATURE(kRemoteOptimizationGuideFetching,
-              "OptimizationHintsFetching",
+@@ -89,7 +89,7 @@ BASE_FEATURE(kOptGuideEnableXNNPACKDelegateWithTFLite,
+ // Service.
+ BASE_FEATURE(kOptimizationGuideFetchingForSRP,
+              "OptimizationHintsFetchingSRP",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
- // Enables the prediction of optimization targets.
- BASE_FEATURE(kOptimizationTargetPrediction,
+ // Kill switch for disabling model quality logging.
+ BASE_FEATURE(kModelQualityLogging,
