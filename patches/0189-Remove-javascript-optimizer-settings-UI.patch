@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 30 Jan 2025 14:05:11 +0000
+Subject: [PATCH] Remove javascript optimizer settings UI
+
+---
+ .../browser/site_settings/ChromeSiteSettingsDelegate.java       | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+index 354abdb994226..adaa57792de32 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+@@ -172,6 +172,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+                 return ChromeFeatureList.isEnabled(ChromeFeatureList.LOCAL_NETWORK_ACCESS);
+             case SiteSettingsCategory.Type.WINDOW_MANAGEMENT:
+                 return UiAndroidFeatureList.sAndroidWindowManagementWebApi.isEnabled();
++            case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
++                return false;
+             default:
+                 return true;
+         }

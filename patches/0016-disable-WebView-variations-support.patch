@@ -9,10 +9,10 @@ Subject: [PATCH] disable WebView variations support
  2 files changed, 10 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index d00463c0774a6..f7dbdbbbca448 100644
+index 146d1b28244d2..7243b2c4815c1 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -410,12 +410,6 @@ public class WebViewChromiumAwInit {
+@@ -431,12 +431,6 @@ public class WebViewChromiumAwInit {
  
                      AwBrowserProcess.configureChildProcessLauncher();
  
@@ -23,15 +23,15 @@ index d00463c0774a6..f7dbdbbbca448 100644
 -                        finishVariationsInitLocked();
 -                    }
                  });
-         tasks.addLast(AwBrowserProcess::start);
-         tasks.addLast(
+ 
+         addBrowserProcessStartTasksToQueue(
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 1410a9ac61999..2f5c0a6696acb 100644
+index cac5b3cffd276..6193be820d559 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -577,10 +577,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
-             mAwInit.setStartupTaskExperimentEnabled(enableStartupTasksExperiment);
-             AwBrowserMainParts.setWebViewStartupTasksLogicIsEnabled(enableStartupTasksExperiment);
+@@ -561,10 +561,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             // This must happen after pref value has been read and SafeMode setup has completed.
+             setupStartupTaskExperiments(androidXConfig);
  
 -            if (!FastVariationsSeedSafeModeAction.hasRun()) {
 -                mAwInit.startVariationsInit();
