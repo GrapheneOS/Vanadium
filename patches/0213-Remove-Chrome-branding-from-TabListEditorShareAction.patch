@@ -1,0 +1,155 @@
+From 4291a912029075460ebbe377bc6236e93e3cfc4b Mon Sep 17 00:00:00 2001
+From: Thor Preimesberger <ThorP@protonmail.com>
+Date: Fri, 12 Sep 2025 19:13:02 -0400
+Subject: [PATCH] Remove Chrome branding from TabListEditorShareAction
+
+Fixes #634. Unit tests updated.
+
+---
+ .../java/strings/android_chrome_tab_ui_strings.grd |  4 ++--
+ .../android_chrome_tab_ui_strings_en-GB.xtb        |  4 ++--
+ .../SelectableTabListEditorTest.java               |  4 ++--
+ .../tasks/tab_management/TabGridDialogTest.java    |  2 +-
+ .../TabListEditorShareActionUnitTest.java          |  4 ++--
+ .../signin/java/res/drawable/chrome_sync_logo.xml  | 14 +++++++-------
+ 6 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/chrome/android/features/tab_ui/java/strings/android_chrome_tab_ui_strings.grd b/chrome/android/features/tab_ui/java/strings/android_chrome_tab_ui_strings.grd
+index 115bafc9b5de4..acd8f3ea76d44 100644
+--- a/chrome/android/features/tab_ui/java/strings/android_chrome_tab_ui_strings.grd
++++ b/chrome/android/features/tab_ui/java/strings/android_chrome_tab_ui_strings.grd
+@@ -268,8 +268,8 @@
+       </message>
+       <message name="IDS_TAB_SELECTION_EDITOR_SHARE_SHEET_PREVIEW_MESSAGE" desc="When users click the menu item 'Share tab(s)' in the Tab Selection Editor Toolbar, a share sheet will pop up and this text is the preview message of the share sheet. [CHAR_LIMIT=27]">
+         {TABS_COUNT, plural,
+-          =1 {<ph name="TABS_COUNT_ONE">%1$d<ex>1</ex></ph> link from Chrome}
+-          other {<ph name="TABS_COUNT_MANY">%1$d<ex>8</ex></ph> links from Chrome}
++          =1 {<ph name="TABS_COUNT_ONE">%1$d<ex>1</ex></ph> link from Vanadium}
++          other {<ph name="TABS_COUNT_MANY">%1$d<ex>8</ex></ph> links from Vanadium}
+         }
+       </message>
+       <message name="IDS_TAB_SELECTION_EDITOR_SHARE_SHEET_PREVIEW_THUMBNAIL" desc="When users click the menu item 'Share tab(s)' in the Tab SelectionEditor Toolbar, a share sheet will pop up and this text is the name for the thumbnail of the share sheet preview. [CHAR_LIMIT=27]">
+diff --git a/chrome/android/features/tab_ui/java/strings/translations/android_chrome_tab_ui_strings_en-GB.xtb b/chrome/android/features/tab_ui/java/strings/translations/android_chrome_tab_ui_strings_en-GB.xtb
+index 25107bb8d9273..80edd6935a632 100644
+--- a/chrome/android/features/tab_ui/java/strings/translations/android_chrome_tab_ui_strings_en-GB.xtb
++++ b/chrome/android/features/tab_ui/java/strings/translations/android_chrome_tab_ui_strings_en-GB.xtb
+@@ -113,7 +113,7 @@
+ <translation id="5494920125229734069">Select all</translation>
+ <translation id="5556417849629758491">View shop info, option available near top of the screen</translation>
+ <translation id="5627941783489838464">No tab updates</translation>
+-<translation id="5656738671621697952">{TABS_COUNT,plural, =1{<ph name="TABS_COUNT_ONE" /> link from Chrome}other{<ph name="TABS_COUNT_MANY" /> links from Chrome}}</translation>
++<translation id="5656738671621697952">{TABS_COUNT,plural, =1{<ph name="TABS_COUNT_ONE" /> link from Vanadium}other{<ph name="TABS_COUNT_MANY" /> links from Vanadium}}</translation>
+ <translation id="5746204836956568669">Group <ph name="NUMBER_OF_TABS" /> tabs to work faster?</translation>
+ <translation id="58326064309361797">Drag tabs to group them</translation>
+ <translation id="5901630391730855834">Yellow</translation>
+@@ -217,4 +217,4 @@
+ <translation id="945522503751344254">Send feedback</translation>
+ <translation id="992256792861109788">Pink</translation>
+ <translation id="994514002078791059">{TAB_COUNT,plural, =1{Close 1 inactive item?}other{Close <ph name="TAB_COUNT_MANY" /> inactive items?}}</translation>
+-</translationbundle>
+\ No newline at end of file
++</translationbundle>
+diff --git a/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/SelectableTabListEditorTest.java b/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/SelectableTabListEditorTest.java
+index 90ae7906566ac..407c35af190a3 100644
+--- a/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/SelectableTabListEditorTest.java
++++ b/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/SelectableTabListEditorTest.java
+@@ -999,7 +999,7 @@ public class SelectableTabListEditorTest {
+                     assertEquals(Intent.ACTION_SEND, result.getAction());
+                     assertEquals(String.join("\n", urls), result.getStringExtra(Intent.EXTRA_TEXT));
+                     assertEquals("text/plain", result.getType());
+-                    assertEquals("4 links from Chrome", result.getStringExtra(Intent.EXTRA_TITLE));
++                    assertEquals("4 links from Vanadium", result.getStringExtra(Intent.EXTRA_TITLE));
+                 });
+ 
+         final int shareId = R.id.tab_list_editor_share_menu_item;
+@@ -1056,7 +1056,7 @@ public class SelectableTabListEditorTest {
+                     assertEquals(Intent.ACTION_SEND, result.getAction());
+                     assertEquals(String.join("\n", urls), result.getStringExtra(Intent.EXTRA_TEXT));
+                     assertEquals("text/plain", result.getType());
+-                    assertEquals("3 links from Chrome", result.getStringExtra(Intent.EXTRA_TITLE));
++                    assertEquals("3 links from Vanadium", result.getStringExtra(Intent.EXTRA_TITLE));
+                 });
+ 
+         final int shareId = R.id.tab_list_editor_share_menu_item;
+diff --git a/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogTest.java b/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogTest.java
+index 23ec8db4b2cb2..c4d22e13fb61d 100644
+--- a/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogTest.java
++++ b/chrome/android/features/tab_ui/javatests/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogTest.java
+@@ -995,7 +995,7 @@ public class TabGridDialogTest {
+                     assertEquals(Intent.ACTION_SEND, result.getAction());
+                     assertEquals(String.join("\n", urls), result.getStringExtra(Intent.EXTRA_TEXT));
+                     assertEquals("text/plain", result.getType());
+-                    assertEquals("2 links from Chrome", result.getStringExtra(Intent.EXTRA_TITLE));
++                    assertEquals("2 links from Vanadium", result.getStringExtra(Intent.EXTRA_TITLE));
+                 });
+ 
+         // Share tabs
+diff --git a/chrome/android/features/tab_ui/junit/src/org/chromium/chrome/browser/tasks/tab_management/TabListEditorShareActionUnitTest.java b/chrome/android/features/tab_ui/junit/src/org/chromium/chrome/browser/tasks/tab_management/TabListEditorShareActionUnitTest.java
+index bb58691e9cfdc..e5e8d0e10e861 100644
+--- a/chrome/android/features/tab_ui/junit/src/org/chromium/chrome/browser/tasks/tab_management/TabListEditorShareActionUnitTest.java
++++ b/chrome/android/features/tab_ui/junit/src/org/chromium/chrome/browser/tasks/tab_management/TabListEditorShareActionUnitTest.java
+@@ -203,7 +203,7 @@ public class TabListEditorShareActionUnitTest {
+                             shareParams.getTextAndUrl(), result.getStringExtra(Intent.EXTRA_TEXT));
+                     Assert.assertEquals("text/plain", result.getType());
+                     Assert.assertEquals(
+-                            "1 link from Chrome", result.getStringExtra(Intent.EXTRA_TITLE));
++                            "1 link from Vanadium", result.getStringExtra(Intent.EXTRA_TITLE));
+                     Assert.assertNotNull(result.getClipData());
+                 });
+ 
+@@ -270,7 +270,7 @@ public class TabListEditorShareActionUnitTest {
+                             shareParams.getTextAndUrl(), result.getStringExtra(Intent.EXTRA_TEXT));
+                     Assert.assertEquals("text/plain", result.getType());
+                     Assert.assertEquals(
+-                            "3 links from Chrome", result.getStringExtra(Intent.EXTRA_TITLE));
++                            "3 links from Vanadium", result.getStringExtra(Intent.EXTRA_TITLE));
+                     Assert.assertNotNull(result.getClipData());
+                 });
+ 
+diff --git a/chrome/browser/ui/android/signin/java/res/drawable/chrome_sync_logo.xml b/chrome/browser/ui/android/signin/java/res/drawable/chrome_sync_logo.xml
+index 4a7eda0959342..224b052b42d74 100644
+--- a/chrome/browser/ui/android/signin/java/res/drawable/chrome_sync_logo.xml
++++ b/chrome/browser/ui/android/signin/java/res/drawable/chrome_sync_logo.xml
+@@ -25,8 +25,8 @@ found in the LICENSE file.
+             android:endX="21.02"
+             android:endY="5.372"
+             android:type="linear">
+-          <item android:offset="0" android:color="#FFFCC934"/>
+-          <item android:offset="1" android:color="#FFFBBC04"/>
++          <item android:offset="0" android:color="#9C9C9C"/>
++          <item android:offset="1" android:color="#9C9C9C"/>
+         </gradient>
+       </aapt:attr>
+     </path>
+@@ -39,14 +39,14 @@ found in the LICENSE file.
+             android:endX="-1.063"
+             android:endY="11.38"
+             android:type="linear">
+-          <item android:offset="0" android:color="#FF1E8E3E"/>
+-          <item android:offset="1" android:color="#FF34A853"/>
++          <item android:offset="0" android:color="#595959"/>
++          <item android:offset="1" android:color="#595959"/>
+         </gradient>
+       </aapt:attr>
+     </path>
+     <path
+         android:pathData="M12,16.75C14.623,16.75 16.75,14.623 16.75,12C16.75,9.377 14.623,7.25 12,7.25C9.377,7.25 7.25,9.377 7.25,12C7.25,14.623 9.377,16.75 12,16.75Z"
+-        android:fillColor="#1A73E8"/>
++        android:fillColor="#272727"/>
+     <path
+         android:pathData="M12,6H22.381C21.33,4.175 19.816,2.66 17.993,1.607C16.169,0.553 14.1,-0.001 11.994,0C9.888,0.001 7.82,0.557 5.997,1.612C4.175,2.667 2.662,4.184 1.613,6.009L6.804,15L6.812,15.005C6.282,14.094 6.002,13.059 6,12.005C5.998,10.95 6.274,9.914 6.8,9.001C7.326,8.088 8.084,7.329 8.997,6.802C9.91,6.275 10.946,5.999 12,6Z">
+       <aapt:attr name="android:fillColor">
+@@ -56,8 +56,8 @@ found in the LICENSE file.
+             android:endX="22.153"
+             android:endY="7.502"
+             android:type="linear">
+-          <item android:offset="0" android:color="#FFD93025"/>
+-          <item android:offset="1" android:color="#FFEA4335"/>
++          <item android:offset="0" android:color="#222222"/>
++          <item android:offset="1" android:color="#222222"/>
+         </gradient>
+       </aapt:attr>
+     </path>
+-- 
+2.34.1
+
