@@ -4,11 +4,11 @@ Date: Thu, 1 Feb 2024 17:58:40 +0000
 Subject: [PATCH] Apply toggle for opening links in incognito for search tabs
 
 ---
- .../chrome/browser/LaunchIntentDispatcher.java        |  2 ++
- .../chrome/browser/LaunchIntentDispatcherHooks.java   |  6 ++++++
- .../chrome/browser/searchwidget/SearchActivity.java   |  3 ++-
- .../browser/searchwidget/SearchActivityHooks.java     | 11 +++++++++++
- 4 files changed, 21 insertions(+), 1 deletion(-)
+ .../chrome/browser/LaunchIntentDispatcher.java    |  2 ++
+ .../browser/LaunchIntentDispatcherHooks.java      |  6 ++++++
+ .../browser/searchwidget/SearchActivity.java      |  3 ++-
+ .../browser/searchwidget/SearchActivityHooks.java | 15 +++++++++++++++
+ 4 files changed, 25 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 index df9cc1f7008e5..a4b817ce3e2b0 100644
@@ -53,7 +53,7 @@ index dbd595aa6f2a8..27065b6fcc3d8 100644
                  new ActivityProfileProvider(getLifecycleDispatcher());
          profileProvider.onAvailable(
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 791a9ed59a2f3..f3e122070da59 100644
+index 791a9ed59a2f3..61eb111db9ae6 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 @@ -3,6 +3,8 @@ package org.chromium.chrome.browser.searchwidget;
@@ -65,12 +65,16 @@ index 791a9ed59a2f3..f3e122070da59 100644
  import org.chromium.chrome.browser.TabPreferencesUtils;
  import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
  
-@@ -20,4 +22,13 @@ public class SearchActivityHooks {
+@@ -20,4 +22,17 @@ public class SearchActivityHooks {
  
          return newIntent;
      }
 +
 +    static boolean shouldOpenInIncognito(Intent intent) {
++        if (Intent.ACTION_WEB_SEARCH.equals(intent.getAction())) {
++            return TabPreferencesUtils.shouldOpenLinksInIncognito();
++        }
++
 +        if (!IntentUtils.isTrustedIntentFromSelf(intent)) {
 +            return false;
 +        }

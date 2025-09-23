@@ -8,9 +8,9 @@ Subject: [PATCH] Do not select search query text when opening web and global
  .../chrome/browser/LaunchIntentDispatcher.java    |  2 +-
  .../browser/LaunchIntentDispatcherHooks.java      | 12 +++++++++++-
  .../browser/searchwidget/SearchActivity.java      |  3 ++-
- .../browser/searchwidget/SearchActivityHooks.java | 14 ++++++++++++++
+ .../browser/searchwidget/SearchActivityHooks.java | 15 +++++++++++++++
  .../SearchActivityLocationBarLayout.java          | 15 ++++++++++++++-
- 5 files changed, 42 insertions(+), 4 deletions(-)
+ 5 files changed, 43 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 index 281ad0c0425bf..0bc2a5270bb85 100644
@@ -74,10 +74,10 @@ index 27065b6fcc3d8..45174b7466260 100644
  
      @Override
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index f3e122070da59..df7159adf0e8e 100644
+index 61eb111db9ae6..ce9d903690f6d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-@@ -31,4 +31,18 @@ public class SearchActivityHooks {
+@@ -35,4 +35,19 @@ public class SearchActivityHooks {
          return IntentUtils.safeGetBooleanExtra(intent,
                  IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
      }
@@ -93,7 +93,8 @@ index f3e122070da59..df7159adf0e8e 100644
 +            return true;
 +        }
 +
-+        return IntentUtils.safeGetBooleanExtra(intent, EXTRA_SELECT_ALL_TEXT, true);
++        return IntentUtils.safeGetBooleanExtra(intent, EXTRA_SELECT_ALL_TEXT,
++                !Intent.ACTION_WEB_SEARCH.equals(intent.getAction()));
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
