@@ -9,10 +9,10 @@ Subject: [PATCH] disable WebView variations support
  2 files changed, 10 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index 4df8ba77492b9..d21f28a8defa4 100644
+index 713a61b2e9d80..d9f2cfe881d7d 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -431,12 +431,6 @@ public class WebViewChromiumAwInit {
+@@ -444,12 +444,6 @@ public class WebViewChromiumAwInit {
  
                      AwBrowserProcess.configureChildProcessLauncher();
  
@@ -26,10 +26,10 @@ index 4df8ba77492b9..d21f28a8defa4 100644
  
          addBrowserProcessStartTasksToQueue(
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index cac5b3cffd276..6193be820d559 100644
+index d5f8e0a16957e..71beb48d4d208 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -561,10 +561,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -582,10 +582,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
              // This must happen after pref value has been read and SafeMode setup has completed.
              setupStartupTaskExperiments(androidXConfig);
  
@@ -37,6 +37,6 @@ index cac5b3cffd276..6193be820d559 100644
 -                mAwInit.startVariationsInit();
 -            }
 -
-             mShouldDisableThreadChecking = shouldDisableThreadChecking(ctx);
- 
              FlagOverrideHelper helper =
+                     new FlagOverrideHelper(ProductionSupportedFlagList.sFlagList);
+             helper.applyFlagOverrides(

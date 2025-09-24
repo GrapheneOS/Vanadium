@@ -4,31 +4,14 @@ Date: Wed, 4 Jun 2025 06:35:07 +0000
 Subject: [PATCH] enable Local Network Access checks by default
 
 ---
- services/network/public/cpp/features.cc | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ services/network/public/cpp/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index dc3449db4966d..fe74761554043 100644
+index 4d3f013c3d198..8ce94cd202222 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -229,14 +229,14 @@ BASE_FEATURE(kPrivateNetworkAccessPreflightShortTimeout,
- // Spec: https://wicg.github.io/local-network-access/
- BASE_FEATURE(kLocalNetworkAccessChecks,
-              "LocalNetworkAccessChecks",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
- 
- // If true, local network access checks will only be warnings.
- BASE_FEATURE_PARAM(bool,
-                    kLocalNetworkAccessChecksWarn,
-                    &kLocalNetworkAccessChecks,
-                    /*name=*/"LocalNetworkAccessChecksWarn",
--                   /*default_value=*/true);
-+                   /*default_value=*/false);
- 
- // Enables Local Network Access checks for WebRTC.
- // Blocks local network requests without user permission to prevent exploitation
-@@ -245,7 +245,7 @@ BASE_FEATURE_PARAM(bool,
+@@ -260,7 +260,7 @@ BASE_FEATURE_PARAM(bool,
  // Spec: https://wicg.github.io/local-network-access/
  BASE_FEATURE(kLocalNetworkAccessChecksWebRTC,
               "LocalNetworkAccessChecksWebRTC",

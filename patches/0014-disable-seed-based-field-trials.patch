@@ -4,64 +4,156 @@ Date: Tue, 25 Dec 2018 16:19:51 -0500
 Subject: [PATCH] disable seed-based field trials
 
 ---
- .../service/variations_field_trial_creator.cc          | 10 ++++++++++
- components/variations/synthetic_trial_registry.cc      |  2 ++
- 2 files changed, 12 insertions(+)
+ components/variations/BUILD.gn                 |  7 +++++++
+ components/variations/common_ext/BUILD.gn      | 18 ++++++++++++++++++
+ components/variations/service/BUILD.gn         |  7 +++++++
+ .../service/variations_field_trial_creator.cc  | 13 +++++++++++++
+ .../variations/synthetic_trial_registry.cc     |  3 +++
+ 5 files changed, 48 insertions(+)
+ create mode 100644 components/variations/common_ext/BUILD.gn
 
+diff --git a/components/variations/BUILD.gn b/components/variations/BUILD.gn
+index 5ae80aba8b1d6..63f055eb52800 100644
+--- a/components/variations/BUILD.gn
++++ b/components/variations/BUILD.gn
+@@ -155,6 +155,13 @@ component("variations") {
+       "//components/variations/android:variations_seed_jni",
+     ]
+   }
++
++  sources += [
++  ]
++
++  deps += [
++    "//components/variations/common_ext:buildflags",
++  ]
+ }
+ 
+ if (is_android) {
+diff --git a/components/variations/common_ext/BUILD.gn b/components/variations/common_ext/BUILD.gn
+new file mode 100644
+index 0000000000000..2c448f85a384f
+--- /dev/null
++++ b/components/variations/common_ext/BUILD.gn
+@@ -0,0 +1,18 @@
++# Copyright 2025 GrapheneOS
++# Use of this source code is governed by a GPLv2.0-style license that can be
++# found in the LICENSE file.
++
++import("//build/buildflag_header.gni")
++
++declare_args() {
++  # Set to true to allow usage of field trial seeds.
++  fieldtrial_seed_enabled = false
++}
++
++buildflag_header("buildflags") {
++  header = "buildflags.h"
++  flags = []
++  flags += [
++    "FIELDTRIAL_SEED_ENABLED=$fieldtrial_seed_enabled"
++  ]
++}
+diff --git a/components/variations/service/BUILD.gn b/components/variations/service/BUILD.gn
+index fda6153e144d1..61144785825c6 100644
+--- a/components/variations/service/BUILD.gn
++++ b/components/variations/service/BUILD.gn
+@@ -75,6 +75,13 @@ static_library("service") {
+     "//services/network/public/cpp",
+     "//ui/base",
+   ]
++
++  sources += [
++  ]
++
++  deps += [
++    "//components/variations/common_ext:buildflags",
++  ]
+ }
+ 
+ source_set("unit_tests") {
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index 32d7734c10bba..c4f22786b56e2 100644
+index c134930f8e20a..abfc117c623c8 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -248,8 +248,14 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
-   }
+@@ -39,6 +39,7 @@
+ #include "components/metrics/metrics_state_manager.h"
+ #include "components/prefs/pref_service.h"
+ #include "components/variations/active_field_trials.h"
++#include "components/variations/common_ext/buildflags.h"
+ #include "components/variations/entropy_provider.h"
+ #include "components/variations/field_trial_config/field_trial_util.h"
+ #include "components/variations/platform_field_trials.h"
+@@ -253,8 +254,14 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+ 
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
-+#if defined(FIELDTRIAL_SEED_ENABLED)
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    auto result = http_header_provider->ForceVariationIds(
        variation_ids, command_line_variation_ids);
 +#else
 +  // Pretend that it was successful without acutally forcing
 +  // variation ids and command line variation ids
 +  auto result = VariationsIdsProvider::ForceIdsResult::SUCCESS;
-+#endif // defined(FIELDTRIAL_SEED_ENABLED)
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -314,13 +320,17 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -319,23 +326,29 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {
-+#if defined(FIELDTRIAL_SEED_ENABLED)
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
+     // TODO(crbug.com/410008879): Make use of the result's
+     // seed_has_active_limited_layer field.
      create_trials_result = CreateTrialsFromSeed(
          entropy_providers, feature_list.get(), safe_seed_manager,
          std::move(client_filterable_state));
-+#endif
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    }
  
-+#if defined(FIELDTRIAL_SEED_ENABLED)
+   if (add_entropy_source_to_variations_ids &&
+       !create_trials_result.AppliedSeedHasActiveLimitedLayer()) {
+     // TODO(crbug.com/424154785): Consider no longer transmitting LES values
+     // alongside VariationsIDs.
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
+     http_header_provider->SetLowEntropySourceValue(
+         metrics_state_manager->GetLowEntropySource());
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
+   }
+ 
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    platform_field_trials->SetUpClientSideFieldTrials(
        create_trials_result.applied_seed, entropy_providers, feature_list.get());
-+#endif
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
  
    platform_field_trials->RegisterFeatureOverrides(feature_list.get());
  
 diff --git a/components/variations/synthetic_trial_registry.cc b/components/variations/synthetic_trial_registry.cc
-index cd3eac8828f2e..574153fb40bee 100644
+index e347472482078..b591cedec0e95 100644
 --- a/components/variations/synthetic_trial_registry.cc
 +++ b/components/variations/synthetic_trial_registry.cc
-@@ -122,6 +122,7 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
+@@ -10,6 +10,7 @@
+ #include "base/observer_list.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "components/variations/active_field_trials.h"
++#include "components/variations/common_ext/buildflags.h"
+ #include "components/variations/hashing.h"
+ #include "components/variations/variations_associated_data.h"
+ 
+@@ -122,6 +123,7 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
  
  void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
      const SyntheticTrialGroup& trial) {
-+#if defined(FIELDTRIAL_SEED_ENABLED)
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    for (auto& entry : synthetic_trial_groups_) {
      if (entry.id().name == trial.id().name) {
        if (entry.id().group != trial.id().group ||
-@@ -139,6 +140,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
+@@ -139,6 +141,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
    trial_group.SetStartTime(base::TimeTicks::Now());
    synthetic_trial_groups_.push_back(trial_group);
    NotifySyntheticTrialObservers({trial_group}, {});
-+#endif // defined(FIELDTRIAL_SEED_ENABLED)
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
  }
  
  std::string_view SyntheticTrialRegistry::GetStudyNameForExpId(

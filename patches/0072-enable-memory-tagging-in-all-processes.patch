@@ -21,13 +21,13 @@ index 5e28fd23ae3e7..b5887c19cf118 100644
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
 diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
-index c09a910f8f919..6974bb709b7df 100644
+index 18d4c13f4506e..93b8dbc6c7f38 100644
 --- a/base/allocator/partition_alloc_features.cc
 +++ b/base/allocator/partition_alloc_features.cc
-@@ -212,11 +212,7 @@ constinit const FeatureParam<bool> kBackupRefPtrSuppressCorruptionDetectedCrash{
+@@ -205,11 +205,7 @@ constinit const FeatureParam<bool> kBackupRefPtrSuppressCorruptionDetectedCrash{
+ #endif
  
- BASE_FEATURE(kPartitionAllocMemoryTagging,
-              "PartitionAllocMemoryTagging",
+ BASE_FEATURE(PartitionAllocMemoryTagging,
 -#if PA_BUILDFLAG(USE_FULL_MTE) || BUILDFLAG(IS_ANDROID)
               FEATURE_ENABLED_BY_DEFAULT
 -#else
@@ -36,7 +36,7 @@ index c09a910f8f919..6974bb709b7df 100644
  );
  
  constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
-@@ -253,11 +249,7 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+@@ -246,23 +242,14 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
  constinit const FeatureParam<MemoryTaggingEnabledProcesses>
      kMemoryTaggingEnabledProcessesParam{
          &kPartitionAllocMemoryTagging, kPAFeatureEnabledProcessesStr,
@@ -47,11 +47,10 @@ index c09a910f8f919..6974bb709b7df 100644
 -#endif
          &kMemoryTaggingEnabledProcessesOptions};
  
- BASE_FEATURE(kKillPartitionAllocMemoryTagging,
-@@ -267,12 +259,7 @@ BASE_FEATURE(kKillPartitionAllocMemoryTagging,
+ BASE_FEATURE(KillPartitionAllocMemoryTagging, FEATURE_DISABLED_BY_DEFAULT);
+ 
  BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocPermissiveMte);
- BASE_FEATURE(kPartitionAllocPermissiveMte,
-              "PartitionAllocPermissiveMte",
+ BASE_FEATURE(PartitionAllocPermissiveMte,
 -#if PA_BUILDFLAG(USE_FULL_MTE)
 -             // We want to actually crash if USE_FULL_MTE is enabled.
               FEATURE_DISABLED_BY_DEFAULT
@@ -60,4 +59,4 @@ index c09a910f8f919..6974bb709b7df 100644
 -#endif
  );
  
- BASE_FEATURE(kAsanBrpDereferenceCheck,
+ BASE_FEATURE(AsanBrpDereferenceCheck, FEATURE_ENABLED_BY_DEFAULT);

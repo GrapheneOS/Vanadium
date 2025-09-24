@@ -8,15 +8,15 @@ Subject: [PATCH] Enable HSTS upgrades for top-level navigation only by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 4bf905e59296b..2230055f00ec6 100644
+index 5ada078b68889..c1c2f9059b2e4 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -775,7 +775,7 @@ BASE_FEATURE(kNewClientCertPathBuilding,
+@@ -643,7 +643,7 @@ const base::FeatureParam<base::TimeDelta>
+ BASE_FEATURE(NewClientCertPathBuilding, base::FEATURE_ENABLED_BY_DEFAULT);
+ #endif  // BUILDFLAG(USE_NSS_CERTS)
  
- BASE_FEATURE(kHstsTopLevelNavigationsOnly,
-              "HstsTopLevelNavigationsOnly",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
+-BASE_FEATURE(HstsTopLevelNavigationsOnly, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(HstsTopLevelNavigationsOnly, base::FEATURE_ENABLED_BY_DEFAULT);
  
  #if BUILDFLAG(IS_WIN)
- BASE_FEATURE(kHttpCacheMappedFileFlushWin,
+ BASE_FEATURE(HttpCacheMappedFileFlushWin, base::FEATURE_DISABLED_BY_DEFAULT);

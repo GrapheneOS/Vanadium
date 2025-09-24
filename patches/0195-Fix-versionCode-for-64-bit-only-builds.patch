@@ -4,14 +4,14 @@ Date: Tue, 25 Mar 2025 09:17:53 +0000
 Subject: [PATCH] Fix versionCode for 64-bit only builds
 
 ---
- chrome/version.gni | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ chrome/version.gni | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/version.gni b/chrome/version.gni
-index 2e335effd16fc..48b089475390a 100644
+index b902c5ea69b31..bf4086fb93ad9 100644
 --- a/chrome/version.gni
 +++ b/chrome/version.gni
-@@ -336,9 +336,9 @@ if (is_android) {
+@@ -357,9 +357,9 @@ if (is_android) {
          }
        } else {
          if (_use_stable_package_name_for_trichrome) {
@@ -23,7 +23,7 @@ index 2e335effd16fc..48b089475390a 100644
          }
        }
      } else {
-@@ -360,7 +360,7 @@ if (is_android) {
+@@ -381,7 +381,7 @@ if (is_android) {
          true_true_true_false = monochrome_64_version_code
          true_false_false_true = monochrome_32_version_code
        } else {
@@ -32,13 +32,10 @@ index 2e335effd16fc..48b089475390a 100644
        }
      } else {
        false_false_false_true = monochrome_version_code
-@@ -394,11 +394,11 @@ if (is_android) {
+@@ -422,9 +422,9 @@ if (is_android) {
          }
        } else {
-         if (android_channel == "dev") {
--          true_true_true_false = webview_dev_version_code
-+          true_true_true_false = webview_64_dev_version_code
-         } else if (android_channel == "beta") {
+         if (_use_beta_version_code) {
 -          true_true_true_false = webview_beta_version_code
 +          true_true_true_false = webview_64_beta_version_code
          } else {

@@ -11,15 +11,15 @@ commands used:
 CHROMIUM_SRC_DIR=/path/to/chromium/src
 sed -ri 's/private static final String PREF_/static final String PREF_/g' $CHROMIUM_SRC_DIR/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 ---
- .../privacy/settings/PrivacySettings.java     | 28 +++++++++----------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ .../privacy/settings/PrivacySettings.java     | 30 +++++++++----------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index ab1c20b81758d..5e356db9dec74 100644
+index 0f76e7faeb1d7..7137c2008b2da 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -79,21 +79,21 @@ import java.util.function.Consumer;
- /** Fragment to keep track of the all the privacy related preferences. */
+@@ -81,26 +81,26 @@ import java.util.function.Consumer;
+ @NullMarked
  public class PrivacySettings extends ChromeBaseSettingsFragment
          implements Preference.OnPreferenceChangeListener {
 -    private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
@@ -54,3 +54,9 @@ index ab1c20b81758d..5e356db9dec74 100644
              "incognito_tracking_protections";
      @VisibleForTesting static final String PREF_DO_NOT_TRACK = "do_not_track";
      @VisibleForTesting static final String PREF_THIRD_PARTY_COOKIES = "third_party_cookies";
+     @VisibleForTesting static final String PREF_TRACKING_PROTECTION = "tracking_protection";
+-    private static final String PREF_ADVANCED_PROTECTION_INFO = "advanced_protection_info";
++    static final String PREF_ADVANCED_PROTECTION_INFO = "advanced_protection_info";
+ 
+     @VisibleForTesting
+     static final String TRACKING_PROTECTIONS_OPENED_USER_ACTION =
