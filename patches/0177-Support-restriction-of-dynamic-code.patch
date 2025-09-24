@@ -21,7 +21,7 @@ It's inspired by PaX MPROTECT restrictions.
  2 files changed, 73 insertions(+)
 
 diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
-index de2f86931e435..365f3996ea274 100644
+index 303c8e1d26f32..70e67a48e22a2 100644
 --- a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 +++ b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 @@ -15,6 +15,7 @@
@@ -32,7 +32,7 @@ index de2f86931e435..365f3996ea274 100644
  #include <sys/socket.h>
  #include <sys/stat.h>
  #include <sys/time.h>
-@@ -254,6 +255,31 @@ SANDBOX_EXPORT ResultExpr RestrictMremapFlagsForODML() {
+@@ -262,6 +263,31 @@ SANDBOX_EXPORT ResultExpr RestrictMremapFlagsForODML() {
    return If((flags & ~kAllowedMask) == 0, Allow()).Else(CrashSIGSYS());
  }
  
@@ -64,7 +64,7 @@ index de2f86931e435..365f3996ea274 100644
  ResultExpr RestrictMprotectFlags() {
    // The flags you see are actually the allowed ones, and the variable is a
    // "denied" mask because of the negation operator.
-@@ -272,6 +298,24 @@ ResultExpr RestrictMprotectFlags() {
+@@ -280,6 +306,24 @@ ResultExpr RestrictMprotectFlags() {
    return If((prot & ~kAllowedMask) == 0, Allow()).Else(CrashSIGSYS());
  }
  
@@ -89,7 +89,7 @@ index de2f86931e435..365f3996ea274 100644
  ResultExpr RestrictFcntlCommands() {
    // We also restrict the flags in F_SETFL. We don't want to permit flags with
    // a history of trouble such as O_DIRECT. The flags you see are actually the
-@@ -314,6 +358,17 @@ ResultExpr RestrictFcntlCommands() {
+@@ -322,6 +366,17 @@ ResultExpr RestrictFcntlCommands() {
    // clang-format on
  }
  

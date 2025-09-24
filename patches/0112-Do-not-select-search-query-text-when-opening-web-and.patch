@@ -13,7 +13,7 @@ Subject: [PATCH] Do not select search query text when opening web and global
  5 files changed, 43 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 281ad0c0425bf..0bc2a5270bb85 100644
+index aed1a7802a321..dae475ec95d5c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -252,7 +252,7 @@ public class LaunchIntentDispatcher {
@@ -60,10 +60,10 @@ index 547e85324cac5..fd771c9cd0b90 100644
          return newIntent;
      }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 27065b6fcc3d8..45174b7466260 100644
+index ee9693be964f7..cd9c979e8d3c8 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -617,7 +617,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -622,7 +622,8 @@ public class SearchActivity extends AsyncInitializationActivity
          RecordHistogram.recordBooleanHistogram(
                  HISTOGRAM_LAUNCHED_WITH_QUERY, !TextUtils.isEmpty(query));
  
@@ -98,7 +98,7 @@ index 61eb111db9ae6..ce9d903690f6d 100644
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
-index c8e1d4bc821b5..621bdda771344 100644
+index e3f6ab44f5ada..4f54bf9d2b797 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityLocationBarLayout.java
 @@ -126,7 +126,20 @@ public class SearchActivityLocationBarLayout extends LocationBarLayout {

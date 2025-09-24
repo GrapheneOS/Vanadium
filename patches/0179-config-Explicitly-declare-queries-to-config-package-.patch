@@ -29,7 +29,7 @@ index b5887c19cf118..6ac564f40754a 100644
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
 diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
-index 5905e8e5e75e9..de89967095940 100644
+index 2e3a9cacf6b72..ba0c2e6280ee7 100644
 --- a/android_webview/system_webview_apk_tmpl.gni
 +++ b/android_webview/system_webview_apk_tmpl.gni
 @@ -14,6 +14,7 @@ import("//chrome/version.gni")
@@ -40,7 +40,7 @@ index 5905e8e5e75e9..de89967095940 100644
  
  declare_args() {
    # Android package name to use when compiling the system_webview_apk and
-@@ -80,6 +81,7 @@ template("system_webview_apk_or_module_tmpl") {
+@@ -88,6 +89,7 @@ template("system_webview_apk_or_module_tmpl") {
      variables = [
        "force_32_bit=$_force_32_bit",
        "manifest_package=$_manifest_package",
@@ -69,7 +69,7 @@ index b7a0647b86fdc..868aac321f603 100644
  
  monochrome_android_manifest_jinja_variables =
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index c349d2c1a3c80..68f0aff549771 100644
+index 9cd8a382dc3a0..e8e4128c4def5 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -197,6 +197,12 @@ by a child template that "extends" this file.

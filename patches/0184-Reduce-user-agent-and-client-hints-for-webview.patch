@@ -9,7 +9,7 @@ Subject: [PATCH] Reduce user agent and client hints for webview
  2 files changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
-index 849f181436d32..fcbfa56b219ae 100644
+index df9c51d8f7833..958f012c408ed 100644
 --- a/android_webview/browser/aw_field_trials.cc
 +++ b/android_webview/browser/aw_field_trials.cc
 @@ -76,10 +76,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
@@ -24,15 +24,15 @@ index 849f181436d32..fcbfa56b219ae 100644
    aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
  
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index f3fa884ba12bd..1db786f82428b 100644
+index 288585e06ba27..ad06bad3a7daa 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -166,7 +166,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
+@@ -132,7 +132,7 @@ BASE_FEATURE(WebViewUseInitialNetworkStateAtStartup,
+ 
  // This enables reducing webview user-agent android version and device model.
- BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
-              "WebViewReduceUAAndroidVersionDeviceModel",
+ BASE_FEATURE(WebViewReduceUAAndroidVersionDeviceModel,
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
  // This enables WebView crashes.
- BASE_FEATURE(kWebViewEnableCrash,
+ BASE_FEATURE(WebViewEnableCrash, base::FEATURE_DISABLED_BY_DEFAULT);

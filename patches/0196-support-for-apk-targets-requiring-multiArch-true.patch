@@ -26,10 +26,10 @@ index 8f6c5b19946df..054c0dd18b9f2 100644
 +  android_app_secondary_abi_for_placeholder = "mips"
 +}
 diff --git a/build/config/android/internal_rules.gni b/build/config/android/internal_rules.gni
-index 82668c13e6971..349ee3e578e74 100644
+index bac4d12c937bf..e707389e3cf57 100644
 --- a/build/config/android/internal_rules.gni
 +++ b/build/config/android/internal_rules.gni
-@@ -2771,8 +2771,14 @@ if (enable_java_templates) {
+@@ -2798,8 +2798,14 @@ if (enable_java_templates) {
          _native_lib_placeholders != []) {
        _args += [ "--android-abi=$android_app_abi" ]
      }
@@ -45,10 +45,10 @@ index 82668c13e6971..349ee3e578e74 100644
      if (defined(invoker.loadable_modules) && invoker.loadable_modules != []) {
        _inputs += invoker.loadable_modules
 diff --git a/build/config/android/rules.gni b/build/config/android/rules.gni
-index d176f828ca862..b4e0104e7adeb 100644
+index 581467ac878b6..4ac21407ad9a3 100644
 --- a/build/config/android/rules.gni
 +++ b/build/config/android/rules.gni
-@@ -2164,6 +2164,10 @@ if (!is_robolectric && enable_java_templates) {
+@@ -2173,6 +2173,10 @@ if (!is_robolectric && enable_java_templates) {
    #   suffix_apk_assets_used_by: Prefixes android assets used by the given apk
    #     with $package_name. Adds the list of renamed packages to
    #     BuildConfig.java.
@@ -59,7 +59,7 @@ index d176f828ca862..b4e0104e7adeb 100644
    template("android_apk_or_module") {
      forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
      _template_name = target_name
-@@ -3025,6 +3029,7 @@ if (!is_robolectric && enable_java_templates) {
+@@ -3039,6 +3043,7 @@ if (!is_robolectric && enable_java_templates) {
        _create_apk_target = "${_template_name}__create"
        _final_deps += [ ":$_create_apk_target" ]
        package_apk("$_create_apk_target") {
@@ -67,7 +67,7 @@ index d176f828ca862..b4e0104e7adeb 100644
          forward_variables_from(invoker,
                                 [
                                   "expected_libs_and_assets",
-@@ -3317,6 +3322,7 @@ if (!is_robolectric && enable_java_templates) {
+@@ -3331,6 +3336,7 @@ if (!is_robolectric && enable_java_templates) {
    #   }
    template("android_apk") {
      android_apk_or_module(target_name) {

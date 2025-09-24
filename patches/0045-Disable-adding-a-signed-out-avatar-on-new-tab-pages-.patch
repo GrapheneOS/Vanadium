@@ -9,10 +9,10 @@ Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
  1 file changed, 12 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-index a7b1482a912a3..197172d9089ce 100644
+index 83b2f12d675f4..903d7f8a4a13b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-@@ -66,6 +66,9 @@ public class IdentityDiscController
+@@ -71,6 +71,9 @@ public class IdentityDiscController
                  IdentityManager.Observer,
                  SyncService.SyncStateChangedListener,
                  ButtonDataProvider {
@@ -22,7 +22,7 @@ index a7b1482a912a3..197172d9089ce 100644
      // Context is used for fetching resources and launching preferences page.
      private final Context mContext;
      private final ObservableSupplier<Profile> mProfileSupplier;
-@@ -141,6 +144,11 @@ public class IdentityDiscController
+@@ -146,6 +149,11 @@ public class IdentityDiscController
              return;
          }
  
@@ -34,7 +34,7 @@ index a7b1482a912a3..197172d9089ce 100644
          String email = CoreAccountInfo.getEmailFrom(getSignedInAccountInfo());
          ensureProfileDataCache(mProfile);
  
-@@ -367,6 +375,10 @@ public class IdentityDiscController
+@@ -377,6 +385,10 @@ public class IdentityDiscController
      }
  
      private String getContentDescription(@Nullable String email) {

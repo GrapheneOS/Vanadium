@@ -9,10 +9,10 @@ Subject: [PATCH] Fix chrome target generation when skip_secondary_abi_for_cq
  1 file changed, 32 insertions(+), 24 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 4e85f858e6e3f..3dd237bcba6f7 100644
+index 67753178b1174..fcc746c6c8aa1 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -3609,42 +3609,50 @@ if (_is_default_toolchain &&
+@@ -3614,42 +3614,50 @@ if (_is_default_toolchain &&
      deps = []
      if (enable_libs_and_assets_verification) {
        deps += [
