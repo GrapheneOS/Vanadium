@@ -15,6 +15,9 @@ Reviewed-by: Alex Moshchuk <alexmos@chromium.org>
 Reviewed-by: Arthur Sonzogni <arthursonzogni@chromium.org>
 Commit-Queue: Claudio DeSouza <cdesouza@chromium.org>
 Cr-Commit-Position: refs/heads/main@{#1511879}
+
+Includes change to append --wasm-jitless on per site JIT site settings.
+
 ---
  .../renderer_host/render_process_host_impl.cc | 24 +++++++++++++++----
  1 file changed, 20 insertions(+), 4 deletions(-)
@@ -52,7 +55,7 @@ index 3f7b3f4bc3a26..0df28ee900dce 100644
  }  // namespace
  
  RenderProcessHostImpl::IOThreadHostImpl::IOThreadHostImpl(
-@@ -3423,11 +3438,12 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+@@ -3423,11 +3438,14 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
    }
  
    if (IsJitDisabled()) {
@@ -60,6 +63,8 @@ index 3f7b3f4bc3a26..0df28ee900dce 100644
 -                                    "--jitless");
 +    AppendToCommaSeparatedSwitch(
 +        command_line, blink::switches::kJavaScriptFlags, "--jitless");
++    AppendToCommaSeparatedSwitch(
++        command_line, blink::switches::kJavaScriptFlags, "--wasm-jitless");
    } else if (AreV8OptimizationsDisabled()) {
 -    command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
 -                                    "--disable-optimizing-compilers");
