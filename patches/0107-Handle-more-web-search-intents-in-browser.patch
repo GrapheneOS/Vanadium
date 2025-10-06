@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 28 Sep 2022 05:37:00 +0200
+Subject: [PATCH] Handle more web search intents in browser
+
+---
+ chrome/android/java/AndroidManifest.xml | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index b9f2d4c148354..8e4462097aaf5 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -982,6 +982,11 @@ by a child template that "extends" this file.
+                 <!-- Permits Chrome to act as a default handler for WEB_SEARCH intents. -->
+                 <category android:name="android.intent.category.DEFAULT" />
+             </intent-filter>
++            <!-- Allows handling GLOBAL_SEARCH intents as well -->
++            <intent-filter> <!-- DOWNSTREAM -->
++                <action android:name="android.search.action.GLOBAL_SEARCH" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter> <!-- DOWNSTREAM -->
+       </activity>
+ 
+         <!-- GcmTaskService for registration for Invalidations. Not actually implemented anymore. -->
