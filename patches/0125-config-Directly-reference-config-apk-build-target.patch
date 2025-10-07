@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 24 Dec 2023 03:52:13 +0000
+Subject: [PATCH] config: Directly reference config apk build target
+
+---
+ vanadium/BUILD.gn                | 1 +
+ vanadium/android_config/BUILD.gn | 5 +++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/vanadium/BUILD.gn b/vanadium/BUILD.gn
+index 34418da31ed32..51435ef811038 100644
+--- a/vanadium/BUILD.gn
++++ b/vanadium/BUILD.gn
+@@ -6,5 +6,6 @@ assert(is_android)
+ # An group included in //BUILD.gn to make vanadium build target files reachable by GN.
+ group("vanadium_build_targets") {
+   deps = [
++    "android_config:empty_group",
+   ]
+ }
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+index 21906ce79c0c0..c50267b3f5a66 100644
+--- a/vanadium/android_config/BUILD.gn
++++ b/vanadium/android_config/BUILD.gn
+@@ -19,3 +19,8 @@ config_apk_tmpl("vanadium_config_for_testing_apk") {
+   apk_name = "VanadiumConfigTest"
+   application_label = "Vanadium Config Test"
+ }
++
++# An empty group included in //BUILD.gn to make this and other config apk type build
++# files reachable by GN.
++group("empty_group") {
++}

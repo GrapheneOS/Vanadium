@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 30 Jan 2025 14:11:07 +0000
+Subject: [PATCH] Extend site setting category visibility check on single
+ website settings
+
+---
+ .../browser_ui/site_settings/SingleWebsiteSettings.java       | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+index 342db7cb0f685..0f52b06f06f29 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+@@ -1265,6 +1265,10 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+         SiteSettingsCategory category =
+                 SiteSettingsCategory.createFromContentSettingsType(
+                         getBrowserContextHandle(), contentType);
++        if (!getSiteSettingsDelegate().isCategoryVisible(category.getType())) {
++            return;
++        }
++
+         if (category != null
+                 && value != null
+                 && value != ContentSetting.BLOCK

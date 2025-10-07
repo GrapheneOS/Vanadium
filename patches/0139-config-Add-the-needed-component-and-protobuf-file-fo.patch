@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 14 Dec 2023 16:48:20 +0000
+Subject: [PATCH] config: Add the needed component and protobuf file for
+ parsing
+
+---
+ vanadium/android_config/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+index 6789d60950179..bb36a0ba6a200 100644
+--- a/vanadium/android_config/BUILD.gn
++++ b/vanadium/android_config/BUILD.gn
+@@ -12,6 +12,10 @@ assert(is_android)
+ config_apk_tmpl("vanadium_config_apk") {
+   apk_name = "VanadiumConfig"
+   application_label = "Vanadium Config"
++  deps = [
++    "filter_lists:ruleset_assets",
++    "proto:config_assets",
++  ]
+ }
+ 
+ config_apk_tmpl("vanadium_config_for_testing_apk") {

@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 4 Jul 2024 08:05:03 +0000
+Subject: [PATCH] Document more needed removals for protobuf
+
+---
+ build/android/gyp/proto/README.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/build/android/gyp/proto/README.md b/build/android/gyp/proto/README.md
+index 685041087af21..b61d3ce6f7c5d 100644
+--- a/build/android/gyp/proto/README.md
++++ b/build/android/gyp/proto/README.md
+@@ -11,3 +11,7 @@ Then copy the resulting \*pb2.py files from some_dir here. To make sure
+ Resources_pb2.py is able to import Configuration_pb2.py, replace the
+ "from frameworks.base.tools.aapt2" portion of the import statement with
+ "from ." so it will instead be imported from the current directory.
++
++# Additional notes from downstream, for newer protobuf versions
++Additionally, remove the runtime version imports and its usage to check
++protobuf runtime version, which is currently unsupported at upstream.

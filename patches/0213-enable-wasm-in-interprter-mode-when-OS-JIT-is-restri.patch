@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 30 Apr 2025 07:32:17 +0000
+Subject: [PATCH] enable wasm in interprter mode when OS JIT is restricted
+
+---
+ .../src/org/chromium/base/library_loader/LibraryLoaderHooks.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+index 43c4fa9301949..00e4b400c85cb 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -35,6 +35,7 @@ class LibraryLoaderHooks {
+                         HashSet<String> jsFlags = new HashSet<>(
+                                 VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(jsFlagsName));
+                         jsFlags.add("--jitless");
++                        jsFlags.add("--wasm_jitless");
+                         VanadiumCommandLineUtils.setCommaDelimitedSwitchValue(
+                                 jsFlagsName, new ArrayList<>(jsFlags));
+                     }

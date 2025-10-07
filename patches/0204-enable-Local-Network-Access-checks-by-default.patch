@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 4 Jun 2025 06:35:07 +0000
+Subject: [PATCH] enable Local Network Access checks by default
+
+---
+ services/network/public/cpp/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index 9ec5916c1740a..d4cc676ae4304 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -260,7 +260,7 @@ BASE_FEATURE_PARAM(bool,
+ // Spec: https://wicg.github.io/local-network-access/
+ BASE_FEATURE(kLocalNetworkAccessChecksWebRTC,
+              "LocalNetworkAccessChecksWebRTC",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // If enabled, then the network service will parse the Cookie-Indices header.
+ // This does not currently control changing cache behavior according to the

@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 13 Jun 2024 15:44:05 +0000
+Subject: [PATCH] Set Toolbar shortcut default to new tab instead of auto
+
+---
+ .../chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java   | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java
+index f87f803111d0c..f86e0d235c618 100644
+--- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java
++++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java
+@@ -43,7 +43,7 @@ public class AdaptiveToolbarPrefs {
+     public static @AdaptiveToolbarButtonVariant int getCustomizationSetting() {
+         return ChromeSharedPreferences.getInstance()
+                 .readInt(
+-                        ADAPTIVE_TOOLBAR_CUSTOMIZATION_SETTINGS, AdaptiveToolbarButtonVariant.AUTO);
++                        ADAPTIVE_TOOLBAR_CUSTOMIZATION_SETTINGS, AdaptiveToolbarButtonVariant.NEW_TAB);
+     }
+ 
+     /**
