@@ -11,7 +11,7 @@ Subject: [PATCH] Apply toggle for opening links in incognito for search tabs
  4 files changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index c0e0f33900962..2713762df663c 100644
+index 1f5afaa38c135..b2ce1192210f8 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 @@ -244,6 +244,8 @@ public class LaunchIntentDispatcher {
@@ -53,7 +53,7 @@ index 02217519953c9..ee9693be964f7 100644
                  new ActivityProfileProvider(getLifecycleDispatcher());
          profileProvider.onAvailable(
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 791a9ed59a2f3..3c37df1cb31f6 100644
+index 791a9ed59a2f3..8da66225a0f78 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 @@ -3,6 +3,9 @@ package org.chromium.chrome.browser.searchwidget;
@@ -73,7 +73,7 @@ index 791a9ed59a2f3..3c37df1cb31f6 100644
 +
 +    static boolean shouldOpenInIncognito(Intent intent) {
 +        if (Intent.ACTION_WEB_SEARCH.equals(intent.getAction())
-+                || SearchManager.INTENT_ACTION_GLOBAL_SEARCH.equals(action)) {
++                || SearchManager.INTENT_ACTION_GLOBAL_SEARCH.equals(intent.getAction())) {
 +            return TabPreferencesUtils.shouldOpenLinksInIncognito();
 +        }
 +
