@@ -1,0 +1,160 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 14 Dec 2023 16:54:04 +0000
+Subject: [PATCH] Add hooks for initializing contents of VanadiumConfig app
+
+---
+ .../base/config/VanadiumConfigBridge.java     | 102 ++++++++++++++++++
+ .../library_loader/LibraryLoaderHooks.java    |   5 +
+ base/base_android_library_ext.gni             |   2 +
+ 3 files changed, 109 insertions(+)
+ create mode 100644 base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
+
+diff --git a/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
+new file mode 100644
+index 0000000000000..3807e0a138e80
+--- /dev/null
++++ b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
+@@ -0,0 +1,102 @@
++package org.chromium.base.config;
++
++import static org.chromium.base.command_line.VanadiumCommandLineUtils.getCommaDelimitedSwitchValue;
++import static org.chromium.base.command_line.VanadiumCommandLineUtils.setCommaDelimitedSwitchValue;
++
++import android.content.Context;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
++
++import org.chromium.base.CommandLine;
++import org.chromium.base.Log;
++import org.chromium.base.library_loader.LibraryProcessType;
++
++import java.util.ArrayList;
++import java.util.HashSet;
++import java.util.Map;
++import java.util.Set;
++
++public class VanadiumConfigBridge {
++    private static final String TAG = "VanadiumConfigBridge";
++
++    public static void initConfigs(Context appCtx, @LibraryProcessType int libraryProcessType) {
++        switch (libraryProcessType) {
++            case LibraryProcessType.PROCESS_BROWSER:
++                VanadiumConfParser.initForBrowser(appCtx);
++                break;
++            case LibraryProcessType.PROCESS_WEBVIEW:
++                VanadiumConfParser.initForWebView(appCtx);
++                break;
++            case LibraryProcessType.PROCESS_CHILD:
++            case LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED:
++            case LibraryProcessType.PROCESS_WEBVIEW_CHILD:
++                break;
++            default:
++                throw new IllegalStateException();
++        }
++    }
++
++    public static void applyFlagFromConfigs(Context appCtx, @LibraryProcessType int libraryProcessType) {
++        if (!VanadiumConfParser.isInitialized()) {
++            Log.e(TAG, "Config app not parsed nor initialized, returning early");
++            return;
++        }
++
++        if (CommandLine.getInstance() == null) {
++            Log.e(TAG, "No command line instance present");
++            return;
++        }
++
++        Set<String> enabledFeatures = new HashSet<>(getCommaDelimitedSwitchValue("enable-features"));
++        Set<String> disabledFeatures = new HashSet<>(getCommaDelimitedSwitchValue("disable-features"));
++
++        for (FlagType flagType : FlagType.values()) {
++            if (flagType == FlagType.UNRECOGNIZED) {
++                continue;
++            }
++
++            if (flagType == FlagType.UNKNOWN) {
++                continue;
++            }
++
++            for (Map.Entry<String, Set<String>> flag : VanadiumConfParser.getFlagsFor(flagType).entrySet()) {
++                String flagName = flag.getKey();
++                Set<String> flagValues = flag.getValue();
++                switch (flagType) {
++                    case ENABLED_FEATURE:
++                        enabledFeatures.add(flagName);
++                        disabledFeatures.remove(flagName);
++                        break;
++                    case DISABLED_FEATURE:
++                        disabledFeatures.add(flagName);
++                        enabledFeatures.remove(flagName);
++                        break;
++                    case ENABLED_SWITCH:
++                        if (flagValues.isEmpty()) {
++                            CommandLine.getInstance().appendSwitch(flagName);
++                        } else {
++                            Set<String> switchValue = new HashSet<>(getCommaDelimitedSwitchValue(flagName));
++                            switchValue.addAll(flagValues);
++                            setCommaDelimitedSwitchValue(flagName, new ArrayList<>(switchValue));
++                        }
++                        break;
++                    case DISABLED_SWITCH:
++                        if (flagValues.isEmpty()) {
++                            CommandLine.getInstance().removeSwitch(flagName);
++                        } else {
++                            Set<String> switchValue = new HashSet<>(getCommaDelimitedSwitchValue(flagName));
++                            switchValue.removeAll(flagValues);
++                            setCommaDelimitedSwitchValue(flagName, new ArrayList<>(switchValue));
++                        }
++                        break;
++                    default:
++                        throw new IllegalStateException();
++                }
++            }
++        }
++
++        setCommaDelimitedSwitchValue("enable-features", new ArrayList<>(enabledFeatures));
++        setCommaDelimitedSwitchValue("disable-features", new ArrayList<>(disabledFeatures));
++    }
++}
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+index 255768f85f8fd..b1a621f62770a 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -2,14 +2,19 @@ package org.chromium.base.library_loader;
+ 
+ import android.content.Context;
+ 
++import org.chromium.base.config.VanadiumConfigBridge;
++
+ class LibraryLoaderHooks {
+ 
+     static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
++        VanadiumConfigBridge.initConfigs(appContext, type);
+     }
+ 
+     static void onBeforeCommandLineSwitchLocked(Context appContext, @LibraryProcessType int type) {
++        VanadiumConfigBridge.applyFlagFromConfigs(appContext, type);
+     }
+ 
+     static void onSubsequentCommandLineSwitchLockedCheck(Context appContext, @LibraryProcessType int type) {
++        VanadiumConfigBridge.applyFlagFromConfigs(appContext, type);
+     }
+ }
+diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
+index a88ac1113d759..80fb1746d8aa9 100644
+--- a/base/base_android_library_ext.gni
++++ b/base/base_android_library_ext.gni
+@@ -14,9 +14,11 @@ base_java_ext_srcjar_deps = [
+ base_library_loader_java_ext_java_sources = [
+   "android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
+   "android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java",
++  "android/java/src/org/chromium/base/config/VanadiumConfigBridge.java",
+ ]
+ 
+ base_library_loader_java_ext_deps = [
++  "//vanadium/android_config/proto:browser_config_parser_java",
+ ]
+ 
+ base_library_loader_java_ext_srcjar_deps = [

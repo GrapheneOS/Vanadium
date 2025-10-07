@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 2 Sep 2024 12:52:20 +0000
+Subject: [PATCH] config: Compile the config holder app with forceQueryable
+ attribute by default
+
+---
+ vanadium/android_config/AndroidManifest_config.xml |  3 +++
+ vanadium/android_config/config_apk.gni             | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/vanadium/android_config/AndroidManifest_config.xml b/vanadium/android_config/AndroidManifest_config.xml
+index 7a96388c0f2fd..196cb22ce754e 100644
+--- a/vanadium/android_config/AndroidManifest_config.xml
++++ b/vanadium/android_config/AndroidManifest_config.xml
+@@ -23,6 +23,9 @@
+     <application
+         android:hasCode="false"
+         android:label="{{ application_label|default('Vanadium Config') }}"
++        {% if (config_force_queryable|default('true')) == 'true' %}
++        android:forceQueryable="true"
++        {% endif %}
+         android:icon="@drawable/icon_webview" >
+     </application>
+ </manifest>
+diff --git a/vanadium/android_config/config_apk.gni b/vanadium/android_config/config_apk.gni
+index 0753daee03707..d7e1ca32a14cf 100644
+--- a/vanadium/android_config/config_apk.gni
++++ b/vanadium/android_config/config_apk.gni
+@@ -41,6 +41,10 @@ template("config_apk_tmpl") {
+     _apk_name = invoker.apk_name
+   }
+ 
++  if (defined(invoker.force_queryable)) {
++    _config_force_queryable = invoker.force_queryable
++  }
++
+   _android_manifest = "$target_gen_dir/$target_name/AndroidManifest.xml"
+   _android_manifest_target_name = "${target_name}__android_manifest"
+ 
+@@ -56,6 +60,12 @@ template("config_apk_tmpl") {
+       ]
+     }
+ 
++    if (defined(_config_force_queryable)) {
++      variables += [
++        "config_force_queryable=$_config_force_queryable",
++      ]
++    }
++
+     if (defined(invoker.jinja_extra_variables)) {
+       variables += invoker.jinja_extra_variables
+     }

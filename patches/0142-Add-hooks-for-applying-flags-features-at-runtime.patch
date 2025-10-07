@@ -1,0 +1,90 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 11 Apr 2024 15:55:39 +0000
+Subject: [PATCH] Add hooks for applying flags, features at runtime
+
+The methods used to apply flags or features via CommandLine are based on
+org.chromium.android_webview.common.FlagOverrideHelper, which cannot be
+directly referenced, as its only available for WebView code.
+---
+ .../VanadiumCommandLineUtils.java             | 58 +++++++++++++++++++
+ base/base_android_library_ext.gni             |  1 +
+ 2 files changed, 59 insertions(+)
+ create mode 100644 base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
+
+diff --git a/base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java b/base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
+new file mode 100644
+index 0000000000000..c2a9e9bcd57a3
+--- /dev/null
++++ b/base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
+@@ -0,0 +1,58 @@
++package org.chromium.base.command_line;
++
++import android.text.TextUtils;
++
++import androidx.annotation.NonNull;
++
++import org.chromium.base.CommandLine;
++
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.HashSet;
++import java.util.List;
++
++public class VanadiumCommandLineUtils {
++    public static List<String> getCommaDelimitedSwitchValue(String name) {
++        return CommandLine.getInstance().hasSwitch(name)
++                && CommandLine.getInstance().getSwitchValue(name) != null
++                ? Arrays.asList(CommandLine.getInstance().getSwitchValue(name).split(","))
++                : new ArrayList<>();
++    }
++
++    public static void setCommaDelimitedSwitchValue(String name, @NonNull List<String> value) {
++        if (value.isEmpty()) {
++            CommandLine.getInstance().removeSwitch(name);
++        } else {
++            CommandLine.getInstance().appendSwitchWithValue(name, TextUtils.join(",", value));
++        }
++    }
++
++    public static void removeValueOnSwitch(String name, @NonNull String value) {
++        removeValuesOnSwitch(name, List.of(value));
++    }
++
++    public static void removeValuesOnSwitch(String name, @NonNull List<String> values) {
++        addOrRemoveValuesOnSwitch(name, values, false);
++    }
++
++    public static void appendValueOnSwitch(String name, @NonNull String value) {
++        appendValuesOnSwitch(name, List.of(value));
++    }
++
++    public static void appendValuesOnSwitch(String name, @NonNull List<String> values) {
++        addOrRemoveValuesOnSwitch(name, values, true);
++    }
++
++    private static void addOrRemoveValuesOnSwitch(String name, @NonNull List<String> values, boolean add) {
++        if (CommandLine.getInstance() != null) {
++            var newValues = new HashSet<>(getCommaDelimitedSwitchValue(name));
++            var valuesSet = new HashSet<>(values);
++            if (add) {
++                newValues.addAll(valuesSet);
++            } else {
++                newValues.removeAll(valuesSet);
++            }
++            VanadiumCommandLineUtils.setCommaDelimitedSwitchValue(name, new ArrayList<>(newValues));
++        }
++    }
++}
+diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
+index 38ead26ee277d..777621c412fdb 100644
+--- a/base/base_android_library_ext.gni
++++ b/base/base_android_library_ext.gni
+@@ -12,6 +12,7 @@ base_java_ext_srcjar_deps = [
+ ]
+ 
+ base_library_loader_java_ext_java_sources = [
++  "android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
+ ]
+ 
+ base_library_loader_java_ext_deps = [

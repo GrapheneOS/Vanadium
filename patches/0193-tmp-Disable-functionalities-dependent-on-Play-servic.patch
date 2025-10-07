@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 18 Mar 2025 15:43:00 +0000
+Subject: [PATCH] tmp: Disable functionalities dependent on Play services
+ dynamite features
+
+---
+ .../shape_detection/BarcodeDetectionProviderImpl.java        | 5 +++++
+ .../src/org/chromium/shape_detection/TextDetectionImpl.java  | 5 +++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
+index bfa0c88679ff9..b806009bd0ebd 100644
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
+@@ -69,6 +69,11 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
+             Log.w(TAG, "Google Play Services not available");
+             return null;
+         }
++        boolean shouldAlwaysDisable = true;
++        if (shouldAlwaysDisable) {
++            Log.i(TAG, "Barcode detection always disabled");
++            return null;
++        }
+         int version =
+                 PackageUtils.getPackageVersion(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE);
+         if (version < 19742000) {
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
+index fa03d6737d08f..fa79ac2f8df97 100644
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
+@@ -93,6 +93,11 @@ public class TextDetectionImpl implements TextDetection {
+             Log.e(TAG, "Google Play Services not available");
+             return null;
+         }
++        boolean shouldAlwaysDisable = true;
++        if (shouldAlwaysDisable) {
++            Log.i(TAG, "Text detection always disabled");
++            return null;
++        }
+         return new TextDetectionImpl();
+     }
+ }
