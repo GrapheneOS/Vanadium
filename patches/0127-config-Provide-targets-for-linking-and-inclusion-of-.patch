@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 6 Dec 2023 16:51:14 +0000
+Subject: [PATCH] config: Provide targets for linking and inclusion of
+ ConfigInfo in apk
+
+---
+ vanadium/android_config/BUILD.gn | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+index c50267b3f5a66..6789d60950179 100644
+--- a/vanadium/android_config/BUILD.gn
++++ b/vanadium/android_config/BUILD.gn
+@@ -24,3 +24,22 @@ config_apk_tmpl("vanadium_config_for_testing_apk") {
+ # files reachable by GN.
+ group("empty_group") {
+ }
++
++generate_configinfo_srcjar("configinfo_srcjar_build") {
++  use_final_fields = false
++}
++
++# Use this to declare dependency on ConfigInfo class
++java_library("configinfo_java") {
++  supports_android = true
++  srcjar_deps = [
++    ":configinfo_srcjar_build",
++  ]
++  # New version of ConfigInfo.java (with the actual correct values) will
++  # be created when creating an apk.
++  jar_excluded_patterns = [ "*/ConfigInfo.class" ]
++}
++
++generate_configinfo_srcjar("configinfo_srcjar_apk") {
++  use_final_fields = true
++}

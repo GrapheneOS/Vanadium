@@ -1,0 +1,129 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 21 Dec 2023 14:33:25 +0000
+Subject: [PATCH] config: Add proto definitions for feature flags and
+ out-of-band component shipping
+
+---
+ vanadium/android_config/proto/BUILD.gn     | 12 +++
+ vanadium/android_config/proto/config.proto | 92 ++++++++++++++++++++++
+ 2 files changed, 104 insertions(+)
+ create mode 100644 vanadium/android_config/proto/BUILD.gn
+ create mode 100644 vanadium/android_config/proto/config.proto
+
+diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
+new file mode 100644
+index 0000000000000..7ccfd430aa163
+--- /dev/null
++++ b/vanadium/android_config/proto/BUILD.gn
+@@ -0,0 +1,12 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++proto_java_library("config_proto_java") {
++  proto_path = "//vanadium/android_config/proto"
++  sources = [
++    "$proto_path/config.proto",
++  ]
++}
+diff --git a/vanadium/android_config/proto/config.proto b/vanadium/android_config/proto/config.proto
+new file mode 100644
+index 0000000000000..9cc568cf41f31
+--- /dev/null
++++ b/vanadium/android_config/proto/config.proto
+@@ -0,0 +1,92 @@
++// Copyright 2023 GrapheneOS
++// Use of this source code is governed by a GPL-2.0 style license that can be
++// found in the LICENSE file.
++
++syntax = "proto3";
++
++package app.vanadium.config.proto;
++
++option optimize_for = LITE_RUNTIME; // Needed for Chromium at the moment
++option java_package = "app.vanadium.config.proto";
++option java_outer_classname = "VanadiumConfigProto";
++
++// Next tag: 2
++message Configs {
++  repeated Config configs = 1;
++}
++
++// Contains information about configuration changes for a defined spec.
++// Next tag: 4
++message Config {
++  Spec spec = 1;
++  repeated Flag flags = 2;
++  repeated Component components = 3;
++}
++
++// Defines a specification where configuration change(s) must apply, with version constrains and types.
++// At the moment, only browser and webview are considered different types of spec.
++// Next tag: 4
++message Spec {
++  // Indicates the types of Chromium builds where the configuration may apply.
++  int64 spec_types = 1;
++  // Minimum version where the config will apply. No minimum version is indicated by 0.
++  int64 min_version = 2;
++  // Maximum version where the config will apply. No maximum version is indicated by 0.
++  int64 max_version = 3;
++
++  // Next tag: 2, max tag: 7
++  enum SpecType {
++    reserved 8 to 536870911;
++    BROWSER = 0;
++    WEBVIEW = 1;
++  }
++}
++
++// Next tag: 4
++message Flag {
++  string flag_name = 1;
++  repeated string flag_value = 2;
++  FlagType flag_type = 3;
++
++  // Next tag: 5
++  enum FlagType {
++    UNKNOWN = 0;
++    ENABLED_FEATURE = 1;
++    DISABLED_FEATURE = 2;
++    ENABLED_SWITCH = 3;
++    DISABLED_SWITCH = 4;
++  }
++}
++
++// Next tag: 6
++message Component {
++  ComponentType component_type = 1;
++  string component_file_name = 2;
++  reserved 3; // was int64 version_code = 3;
++  repeated Flag dependent_flags = 4;
++  reserved 5; // was ComponentApkSpec apk_spec = 5;
++  repeated AdditionalComponent additional_components = 6;
++
++  // Next tag: 2
++  enum ComponentType {
++    UNKNOWN = 0;
++    SUBRESOURCE_FILTER_TOOLS = 1;
++  }
++
++  // Information on where the component file is stored.
++  // When not set, it's assumed to be found in the config apk.
++  // Next tag: 3
++  // message ComponentApkSpec {
++  //   string pkg_name = 1;
++  //   repeated bytes sha256_certs = 2;
++  // }
++
++  message AdditionalComponent {
++    string component_file_name = 2;
++    repeated ComponentCondition conditions = 100;
++  }
++
++  message ComponentCondition {
++    string language = 1;
++  }
++}

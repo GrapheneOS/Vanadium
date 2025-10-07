@@ -1,0 +1,202 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 2 Dec 2023 06:49:51 +0000
+Subject: [PATCH] Add a new config-like apk target for building
+
+---
+ .../android_config/AndroidManifest_config.xml | 28 ++++++
+ vanadium/android_config/BUILD.gn              | 21 ++++
+ vanadium/android_config/config_apk.gni        | 96 +++++++++++++++++++
+ vanadium/android_config/config_apk_vars.gni   | 16 ++++
+ 4 files changed, 161 insertions(+)
+ create mode 100644 vanadium/android_config/AndroidManifest_config.xml
+ create mode 100644 vanadium/android_config/BUILD.gn
+ create mode 100644 vanadium/android_config/config_apk.gni
+ create mode 100644 vanadium/android_config/config_apk_vars.gni
+
+diff --git a/vanadium/android_config/AndroidManifest_config.xml b/vanadium/android_config/AndroidManifest_config.xml
+new file mode 100644
+index 0000000000000..7a96388c0f2fd
+--- /dev/null
++++ b/vanadium/android_config/AndroidManifest_config.xml
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
+++Copyright 2023 The Chromium Authors
+++Use of this source code is governed by a BSD-style license that can be
+++found in the LICENSE file.
+++-->
++
++<!--
+++Note: This is a jinja2 template, processed at build time into the final manifest.
+++Based on TrichromeLibrary's AndroidManifest jinja2 template.
+++-->
++
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    package="{{ manifest_package }}"
++    tools:ignore="MissingVersion,MissingLeanbackLauncher">
++
++    <uses-feature android:glEsVersion="0x00020000" />
++    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
++    <uses-feature android:name="android.software.leanback" android:required="false" />
++
++    <!-- TODO(torne): we should specify an icon, roundIcon, and label from resources. -->
++    <application
++        android:hasCode="false"
++        android:label="{{ application_label|default('Vanadium Config') }}"
++        android:icon="@drawable/icon_webview" >
++    </application>
++</manifest>
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+new file mode 100644
+index 0000000000000..21906ce79c0c0
+--- /dev/null
++++ b/vanadium/android_config/BUILD.gn
+@@ -0,0 +1,21 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/channel.gni")
++import("//build/config/android/config.gni")
++import("//build/config/android/rules.gni")
++import("//vanadium/android_config/config_apk.gni")
++
++assert(is_android)
++
++config_apk_tmpl("vanadium_config_apk") {
++  apk_name = "VanadiumConfig"
++  application_label = "Vanadium Config"
++}
++
++config_apk_tmpl("vanadium_config_for_testing_apk") {
++  testonly = true
++  apk_name = "VanadiumConfigTest"
++  application_label = "Vanadium Config Test"
++}
+diff --git a/vanadium/android_config/config_apk.gni b/vanadium/android_config/config_apk.gni
+new file mode 100644
+index 0000000000000..c7548d44cc63b
+--- /dev/null
++++ b/vanadium/android_config/config_apk.gni
+@@ -0,0 +1,96 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/channel.gni")
++import("//build/config/android/config.gni")
++import("//build/config/android/rules.gni")
++import("//vanadium/android_config/config_apk_vars.gni")
++
++assert(is_android)
++
++template("config_apk_tmpl") {
++  _version_name = default_version_name_for_config_apk
++  if (config_apk_version_name != default_version_name_for_config_apk) {
++    _version_name = config_apk_version_name
++  }
++
++  if (defined(invoker.version_name)) {
++    _version_name = invoker.version_name
++  }
++
++  _version_code = default_version_code_for_config_apk
++  if (config_apk_version_code != default_version_code_for_config_apk) {
++    _version_code = config_apk_version_code
++  }
++
++  if (defined(invoker.version_code)) {
++    _version_code = invoker.version_code
++  }
++
++  _manifest_package = config_apk_package
++  if (defined(invoker.manifest_package)) {
++    _manifest_package = invoker.manifest_package
++  }
++
++  if (defined(invoker.application_label)) {
++    _application_label = invoker.application_label
++  }
++
++  if (defined(invoker.apk_name)) {
++    _apk_name = invoker.apk_name
++  }
++
++  _android_manifest = "$target_gen_dir/$target_name/AndroidManifest.xml"
++  _android_manifest_target_name = "${target_name}__android_manifest"
++
++  jinja_template(_android_manifest_target_name) {
++    input = "//vanadium/android_config/AndroidManifest_config.xml"
++    output = _android_manifest
++    variables = [
++      "manifest_package=$_manifest_package",
++    ]
++    if (defined(_application_label)) {
++      variables += [
++        "application_label=$_application_label",
++      ]
++    }
++
++    if (defined(invoker.jinja_extra_variables)) {
++      variables += invoker.jinja_extra_variables
++    }
++  }
++
++  android_apk(target_name) {
++    android_manifest = _android_manifest
++    android_manifest_dep = ":$_android_manifest_target_name"
++    manifest_package = _manifest_package
++
++    if (defined(_apk_name)) {
++      apk_name = _apk_name
++    }
++
++    omit_dex = true
++    include_size_info = is_official_build
++    alternative_android_sdk_dep = webview_framework_dep
++    r_java_root_package_name = "config"
++    app_as_shared_lib = false
++    version_name = _version_name
++    version_code = _version_code
++    min_sdk_version = 33
++
++    deps = [
++      "//android_webview/nonembedded:icon_resources",
++    ]
++
++    if (defined(invoker.deps)) {
++      deps += invoker.deps
++    }
++
++    forward_variables_from(invoker, "*",
++                          TESTONLY_AND_VISIBILITY + [
++                            "deps",
++                          ])
++    forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
++  }
++}
+diff --git a/vanadium/android_config/config_apk_vars.gni b/vanadium/android_config/config_apk_vars.gni
+new file mode 100644
+index 0000000000000..b58e1df4bcaf6
+--- /dev/null
++++ b/vanadium/android_config/config_apk_vars.gni
+@@ -0,0 +1,16 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//chrome/android/trichrome.gni")
++
++default_version_code_for_config_apk = "0"
++default_version_name_for_config_apk = "0"
++
++declare_args() {
++  config_apk_package = "app.vanadium.config"
++  config_apk_certdigest = trichrome_certdigest
++  config_apk_version_code = default_version_code_for_config_apk
++  config_apk_version_name = default_version_name_for_config_apk
++  config_apk_is_debug = false
++}
+\ No newline at end of file

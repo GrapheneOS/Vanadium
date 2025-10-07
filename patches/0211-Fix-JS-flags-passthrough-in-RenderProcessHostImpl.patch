@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrea Brancaleoni <abrancaleoni@brave.com>
+Date: Fri, 5 Sep 2025 14:33:38 -0700
+Subject: [PATCH] Fix JS flags passthrough in RenderProcessHostImpl
+
+Properly combine existing JavaScript flags with new flags instead of
+overwriting them. This ensures that flags passed via command line are
+preserved when adding internal flags like --jitless or
+--disable-optimizing-compilers.
+
+Change-Id: Ic1723cbb9a40adecefe8ca3f492ce004a7917abb
+Bug: 442950572
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6901881
+Reviewed-by: Alex Moshchuk <alexmos@chromium.org>
+Reviewed-by: Arthur Sonzogni <arthursonzogni@chromium.org>
+Commit-Queue: Claudio DeSouza <cdesouza@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1511879}
+---
+ .../renderer_host/render_process_host_impl.cc | 24 +++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
+index 3f7b3f4bc3a26..0df28ee900dce 100644
+--- a/content/browser/renderer_host/render_process_host_impl.cc
++++ b/content/browser/renderer_host/render_process_host_impl.cc
+@@ -54,6 +54,7 @@
+ #include "base/observer_list.h"
+ #include "base/process/process_handle.h"
+ #include "base/rand_util.h"
++#include "base/strings/strcat.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "base/strings/string_util.h"
+ #include "base/strings/stringprintf.h"
+@@ -1335,6 +1336,20 @@ void RecordMissedReuseOpportunityMetric(
+       site_instance->GetBrowserContext());
+ }
+ 
++// Appends a `new_value` to a command-line switch that holds a comma-separated
++// list of values.
++void AppendToCommaSeparatedSwitch(base::CommandLine* command_line,
++                                  const std::string& switch_name,
++                                  const std::string& new_value) {
++  const std::string existing_values =
++      command_line->GetSwitchValueASCII(switch_name);
++  command_line->RemoveSwitch(switch_name);
++  command_line->AppendSwitchASCII(
++      switch_name, existing_values.empty()
++                       ? new_value
++                       : base::StrCat({existing_values, ",", new_value}));
++}
++
+ }  // namespace
+ 
+ RenderProcessHostImpl::IOThreadHostImpl::IOThreadHostImpl(
+@@ -3423,11 +3438,12 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+   }
+ 
+   if (IsJitDisabled()) {
+-    command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
+-                                    "--jitless");
++    AppendToCommaSeparatedSwitch(
++        command_line, blink::switches::kJavaScriptFlags, "--jitless");
+   } else if (AreV8OptimizationsDisabled()) {
+-    command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
+-                                    "--disable-optimizing-compilers");
++    AppendToCommaSeparatedSwitch(command_line,
++                                 blink::switches::kJavaScriptFlags,
++                                 "--disable-optimizing-compilers");
+   }
+ 
+   if (DisallowV8FeatureFlagOverrides()) {

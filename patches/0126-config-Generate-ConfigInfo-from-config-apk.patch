@@ -1,0 +1,109 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 6 Dec 2023 15:45:43 +0000
+Subject: [PATCH] config: Generate ConfigInfo from config apk
+
+---
+ vanadium/android_config/config_apk.gni        | 24 ++++++++
+ .../java/templates/ConfigInfo.template        | 60 +++++++++++++++++++
+ 2 files changed, 84 insertions(+)
+ create mode 100644 vanadium/android_config/java/templates/ConfigInfo.template
+
+diff --git a/vanadium/android_config/config_apk.gni b/vanadium/android_config/config_apk.gni
+index c7548d44cc63b..0753daee03707 100644
+--- a/vanadium/android_config/config_apk.gni
++++ b/vanadium/android_config/config_apk.gni
+@@ -94,3 +94,27 @@ template("config_apk_tmpl") {
+     forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
+   }
+ }
++
++template("generate_configinfo_srcjar") {
++  java_cpp_template(target_name) {
++    forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
++    sources = [ "//vanadium/android_config/java/templates/ConfigInfo.template" ]
++    defines = []
++    deps = []
++    if (defined(invoker.deps)) {
++      deps += invoker.deps
++    }
++    if (invoker.use_final_fields) {
++      defines += [
++        "USE_FINAL",
++        "_CONFIG_APK_PACKAGE=${config_apk_package}",
++        "_CONFIG_APK_CERTDIGEST=${config_apk_certdigest}",
++      ]
++      if (config_apk_is_debug) {
++        defines += [
++          "_IS_DEBUG",
++        ]
++      }
++    }
++  }
++}
+diff --git a/vanadium/android_config/java/templates/ConfigInfo.template b/vanadium/android_config/java/templates/ConfigInfo.template
+new file mode 100644
+index 0000000000000..298b27e13a3d5
+--- /dev/null
++++ b/vanadium/android_config/java/templates/ConfigInfo.template
+@@ -0,0 +1,60 @@
++// Copyright 2023 GrapheneOS
++// Use of this source code is governed by a GPL-2.0 style license that can be
++// found in the LICENSE file.
++
++package app.vanadium.config;
++
++#define Q(x) #x
++#define QUOTE(x) Q(x)
++
++#if defined(USE_FINAL)
++#define MAYBE_FINAL final
++#define MAYBE_EMPTY_STRING = ""
++#define MAYBE_EMPTY_BYTEARRAY = new byte[0]
++#define MAYBE_FALSE = false
++#else
++#define MAYBE_FINAL
++#define MAYBE_EMPTY_STRING
++#define MAYBE_EMPTY_BYTEARRAY
++#define MAYBE_FALSE
++#endif
++
++/**
++ * Information about the config stub apk. Generated on a per-target basis.
++ */
++public class ConfigInfo {
++
++#if defined(_CONFIG_APK_PACKAGE)
++    public static MAYBE_FINAL String CONFIG_APK_PACKAGE = QUOTE(_CONFIG_APK_PACKAGE);
++#else
++    public static MAYBE_FINAL String CONFIG_APK_PACKAGE MAYBE_EMPTY_STRING;
++#endif
++
++#if defined(_CONFIG_APK_CERTDIGEST)
++    public static MAYBE_FINAL byte[] CONFIG_APK_SHA256_CERTDIGEST;
++    static {
++        String CONFIG_APK_CERTDIGEST_STRING = QUOTE(_CONFIG_APK_CERTDIGEST);
++        int strLen = CONFIG_APK_CERTDIGEST_STRING.length();
++        if ((strLen & 1) != 0) {
++            throw new IllegalArgumentException();
++        }
++
++        int arrLen = strLen / 2;
++        CONFIG_APK_SHA256_CERTDIGEST = new byte[arrLen];
++        for (int i = 0; i < arrLen; ++i) {
++            int off = i << 1;
++            int top = Character.digit(CONFIG_APK_CERTDIGEST_STRING.charAt(off), 16);
++            int bot = Character.digit(CONFIG_APK_CERTDIGEST_STRING.charAt(off + 1), 16);
++            CONFIG_APK_SHA256_CERTDIGEST[i] = (byte) ((top << 4) | bot);
++        }
++    }
++#else
++    public static MAYBE_FINAL byte[] CONFIG_APK_SHA256_CERTDIGEST MAYBE_EMPTY_BYTEARRAY;
++#endif
++
++#if defined(_IS_DEBUG)
++    public static MAYBE_FINAL boolean IS_DEBUG = true;
++#else
++    public static MAYBE_FINAL boolean IS_DEBUG MAYBE_FALSE;
++#endif
++}

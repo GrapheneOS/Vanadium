@@ -1,0 +1,131 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 15 Jul 2024 15:40:55 +0000
+Subject: [PATCH] Add support for upstream file-based parsing of unindexed
+ content filtering component
+
+---
+ vanadium/android_config/proto/BUILD.gn        |  9 +++
+ .../SubresourceFilterComponentUtils.java      | 78 +++++++++++++++++++
+ .../vanadium/config/VanadiumConfParser.java   |  3 +
+ 3 files changed, 90 insertions(+)
+ create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
+
+diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
+index 5f04b2dca6267..dca5909c10d87 100644
+--- a/vanadium/android_config/proto/BUILD.gn
++++ b/vanadium/android_config/proto/BUILD.gn
+@@ -61,6 +61,15 @@ android_library("browser_config_parser_java") {
+     ":config_proto_java",
+     "//vanadium/android_config:configinfo_java",
+   ]
++
++  # additional sources for subresource filtering component
++  sources += [
++    "java/src/app/vanadium/config/SubresourceFilterComponentUtils.java",
++  ]
++
++  deps += [
++    "//vanadium/ext/utils:file_utils_java",
++  ]
+ }
+ 
+ android_assets("config_assets") {
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java b/vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
+new file mode 100644
+index 0000000000000..a42d38734d266
+--- /dev/null
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
+@@ -0,0 +1,78 @@
++package app.vanadium.config;
++
++import android.content.Context;
++import android.system.ErrnoException;
++import android.util.Log;
++
++import java.io.InterruptedIOException;
++import java.util.Objects;
++
++import app.vanadium.config.proto.VanadiumConfigProto;
++import app.vanadium.ext.utils.AtomicFile2;
++
++public final class SubresourceFilterComponentUtils {
++
++    private static final String UNINDEXED_RULESET_FILE_NAME = "unindexed_subresource_filter";
++    private static final String TAG = "cr_SubresourceFilterComponentUtils";
++
++    private static SubresourceFilterComponentUtils instance;
++    private static volatile boolean initialized = false;
++
++    private final AtomicFile2 atomicFileForParsing;
++
++    SubresourceFilterComponentUtils(Context appCtx) {
++        this.atomicFileForParsing = new AtomicFile2(appCtx, UNINDEXED_RULESET_FILE_NAME);
++    }
++
++    static SubresourceFilterComponentUtils initialize(Context appCtx) {
++        if (initialized) {
++            return instance;
++        }
++
++        instance = new SubresourceFilterComponentUtils(appCtx);
++        initialized = true;
++        return instance;
++    }
++
++    private static SubresourceFilterComponentUtils getInstance() {
++        if (!initialized || instance == null) {
++            Log.w(TAG, "not yet initialized", new Throwable());
++            return null;
++        }
++
++        return instance;
++    }
++
++    public static void writeCurrentContents() {
++        SubresourceFilterComponentUtils instance = getInstance();
++        if (instance == null) {
++            return;
++        }
++
++        try {
++            instance.atomicFileForParsing.write(
++                    VanadiumConfParser.getByteArrayForComponent(
++                            VanadiumConfigProto.Component.ComponentType.SUBRESOURCE_FILTER_TOOLS));
++        } catch (ErrnoException | InterruptedIOException e) {
++            Log.e(TAG, "", e);
++        }
++    }
++
++    public static boolean deleteComponentFileForParsing() {
++        SubresourceFilterComponentUtils instance = getInstance();
++        if (instance == null) {
++            return false;
++        }
++
++        return instance.atomicFileForParsing.delete();
++    }
++
++    public static String getFilePathForParsing() {
++        SubresourceFilterComponentUtils instance = getInstance();
++        if (instance == null) {
++            return null;
++        }
++
++        return instance.atomicFileForParsing.filePath;
++    }
++}
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+index f3be6b5f9fdcd..c03de5945ad98 100644
+--- a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -317,6 +317,9 @@ public final class VanadiumConfParser {
+     private static void parseInBackground(Context ctx, SpecType specType) {
+         futureParsedConfigs = executor.submit(() -> {
+             parsedConfigs = parse(ctx, specType);
++            if (parsedConfigs != null) {
++                SubresourceFilterComponentUtils.initialize(ctx);
++            }
+             return parsedConfigs;
+         });
+     }

@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 19 Feb 2024 22:25:23 +0000
+Subject: [PATCH] Add support for calling added APIs from custom OS
+
+---
+ vanadium/ext/custom_os/BUILD.gn               | 13 +++++++++
+ .../src/app/vanadium/ext/CustomOSApis.java    | 29 +++++++++++++++++++
+ 2 files changed, 42 insertions(+)
+ create mode 100644 vanadium/ext/custom_os/BUILD.gn
+ create mode 100644 vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+
+diff --git a/vanadium/ext/custom_os/BUILD.gn b/vanadium/ext/custom_os/BUILD.gn
+new file mode 100644
+index 0000000000000..ea3c3995a44e5
+--- /dev/null
++++ b/vanadium/ext/custom_os/BUILD.gn
+@@ -0,0 +1,13 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("custom_os_apis_java") {
++  sources = [
++    "java/src/app/vanadium/ext/CustomOSApis.java",
++  ]
++  deps = [
++  ]
++}
+\ No newline at end of file
+diff --git a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+new file mode 100644
+index 0000000000000..beaf2b4576207
+--- /dev/null
++++ b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+@@ -0,0 +1,29 @@
++package app.vanadium.ext;
++
++import android.os.Environment;
++import android.util.Log;
++
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++
++public class CustomOSApis {
++
++    private static final String TAG = "cr_CustomOSApis";
++
++    public static boolean isExecmemBlocked() {
++        try {
++            Method isExecmemBlocked = Environment.class.getDeclaredMethod("isExecmemBlocked");
++            if (isExecmemBlocked.getReturnType() != Boolean.TYPE) {
++                Log.e(TAG, "Unexpected return type: isExecmemBlocked must return boolean");
++                return false;
++            }
++
++            var res = isExecmemBlocked.invoke(null);
++            return (boolean) res;
++        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
++            Log.e(TAG, "", e);
++            return false;
++        }
++    }
++
++}
+\ No newline at end of file
