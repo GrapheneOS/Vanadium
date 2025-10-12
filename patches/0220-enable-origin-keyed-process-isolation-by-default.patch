@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Rithvik Ballari <nexus-x@tuta.io>
+Date: Sat, 11 Oct 2025 13:49:27 +0530
+Subject: [PATCH] enable origin-keyed process isolation by default.
+
+---
+ content/public/common/content_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
+index f14f98b33dac2..caf9084e037b8 100644
+--- a/content/public/common/content_features.cc
++++ b/content/public/common/content_features.cc
+@@ -724,7 +724,7 @@ BASE_FEATURE(kProcessSelectionDeferringConditions,
+ // Origin-Agent-Cluster: ?0. This feature only takes effect if the Blink feature
+ // OriginAgentClusterDefaultEnable is enabled, since origin-keyed processes
+ // require origin-agent-clusters.
+-BASE_FEATURE(OriginKeyedProcessesByDefault, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(OriginKeyedProcessesByDefault, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Fires the `pushsubscriptionchange` event defined here:
+ // https://w3c.github.io/push-api/#the-pushsubscriptionchange-event

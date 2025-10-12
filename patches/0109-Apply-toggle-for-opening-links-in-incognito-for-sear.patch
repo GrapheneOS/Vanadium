@@ -39,10 +39,10 @@ index c282d5311d57f..6cdfa50279aa0 100644
 +    }
  }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 02217519953c9..ee9693be964f7 100644
+index 35a8131e7c298..63fab07149dcd 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -497,7 +497,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -496,7 +496,8 @@ public class SearchActivity extends AsyncInitializationActivity
  
      @Override
      protected OneshotSupplier<ProfileProvider> createProfileProvider() {
@@ -53,20 +53,21 @@ index 02217519953c9..ee9693be964f7 100644
                  new ActivityProfileProvider(getLifecycleDispatcher());
          profileProvider.onAvailable(
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 791a9ed59a2f3..8da66225a0f78 100644
+index 0fec563ed19dd..6dbb33062876d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-@@ -3,6 +3,9 @@ package org.chromium.chrome.browser.searchwidget;
+@@ -2,7 +2,10 @@ package org.chromium.chrome.browser.searchwidget;
+ 
  import android.app.Activity;
  import android.content.Intent;
- 
 +import android.app.SearchManager;
+ 
 +import org.chromium.base.IntentUtils;
 +import org.chromium.chrome.browser.IntentHandler;
  import org.chromium.chrome.browser.TabPreferencesUtils;
  import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
  
-@@ -20,4 +23,18 @@ public class SearchActivityHooks {
+@@ -16,4 +19,18 @@ public final class SearchActivityHooks {
  
          return newIntent;
      }
