@@ -1,0 +1,68 @@
+From dabfa5b5a15c67fcb0f565c5c993f25c2b2ea8f8 Mon Sep 17 00:00:00 2001
+From: octocorvus <loryeam@gmail.com>
+Date: Thu, 13 Oct 2022 13:20:05 +0000
+Subject: [PATCH] [autoplay] implement autoplay policy to block media
+ autoplay...
+
+... when not allowed by content settings.
+
+Current autoplay policy (if autoplay is blocked for site as per content
+settings):
+- Muted autoplay is always blocked.
+- Autoplay with sound is allowed if and only if the user has interacted
+  with domain (click, tap, etc.). If we block this, then the user won't
+  be able to start a video by tapping on the play button, since those
+  will be blocked too.
+---
+ .../renderer/core/html/media/autoplay_policy.cc | 17 +++++++++++++++++
+ .../renderer/core/html/media/autoplay_policy.h  |  2 ++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/third_party/blink/renderer/core/html/media/autoplay_policy.cc b/third_party/blink/renderer/core/html/media/autoplay_policy.cc
+index 871d82556706b..a2baf0489dddd 100644
+--- a/third_party/blink/renderer/core/html/media/autoplay_policy.cc
++++ b/third_party/blink/renderer/core/html/media/autoplay_policy.cc
+@@ -310,6 +310,9 @@ void AutoplayPolicy::TryUnlockingUserGesture() {
+ }
+ 
+ bool AutoplayPolicy::IsGestureNeededForPlayback() const {
++  if (!IsAutoplayAllowedByContentSettings())
++    return true;
++
+   if (!IsLockedPendingUserGesture())
+     return false;
+ 
+@@ -337,6 +340,20 @@ void AutoplayPolicy::EnsureAutoplayInitiatedSet() {
+   autoplay_initiated_ = false;
+ }
+ 
++bool AutoplayPolicy::IsAutoplayAllowedByContentSettings() const {
++  if (!base::FeatureList::IsEnabled(features::kEnableAutoplayPermission))
++    return true;
++
++  LocalFrame* frame = element_->GetDocument().GetFrame();
++  if (!frame)
++    return false;
++
++  if (auto* settings_client = frame->GetContentSettingsClient())
++    return settings_client->AllowAutoplay(true);
++
++  return true;
++}
++
+ void AutoplayPolicy::OnIntersectionChangedForAutoplay(
+     const HeapVector<Member<IntersectionObserverEntry>>& entries) {
+   bool is_visible = (entries.back()->intersectionRatio() > 0);
+diff --git a/third_party/blink/renderer/core/html/media/autoplay_policy.h b/third_party/blink/renderer/core/html/media/autoplay_policy.h
+index ca5c996363ad8..ae4c094cd1559 100644
+--- a/third_party/blink/renderer/core/html/media/autoplay_policy.h
++++ b/third_party/blink/renderer/core/html/media/autoplay_policy.h
+@@ -113,6 +113,8 @@ class CORE_EXPORT AutoplayPolicy final
+   // avoid false positives.
+   void EnsureAutoplayInitiatedSet();
+ 
++  bool IsAutoplayAllowedByContentSettings() const;
++
+   virtual void Trace(Visitor*) const;
+ 
+  private:
