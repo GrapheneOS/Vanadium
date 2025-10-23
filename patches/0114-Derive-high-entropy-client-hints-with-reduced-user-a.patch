@@ -55,10 +55,10 @@ index 2bb4faa0bc911..9c695d90b1a72 100644
      return metadata;
    }
 diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
-index 93c29179eab48..fa7abf849365e 100644
+index bf15a0ce826d1..b30d0aaa3755f 100644
 --- a/content/browser/client_hints/client_hints.cc
 +++ b/content/browser/client_hints/client_hints.cc
-@@ -860,6 +860,20 @@ void AddRequestClientHintsHeaders(
+@@ -861,6 +861,20 @@ void AddRequestClientHintsHeaders(
  
    GURL url = origin.GetURL();
  
@@ -80,29 +80,29 @@ index 93c29179eab48..fa7abf849365e 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index a17e8d01ccf9e..47379bd7aac42 100644
+index 245c831acb95d..442a068abd0ed 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -359,6 +359,14 @@ BASE_FEATURE(CaptureJSExecutionLocation, base::FEATURE_ENABLED_BY_DEFAULT);
- 
- BASE_FEATURE(CheckHTMLParserBudgetLessOften, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -358,6 +358,14 @@ BASE_FEATURE(kCaptureJSExecutionLocation, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+              base::FEATURE_DISABLED_BY_DEFAULT);
  
 +// Enable low-entropy client hints only.
-+BASE_FEATURE(ClientHintsLowEntropyOnly,
++BASE_FEATURE(kClientHintsLowEntropyOnly,
 +             base::FEATURE_DISABLED_BY_DEFAULT);
 +
 +// Use information from reduced user agent for high entropy client hints.
-+BASE_FEATURE(ClientHintsFromReducedUA,
++BASE_FEATURE(kClientHintsFromReducedUA,
 +            base::FEATURE_ENABLED_BY_DEFAULT);
 +
- BASE_FEATURE(ClearSiteDataPrefetchPrerenderCache,
+ BASE_FEATURE(kClearSiteDataPrefetchPrerenderCache,
               base::FEATURE_ENABLED_BY_DEFAULT);
  
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 0738a9957350d..285a89d5a9f18 100644
+index 01473828bca65..b50c28408470f 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -230,6 +230,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+@@ -226,6 +226,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  // is a no-op if kTimedHTMLParserBudget is disabled.
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
  

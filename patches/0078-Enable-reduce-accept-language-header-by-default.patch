@@ -8,15 +8,15 @@ Subject: [PATCH] Enable reduce accept language header by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index ff3f55baf636a..9ec5916c1740a 100644
+index 41dcb203c1fa2..43a89fb245c1b 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -199,7 +199,7 @@ BASE_FEATURE(kOmitCorsClientCert,
+@@ -182,7 +182,7 @@ BASE_FEATURE(kOmitCorsClientCert, base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Enables support for the `Variants` response header and reduce
  // accept-language. https://github.com/Tanych/accept-language
- BASE_FEATURE(kReduceAcceptLanguage,
-              "ReduceAcceptLanguage",
--             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::FEATURE_ENABLED_BY_DEFAULT);
+-BASE_FEATURE(kReduceAcceptLanguage, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(kReduceAcceptLanguage, base::FEATURE_ENABLED_BY_DEFAULT);
  
  BASE_FEATURE_PARAM(base::TimeDelta,
                     kReduceAcceptLanguageCacheDuration,

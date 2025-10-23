@@ -8,10 +8,10 @@ Subject: [PATCH] disable fetching optimization guides by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 00f3d964d48bb..4472b03e14292 100644
+index 0cc913c17493d..a8eabf7d5df24 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -90,7 +90,7 @@ BASE_FEATURE(kOptGuideEnableXNNPACKDelegateWithTFLite,
+@@ -79,7 +79,7 @@ BASE_FEATURE(kOverrideNumThreadsForModelExecution,
  // Service.
  BASE_FEATURE(kOptimizationGuideFetchingForSRP,
               "OptimizationHintsFetchingSRP",
@@ -19,4 +19,4 @@ index 00f3d964d48bb..4472b03e14292 100644
 +             base::FEATURE_DISABLED_BY_DEFAULT);
  
  // Kill switch for disabling model quality logging.
- BASE_FEATURE(kModelQualityLogging,
+ BASE_FEATURE(kModelQualityLogging, base::FEATURE_ENABLED_BY_DEFAULT);

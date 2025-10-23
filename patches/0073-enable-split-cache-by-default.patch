@@ -8,28 +8,28 @@ Subject: [PATCH] enable split cache by default
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 58aa8a22e7e64..04b31805982a4 100644
+index fc6da73277a87..a017dc84248c8 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -104,10 +104,10 @@ const base::FeatureParam<base::TimeDelta>
-         &kNetworkQualityEstimator,
+@@ -109,10 +109,10 @@ const base::FeatureParam<base::TimeDelta>
          "EffectiveConnectionTypeRecomputationInterval", base::Seconds(10)};
  
--BASE_FEATURE(SplitCacheByIncludeCredentials, base::FEATURE_DISABLED_BY_DEFAULT);
-+BASE_FEATURE(SplitCacheByIncludeCredentials, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kSplitCacheByIncludeCredentials,
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
  
- BASE_FEATURE(SplitCacheByNetworkIsolationKey,
+ BASE_FEATURE(kSplitCacheByNetworkIsolationKey,
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
  // Note: Use of this feature is gated on the HTTP cache itself being
  // partitioned, which is controlled by the kSplitCacheByNetworkIsolationKey
-@@ -116,7 +116,7 @@ BASE_FEATURE(SplitCacheByCrossSiteMainFrameNavigationBoolean,
+@@ -121,7 +121,7 @@ BASE_FEATURE(kSplitCacheByCrossSiteMainFrameNavigationBoolean,
               base::FEATURE_ENABLED_BY_DEFAULT);
  
- BASE_FEATURE(SplitCodeCacheByNetworkIsolationKey,
+ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             base::FEATURE_ENABLED_BY_DEFAULT);
  
- BASE_FEATURE(PartitionConnectionsByNetworkIsolationKey,
+ BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
               base::FEATURE_DISABLED_BY_DEFAULT);

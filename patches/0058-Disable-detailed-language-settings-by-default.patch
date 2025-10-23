@@ -8,15 +8,15 @@ Subject: [PATCH] Disable detailed language settings by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/language/core/common/language_experiments.cc b/components/language/core/common/language_experiments.cc
-index 6aead5f64107a..6c7ce5a2d6933 100644
+index 34933fa53262b..e552532f22dd0 100644
 --- a/components/language/core/common/language_experiments.cc
 +++ b/components/language/core/common/language_experiments.cc
-@@ -13,7 +13,7 @@ namespace language {
+@@ -11,7 +11,7 @@
+ 
+ namespace language {
  // Features:
- BASE_FEATURE(kDetailedLanguageSettings,
-              "DetailedLanguageSettings",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kDetailedLanguageSettings, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kDetailedLanguageSettings, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kCctAutoTranslate,
               "CCTAutoTranslate",
               base::FEATURE_ENABLED_BY_DEFAULT);

@@ -8,15 +8,15 @@ Subject: [PATCH] disable autofill server communication by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index c602fd6a4e275..fda38e51887f4 100644
+index a6d8101d249a9..4049e923b55c5 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
-@@ -1037,7 +1037,7 @@ const base::FeatureParam<std::string> kAutofillOverridePredictionsJson{
+@@ -895,7 +895,7 @@ const base::FeatureParam<std::string> kAutofillOverridePredictionsJson{
+ // autofill server API url up to the parent "directory" of the "query" and
+ // "upload" resources.
  // i.e., https://other.autofill.server:port/tbproxy/af/
- BASE_FEATURE(kAutofillServerCommunication,
-              "AutofillServerCommunication",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kAutofillServerCommunication, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kAutofillServerCommunication, base::FEATURE_DISABLED_BY_DEFAULT);
  
  // Enables showing DOM Node ID of elements.
- BASE_FEATURE(kShowDomNodeIDs,
+ BASE_FEATURE(kShowDomNodeIDs, base::FEATURE_DISABLED_BY_DEFAULT);
