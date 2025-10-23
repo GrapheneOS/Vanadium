@@ -8,15 +8,15 @@ Subject: [PATCH] disable fetching optimization hints by default
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 4472b03e14292..12f69aeb49905 100644
+index a8eabf7d5df24..2c2fc99c07899 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -51,7 +51,7 @@ constexpr auto enabled_by_default_mobile_only =
+@@ -49,7 +49,7 @@ constexpr auto enabled_by_default_mobile_only =
+ 
+ // Enables the syncing of the Optimization Hints component, which provides
  // hints for what optimizations can be applied on a page load.
- BASE_FEATURE(kOptimizationHints,
-              "OptimizationHints",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kOptimizationHints, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
  
  // Enables the prediction of optimization targets.
- BASE_FEATURE(kOptimizationTargetPrediction,
+ BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_ENABLED_BY_DEFAULT);

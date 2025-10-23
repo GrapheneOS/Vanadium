@@ -4,12 +4,12 @@ Date: Tue, 29 Apr 2025 16:16:10 +0000
 Subject: [PATCH] Disable tab group sync settings UI by default
 
 ---
- .../chrome/browser/tasks/tab_management/TabsSettings.java | 5 ++++-
- chrome/browser/flags/android/chrome_feature_list.cc       | 1 +
- .../chromium/chrome/browser/flags/ChromeFeatureList.java  | 2 ++
- components/saved_tab_groups/public/features.cc            | 8 ++++++++
- components/saved_tab_groups/public/features.h             | 2 ++
- 5 files changed, 17 insertions(+), 1 deletion(-)
+ .../chrome/browser/tasks/tab_management/TabsSettings.java  | 5 ++++-
+ chrome/browser/flags/android/chrome_feature_list.cc        | 1 +
+ .../chromium/chrome/browser/flags/ChromeFeatureList.java   | 2 ++
+ components/saved_tab_groups/public/features.cc             | 7 +++++++
+ components/saved_tab_groups/public/features.h              | 2 ++
+ 5 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
 index bdd0f02ce4e7d..0d1aff49c3da7 100644
@@ -35,10 +35,10 @@ index bdd0f02ce4e7d..0d1aff49c3da7 100644
              autoOpenSyncedTabGroupsSwitch.setVisible(false);
              return;
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index 35aee76b7331d..3cc3d975b5edf 100644
+index 966aabc8b0ec5..15018befe4e6b 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -500,6 +500,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -507,6 +507,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &syncer::kWebApkBackupAndRestoreBackend,
      &syncer::kUnoPhase2FollowUp,
      &syncer::kSyncEnablePasswordsSyncErrorMessageAlternative,
@@ -47,10 +47,10 @@ index 35aee76b7331d..3cc3d975b5edf 100644
      &visited_url_ranking::features::kGroupSuggestionService,
      &visited_url_ranking::features::kVisitedURLRankingService,
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 125057be0795d..8b3c2eb5f62b0 100644
+index 9f9e077a6a81e..e7da4f4e7c042 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -644,6 +644,8 @@ public abstract class ChromeFeatureList {
+@@ -653,6 +653,8 @@ public abstract class ChromeFeatureList {
      public static final String TAB_GROUP_ENTRY_POINTS_ANDROID = "TabGroupEntryPointsAndroid";
      public static final String TAB_GROUP_PARITY_BOTTOM_SHEET_ANDROID =
              "TabGroupParityBottomSheetAndroid";
@@ -60,24 +60,23 @@ index 125057be0795d..8b3c2eb5f62b0 100644
      public static final String TAB_STORAGE_SQLITE_PROTOTYPE = "TabStorageSqlitePrototype";
      public static final String TAB_STRIP_AUTO_SELECT_ON_CLOSE_CHANGE =
 diff --git a/components/saved_tab_groups/public/features.cc b/components/saved_tab_groups/public/features.cc
-index a134539f35c2f..cad37468c2963 100644
+index 58df956d77020..b9cc7a3c28ff0 100644
 --- a/components/saved_tab_groups/public/features.cc
 +++ b/components/saved_tab_groups/public/features.cc
-@@ -24,6 +24,14 @@ BASE_FEATURE(kTabGroupSyncDelegateAndroid,
-              "TabGroupSyncDelegateAndroid",
-              base::FEATURE_ENABLED_BY_DEFAULT);
+@@ -22,6 +22,13 @@ constexpr char kGroupCleanUpTimeIntervalInSecondsFinchKey[] =
+ // Noop when disabled.
+ BASE_FEATURE(kTabGroupSyncDelegateAndroid, base::FEATURE_ENABLED_BY_DEFAULT);
  
 +// Feature flag to disable auto-open of saved tab groups. Note that the
 +// settings page for auto open will still be visible, and when user is allowed
 +// to change. However the written pref from the user selection will not be
 +// honored. This feature flag should be used only in case of an emergency.
 +BASE_FEATURE(kTabGroupSyncAutoOpenKillSwitch,
-+             "TabGroupSyncAutoOpenKillSwitch",
 +             base::FEATURE_DISABLED_BY_DEFAULT);
 +
  // Feature flag to restrict download on synced tabs if the navigation is
  // triggered without attention..
- BASE_FEATURE(kRestrictDownloadOnSyncedTabs,
+ BASE_FEATURE(kRestrictDownloadOnSyncedTabs, base::FEATURE_ENABLED_BY_DEFAULT);
 diff --git a/components/saved_tab_groups/public/features.h b/components/saved_tab_groups/public/features.h
 index eded76853ca04..590420ce02fe7 100644
 --- a/components/saved_tab_groups/public/features.h

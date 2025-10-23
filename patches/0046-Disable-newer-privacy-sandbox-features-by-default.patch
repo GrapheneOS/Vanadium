@@ -10,46 +10,46 @@ Subject: [PATCH] Disable newer privacy sandbox features by default
  3 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
-index dbd12a82cabaf..19996e134a7a1 100644
+index 82f471de3c008..d5ee8fefa617d 100644
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
 @@ -20,7 +20,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
      kAndroidGoogleSearchAppIdName};
  #endif  // BUILDFLAG(IS_ANDROID)
  
--BASE_FEATURE(PrivacySandboxSettings4, base::FEATURE_ENABLED_BY_DEFAULT);
-+BASE_FEATURE(PrivacySandboxSettings4, base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kPrivacySandboxSettings4, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kPrivacySandboxSettings4, base::FEATURE_DISABLED_BY_DEFAULT);
  
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index 2201a6a523d7d..ff3f55baf636a 100644
+index 4152ecf414266..41dcb203c1fa2 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -487,7 +487,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
+@@ -418,7 +418,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // https://github.com/patcg-individual-drafts/topics
  // Kill switch for the Topics API.
- BASE_FEATURE(kBrowsingTopics,
-              "BrowsingTopics",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kBrowsingTopics, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kBrowsingTopics, base::FEATURE_DISABLED_BY_DEFAULT);
  
  // Enable the shared storage API. Note that enabling this feature does not
  // automatically expose this API to the web, it only allows the element to be
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 77da303e11eac..a17e8d01ccf9e 100644
+index 01e8a8e91cf97..245c831acb95d 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -195,11 +195,11 @@ BASE_FEATURE(BrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+@@ -194,11 +194,11 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
  // feature has to be enabled first (i.e. `kBrowsingTopics` is enabled, and,
  // either a valid Origin Trial token exists or `kPrivacySandboxAdsAPIsOverride`
  // is enabled.)
--BASE_FEATURE(BrowsingTopicsDocumentAPI, base::FEATURE_ENABLED_BY_DEFAULT);
-+BASE_FEATURE(BrowsingTopicsDocumentAPI, base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kBrowsingTopicsDocumentAPI, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kBrowsingTopicsDocumentAPI, base::FEATURE_DISABLED_BY_DEFAULT);
  
  // Decoupled with the main `kBrowsingTopics` feature, so it allows us to
  // decouple the server side configs.
--BASE_FEATURE(BrowsingTopicsParameters, base::FEATURE_ENABLED_BY_DEFAULT);
-+BASE_FEATURE(BrowsingTopicsParameters, base::FEATURE_DISABLED_BY_DEFAULT);
+-BASE_FEATURE(kBrowsingTopicsParameters, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kBrowsingTopicsParameters, base::FEATURE_DISABLED_BY_DEFAULT);
  // The periodic topics calculation interval.
  BASE_FEATURE_PARAM(base::TimeDelta,
                     kBrowsingTopicsTimePeriodPerEpoch,
