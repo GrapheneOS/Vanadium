@@ -1,24 +1,22 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Tue, 13 May 2025 15:53:41 +0000
-Subject: [PATCH] Search engine data patches to always include Mullvad Leta and
- DuckDuckGo
+Subject: [PATCH] Search engine data patches to always include DuckDuckGo
 
-These changes allow inclusion of Mullvad Leta search engine to offered
-list of search engines on all regions, along with the current default,
-DuckDuckGo.
+These changes allow inclusion of DuckDuckGo search engine to offered
+list of search engines on all regions.
 ---
  ...l_settings.json-search-engines-secti.patch |  140 ++
- ...llvad-Leta-to-list-of-search-engines.patch |   29 +
  ...ent-maximum-number-of-search-engines.patch |   34 +
  ...ment-version-for-search-engines-data.patch |   34 +
- ...nd-Mullvad-Leta-on-all-regional-list.patch | 1353 +++++++++++++++++
- 5 files changed, 1590 insertions(+)
+ ...ment-version-for-search-engines-data.patch |   34 +
+ ...n-all-regional-list-of-search-engine.patch | 1242 +++++++++++++++++
+ 5 files changed, 1484 insertions(+)
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
- create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Add-Mullvad-Leta-to-list-of-search-engines.patch
- create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-maximum-number-of-search-engines.patch
+ create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
+ create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
- create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-and-Mullvad-Leta-on-all-regional-list.patch
+ create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
 
 diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
 new file mode 100644
@@ -166,46 +164,11 @@ index 0000000000000..ee609d40b7ad4
 +     }
 +   },
 +   "aggregation": {
-diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Add-Mullvad-Leta-to-list-of-search-engines.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Add-Mullvad-Leta-to-list-of-search-engines.patch
-new file mode 100644
-index 0000000000000..ae4ee675af301
---- /dev/null
-+++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Add-Mullvad-Leta-to-list-of-search-engines.patch
-@@ -0,0 +1,29 @@
-+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
-+Date: Tue, 13 May 2025 14:41:50 +0000
-+Subject: [PATCH] Add Mullvad Leta to list of search engines
-+
-+---
-+ definitions/prepopulated_engines.json | 9 +++++++++
-+ 1 file changed, 9 insertions(+)
-+
-+diff --git a/definitions/prepopulated_engines.json b/definitions/prepopulated_engines.json
-+index 35ad4c0..c05f9ad 100644
-+--- a/definitions/prepopulated_engines.json
-++++ b/definitions/prepopulated_engines.json
-+@@ -278,6 +278,15 @@
-+       "id": 103
-+     },
-+ 
-++    "mullvad_leta": {
-++      "name": "Mullvad Leta",
-++      "keyword": "leta.mullvad.net",
-++      "favicon_url": "https://leta.mullvad.net/favicon.ico",
-++      "search_url": "https://leta.mullvad.net/search?q={searchTerms}",
-++      "type": "SEARCH_ENGINE_MULLVAD_LETA",
-++      "id": 116
-++    },
-++
-+     "naver": {
-+       "name": "\ub124\uc774\ubc84",
-+       "keyword": "naver.com",
-diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-maximum-number-of-search-engines.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-maximum-number-of-search-engines.patch
+diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
 new file mode 100644
 index 0000000000000..3bdabfa66d19f
 --- /dev/null
-+++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-maximum-number-of-search-engines.patch
++++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
 @@ -0,0 +1,34 @@
 +From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 +From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
@@ -241,11 +204,11 @@ index 0000000000000..3bdabfa66d19f
 + 
 +     // Increment this if you change the data in ways that mean users with
 +     // existing data should get a new version. Otherwise, existing data may
-diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
+diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
 new file mode 100644
 index 0000000000000..a0c3470a59f6e
 --- /dev/null
-+++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
++++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
 @@ -0,0 +1,34 @@
 +From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 +From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
@@ -281,41 +244,79 @@ index 0000000000000..a0c3470a59f6e
 +   },
 + 
 +   // The following engines are included in country lists and are added to the
-diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-and-Mullvad-Leta-on-all-regional-list.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-and-Mullvad-Leta-on-all-regional-list.patch
+diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
 new file mode 100644
-index 0000000000000..d4ffd6df032df
+index 0000000000000..5e78f782d4ce7
 --- /dev/null
-+++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-and-Mullvad-Leta-on-all-regional-list.patch
-@@ -0,0 +1,1353 @@
++++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
+@@ -0,0 +1,34 @@
 +From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 +From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
-+Date: Mon, 29 Sep 2025 12:15:48 +0000
-+Subject: [PATCH] Add DuckDuckGo and Mullvad Leta on all regional list of
-+ search engines
++Date: Tue, 13 May 2025 14:41:30 +0000
++Subject: [PATCH] Increment version for search engines data
++
++Commands used for incrementing version:
++
++```bash
++    version_line=$(echo $(grep kCurrentDataVersion definitions/prepopulated_engines.json))
++
++    version=$(echo $version_line | sed -r "s/.*\"kCurrentDataVersion\": //g")
++
++    incremented_version=$(($version + 1)); incremented_version_line=$(echo $version_line | sed -r "s/$version/$incremented_version/g")
++
++    sed -ri "s/$version_line/$incremented_version_line/g" definitions/prepopulated_engines.json
++
++```
++---
++ definitions/prepopulated_engines.json | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/definitions/prepopulated_engines.json b/definitions/prepopulated_engines.json
++index 9a97180..777d0ae 100644
++--- a/definitions/prepopulated_engines.json
+++++ b/definitions/prepopulated_engines.json
++@@ -28,7 +28,7 @@
++     // existing data should get a new version. Otherwise, existing data may
++     // continue to be used and updates made here will not always appear.
++     // Also then run tools/search_engine_choice/generate_search_engine_icons.py.
++-    "kCurrentDataVersion": 192
+++    "kCurrentDataVersion": 193
++   },
++ 
++   // The following engines are included in country lists and are added to the
+diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
+new file mode 100644
+index 0000000000000..f760879291a06
+--- /dev/null
++++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
+@@ -0,0 +1,1242 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: quh4gko8 <quh4gko8.vanadium@gmail.com>
++Date: Fri, 7 Nov 2025 07:00:17 +0000
++Subject: [PATCH] Add DuckDuckGo on all regional list of search engines
 +
 +Commands used for appending and replacing regional list of search
-+engines json, in order:
++engines in json, in order:
 +
 +```bash
 +    sed -ri "N;N;s/,(|\n)?\n        \"\&duckduckgo\"//g;P;D" definitions/regional_settings.json
 +
-+    sed -ri "s/\"search_engines\": \[/&\n        \"\&duckduckgo\",\n        \"\&mullvad_leta\",/g" definitions/regional_settings.json
++    sed -ri "s/\"search_engines\": \[/&\n        \"\&duckduckgo\",/g" definitions/regional_settings.json
 +
 +```
 +---
-+ definitions/regional_settings.json | 378 +++++++++++++++++++----------
-+ 1 file changed, 247 insertions(+), 131 deletions(-)
++ definitions/regional_settings.json | 268 +++++++++++++++--------------
++ 1 file changed, 137 insertions(+), 131 deletions(-)
 +
 +diff --git a/definitions/regional_settings.json b/definitions/regional_settings.json
-+index 7bdc719..0bac9c4 100644
++index 7bdc719..e9a5406 100644
 +--- a/definitions/regional_settings.json
 ++++ b/definitions/regional_settings.json
-+@@ -6,39 +6,43 @@
++@@ -6,39 +6,39 @@
 +     "AE": {
 +       // United Arab Emirates
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -328,7 +329,6 @@ index 0000000000000..d4ffd6df032df
 +       // Albania
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -341,7 +341,6 @@ index 0000000000000..d4ffd6df032df
 +       // Armenia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_ar",
@@ -353,19 +352,17 @@ index 0000000000000..d4ffd6df032df
 +       // Austria
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&ecosia",
 +         "&bing",
 +         "&yahoo_at",
-+@@ -49,29 +53,32 @@
++@@ -49,29 +49,29 @@
 +     "AU": {
 +       // Australia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_au",
@@ -377,7 +374,6 @@ index 0000000000000..d4ffd6df032df
 +       // Bosnia and Herzegovina
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -390,31 +386,28 @@ index 0000000000000..d4ffd6df032df
 +       // Belgium
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&ecosia",
 +         "&bing",
 +         "&qwant",
-+@@ -82,9 +89,10 @@
++@@ -82,9 +82,9 @@
 +     "BG": {
 +       // Bulgaria
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&yep",
 +         "&ecosia",
-+@@ -95,69 +103,76 @@
++@@ -95,69 +95,69 @@
 +     "BH": {
 +       // Bahrain
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -427,7 +420,6 @@ index 0000000000000..d4ffd6df032df
 +       // Burundi
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -440,7 +432,6 @@ index 0000000000000..d4ffd6df032df
 +       // Brunei
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -452,7 +443,6 @@ index 0000000000000..d4ffd6df032df
 +       // Bolivia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -465,7 +455,6 @@ index 0000000000000..d4ffd6df032df
 +       // Brazil
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_br",
@@ -477,7 +466,6 @@ index 0000000000000..d4ffd6df032df
 +       // Belarus
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yandex_by",
 +         "&bing",
@@ -489,19 +477,17 @@ index 0000000000000..d4ffd6df032df
 +       // Belize
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +-        "&duckduckgo",
 +         "&yahoo",
 +         "&yandex_com"
 +       ]
-+@@ -165,19 +180,21 @@
++@@ -165,19 +165,19 @@
 +     "CA": {
 +       // Canada
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_ca",
@@ -513,19 +499,17 @@ index 0000000000000..d4ffd6df032df
 +       // Switzerland
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +-        "&duckduckgo",
 +         "&yahoo_ch",
 +         "&ecosia"
 +       ]
-+@@ -185,16 +202,19 @@
++@@ -185,16 +185,17 @@
 +     "CL": {
 +       // Chile
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_cl",
@@ -537,16 +521,14 @@ index 0000000000000..d4ffd6df032df
 +       // China
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&baidu",
 +         "&bing",
 +         "&sogou",
-+@@ -205,29 +225,32 @@
++@@ -205,29 +206,29 @@
 +     "CO": {
 +       // Colombia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_co",
@@ -558,7 +540,6 @@ index 0000000000000..d4ffd6df032df
 +       // Costa Rica
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -570,19 +551,17 @@ index 0000000000000..d4ffd6df032df
 +       // Republic of Cyprus
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&yahoo_emea",
 +         "&ecosia",
-+@@ -238,10 +261,11 @@
++@@ -238,10 +239,10 @@
 +     "CZ": {
 +       // Czechia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&seznam",
 +         "&brave",
@@ -590,35 +569,32 @@ index 0000000000000..d4ffd6df032df
 +         "&bing",
 +         "&ecosia",
 +         "&privacywall",
-+@@ -251,8 +275,9 @@
++@@ -251,8 +252,8 @@
 +     "DE": {
 +       // Germany
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&ecosia",
 +         "&bing",
-+@@ -264,9 +289,10 @@
++@@ -264,9 +265,9 @@
 +     "DK": {
 +       // Denmark
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&qwant",
-+@@ -277,39 +303,43 @@
++@@ -277,39 +278,39 @@
 +     "DO": {
 +       // Dominican Republic
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -630,7 +606,6 @@ index 0000000000000..d4ffd6df032df
 +       // Algeria
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_fr",
@@ -643,7 +618,6 @@ index 0000000000000..d4ffd6df032df
 +       // Ecuador
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_es",
@@ -655,19 +629,17 @@ index 0000000000000..d4ffd6df032df
 +       // Estonia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&qwant",
-+@@ -320,20 +350,22 @@
++@@ -320,20 +321,20 @@
 +     "EG": {
 +       // Egypt
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -680,7 +652,6 @@ index 0000000000000..d4ffd6df032df
 +       // Spain
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +         "&bing",
@@ -688,24 +659,22 @@ index 0000000000000..d4ffd6df032df
 +         "&ecosia",
 +         "&yahoo_es",
 +         "&privacywall",
-+@@ -343,9 +375,10 @@
++@@ -343,9 +344,9 @@
 +     "FI": {
 +       // Finland
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&qwant",
-+@@ -356,21 +389,23 @@
++@@ -356,21 +357,21 @@
 +     "FO": {
 +       // Faroe Islands
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_uk",
@@ -717,7 +686,6 @@ index 0000000000000..d4ffd6df032df
 +       // France
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +         "&ecosia",
@@ -726,12 +694,11 @@ index 0000000000000..d4ffd6df032df
 +         "&qwant",
 +         "&yahoo_fr",
 +         "&lilo"
-+@@ -379,19 +414,21 @@
++@@ -379,19 +380,19 @@
 +     "GB": {
 +       // United Kingdom
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_uk",
@@ -743,19 +710,17 @@ index 0000000000000..d4ffd6df032df
 +       // Greece
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&yahoo_emea",
 +         "&ecosia",
-+@@ -402,16 +439,19 @@
++@@ -402,16 +403,17 @@
 +     "GT": {
 +       // Guatemala
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -767,16 +732,14 @@ index 0000000000000..d4ffd6df032df
 +       // Hong Kong
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_hk",
-+@@ -422,19 +462,21 @@
++@@ -422,19 +424,19 @@
 +     "HN": {
 +       // Honduras
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -788,19 +751,17 @@ index 0000000000000..d4ffd6df032df
 +       // Croatia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&yep",
 +         "&ecosia",
-+@@ -445,10 +487,11 @@
++@@ -445,10 +447,10 @@
 +     "HU": {
 +       // Hungary
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +         "&bing",
@@ -808,12 +769,11 @@ index 0000000000000..d4ffd6df032df
 +         "&ecosia",
 +         "&yep",
 +         "&yahoo_emea",
-+@@ -458,18 +501,20 @@
++@@ -458,18 +460,18 @@
 +     "ID": {
 +       // Indonesia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yandex_com",
 +         "&bing",
@@ -827,17 +787,15 @@ index 0000000000000..d4ffd6df032df
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&bing",
 +         "&yahoo_uk",
-+@@ -481,48 +526,53 @@
++@@ -481,48 +483,48 @@
 +     "IL": {
 +       // Israel
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_ru",
@@ -850,7 +808,6 @@ index 0000000000000..d4ffd6df032df
 +       // India
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_in",
@@ -862,7 +819,6 @@ index 0000000000000..d4ffd6df032df
 +       // Iraq
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_tr",
@@ -875,7 +831,6 @@ index 0000000000000..d4ffd6df032df
 +       // Iran
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -888,17 +843,15 @@ index 0000000000000..d4ffd6df032df
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&bing",
 +         "&ecosia",
-+@@ -534,10 +584,11 @@
++@@ -534,10 +536,10 @@
 +     "IT": {
 +       // Italy
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +         "&bing",
@@ -906,12 +859,11 @@ index 0000000000000..d4ffd6df032df
 +         "&ecosia",
 +         "&yahoo_it",
 +         "&qwant",
-+@@ -547,46 +598,52 @@
++@@ -547,46 +549,47 @@
 +     "JM": {
 +       // Jamaica
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -923,7 +875,6 @@ index 0000000000000..d4ffd6df032df
 +       // Jordan
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -936,7 +887,6 @@ index 0000000000000..d4ffd6df032df
 +       // Japan
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yahoo_jp",
 +         "&bing",
@@ -948,7 +898,6 @@ index 0000000000000..d4ffd6df032df
 +       // Kenya
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -960,16 +909,14 @@ index 0000000000000..d4ffd6df032df
 +       // South Korea
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&naver",
 +         "&bing",
-+@@ -597,16 +654,19 @@
++@@ -597,16 +600,17 @@
 +     "KW": {
 +       // Kuwait
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_tr",
@@ -982,16 +929,14 @@ index 0000000000000..d4ffd6df032df
 +       // Kazakhstan
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yandex_kz",
 +         "&bing",
-+@@ -617,18 +677,20 @@
++@@ -617,18 +621,18 @@
 +     "LB": {
 +       // Lebanon
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1004,53 +949,48 @@ index 0000000000000..d4ffd6df032df
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&bing",
 +         "&ecosia",
-+@@ -640,9 +702,10 @@
++@@ -640,9 +644,9 @@
 +     "LT": {
 +       // Lithuania
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&yahoo_emea",
-+@@ -653,9 +716,10 @@
++@@ -653,9 +657,9 @@
 +     "LU": {
 +       // Luxembourg
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&qwant",
-+@@ -666,9 +730,10 @@
++@@ -666,9 +670,9 @@
 +     "LV": {
 +       // Latvia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&privacywall",
-+@@ -679,70 +744,77 @@
++@@ -679,70 +683,70 @@
 +     "LY": {
 +       // Libya
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_tr",
@@ -1063,7 +1003,6 @@ index 0000000000000..d4ffd6df032df
 +       // Morocco
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_fr",
@@ -1076,7 +1015,6 @@ index 0000000000000..d4ffd6df032df
 +       // Monaco
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_fr",
@@ -1088,7 +1026,6 @@ index 0000000000000..d4ffd6df032df
 +       // Moldova
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yandex_ru",
 +         "&bing",
@@ -1100,7 +1037,6 @@ index 0000000000000..d4ffd6df032df
 +       // Montenegro
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_ru",
@@ -1113,7 +1049,6 @@ index 0000000000000..d4ffd6df032df
 +       // Macedonia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1126,7 +1061,6 @@ index 0000000000000..d4ffd6df032df
 +       // Malta
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +         "&bing",
@@ -1134,12 +1068,11 @@ index 0000000000000..d4ffd6df032df
 +         "&ecosia",
 +         "&yahoo_emea",
 +         "&privacywall",
-+@@ -752,38 +824,42 @@
++@@ -752,38 +756,38 @@
 +     "MX": {
 +       // Mexico
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_mx",
@@ -1151,7 +1084,6 @@ index 0000000000000..d4ffd6df032df
 +       // Malaysia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_my",
@@ -1164,7 +1096,6 @@ index 0000000000000..d4ffd6df032df
 +       // Nicaragua
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1177,28 +1108,25 @@ index 0000000000000..d4ffd6df032df
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&bing",
 +         "&ecosia",
-+@@ -795,8 +871,9 @@
++@@ -795,8 +799,8 @@
 +     "NO": {
 +       // Norway
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&bing",
 +         "&ecosia",
-+@@ -808,69 +885,76 @@
++@@ -808,69 +812,69 @@
 +     "NZ": {
 +       // New Zealand
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_nz",
@@ -1210,7 +1138,6 @@ index 0000000000000..d4ffd6df032df
 +       // Oman
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1222,7 +1149,6 @@ index 0000000000000..d4ffd6df032df
 +       // Panama
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_es",
@@ -1234,7 +1160,6 @@ index 0000000000000..d4ffd6df032df
 +       // Peru
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_pe",
@@ -1247,7 +1172,6 @@ index 0000000000000..d4ffd6df032df
 +       // Philippines
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_ph",
@@ -1260,7 +1184,6 @@ index 0000000000000..d4ffd6df032df
 +       // Pakistan
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1272,19 +1195,17 @@ index 0000000000000..d4ffd6df032df
 +       // Poland
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&yahoo_emea",
 +         "&ecosia",
-+@@ -881,20 +965,22 @@
++@@ -881,20 +885,20 @@
 +     "PR": {
 +       // Puerto Rico
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1296,7 +1217,6 @@ index 0000000000000..d4ffd6df032df
 +       // Portugal
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +         "&bing",
@@ -1304,12 +1224,11 @@ index 0000000000000..d4ffd6df032df
 +         "&ecosia",
 +         "&yep",
 +         "&qwant",
-+@@ -904,29 +990,32 @@
++@@ -904,29 +908,29 @@
 +     "PY": {
 +       // Paraguay
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_es",
@@ -1321,7 +1240,6 @@ index 0000000000000..d4ffd6df032df
 +       // Quatar
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1333,19 +1251,17 @@ index 0000000000000..d4ffd6df032df
 +       // Romania
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&yahoo_emea",
 +         "&bing",
 +         "&yep",
-+@@ -937,48 +1026,53 @@
++@@ -937,48 +941,48 @@
 +     "RS": {
 +       // Serbia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1358,7 +1274,6 @@ index 0000000000000..d4ffd6df032df
 +       // Russia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&yandex_ru",
 +         "&google",
 +         "&bing",
@@ -1370,7 +1285,6 @@ index 0000000000000..d4ffd6df032df
 +       // Rwanda
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1382,7 +1296,6 @@ index 0000000000000..d4ffd6df032df
 +       // Saudi Arabia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_com",
@@ -1396,17 +1309,15 @@ index 0000000000000..d4ffd6df032df
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&brave",
 +         "&bing",
 +         "&ecosia",
-+@@ -990,19 +1084,21 @@
++@@ -990,19 +994,19 @@
 +     "SG": {
 +       // Singapore
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_sg",
@@ -1418,31 +1329,28 @@ index 0000000000000..d4ffd6df032df
 +       // Slovenia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
 +         "&yep",
-+@@ -1013,9 +1109,10 @@
++@@ -1013,9 +1017,9 @@
 +     "SK": {
 +       // Slovakia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
 +         "&seznam",
 +         "&ecosia",
-+@@ -1026,66 +1123,74 @@
++@@ -1026,66 +1030,67 @@
 +     "SV": {
 +       // El Salvador
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_es",
@@ -1454,7 +1362,6 @@ index 0000000000000..d4ffd6df032df
 +       // Syria
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yandex_ru",
@@ -1467,7 +1374,6 @@ index 0000000000000..d4ffd6df032df
 +       // Thailand
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_th",
@@ -1480,7 +1386,6 @@ index 0000000000000..d4ffd6df032df
 +       // Tunisia
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_fr",
@@ -1493,7 +1398,6 @@ index 0000000000000..d4ffd6df032df
 +       // Turkey
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yandex_tr",
 +         "&yahoo_tr",
@@ -1506,7 +1410,6 @@ index 0000000000000..d4ffd6df032df
 +       // Trinidad and Tobago
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1518,27 +1421,24 @@ index 0000000000000..d4ffd6df032df
 +       // Taiwan
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yahoo_tw",
 +         "&bing",
-+@@ -1096,8 +1201,9 @@
++@@ -1096,8 +1101,8 @@
 +     "TZ": {
 +       // Tanzania
 +       "search_engines": [
 +-        "&google",
 +         "&duckduckgo",
-++        "&mullvad_leta",
 ++        "&google",
 +         "&bing",
 +         "&yahoo",
 +         "&yandex_com"
-+@@ -1106,80 +1212,88 @@
++@@ -1106,80 +1111,80 @@
 +     "UA": {
 +       // Ukraine
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&yandex_ru",
 +         "&bing",
@@ -1550,7 +1450,6 @@ index 0000000000000..d4ffd6df032df
 +       // United States
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1562,7 +1461,6 @@ index 0000000000000..d4ffd6df032df
 +       // Uruguay
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_es",
@@ -1574,7 +1472,6 @@ index 0000000000000..d4ffd6df032df
 +       // Venezuela
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo_es",
@@ -1586,7 +1483,6 @@ index 0000000000000..d4ffd6df032df
 +       // Vietnam
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&coccoc",
 +         "&yahoo",
@@ -1599,7 +1495,6 @@ index 0000000000000..d4ffd6df032df
 +       // Yemen
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1611,7 +1506,6 @@ index 0000000000000..d4ffd6df032df
 +       // South Africa
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1623,7 +1517,6 @@ index 0000000000000..d4ffd6df032df
 +       // Zimbabwe
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo",
@@ -1631,12 +1524,11 @@ index 0000000000000..d4ffd6df032df
 +         "&sogou"
 +       ]
 +     },
-+@@ -1189,6 +1303,8 @@
++@@ -1189,6 +1194,7 @@
 +     "ZZ": {
 +       // Default
 +       "search_engines": [
 ++        "&duckduckgo",
-++        "&mullvad_leta",
 +         "&google",
 +         "&bing",
 +         "&yahoo"
