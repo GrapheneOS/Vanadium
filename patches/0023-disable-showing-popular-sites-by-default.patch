@@ -9,7 +9,7 @@ Subject: [PATCH] disable showing popular sites by default
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/components/ntp_tiles/features.cc b/components/ntp_tiles/features.cc
-index ad99eb2ce208f..b8cb2f180fd82 100644
+index 540e0b04c06c5..569b304845767 100644
 --- a/components/ntp_tiles/features.cc
 +++ b/components/ntp_tiles/features.cc
 @@ -15,7 +15,7 @@ const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
@@ -22,10 +22,10 @@ index ad99eb2ce208f..b8cb2f180fd82 100644
  BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
               "NTPMostLikelyFaviconsFromServer",
 diff --git a/components/ntp_tiles/most_visited_sites.cc b/components/ntp_tiles/most_visited_sites.cc
-index 3adb8ecd37d96..73da0a97054b0 100644
+index 39eedefefd6aa..2f7a534f3a7fe 100644
 --- a/components/ntp_tiles/most_visited_sites.cc
 +++ b/components/ntp_tiles/most_visited_sites.cc
-@@ -260,9 +260,11 @@ void MostVisitedSites::AddMostVisitedURLsObserver(Observer* observer,
+@@ -258,9 +258,11 @@ void MostVisitedSites::AddMostVisitedURLsObserver(Observer* observer,
    if (!is_observing_) {
      is_observing_ = true;
      if (popular_sites_ && NeedPopularSites(prefs_, GetMaxNumSites())) {
@@ -37,7 +37,7 @@ index 3adb8ecd37d96..73da0a97054b0 100644
      }
  
      if (top_sites_) {
-@@ -631,6 +633,7 @@ MostVisitedSites::CreatePopularSitesSections(
+@@ -627,6 +629,7 @@ MostVisitedSites::CreatePopularSitesSections(
      return sections;
    }
  
@@ -45,7 +45,7 @@ index 3adb8ecd37d96..73da0a97054b0 100644
    const std::set<std::string> no_hosts;
    for (const auto& section_type_and_sites : popular_sites()->sections()) {
      SectionType type = section_type_and_sites.first;
-@@ -648,6 +651,7 @@ MostVisitedSites::CreatePopularSitesSections(
+@@ -644,6 +647,7 @@ MostVisitedSites::CreatePopularSitesSections(
                                    /*num_max_tiles=*/GetMaxNumSites());
      }
    }

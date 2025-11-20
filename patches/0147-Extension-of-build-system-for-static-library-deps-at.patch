@@ -11,10 +11,10 @@ Subject: [PATCH] Extension of build system for static library deps at browser
  create mode 100644 chrome/browser/static_library_browser_deps.gni
 
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 7280ef29b85c1..50610fa46f15f 100644
+index 6d4761cd68627..481efdcf19c13 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -53,6 +53,7 @@ assert(enable_supervised_users)
+@@ -51,6 +51,7 @@ assert(enable_supervised_users)
  if (is_android) {
    import("//build/config/android/rules.gni")
    import("//chrome/android/features/dev_ui/dev_ui_module.gni")
@@ -22,8 +22,8 @@ index 7280ef29b85c1..50610fa46f15f 100644
  }
  
  if (is_win) {
-@@ -3673,6 +3674,8 @@ static_library("browser") {
-       "//chrome/browser/flags:flags_android_impl",
+@@ -3669,6 +3670,8 @@ static_library("browser") {
+       "//chrome/browser/content_index:impl",
      ]
  
 +    deps += static_library_browser_deps

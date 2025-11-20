@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 14 Jul 2025 15:23:46 +0000
+Subject: [PATCH] mark 64-bit only trichrome library apk target requiring
+ multiArch=true
+
+Shared library apps require multiArch=true when native library is
+present, which is the case for TrichromeLibrary. In case of 64-bit only
+builds of TrichromeLibrary, where the target is trichrome_library_64_apk
+its arm64 variant would fail to install in arm64 OS builds with 32-bit support.
+---
+ chrome/android/trichrome.gni | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/chrome/android/trichrome.gni b/chrome/android/trichrome.gni
+index 538229686acf1..eca31e969fe01 100644
+--- a/chrome/android/trichrome.gni
++++ b/chrome/android/trichrome.gni
+@@ -150,6 +150,7 @@ template("trichrome_library_apk_tmpl") {
+       }
+     } else {
+       shared_libraries = [ "//chrome/android:libmonochrome" ]
++    secondary_abi_loadable_modules = []
+     }
+ 
+     # https://chromium.googlesource.com/chromium/src/+/main/docs/android_native_libraries.md#Crashpad-Packaging
+@@ -185,6 +186,11 @@ template("trichrome_library_apk_tmpl") {
+             [ "$_libarcore_dir/$android_app_secondary_abi/libarcore_sdk_c.so" ]
+       }
+     }
++    if (android_64bit_target_cpu
++        && (_is_64_bit_browser || _include_64_bit_webview)
++        && !_include_32_bit_webview) {
++      requires_multi_abi = true
++    }
+     forward_variables_from(invoker,
+                            "*",
+                            TESTONLY_AND_VISIBILITY + [
