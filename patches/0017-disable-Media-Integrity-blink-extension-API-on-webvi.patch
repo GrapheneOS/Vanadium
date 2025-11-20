@@ -40,10 +40,10 @@ index 9ef39f6192263..e1ef09e03b5fe 100644
      map->Add<payments::mojom::PaymentRequest>(
          &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
 diff --git a/android_webview/common/aw_feature_map.cc b/android_webview/common/aw_feature_map.cc
-index 5c632c3e02773..9c6e4475b2264 100644
+index 45b4f62fdfdfc..b06b3feb59123 100644
 --- a/android_webview/common/aw_feature_map.cc
 +++ b/android_webview/common/aw_feature_map.cc
-@@ -49,6 +49,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -54,6 +54,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &features::kWebViewHyperlinkContextMenu,
      &features::kWebViewInvokeZoomPickerOnGSU,
      &features::kWebViewLazyFetchHandWritingIcon,
@@ -52,10 +52,10 @@ index 5c632c3e02773..9c6e4475b2264 100644
      &features::kWebViewMoveWorkToProviderInit,
      &features::kWebViewMuteAudio,
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index 8ff895e93f3ac..6ac38ececa474 100644
+index b18bf6fe4a63f..a5243c3ba6bd1 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -58,6 +58,11 @@ const base::FeatureParam<int> kWebViewIpProtectionExclusionCriteria{
+@@ -66,6 +66,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kWebViewLazyFetchHandWritingIcon,
               base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -68,22 +68,22 @@ index 8ff895e93f3ac..6ac38ececa474 100644
  // over HTTP on HTTPS sites) will be autoupgraded to HTTPS, and the load will be
  // blocked if the resource fails to load over HTTPS. This only affects apps that
 diff --git a/android_webview/common/aw_features.h b/android_webview/common/aw_features.h
-index c7623a8b0453a..6b86cce9daa01 100644
+index 86863aea4b4bd..598142351ff92 100644
 --- a/android_webview/common/aw_features.h
 +++ b/android_webview/common/aw_features.h
-@@ -26,6 +26,7 @@ BASE_DECLARE_FEATURE(kWebViewInvokeZoomPickerOnGSU);
- // defined in //services/network.
- extern const base::FeatureParam<int> kWebViewIpProtectionExclusionCriteria;
+@@ -28,6 +28,7 @@ BASE_DECLARE_FEATURE(kWebViewFileSystemAccess);
+ BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
+ BASE_DECLARE_FEATURE(kWebViewInvokeZoomPickerOnGSU);
  BASE_DECLARE_FEATURE(kWebViewLazyFetchHandWritingIcon);
 +BASE_DECLARE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension);
  BASE_DECLARE_FEATURE(kWebViewMixedContentAutoupgrades);
  BASE_DECLARE_FEATURE(kWebViewMuteAudio);
  BASE_DECLARE_FEATURE(kWebViewRenderDocument);
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-index 9e5573e89a6ba..988822af9bb61 100644
+index 7e153afa09daa..15e685cf0e0cf 100644
 --- a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
 +++ b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-@@ -678,6 +678,10 @@ public final class ProductionSupportedFlagList {
+@@ -646,6 +646,10 @@ public final class ProductionSupportedFlagList {
          Flag.baseFeature("V8ScavengerHigherCapacity"),
          Flag.baseFeature("V8IncrementalMarkingStartUserVisible"),
          Flag.baseFeature("V8ExternalMemoryAccountedInGlobalLimit"),
@@ -95,7 +95,7 @@ index 9e5573e89a6ba..988822af9bb61 100644
                  "PMProcessPriorityPolicy",
                  "Controls whether the priority of renderers is controlled by the performance "
 diff --git a/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java b/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java
-index 24761904f49d5..6c14f23d53801 100644
+index 492b3c7a409fa..3a7cfab121ebf 100644
 --- a/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java
 +++ b/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java
 @@ -21,6 +21,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
@@ -114,7 +114,7 @@ index 24761904f49d5..6c14f23d53801 100644
  import org.chromium.content_public.browser.MessagePayload;
  import org.chromium.content_public.browser.MessagePort;
  import org.chromium.net.test.util.TestWebServer;
-@@ -111,6 +113,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -109,6 +111,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -124,7 +124,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testApiSurfaceExposed() throws Exception {
          // Check the method name is exposed
          assertJsTruthy("android.webview.getExperimentalMediaIntegrityTokenProvider");
-@@ -131,6 +136,18 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -129,6 +134,18 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -143,7 +143,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterNotExposedForDataUris() throws Throwable {
          mRule.loadDataSync(
                  mAwContents, mContentsClient.getOnPageFinishedHelper(), "", "text/html", false);
-@@ -139,6 +156,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -137,6 +154,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -153,7 +153,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterExposedButRejectedForDataUrisWithHttpsBaseUrls()
              throws Throwable {
          // An HTTPS base URL has a secure context, unlike a plain data URL. This exposes the API,
-@@ -160,6 +180,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -158,6 +178,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -163,7 +163,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterNotExposedForAboutBlank() throws Throwable {
          mRule.loadUrlSync(mAwContents, mContentsClient.getOnPageFinishedHelper(), "about:blank");
          assertNotExposed();
-@@ -167,6 +190,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -165,6 +188,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -173,7 +173,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterNotExposedForPlaintextHttp() throws Throwable {
          mRule.loadDataWithBaseUrlSync(
                  mAwContents,
-@@ -181,6 +207,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -179,6 +205,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -183,7 +183,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterUseableForLocalhostHttp() throws Throwable {
          try (TestWebServer server = TestWebServer.start()) {
              String url = server.setEmptyResponse("");
-@@ -213,6 +242,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -211,6 +240,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -193,7 +193,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterExposedButRejectedForFileUris() throws Throwable {
          mRule.loadUrlSync(
                  mAwContents,
-@@ -227,6 +259,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -225,6 +257,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -203,7 +203,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testProviderGetterExposedButRejectedForContentUris() throws Throwable {
          final String testHtmlContentPath = "hello.html";
          final String testHtmlContent =
-@@ -247,6 +282,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -245,6 +280,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -213,7 +213,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenProviderIsNotConstructable() throws Exception {
          // Try to construct a new token provider and turn the error into a string.
          String script =
-@@ -271,6 +309,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -269,6 +307,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -223,7 +223,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testAbleToGetTokenProviderAndToken() throws Exception {
          String mockToken = "abc123def456";
          MockTokenProvider mockTokenProvider = new MockTokenProvider();
-@@ -299,6 +340,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -297,6 +338,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -233,7 +233,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testErrorWhenAppDisablesApiGlobally() throws Exception {
          mAwContents
                  .getSettings()
-@@ -315,6 +359,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -313,6 +357,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -243,7 +243,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testErrorWhenAppDisabledApiForUrl() throws Exception {
          String testScript =
                  getTestScript(CLOUD_PROJECT_NUMBER, asStringConstant(CONTENT_BINDING_HASH));
-@@ -336,6 +383,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -334,6 +381,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -253,7 +253,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testErrorWhenApiDisabledForSourceButEnabledForTopLevel() throws Exception {
          final String result;
          try (final TestWebServer topLevelServer = TestWebServer.startSsl();
-@@ -365,6 +415,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -363,6 +413,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -263,7 +263,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testGetTokenWhenApiEnabledForSourceButDisabledForTopLevel() throws Exception {
          final String mockToken = "abc123def456";
          final MockTokenProvider mockTokenProvider = new MockTokenProvider();
-@@ -398,6 +451,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -396,6 +449,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -273,7 +273,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testCloudProjectNumberAccessibleOnTokenProvider() throws Exception {
          MockTokenProvider mockTokenProvider = new MockTokenProvider();
          mPlatformBridge.addProviderResponse(
-@@ -426,6 +482,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -424,6 +480,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -283,7 +283,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenProviderReusedWhenUsingSamePartition() throws Exception {
          String mockToken = "abc123def456";
  
-@@ -449,6 +508,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -447,6 +506,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -293,7 +293,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenProviderNotReusedAfterApiModeChange() throws Exception {
          String mockToken = "abc123def456";
  
-@@ -500,6 +562,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -498,6 +560,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -303,7 +303,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenProviderNotReusedAcrossDistinctOrigins() throws Exception {
          String mockTokenTestServer1 = "abc123def456";
          String mockTokenTestServer2 = "555555555";
-@@ -561,6 +626,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -559,6 +624,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -313,7 +313,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenProviderNotReusedAcrossDistinctPartyIFrames() throws Exception {
          String mockTokenA = "abc123def456";
          String mockTokenB = "555555555";
-@@ -615,6 +683,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -613,6 +681,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -323,7 +323,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenProviderNotReusedIfInvalid() throws Exception {
  
          MockTokenProvider mockTokenProvider1 = new MockTokenProvider();
-@@ -649,6 +720,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -647,6 +718,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -333,7 +333,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenRequestAcceptsEmptyString() throws Exception {
          String mockToken = "abc123def456";
  
-@@ -667,6 +741,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -665,6 +739,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -343,7 +343,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenRequestAcceptsNull() throws Exception {
          String mockToken = "abc123def456";
  
-@@ -685,6 +762,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -683,6 +760,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -353,7 +353,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testTokenRequestAcceptsMissingParameterAsNull() throws Exception {
          String mockToken = "abc123def456";
  
-@@ -703,6 +783,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -701,6 +781,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -363,7 +363,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testInvalidCloudProjectNumbersAreRejected() throws Exception {
          // Only numbers up to 2^53-1 can be represented correctly in JavaScript.
          // Test that numbers larger than this are rejected.
-@@ -723,6 +806,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -721,6 +804,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -373,7 +373,7 @@ index 24761904f49d5..6c14f23d53801 100644
      public void testErrorsMappedGetTokenProvider() throws Exception {
          mPlatformBridge.addProviderError(
                  CLOUD_PROJECT_NUMBER,
-@@ -767,6 +853,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+@@ -765,6 +851,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
  
      @Test
      @MediumTest
@@ -384,10 +384,10 @@ index 24761904f49d5..6c14f23d53801 100644
          MockTokenProvider mockTokenProvider = new MockTokenProvider();
          mPlatformBridge.addProviderResponse(
 diff --git a/android_webview/renderer/aw_content_renderer_client.cc b/android_webview/renderer/aw_content_renderer_client.cc
-index c969ffc8eb1ac..8e778f5345c91 100644
+index 57ccb24bc9e4b..bb1f6b4f6d40b 100644
 --- a/android_webview/renderer/aw_content_renderer_client.cc
 +++ b/android_webview/renderer/aw_content_renderer_client.cc
-@@ -208,10 +208,13 @@ void AwContentRendererClient::
+@@ -228,10 +228,13 @@ void AwContentRendererClient::
      blink::WebRuntimeFeatures::EnableSharedAutofill(true);
    }
  

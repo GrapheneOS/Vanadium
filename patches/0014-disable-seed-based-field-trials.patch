@@ -13,10 +13,10 @@ Subject: [PATCH] disable seed-based field trials
  create mode 100644 components/variations/common_ext/BUILD.gn
 
 diff --git a/components/variations/BUILD.gn b/components/variations/BUILD.gn
-index 5ae80aba8b1d6..63f055eb52800 100644
+index 5130a835f47c2..9e1e6743c2274 100644
 --- a/components/variations/BUILD.gn
 +++ b/components/variations/BUILD.gn
-@@ -155,6 +155,13 @@ component("variations") {
+@@ -164,6 +164,13 @@ component("variations") {
        "//components/variations/android:variations_seed_jni",
      ]
    }
@@ -73,10 +73,10 @@ index fda6153e144d1..61144785825c6 100644
  
  source_set("unit_tests") {
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index 395171d59a3c5..aa50bd04a7c7b 100644
+index 2e0e1cfc4df1f..dcb0c4beb9725 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -39,6 +39,7 @@
+@@ -38,6 +38,7 @@
  #include "components/metrics/metrics_state_manager.h"
  #include "components/prefs/pref_service.h"
  #include "components/variations/active_field_trials.h"
@@ -84,12 +84,13 @@ index 395171d59a3c5..aa50bd04a7c7b 100644
  #include "components/variations/entropy_provider.h"
  #include "components/variations/field_trial_config/field_trial_util.h"
  #include "components/variations/platform_field_trials.h"
-@@ -252,8 +253,14 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -253,9 +254,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
 +#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    auto result = http_header_provider->ForceVariationIds(
+       base::PassKey<VariationsFieldTrialCreator>(),
        variation_ids, command_line_variation_ids);
 +#else
 +  // Pretend that it was successful without acutally forcing
@@ -99,7 +100,7 @@ index 395171d59a3c5..aa50bd04a7c7b 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -318,23 +325,29 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -320,23 +327,29 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {
@@ -130,7 +131,7 @@ index 395171d59a3c5..aa50bd04a7c7b 100644
    platform_field_trials->RegisterFeatureOverrides(feature_list.get());
  
 diff --git a/components/variations/synthetic_trial_registry.cc b/components/variations/synthetic_trial_registry.cc
-index 9e303760b0706..4fd65e470f58b 100644
+index cec2a2f3ff81a..0761202b8a21e 100644
 --- a/components/variations/synthetic_trial_registry.cc
 +++ b/components/variations/synthetic_trial_registry.cc
 @@ -10,6 +10,7 @@
@@ -141,7 +142,7 @@ index 9e303760b0706..4fd65e470f58b 100644
  #include "components/variations/hashing.h"
  #include "components/variations/variations_associated_data.h"
  
-@@ -122,6 +123,7 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
+@@ -136,6 +137,7 @@ void SyntheticTrialRegistry::RegisterExternalExperimentsInternal(
  
  void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
      const SyntheticTrialGroup& trial) {
@@ -149,7 +150,7 @@ index 9e303760b0706..4fd65e470f58b 100644
    for (auto& entry : synthetic_trial_groups_) {
      if (entry.id().name == trial.id().name) {
        if (entry.id().group != trial.id().group ||
-@@ -139,6 +141,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
+@@ -153,6 +155,7 @@ void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
    trial_group.SetStartTime(base::TimeTicks::Now());
    synthetic_trial_groups_.push_back(trial_group);
    NotifySyntheticTrialObservers({trial_group}, {});

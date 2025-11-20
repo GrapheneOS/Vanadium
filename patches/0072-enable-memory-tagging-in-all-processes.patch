@@ -9,10 +9,10 @@ Subject: [PATCH] enable memory tagging in all processes
  2 files changed, 1 insertion(+), 13 deletions(-)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
-index 28ced07aa5d7a..a92c60cae9c9f 100644
+index 67081b18b5cef..f4c80fecce5ea 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
-@@ -38,6 +38,7 @@ by a child template that "extends" this file.
+@@ -40,6 +40,7 @@ by a child template that "extends" this file.
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
                   android:multiArch="true"
@@ -21,10 +21,10 @@ index 28ced07aa5d7a..a92c60cae9c9f 100644
          {# This part is shared between stand-alone WebView and Monochrome #}
          {% macro common(manifest_package, webview_lib) %}
 diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
-index 367678d6937a2..22d4bd441b76f 100644
+index fdc30ae2f919e..0217ee146f445 100644
 --- a/base/allocator/partition_alloc_features.cc
 +++ b/base/allocator/partition_alloc_features.cc
-@@ -225,11 +225,7 @@ constinit const FeatureParam<bool> kBackupRefPtrSuppressCorruptionDetectedCrash{
+@@ -209,11 +209,7 @@ constinit const FeatureParam<bool> kBackupRefPtrSuppressCorruptionDetectedCrash{
  #endif
  
  BASE_FEATURE(kPartitionAllocMemoryTagging,
@@ -36,7 +36,7 @@ index 367678d6937a2..22d4bd441b76f 100644
  );
  
  constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
-@@ -266,23 +262,14 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
+@@ -250,23 +246,14 @@ constexpr FeatureParam<MemoryTaggingEnabledProcesses>::Option
  constinit const FeatureParam<MemoryTaggingEnabledProcesses>
      kMemoryTaggingEnabledProcessesParam{
          &kPartitionAllocMemoryTagging, kPAFeatureEnabledProcessesStr,

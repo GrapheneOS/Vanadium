@@ -10,7 +10,7 @@ Subject: [PATCH] Disable newer privacy sandbox features by default
  3 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
-index 82f471de3c008..d5ee8fefa617d 100644
+index 32468b21739d2..ef32431ca591c 100644
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
 @@ -20,7 +20,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
@@ -23,10 +23,10 @@ index 82f471de3c008..d5ee8fefa617d 100644
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index 4152ecf414266..41dcb203c1fa2 100644
+index 6ed3e66589bdc..3d89ba54f65a8 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -418,7 +418,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect, base::FEATURE_ENABLED_BY_DEFAULT);
+@@ -436,7 +436,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect, base::FEATURE_ENABLED_BY_DEFAULT);
  
  // https://github.com/patcg-individual-drafts/topics
  // Kill switch for the Topics API.
@@ -36,10 +36,10 @@ index 4152ecf414266..41dcb203c1fa2 100644
  // Enable the shared storage API. Note that enabling this feature does not
  // automatically expose this API to the web, it only allows the element to be
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 01e8a8e91cf97..245c831acb95d 100644
+index 716541fa6ffb7..fcb916c2ed079 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -194,11 +194,11 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+@@ -205,11 +205,11 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
  // feature has to be enabled first (i.e. `kBrowsingTopics` is enabled, and,
  // either a valid Origin Trial token exists or `kPrivacySandboxAdsAPIsOverride`
  // is enabled.)
