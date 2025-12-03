@@ -9,14 +9,14 @@ list of search engines on all regions.
  ...l_settings.json-search-engines-secti.patch |  140 ++
  ...ent-maximum-number-of-search-engines.patch |   34 +
  ...ment-version-for-search-engines-data.patch |   34 +
- ...ment-version-for-search-engines-data.patch |   34 +
  ...n-all-regional-list-of-search-engine.patch | 1242 +++++++++++++++++
+ ...ment-version-for-search-engines-data.patch |   34 +
  5 files changed, 1484 insertions(+)
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
+ create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
- create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
 
 diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
 new file mode 100644
@@ -244,51 +244,11 @@ index 0000000000000..a0c3470a59f6e
 +   },
 + 
 +   // The following engines are included in country lists and are added to the
-diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
-new file mode 100644
-index 0000000000000..5e78f782d4ce7
---- /dev/null
-+++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
-@@ -0,0 +1,34 @@
-+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
-+Date: Tue, 13 May 2025 14:41:30 +0000
-+Subject: [PATCH] Increment version for search engines data
-+
-+Commands used for incrementing version:
-+
-+```bash
-+    version_line=$(echo $(grep kCurrentDataVersion definitions/prepopulated_engines.json))
-+
-+    version=$(echo $version_line | sed -r "s/.*\"kCurrentDataVersion\": //g")
-+
-+    incremented_version=$(($version + 1)); incremented_version_line=$(echo $version_line | sed -r "s/$version/$incremented_version/g")
-+
-+    sed -ri "s/$version_line/$incremented_version_line/g" definitions/prepopulated_engines.json
-+
-+```
-+---
-+ definitions/prepopulated_engines.json | 2 +-
-+ 1 file changed, 1 insertion(+), 1 deletion(-)
-+
-+diff --git a/definitions/prepopulated_engines.json b/definitions/prepopulated_engines.json
-+index 9a97180..777d0ae 100644
-+--- a/definitions/prepopulated_engines.json
-++++ b/definitions/prepopulated_engines.json
-+@@ -28,7 +28,7 @@
-+     // existing data should get a new version. Otherwise, existing data may
-+     // continue to be used and updates made here will not always appear.
-+     // Also then run tools/search_engine_choice/generate_search_engine_icons.py.
-+-    "kCurrentDataVersion": 192
-++    "kCurrentDataVersion": 193
-+   },
-+ 
-+   // The following engines are included in country lists and are added to the
-diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
+diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
 new file mode 100644
 index 0000000000000..f760879291a06
 --- /dev/null
-+++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0005-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
++++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
 @@ -0,0 +1,1242 @@
 +From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 +From: quh4gko8 <quh4gko8.vanadium@gmail.com>
@@ -1532,3 +1492,43 @@ index 0000000000000..f760879291a06
 +         "&google",
 +         "&bing",
 +         "&yahoo"
+diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
+new file mode 100644
+index 0000000000000..5e78f782d4ce7
+--- /dev/null
++++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Increment-version-for-search-engines-data.patch
+@@ -0,0 +1,34 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
++Date: Tue, 13 May 2025 14:41:30 +0000
++Subject: [PATCH] Increment version for search engines data
++
++Commands used for incrementing version:
++
++```bash
++    version_line=$(echo $(grep kCurrentDataVersion definitions/prepopulated_engines.json))
++
++    version=$(echo $version_line | sed -r "s/.*\"kCurrentDataVersion\": //g")
++
++    incremented_version=$(($version + 1)); incremented_version_line=$(echo $version_line | sed -r "s/$version/$incremented_version/g")
++
++    sed -ri "s/$version_line/$incremented_version_line/g" definitions/prepopulated_engines.json
++
++```
++---
++ definitions/prepopulated_engines.json | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/definitions/prepopulated_engines.json b/definitions/prepopulated_engines.json
++index 9a97180..777d0ae 100644
++--- a/definitions/prepopulated_engines.json
+++++ b/definitions/prepopulated_engines.json
++@@ -28,7 +28,7 @@
++     // existing data should get a new version. Otherwise, existing data may
++     // continue to be used and updates made here will not always appear.
++     // Also then run tools/search_engine_choice/generate_search_engine_icons.py.
++-    "kCurrentDataVersion": 192
+++    "kCurrentDataVersion": 193
++   },
++ 
++   // The following engines are included in country lists and are added to the
