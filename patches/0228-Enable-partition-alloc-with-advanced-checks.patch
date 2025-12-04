@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Rithvik Ballari <nexus-x@tuta.io>
+Date: Wed, 12 Nov 2025 19:19:09 +0530
+Subject: [PATCH] Enable partition alloc with advanced checks by default
+
+---
+ base/allocator/partition_alloc_features.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/base/allocator/partition_alloc_features.cc b/base/allocator/partition_alloc_features.cc
+index fdc30ae..0e258ad 100644
+--- a/base/allocator/partition_alloc_features.cc
++++ b/base/allocator/partition_alloc_features.cc
+@@ -94,7 +94,7 @@ BASE_FEATURE(kPartitionAllocLargeEmptySlotSpanRing,
+              FEATURE_DISABLED_BY_DEFAULT);
+ #endif
+
+-BASE_FEATURE(kPartitionAllocWithAdvancedChecks, FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(kPartitionAllocWithAdvancedChecks, FEATURE_ENABLED_BY_DEFAULT);
+ constexpr FeatureParam<PartitionAllocWithAdvancedChecksEnabledProcesses>::Option
+     kPartitionAllocWithAdvancedChecksEnabledProcessesOptions[] = {
+         {PartitionAllocWithAdvancedChecksEnabledProcesses::kBrowserOnly,
+@@ -109,7 +109,7 @@ constexpr FeatureParam<PartitionAllocWithAdvancedChecksEnabledProcesses>::Option
+ constinit const FeatureParam<PartitionAllocWithAdvancedChecksEnabledProcesses>
+     kPartitionAllocWithAdvancedChecksEnabledProcessesParam{
+         &kPartitionAllocWithAdvancedChecks, kPAFeatureEnabledProcessesStr,
+-        PartitionAllocWithAdvancedChecksEnabledProcesses::kBrowserOnly,
++        PartitionAllocWithAdvancedChecksEnabledProcesses::kAllProcesses,
+         &kPartitionAllocWithAdvancedChecksEnabledProcessesOptions};
+
+ BASE_FEATURE(kPartitionAllocSchedulerLoopQuarantine,
