@@ -1,0 +1,380 @@
+From bd0703991975ba4b4c0075ba17e741a0b93225dc Mon Sep 17 00:00:00 2001
+From: octocorvus <loryeam@gmail.com>
+Date: Wed, 26 Oct 2022 13:28:20 +0000
+Subject: [PATCH] [autoplay] implement UI for autoplay site setting
+
+This setting is experimental and hidden behind the flag.
+---
+ .../ChromeSiteSettingsDelegate.java           |  2 ++
+ .../res/xml/site_settings_preferences.xml     |  4 +++
+ .../ContentSettingsResources.java             |  6 +++++
+ .../site_settings/SingleCategorySettings.java |  7 +++++
+ .../site_settings/SingleWebsiteSettings.java  | 26 +++++++++++++++++++
+ .../site_settings/SiteSettingsCategory.java   |  9 +++++--
+ .../site_settings/SiteSettingsUtil.java       |  1 +
+ .../browser_ui/site_settings/Website.java     |  6 +++++
+ .../WebsitePermissionsFetcher.java            |  1 +
+ .../android/website_preference_bridge.cc      |  1 +
+ .../strings/android/site_settings.grdp        | 15 +++++++++++
+ .../android/page_info_controller_android.cc   |  7 +++++
+ components/page_info/page_info.cc             | 11 ++++++++
+ components/page_info/page_info_ui.cc          |  2 ++
+ components/site_settings_strings.grdp         |  6 +++++
+ 15 files changed, 102 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+index 4a84a75126820..593c9264e6d96 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+@@ -111,6 +111,8 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+             case SiteSettingsCategory.Type.AUTO_DARK_WEB_CONTENT:
+                 return ChromeFeatureList.isEnabled(
+                         ChromeFeatureList.DARKEN_WEBSITES_CHECKBOX_IN_THEMES_SETTING);
++            case SiteSettingsCategory.Type.AUTOPLAY:
++                return ChromeFeatureList.isEnabled(ChromeFeatureList.ENABLE_AUTOPLAY_PERMISSION);
+             case SiteSettingsCategory.Type.BLUETOOTH:
+                 return ContentFeatureList.isEnabled(
+                         ContentFeatureList.WEB_BLUETOOTH_NEW_PERMISSIONS_BACKEND);
+diff --git a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
+index 1d4dc20474739..fd616602883b2 100644
+--- a/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
++++ b/components/browser_ui/site_settings/android/java/res/xml/site_settings_preferences.xml
+@@ -71,6 +71,10 @@ found in the LICENSE file.
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.components.browser_ui.site_settings.SingleCategorySettings"
+         android:key="sound" />
++    <!-- Autoplay -->
++    <org.chromium.components.browser_ui.settings.ChromeBasePreference
++        android:fragment="org.chromium.components.browser_ui.site_settings.SingleCategorySettings"
++        android:key="autoplay" />
+     <!-- Storage -->
+     <!-- TODO(finnur): Move this over to the new Usage screen, once it exists. -->
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
+index 9e9454d94f935..c4f611297b18c 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
+@@ -113,6 +113,12 @@ public class ContentSettingsResources {
+                         R.string.website_settings_category_auto_dark_allowed,
+                         R.string.website_settings_category_auto_dark_blocked);
+ 
++            case ContentSettingsType.AUTOPLAY:
++                return new ResourceItem(R.drawable.ic_volume_up_grey600_24dp,
++                        R.string.autoplay_permission_title, ContentSettingValues.ALLOW,
++                        ContentSettingValues.BLOCK,
++                        R.string.website_settings_category_autoplay_allowed, 0);
++
+             case ContentSettingsType.BACKGROUND_SYNC:
+                 return new ResourceItem(R.drawable.permission_background_sync,
+                         R.string.background_sync_permission_title, ContentSettingValues.ALLOW,
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+index ab4bb69686b15..b8fa79515931c 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+@@ -620,6 +620,11 @@ public class SingleCategorySettings extends SiteSettingsPreferenceFragment
+                                browserContextHandle, ContentSettingsType.SOUND)
+                     ? R.string.website_settings_add_site_description_sound_block
+                     : R.string.website_settings_add_site_description_sound_allow;
++        } else if (mCategory.getType() == SiteSettingsCategory.Type.AUTOPLAY) {
++            resource = WebsitePreferenceBridge.isCategoryEnabled(
++                               browserContextHandle, ContentSettingsType.AUTOPLAY)
++                    ? R.string.website_settings_add_site_description_autoplay_block
++                    : R.string.website_settings_add_site_description_autoplay_allow;
+         } else if (mCategory.getType() == SiteSettingsCategory.Type.COOKIES) {
+             if (mRequiresFourStateSetting) {
+                 resource = cookieSettingsExceptionShouldBlock()
+@@ -735,6 +740,8 @@ public class SingleCategorySettings extends SiteSettingsPreferenceFragment
+             allowSpecifyingExceptions = true;
+         } else if (mCategory.getType() == SiteSettingsCategory.Type.JAVASCRIPT_JIT) {
+             allowSpecifyingExceptions = true;
++        } else if (mCategory.getType() == SiteSettingsCategory.Type.AUTOPLAY) {
++            allowSpecifyingExceptions = true;
+         } else if (mCategory.getType() == SiteSettingsCategory.Type.COOKIES) {
+             allowSpecifyingExceptions = true;
+         } else if (mCategory.getType() == SiteSettingsCategory.Type.BACKGROUND_SYNC
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+index b07013b0bc295..253f1d9b5d561 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+@@ -32,6 +32,7 @@ import org.chromium.components.browser_ui.settings.ChromeImageViewPreference;
+ import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
+ import org.chromium.components.browser_ui.settings.ManagedPreferencesUtils;
+ import org.chromium.components.browser_ui.settings.SettingsUtils;
++import org.chromium.components.browser_ui.site_settings.SiteSettingsFeatureList;
+ import org.chromium.components.content_settings.ContentSettingValues;
+ import org.chromium.components.content_settings.ContentSettingsType;
+ import org.chromium.components.embedder_support.util.Origin;
+@@ -119,6 +120,8 @@ public class SingleWebsiteSettings extends SiteSettingsPreferenceFragment
+                 return "auto_dark_web_content_permission_list";
+             case ContentSettingsType.AUTOMATIC_DOWNLOADS:
+                 return "automatic_downloads_permission_list";
++            case ContentSettingsType.AUTOPLAY:
++                return "autoplay_permission_list";
+             case ContentSettingsType.BACKGROUND_SYNC:
+                 return "background_sync_permission_list";
+             case ContentSettingsType.BLUETOOTH_SCANNING:
+@@ -495,6 +498,8 @@ public class SingleWebsiteSettings extends SiteSettingsPreferenceFragment
+                 setUpAdsPreference(preference);
+             } else if (type == ContentSettingsType.SOUND) {
+                 setUpSoundPreference(preference);
++            } else if (type == ContentSettingsType.AUTOPLAY) {
++                setUpAutoplayPreference(preference);
+             } else if (type == ContentSettingsType.JAVASCRIPT) {
+                 setUpJavascriptPreference(preference);
+             } else if (type == ContentSettingsType.JAVASCRIPT_JIT) {
+@@ -983,6 +988,27 @@ public class SingleWebsiteSettings extends SiteSettingsPreferenceFragment
+         setupContentSettingsPreference(preference, currentValue, false /* isEmbargoed */);
+     }
+ 
++    private void setUpAutoplayPreference(Preference preference) {
++        if (!SiteSettingsFeatureList.isEnabled(SiteSettingsFeatureList.ENABLE_AUTOPLAY_PERMISSION)) {
++            return;
++        }
++
++        BrowserContextHandle browserContextHandle =
++                getSiteSettingsDelegate().getBrowserContextHandle();
++        @ContentSettingValues
++        @Nullable
++        Integer currentValue =
++                mSite.getContentSetting(browserContextHandle, ContentSettingsType.AUTOPLAY);
++        if (currentValue == null) {
++            currentValue = WebsitePreferenceBridge.isCategoryEnabled(
++                                   browserContextHandle, ContentSettingsType.AUTOPLAY)
++                    ? ContentSettingValues.ALLOW
++                    : ContentSettingValues.BLOCK;
++        }
++        // Not possible to embargo AUTOPLAY.
++        setupContentSettingsPreference(preference, currentValue, false /* isEmbargoed */);
++    }
++
+     private void setUpJavascriptPreference(Preference preference) {
+         BrowserContextHandle browserContextHandle =
+                 getSiteSettingsDelegate().getBrowserContextHandle();
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
+index d3e3bfc666553..3ad26850059c5 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
+@@ -43,7 +43,7 @@ public class SiteSettingsCategory {
+             Type.JAVASCRIPT, Type.MICROPHONE, Type.NFC, Type.NOTIFICATIONS, Type.POPUPS,
+             Type.PROTECTED_MEDIA, Type.SENSORS, Type.SOUND, Type.USB, Type.VIRTUAL_REALITY,
+             Type.USE_STORAGE, Type.AUTO_DARK_WEB_CONTENT, Type.REQUEST_DESKTOP_SITE,
+-            Type.FEDERATED_IDENTITY_API, Type.JAVASCRIPT_JIT})
++            Type.FEDERATED_IDENTITY_API, Type.JAVASCRIPT_JIT, Type.AUTOPLAY})
+     @Retention(RetentionPolicy.SOURCE)
+     public @interface Type {
+         // All updates here must also be reflected in {@link #preferenceKey(int)
+@@ -75,10 +75,11 @@ public class SiteSettingsCategory {
+         int REQUEST_DESKTOP_SITE = 24;
+         int FEDERATED_IDENTITY_API = 25;
+         int JAVASCRIPT_JIT = 26;
++        int AUTOPLAY = 27;
+         /**
+          * Number of handled categories used for calculating array sizes.
+          */
+-        int NUM_ENTRIES = 27;
++        int NUM_ENTRIES = 28;
+     }
+ 
+     private final BrowserContextHandle mBrowserContextHandle;
+@@ -163,6 +164,8 @@ public class SiteSettingsCategory {
+                 return ContentSettingsType.AUTO_DARK_WEB_CONTENT;
+             case Type.AUTOMATIC_DOWNLOADS:
+                 return ContentSettingsType.AUTOMATIC_DOWNLOADS;
++            case Type.AUTOPLAY:
++                return ContentSettingsType.AUTOPLAY;
+             case Type.BACKGROUND_SYNC:
+                 return ContentSettingsType.BACKGROUND_SYNC;
+             case Type.BLUETOOTH:
+@@ -243,6 +246,8 @@ public class SiteSettingsCategory {
+                 return "all_sites";
+             case Type.AUTOMATIC_DOWNLOADS:
+                 return "automatic_downloads";
++            case Type.AUTOPLAY:
++                return "autoplay";
+             case Type.BACKGROUND_SYNC:
+                 return "background_sync";
+             case Type.BLUETOOTH:
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
+index 82e8fdac8e143..22c1437e98dd9 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
+@@ -30,6 +30,7 @@ public class SiteSettingsUtil {
+             ContentSettingsType.AUTOMATIC_DOWNLOADS,
+             ContentSettingsType.PROTECTED_MEDIA_IDENTIFIER,
+             ContentSettingsType.SOUND,
++            ContentSettingsType.AUTOPLAY,
+             ContentSettingsType.MIDI_SYSEX,
+             ContentSettingsType.CLIPBOARD_READ_WRITE,
+             ContentSettingsType.NFC,
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
+index 24cd94b89e648..d7a22c0135fce 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
+@@ -232,6 +232,12 @@ public final class Website implements Serializable {
+             } else {
+                 RecordUserAction.record("SoundContentSetting.UnmuteBy.SiteSettings");
+             }
++        } else if (type == ContentSettingsType.AUTOPLAY) {
++            if (exception == null) {
++                exception = new ContentSettingException(ContentSettingsType.AUTOPLAY,
++                         getAddress().getHost(), value, "", /*isEmbargoed=*/false);
++                setContentSettingException(type, exception);
++            }
+         }
+         // We want to call setContentSetting even after explicitly setting
+         // mContentSettingException above because this will trigger the actual change
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
+index df9ab88dd6bea..d4f84b9087ea9 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
+@@ -59,6 +59,7 @@ public class WebsitePermissionsFetcher {
+             case ContentSettingsType.ADS:
+             case ContentSettingsType.AUTO_DARK_WEB_CONTENT:
+             case ContentSettingsType.AUTOMATIC_DOWNLOADS:
++            case ContentSettingsType.AUTOPLAY:
+             case ContentSettingsType.BACKGROUND_SYNC:
+             case ContentSettingsType.BLUETOOTH_SCANNING:
+             case ContentSettingsType.COOKIES:
+diff --git a/components/browser_ui/site_settings/android/website_preference_bridge.cc b/components/browser_ui/site_settings/android/website_preference_bridge.cc
+index 396113c03dbc5..59586c9ac292d 100644
+--- a/components/browser_ui/site_settings/android/website_preference_bridge.cc
++++ b/components/browser_ui/site_settings/android/website_preference_bridge.cc
+@@ -786,6 +786,7 @@ static void JNI_WebsitePreferenceBridge_SetContentSettingEnabled(
+         break;
+       case ContentSettingsType::ADS:
+       case ContentSettingsType::AUTO_DARK_WEB_CONTENT:
++      case ContentSettingsType::AUTOPLAY:
+       case ContentSettingsType::BACKGROUND_SYNC:
+       case ContentSettingsType::COOKIES:
+       case ContentSettingsType::FEDERATED_IDENTITY_API:
+diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
+index f9b5957d825b8..6578b0971b0dd 100644
+--- a/components/browser_ui/strings/android/site_settings.grdp
++++ b/components/browser_ui/strings/android/site_settings.grdp
+@@ -18,6 +18,9 @@
+   <message name="IDS_AUTOMATIC_DOWNLOADS_PERMISSION_TITLE" desc="Title of the permission that allows websites to download multiple files automatically.">
+     Automatic downloads
+   </message>
++  <message name="IDS_AUTOPLAY_PERMISSION_TITLE" desc="Title of the permission to autoplay [CHAR_LIMIT=32]">
++    Autoplay
++  </message>
+   <message name="IDS_BACKGROUND_SYNC_PERMISSION_TITLE" desc="Title of the permission that allows websites to queue an operation for the next time the device is online[CHAR_LIMIT=32]">
+     Background sync
+   </message>
+@@ -302,6 +305,18 @@
+     Allow a site to download multiple files automatically.
+   </message>
+ 
++  <!-- Autoplay -->
++
++  <message name="IDS_WEBSITE_SETTINGS_CATEGORY_AUTOPLAY_ALLOWED" desc="Summary text explaining that sites are allowed to autoplay.">
++    Allow sites to automatically play muted videos
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_AUTOPLAY_ALLOW" desc="The description for the allow autoplay for website dialog.">
++    Allow autoplay for a specific site.
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_AUTOPLAY_BLOCK" desc="The description for the block autoplay for website dialog.">
++    Block autoplay for a specific site.
++  </message>
++
+   <!-- Background sync -->
+ 
+   <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_BACKGROUND_SYNC" desc="The description for the allow Background Sync for website dialog.">
+diff --git a/components/page_info/android/page_info_controller_android.cc b/components/page_info/android/page_info_controller_android.cc
+index 38a378be60069..1e7ab20525fd3 100644
+--- a/components/page_info/android/page_info_controller_android.cc
++++ b/components/page_info/android/page_info_controller_android.cc
+@@ -25,6 +25,7 @@
+ #include "content/public/browser/web_contents.h"
+ #include "content/public/common/content_features.h"
+ #include "content/public/common/content_switches.h"
++#include "third_party/blink/public/common/features.h"
+ #include "url/origin.h"
+ 
+ using base::android::ConvertUTF16ToJavaString;
+@@ -147,6 +148,10 @@ void PageInfoControllerAndroid::SetPermissionInfo(
+   permissions_to_display.push_back(
+       ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER);
+   permissions_to_display.push_back(ContentSettingsType::SOUND);
++  if (base::FeatureList::IsEnabled(
++          blink::features::kEnableAutoplayPermission)) {
++    permissions_to_display.push_back(ContentSettingsType::AUTOPLAY);
++  }
+   if (base::FeatureList::IsEnabled(features::kWebNfc))
+     permissions_to_display.push_back(ContentSettingsType::NFC);
+   base::CommandLine* cmd = base::CommandLine::ForCurrentProcess();
+@@ -220,6 +225,8 @@ absl::optional<ContentSetting> PageInfoControllerAndroid::GetSettingToDisplay(
+     // setting should show up in Page Info is in ShouldShowPermission in
+     // page_info.cc.
+     return permission.default_setting;
++  } else if (permission.type == ContentSettingsType::AUTOPLAY) {
++    return permission.default_setting;
+   } else if (permission.type == ContentSettingsType::JAVASCRIPT) {
+     // The javascript content setting should show up if it is blocked globally
+     // to give users an easy way to create exceptions.
+diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
+index 11af31a67ef19..d449d60019d07 100644
+--- a/components/page_info/page_info.cc
++++ b/components/page_info/page_info.cc
+@@ -67,6 +67,7 @@
+ #include "net/ssl/ssl_connection_status_flags.h"
+ #include "services/metrics/public/cpp/ukm_builders.h"
+ #include "services/metrics/public/cpp/ukm_recorder.h"
++#include "third_party/blink/public/common/features.h"
+ #include "third_party/boringssl/src/include/openssl/ssl.h"
+ #include "ui/base/l10n/l10n_util.h"
+ #include "url/origin.h"
+@@ -100,6 +101,7 @@ ContentSettingsType kPermissionType[] = {
+     ContentSettingsType::ADS,
+     ContentSettingsType::BACKGROUND_SYNC,
+     ContentSettingsType::SOUND,
++    ContentSettingsType::AUTOPLAY,
+     ContentSettingsType::AUTOMATIC_DOWNLOADS,
+ #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+     ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER,
+@@ -150,6 +152,15 @@ bool ShouldShowPermission(const PageInfo::PermissionInfo& info,
+       return true;
+   }
+ 
++  // Always show autoplay settings UI when it has a site-specific override.
++  if (info.type == ContentSettingsType::AUTOPLAY) {
++    if (!base::FeatureList::IsEnabled(
++            blink::features::kEnableAutoplayPermission)) {
++      return false;
++    }
++    return true;
++  }
++
+   // Always show JIT settings UI when when it has a site-specific override.
+   if (info.type == ContentSettingsType::JAVASCRIPT_JIT) {
+     return true;
+diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
+index ae48aa9762766..788c37f514b1a 100644
+--- a/components/page_info/page_info_ui.cc
++++ b/components/page_info/page_info_ui.cc
+@@ -165,6 +165,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {
+      IDS_SITE_SETTINGS_TYPE_ADS_MID_SENTENCE},
+     {ContentSettingsType::SOUND, IDS_SITE_SETTINGS_TYPE_SOUND,
+      IDS_SITE_SETTINGS_TYPE_SOUND_MID_SENTENCE},
++    {ContentSettingsType::AUTOPLAY, IDS_SITE_SETTINGS_TYPE_AUTOPLAY,
++     IDS_SITE_SETTINGS_TYPE_AUTOPLAY_MID_SENTENCE},
+     {ContentSettingsType::CLIPBOARD_READ_WRITE,
+      IDS_SITE_SETTINGS_TYPE_CLIPBOARD,
+      IDS_SITE_SETTINGS_TYPE_CLIPBOARD_MID_SENTENCE},
+diff --git a/components/site_settings_strings.grdp b/components/site_settings_strings.grdp
+index d73b6fa7e483b..6f0894c0442bf 100644
+--- a/components/site_settings_strings.grdp
++++ b/components/site_settings_strings.grdp
+@@ -19,6 +19,12 @@
+   <message name="IDS_SITE_SETTINGS_TYPE_AUTOMATIC_DOWNLOADS_MID_SENTENCE" desc="The label used for the automatic downloads site settings controls when used mid-sentence.">
+     automatic downloads
+   </message>
++  <message name="IDS_SITE_SETTINGS_TYPE_AUTOPLAY" desc="The label used for autoplay site settings controls.">
++    Autoplay
++  </message>
++  <message name="IDS_SITE_SETTINGS_TYPE_AUTOPLAY_MID_SENTENCE" desc="The label used for autoplay site settings controls when used mid-sentence.">
++    autoplay
++  </message>
+   <message name="IDS_SITE_SETTINGS_TYPE_BACKGROUND_SYNC" desc="The label used for the background sync site settings controls.">
+     Background sync
+   </message>
