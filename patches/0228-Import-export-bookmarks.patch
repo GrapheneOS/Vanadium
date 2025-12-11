@@ -1,0 +1,1047 @@
+From 1762fc11402285a4c56c24e6157780eb4ffab979 Mon Sep 17 00:00:00 2001
+From: keptuve <keptuve@keptuve.k>
+Date: Tue, 9 Dec 2025 14:44:19 +0000
+Subject: [PATCH] Import export bookmarks
+
+---
+ .../menu/bookmark_toolbar_menu_improved.xml   |  13 ++
+ .../chrome/browser/ChromeStrictMode.java      |   1 +
+ .../chrome/browser/ChromeTabbedActivity.java  |   3 +-
+ .../app/bookmarks/BookmarkActivity.java       |  13 +-
+ chrome/browser/BUILD.gn                       |   3 +
+ chrome/browser/bookmarks/android/BUILD.gn     |  10 +-
+ .../bookmarks/android/bookmark_bridge.cc      |  31 ++++
+ .../bookmarks/android/bookmark_bridge.h       |   9 +
+ .../android/bookmark_import_export_helper.cc  | 166 ++++++++++++++++++
+ .../android/bookmark_import_export_helper.h   |  53 ++++++
+ .../browser/bookmarks/BookmarkBridge.java     |  17 ++
+ .../bookmarks/BookmarkManagerCoordinator.java |   7 +-
+ .../browser/bookmarks/BookmarkPage.java       |  16 +-
+ .../browser/bookmarks/BookmarkPane.java       |  10 +-
+ .../bookmarks/BookmarkToolbarCoordinator.java |   7 +-
+ .../bookmarks/BookmarkToolbarMediator.java    |  12 +-
+ chrome/browser/importer/BUILD.gn              |  32 +++-
+ .../external_process_importer_client.cc       |   6 +
+ .../external_process_importer_host.cc         |   2 +
+ chrome/browser/importer/importer_list.cc      |   4 +
+ .../importer/in_process_importer_bridge.cc    |   8 +-
+ .../importer/in_process_importer_bridge.h     |   2 +
+ .../strings/android_chrome_strings.grd        |   6 +
+ chrome/common/importer/BUILD.gn               |   6 +
+ chrome/utility/BUILD.gn                       |   9 +-
+ .../importer/bookmarks_file_importer.cc       |   4 +-
+ chrome/utility/importer/importer_creator.cc   |   2 +-
+ chrome/utility/services.cc                    |  10 ++
+ 28 files changed, 440 insertions(+), 22 deletions(-)
+ create mode 100644 chrome/browser/bookmarks/android/bookmark_import_export_helper.cc
+ create mode 100644 chrome/browser/bookmarks/android/bookmark_import_export_helper.h
+
+diff --git a/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml b/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml
+index d9eee375ea702..b77c90f7a3513 100644
+--- a/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml
++++ b/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml
+@@ -51,6 +51,19 @@ found in the LICENSE file.
+             android:title="@string/create_new_folder"
+             app:showAsAction="ifRoom"
+             app:iconTint="@color/default_icon_color_secondary_tint_list" />
++        <item
++            android:id="@+id/import_export_menu_id"
++            android:icon="@drawable/ic_more_vert_24dp"
++            android:title="@string/create_new_folder"
++            app:showAsAction="ifRoom"
++            app:iconTint="@color/default_icon_color_secondary_tint_list">
++                <group android:id="@+id/import_export_group">
++                    <item android:id="@+id/import_bookmarks"
++                        android:title="@string/import_bookmarks" />
++                    <item android:id="@+id/export_bookmarks"
++                        android:title="@string/export_bookmarks" />
++                </group>
++        </item>
+         <item
+             android:id="@+id/close_menu_id"
+             android:icon="@drawable/material_ic_close_24dp"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeStrictMode.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeStrictMode.java
+index cd3f4177309a4..173fb3f5aeb18 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeStrictMode.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeStrictMode.java
+@@ -142,6 +142,7 @@ public class ChromeStrictMode {
+         boolean enableStrictModeWatch =
+                 (VersionInfo.isLocalBuild() && !BuildConfig.ENABLE_ASSERTS)
+                         || (VersionInfo.isDevBuild() && Math.random() < UPLOAD_PROBABILITY);
++        enableStrictModeWatch = shouldApplyPenalties = false;
+         if (!shouldApplyPenalties && !enableStrictModeWatch) return;
+ 
+         StrictMode.VmPolicy.Builder vmPolicy =
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index 346493de6271c..fd6ba7bec26c6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -1234,7 +1234,8 @@ public class ChromeTabbedActivity extends ChromeActivity {
+                 adaptOnOverviewColorAlphaChange(),
+                 this,
+                 getSnackbarManager(),
+-                getProfileProviderSupplier());
++                getProfileProviderSupplier(),
++                getWindowAndroid());
+     }
+ 
+     private Pane createCrossDevicePane() {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/bookmarks/BookmarkActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/app/bookmarks/BookmarkActivity.java
+index b9034abf9a563..97684107d7a7f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/bookmarks/BookmarkActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/bookmarks/BookmarkActivity.java
+@@ -32,6 +32,9 @@ import org.chromium.chrome.browser.ui.edge_to_edge.EdgeToEdgeControllerFactory;
+ import org.chromium.components.bookmarks.BookmarkId;
+ import org.chromium.components.browser_ui.modaldialog.AppModalPresenter;
+ import org.chromium.components.embedder_support.util.UrlConstants;
++import org.chromium.ui.base.ActivityWindowAndroid;
++import org.chromium.ui.base.IntentRequestTracker;
++import org.chromium.ui.base.WindowAndroid;
+ import org.chromium.ui.modaldialog.ModalDialogManager;
+ import org.chromium.ui.modaldialog.ModalDialogManager.ModalDialogType;
+ 
+@@ -49,6 +52,7 @@ public class BookmarkActivity extends SnackbarActivity {
+     private @Nullable BookmarkManagerCoordinator mBookmarkManagerCoordinator;
+     private @Nullable BookmarkOpener mBookmarkOpener;
+     private @Nullable OnKeyDownHandler mOnKeyDownHandler;
++    private @Nullable WindowAndroid mWindow;
+ 
+     @Override
+     protected void onProfileAvailable(Profile profile) {
+@@ -61,6 +65,10 @@ public class BookmarkActivity extends SnackbarActivity {
+                         () -> BookmarkModel.getForProfile(profile),
+                         /* context= */ this,
+                         /* componentName= */ parentComponent);
++
++        IntentRequestTracker intentRequestTracker = IntentRequestTracker.createFromActivity(this);
++        mWindow = new ActivityWindowAndroid(this, true, intentRequestTracker, null, false);
++
+         mBookmarkManagerCoordinator =
+                 new BookmarkManagerCoordinator(
+                         this,
+@@ -74,7 +82,8 @@ public class BookmarkActivity extends SnackbarActivity {
+                         /* edgeToEdgePadAdjusterGenerator= */ view ->
+                                 EdgeToEdgeControllerFactory.createForViewAndObserveSupplier(
+                                         view, getEdgeToEdgeSupplier()),
+-                        /* backPressManager= */ null);
++                        /* backPressManager= */ null,
++                        mWindow);
+         String url = getIntent().getDataString();
+         if (TextUtils.isEmpty(url)) url = UrlConstants.BOOKMARKS_NATIVE_URL;
+         mBookmarkManagerCoordinator.updateForUrl(url);
+@@ -109,6 +118,8 @@ public class BookmarkActivity extends SnackbarActivity {
+     @Override
+     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+         super.onActivityResult(requestCode, resultCode, data);
++        mWindow.getIntentRequestTracker().onActivityResult(requestCode, resultCode, data);
++
+         if (requestCode == EDIT_BOOKMARK_REQUEST_CODE && resultCode == RESULT_OK) {
+             assumeNonNull(data);
+             BookmarkId bookmarkId =
+diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
+index 18677ad2b7f97..0f66439bd0a67 100644
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -2989,6 +2989,8 @@ static_library("browser") {
+       "android/webapps/web_app_launch_handler.cc",
+       "android/webapps/webapp_registry.cc",
+       "android/webapps/webapp_registry.h",
++      "bookmarks/bookmark_html_writer.cc",
++      "bookmarks/bookmark_html_writer.h",
+       "browser_process_platform_part_android.cc",
+       "browser_process_platform_part_android.h",
+       "browsing_data/counters/tabs_counter.cc",
+@@ -3398,6 +3400,7 @@ static_library("browser") {
+       "//chrome/browser/flags:flags_android",
+       "//chrome/browser/flags:flags_android_impl",
+       "//chrome/browser/gesturenav/android:jni_headers",
++      "//chrome/browser/importer:vanadium_impl",
+       "//chrome/browser/keyboard_accessory/android",
+       "//chrome/browser/language/android:jni_headers",
+       "//chrome/browser/lifetime/android:jni_headers",
+diff --git a/chrome/browser/bookmarks/android/BUILD.gn b/chrome/browser/bookmarks/android/BUILD.gn
+index 77151468af7a2..acd3fe2db1bb0 100644
+--- a/chrome/browser/bookmarks/android/BUILD.gn
++++ b/chrome/browser/bookmarks/android/BUILD.gn
+@@ -6,7 +6,10 @@ import("//build/config/android/rules.gni")
+ import("//third_party/jni_zero/jni_zero.gni")
+ 
+ source_set("android") {
+-  sources = [ "bookmark_bridge.h" ]
++  sources = [
++    "bookmark_bridge.h",
++    "bookmark_import_export_helper.h",
++  ]
+   public_deps = [
+     "//base",
+     "//chrome/browser/partnerbookmarks:android",
+@@ -24,7 +27,10 @@ source_set("android") {
+ }
+ 
+ source_set("impl") {
+-  sources = [ "bookmark_bridge.cc" ]
++  sources = [
++    "bookmark_bridge.cc",
++    "bookmark_import_export_helper.cc",
++  ]
+   public_deps = [ "//chrome/browser:browser_public_dependencies" ]
+   deps = [
+     ":android",
+diff --git a/chrome/browser/bookmarks/android/bookmark_bridge.cc b/chrome/browser/bookmarks/android/bookmark_bridge.cc
+index 093adb2a96569..c22f215444831 100644
+--- a/chrome/browser/bookmarks/android/bookmark_bridge.cc
++++ b/chrome/browser/bookmarks/android/bookmark_bridge.cc
+@@ -37,6 +37,7 @@
+ #include "base/strings/strcat.h"
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/uuid.h"
++#include "chrome/browser/bookmarks/android/bookmark_import_export_helper.h"
+ #include "chrome/browser/bookmarks/bookmark_model_factory.h"
+ #include "chrome/browser/bookmarks/managed_bookmark_service_factory.h"
+ #include "chrome/browser/commerce/shopping_service_factory.h"
+@@ -249,6 +250,8 @@ BookmarkBridge::BookmarkBridge(
+   CHECK(dual_reading_list_model);
+   CHECK(identity_manager_);
+ 
++  bookmark_import_export_helper_ = new BookmarkImportExportHelper(profile);
++
+   load_start_time_ = base::TimeTicks::Now();
+   RecordLoadedStateEnum(LoadedState::kLoadStarted);
+ 
+@@ -1338,6 +1341,34 @@ bool BookmarkBridge::IsBookmarked(JNIEnv* env, const GURL& url) {
+   return !GetMostRecentlyAddedUserBookmarkIdForUrl(env, url).is_null();
+ }
+ 
++void BookmarkBridge::ImportBookmarks(
++    JNIEnv* env,
++    const base::android::JavaParamRef<jobject>& j_window) {
++  DCHECK_CURRENTLY_ON(BrowserThread::UI);
++
++  if (bookmark_import_export_helper_->InProgress()) {
++    VLOG(2) << " Import export already in progress";
++    return;
++  }
++  bookmark_import_export_helper_->SetWindow(
++      ui::WindowAndroid::FromJavaWindowAndroid(j_window));
++  bookmark_import_export_helper_->Import();
++}
++
++void BookmarkBridge::ExportBookmarks(
++    JNIEnv* env,
++    const base::android::JavaParamRef<jobject>& j_window) {
++  DCHECK_CURRENTLY_ON(BrowserThread::UI);
++
++  if (bookmark_import_export_helper_->InProgress()) {
++    VLOG(2) << " Import export already in progress";
++    return;
++  }
++  bookmark_import_export_helper_->SetWindow(
++      ui::WindowAndroid::FromJavaWindowAndroid(j_window));
++  bookmark_import_export_helper_->Export();
++}
++
+ std::u16string BookmarkBridge::GetTitle(const BookmarkNode* node) const {
+   if (partner_bookmarks_shim_->IsPartnerBookmark(node))
+     return partner_bookmarks_shim_->GetTitle(node);
+diff --git a/chrome/browser/bookmarks/android/bookmark_bridge.h b/chrome/browser/bookmarks/android/bookmark_bridge.h
+index 9a958941f0e69..3943a93f48ff5 100644
+--- a/chrome/browser/bookmarks/android/bookmark_bridge.h
++++ b/chrome/browser/bookmarks/android/bookmark_bridge.h
+@@ -38,6 +38,7 @@
+ #include "url/android/gurl_android.h"
+ 
+ class BookmarkBridgeTest;
++class BookmarkImportExportHelper;
+ 
+ // Values for a bitmask used to refer to a collection of bookmark nodes.
+ // GENERATED_JAVA_ENUM_PACKAGE: org.chromium.chrome.browser.bookmarks
+@@ -283,6 +284,12 @@ class BookmarkBridge : public ProfileObserver,
+ 
+   bool IsBookmarked(JNIEnv* env, const GURL& url);
+ 
++  void ImportBookmarks(JNIEnv* env,
++                       const base::android::JavaParamRef<jobject>& j_window);
++
++  void ExportBookmarks(JNIEnv* env,
++                       const base::android::JavaParamRef<jobject>& j_window);
++
+   std::u16string GetTitle(const bookmarks::BookmarkNode* node) const;
+ 
+   // ProfileObserver override
+@@ -411,6 +418,8 @@ class BookmarkBridge : public ProfileObserver,
+   raw_ptr<ReadingListModel> account_reading_list_model_;  // weak
+   raw_ptr<signin::IdentityManager> identity_manager_;  // weak
+ 
++  scoped_refptr<BookmarkImportExportHelper> bookmark_import_export_helper_;
++
+   // Observes the profile destruction and creation.
+   base::ScopedObservation<Profile, ProfileObserver> profile_observation_{this};
+   base::ScopedObservation<bookmarks::BookmarkModel,
+diff --git a/chrome/browser/bookmarks/android/bookmark_import_export_helper.cc b/chrome/browser/bookmarks/android/bookmark_import_export_helper.cc
+new file mode 100644
+index 0000000000000..cd6bccc12d009
+--- /dev/null
++++ b/chrome/browser/bookmarks/android/bookmark_import_export_helper.cc
+@@ -0,0 +1,166 @@
++#include "chrome/browser/bookmarks/android/bookmark_import_export_helper.h"
++
++#include "base/i18n/file_util_icu.h"
++#include "base/i18n/time_formatting.h"
++#include "base/path_service.h"
++#include "base/task/thread_pool.h"
++#include "chrome/browser/bookmarks/bookmark_html_writer.h"
++#include "chrome/browser/importer/external_process_importer_host.h"
++#include "chrome/browser/importer/profile_writer.h"
++#include "chrome/browser/ui/chrome_select_file_policy.h"
++#include "chrome/grit/generated_resources.h"
++#include "chrome/utility/importer/bookmarks_file_importer.h"
++#include "components/bookmarks/common/bookmark_pref_names.h"
++#include "components/user_prefs/user_prefs.h"
++#include "content/public/browser/browser_thread.h"
++#include "ui/base/l10n/l10n_util.h"
++#include "ui/gfx/native_ui_types.h"
++#include "ui/shell_dialogs/select_file_policy.h"
++#include "ui/shell_dialogs/selected_file_info.h"
++
++namespace {
++// Generates a default path (including a default filename) that will be
++// used for pre-populating the "Export Bookmarks" file chooser dialog box.
++base::FilePath GetDefaultFilepathForBookmarkExport() {
++  base::Time time = base::Time::Now();
++
++  // Concatenate a date stamp to the filename.
++  std::string filename =
++      l10n_util::GetStringFUTF8(IDS_EXPORT_BOOKMARKS_DEFAULT_FILENAME,
++                                base::TimeFormatShortDateNumeric(time));
++  base::FilePath path = base::FilePath::FromUTF8Unsafe(filename);
++  base::FilePath::StringType path_str = path.value();
++  base::i18n::ReplaceIllegalCharactersInPath(&path_str, '_');
++  path = base::FilePath(path_str);
++
++  base::FilePath default_path;
++  base::PathService::Get(chrome::DIR_USER_DOCUMENTS, &default_path);
++  return default_path.Append(path);
++}
++}  // namespace
++
++BookmarkImportExportHelper::BookmarkImportExportHelper(Profile* profile)
++    : profile_(profile) {}
++
++bool BookmarkImportExportHelper::Import() {
++  if (!EditBookmarksEnabled()) {
++    LOG(WARNING) << __func__ << " bookmark edit not enabled";
++  }
++  if (!window_) {
++    LOG(WARNING) << __func__ << " no window available";
++    return false;
++  }
++
++  is_import_ = true;
++
++  ShowSelectFileDialog(ui::SelectFileDialog::SELECT_OPEN_FILE,
++                       base::FilePath());
++  return true;
++}
++
++bool BookmarkImportExportHelper::Export() {
++  if (!window_) {
++    LOG(WARNING) << __func__ << " no window available";
++    return false;
++  }
++  is_import_ = false;
++
++  base::ThreadPool::PostTaskAndReplyWithResult(
++      FROM_HERE,
++      {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
++       base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
++      base::BindOnce(&GetDefaultFilepathForBookmarkExport),
++      base::BindOnce(&BookmarkImportExportHelper::ShowSelectFileDialog, this,
++                     ui::SelectFileDialog::SELECT_SAVEAS_FILE));
++
++  return true;
++}
++
++void BookmarkImportExportHelper::SetWindow(ui::WindowAndroid* window) {
++  window_ = window;
++}
++
++bool BookmarkImportExportHelper::InProgress() {
++  return !!select_file_dialog_;
++}
++
++BookmarkImportExportHelper::~BookmarkImportExportHelper() {
++  if (select_file_dialog_.get()) {
++    select_file_dialog_->ListenerDestroyed();
++  }
++}
++
++  // ui::SelectFileDialog::Listener:
++void BookmarkImportExportHelper::FileSelected(const ui::SelectedFileInfo& file,
++                                              int index) {
++  if (is_import_) {
++    ImportFileSelected(file, index);
++  } else {
++    ExportFileSelected(file, index);
++  }
++}
++
++void BookmarkImportExportHelper::FileSelectionCanceled() {
++  CleanupFileDialog();
++}
++
++void BookmarkImportExportHelper::ImportFileSelected(
++    const ui::SelectedFileInfo& file,
++    int index) {
++  user_data_importer::SourceProfile source_profile;
++  source_profile.importer_type = user_data_importer::TYPE_BOOKMARKS_FILE;
++  source_profile.source_path = file.path();
++
++  ExternalProcessImporterHost* importer_host = new ExternalProcessImporterHost;
++  importer_host->StartImportSettings(source_profile, profile_,
++                                     user_data_importer::FAVORITES,
++                                     new ProfileWriter(profile_));
++
++  CleanupFileDialog();
++}
++
++void BookmarkImportExportHelper::ExportFileSelected(
++    const ui::SelectedFileInfo& file,
++    int index) {
++  bookmark_html_writer::WriteBookmarks(profile_, file.path(),
++                                       base::DoNothing());
++  CleanupFileDialog();
++}
++
++void BookmarkImportExportHelper::ShowSelectFileDialog(
++    ui::SelectFileDialog::Type type,
++    const base::FilePath& default_path) {
++  // Early return if the select file dialog is already active.
++  if (select_file_dialog_) {
++    return;
++  }
++
++  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
++
++  // Balanced in one of the callbacks of SelectFileDialog:
++  // either FileSelectionCanceled, or FileSelected
++  AddRef();
++
++  select_file_dialog_ = ui::SelectFileDialog::Create(
++      this, std::make_unique<ChromeSelectFilePolicy>(nullptr));
++  ui::SelectFileDialog::FileTypeInfo file_type_info;
++  file_type_info.extensions.resize(1);
++  file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("html"));
++
++  select_file_dialog_->SelectFile(type, std::u16string(), default_path,
++                                  &file_type_info, 0,
++                                  base::FilePath::StringType(), window_);
++}
++
++void BookmarkImportExportHelper::CleanupFileDialog() {
++  if (select_file_dialog_) {
++    select_file_dialog_->ListenerDestroyed();
++  }
++  select_file_dialog_.reset();
++  Release();  // Balanced in ShowSelectFileDialog().
++}
++
++bool BookmarkImportExportHelper::EditBookmarksEnabled() {
++  PrefService* prefs = user_prefs::UserPrefs::Get(profile_);
++  return prefs->GetBoolean(bookmarks::prefs::kEditBookmarksEnabled);
++}
+diff --git a/chrome/browser/bookmarks/android/bookmark_import_export_helper.h b/chrome/browser/bookmarks/android/bookmark_import_export_helper.h
+new file mode 100644
+index 0000000000000..d002fb069ae2c
+--- /dev/null
++++ b/chrome/browser/bookmarks/android/bookmark_import_export_helper.h
+@@ -0,0 +1,53 @@
++
++#include "base/memory/raw_ptr.h"
++#include "base/memory/ref_counted.h"
++#include "chrome/browser/profiles/profile.h"
++#include "chrome/common/chrome_paths.h"
++#include "chrome/grit/generated_resources.h"
++#include "components/prefs/pref_service.h"
++#include "ui/android/window_android.h"
++#include "ui/shell_dialogs/select_file_dialog.h"
++
++class BookmarkImportExportHelper
++    : public ui::SelectFileDialog::Listener,
++      public base::RefCountedThreadSafe<BookmarkImportExportHelper> {
++ public:
++  BookmarkImportExportHelper(Profile* profile);
++
++  bool Import();
++
++  bool Export();
++
++  void SetWindow(ui::WindowAndroid* window);
++
++  bool InProgress();
++
++ private:
++  friend class base::RefCountedThreadSafe<BookmarkImportExportHelper>;
++
++  ~BookmarkImportExportHelper() override;
++
++  // ui::SelectFileDialog::Listener:
++  void FileSelected(const ui::SelectedFileInfo& file, int index) override;
++
++  void FileSelectionCanceled() override;
++
++  void ImportFileSelected(const ui::SelectedFileInfo& file, int index);
++
++  void ExportFileSelected(const ui::SelectedFileInfo& file, int index);
++
++  void ShowSelectFileDialog(ui::SelectFileDialog::Type type,
++                            const base::FilePath& default_path);
++
++  void CleanupFileDialog();
++
++  bool EditBookmarksEnabled();
++
++  scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
++
++  raw_ptr<Profile> profile_ = nullptr;
++
++  raw_ptr<ui::WindowAndroid> window_ = nullptr;
++
++  bool is_import_ = true;
++};
+diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
+index d783f43cafa76..a87819a832232 100644
+--- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
++++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
+@@ -31,6 +31,7 @@ import org.chromium.components.bookmarks.BookmarkItem;
+ import org.chromium.components.bookmarks.BookmarkType;
+ import org.chromium.components.power_bookmarks.PowerBookmarkMeta;
+ import org.chromium.components.power_bookmarks.PowerBookmarkType;
++import org.chromium.ui.base.WindowAndroid;
+ import org.chromium.url.GURL;
+ 
+ import java.util.ArrayList;
+@@ -890,6 +891,18 @@ class BookmarkBridge {
+         return BookmarkBridgeJni.get().isBookmarked(mNativeBookmarkBridge, url);
+     }
+ 
++    public void importBookmarks(WindowAndroid window) {
++        ThreadUtils.assertOnUiThread();
++        if (mNativeBookmarkBridge == 0) return;
++        BookmarkBridgeJni.get().importBookmarks(mNativeBookmarkBridge, window);
++    }
++
++    public void exportBookmarks(WindowAndroid window) {
++        ThreadUtils.assertOnUiThread();
++        if (mNativeBookmarkBridge == 0) return;
++        BookmarkBridgeJni.get().exportBookmarks(mNativeBookmarkBridge, window);
++    }
++
+     public @Nullable BookmarkId getPartnerFolderId() {
+         ThreadUtils.assertOnUiThread();
+         if (mNativeBookmarkBridge == 0) return null;
+@@ -1196,5 +1209,9 @@ class BookmarkBridge {
+         void reorderChildren(long nativeBookmarkBridge, BookmarkId parent, long[] orderedNodes);
+ 
+         boolean isBookmarked(long nativeBookmarkBridge, @JniType("GURL") GURL url);
++
++        void importBookmarks(long nativeBookmarkBridge, WindowAndroid window);
++
++        void exportBookmarks(long nativeBookmarkBridge, WindowAndroid window);
+     }
+ }
+diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
+index 09197aa848047..5093b03cb84f1 100644
+--- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
++++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
+@@ -56,6 +56,7 @@ import org.chromium.components.image_fetcher.ImageFetcher;
+ import org.chromium.components.image_fetcher.ImageFetcherConfig;
+ import org.chromium.components.image_fetcher.ImageFetcherFactory;
+ import org.chromium.ui.KeyboardVisibilityDelegate;
++import org.chromium.ui.base.WindowAndroid;
+ import org.chromium.ui.edge_to_edge.EdgeToEdgePadAdjuster;
+ import org.chromium.ui.modaldialog.ModalDialogManager;
+ import org.chromium.ui.modaldialog.ModalDialogManager.ModalDialogType;
+@@ -159,7 +160,8 @@ public class BookmarkManagerCoordinator
+             BookmarkManagerOpener bookmarkManagerOpener,
+             PriceDropNotificationManager priceDropNotificationManager,
+             @Nullable Function<View, EdgeToEdgePadAdjuster> edgeToEdgePadAdjusterGenerator,
+-            @Nullable BackPressManager backPressManager) {
++            @Nullable BackPressManager backPressManager,
++            @Nullable WindowAndroid window) {
+         mContext = context;
+         mProfile = profile;
+         mImageFetcher =
+@@ -223,7 +225,8 @@ public class BookmarkManagerCoordinator
+                         this::onEndSearch,
+                         () -> IncognitoUtils.isIncognitoModeEnabled(profile),
+                         bookmarkManagerOpener,
+-                        /* nextFocusableView= */ mMainView.findViewById(R.id.list_content));
++                        /* nextFocusableView= */ mMainView.findViewById(R.id.list_content),
++                        window);
+         mSelectableListLayout.configureWideDisplayStyle();
+ 
+         final @BookmarkRowDisplayPref int displayPref =
+diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPage.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPage.java
+index 1645ecb12d8c5..737084c8fbe1c 100644
+--- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPage.java
++++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPage.java
+@@ -4,10 +4,13 @@
+ 
+ package org.chromium.chrome.browser.bookmarks;
+ 
++import android.app.Activity;
+ import android.content.ComponentName;
+ 
++import org.chromium.base.ApplicationStatus;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
++import org.chromium.chrome.browser.ChromeTabbedActivity;
+ import org.chromium.chrome.browser.back_press.BackPressManager;
+ import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
+ import org.chromium.chrome.browser.price_tracking.PriceDropNotificationManagerFactory;
+@@ -62,7 +65,8 @@ public class BookmarkPage extends BasicNativePage {
+                         new BookmarkManagerOpenerImpl(),
+                         PriceDropNotificationManagerFactory.create(profile),
+                         host::createEdgeToEdgePadAdjuster,
+-                        backPressManager);
++                        backPressManager,
++                        getChromeTabbedActivity().getWindowAndroid());
+ 
+         mBookmarkManagerCoordinator.setBasicNativePage(this);
+         initWithView(mBookmarkManagerCoordinator.getView());
+@@ -70,6 +74,16 @@ public class BookmarkPage extends BasicNativePage {
+         setBackPressHandler(mBookmarkManagerCoordinator, backPressManager);
+     }
+ 
++    private static ChromeTabbedActivity getChromeTabbedActivity() {
++        for (Activity ref : ApplicationStatus.getRunningActivities()) {
++            if (!ChromeTabbedActivity.class.isInstance(ref)) continue;
++
++            return (ChromeTabbedActivity) ref;
++        }
++
++        return null;
++    }
++
+     @Override
+     public String getTitle() {
+         return mTitle;
+diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPane.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPane.java
+index b14acb496adac..880a577184f0d 100644
+--- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPane.java
++++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPane.java
+@@ -37,6 +37,7 @@ import org.chromium.chrome.browser.profiles.ProfileProvider;
+ import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
+ import org.chromium.components.browser_ui.widget.MenuOrKeyboardActionController.MenuOrKeyboardActionHandler;
+ import org.chromium.components.embedder_support.util.UrlConstants;
++import org.chromium.ui.base.WindowAndroid;
+ 
+ import java.util.function.DoubleConsumer;
+ 
+@@ -69,6 +70,8 @@ public class BookmarkPane implements Pane {
+     private @Nullable BookmarkManagerCoordinator mBookmarkManager;
+     private @Nullable BookmarkOpener mBookmarkOpener;
+ 
++    private @Nullable WindowAndroid mWindow;
++
+     /**
+      * @param onToolbarAlphaChange Observer to notify when alpha changes during animations.
+      * @param activity Used as a dependency to BookmarkManager.
+@@ -79,7 +82,8 @@ public class BookmarkPane implements Pane {
+             DoubleConsumer onToolbarAlphaChange,
+             Activity activity,
+             SnackbarManager snackbarManager,
+-            OneshotSupplier<ProfileProvider> profileProviderSupplier) {
++            OneshotSupplier<ProfileProvider> profileProviderSupplier,
++            WindowAndroid window) {
+         mOnToolbarAlphaChange = onToolbarAlphaChange;
+         mReferenceButtonSupplier.set(
+                 new ResourceButtonData(
+@@ -91,6 +95,7 @@ public class BookmarkPane implements Pane {
+         mActivity = activity;
+         mSnackbarManager = snackbarManager;
+         mProfileProviderSupplier = profileProviderSupplier;
++        mWindow = window;
+     }
+ 
+     @Override
+@@ -149,7 +154,8 @@ public class BookmarkPane implements Pane {
+                             PriceDropNotificationManagerFactory.create(originalProfile),
+                             // TODO(crbug.com/427776544): make bookmark pane support edge to edge.
+                             /* edgeToEdgePadAdjusterGenerator= */ null,
+-                            /* backPressManager= */ null);
++                            /* backPressManager= */ null,
++                            mWindow);
+             mBookmarkManager.updateForUrl(UrlConstants.BOOKMARKS_NATIVE_URL);
+             mRootView.addView(mBookmarkManager.getView());
+         } else if (loadHint == LoadHint.COLD) {
+diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java
+index de9f33e4980f4..444625dcefbf2 100644
+--- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java
++++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java
+@@ -16,6 +16,7 @@ import org.chromium.components.browser_ui.widget.dragreorder.DragReorderableRecy
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectableListLayout;
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectableListToolbar.SearchDelegate;
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectionDelegate;
++import org.chromium.ui.base.WindowAndroid;
+ import org.chromium.ui.modaldialog.ModalDialogManager;
+ import org.chromium.ui.modelutil.PropertyModel;
+ import org.chromium.ui.modelutil.PropertyModelChangeProcessor;
+@@ -44,7 +45,8 @@ public class BookmarkToolbarCoordinator {
+             Runnable endSearchRunnable,
+             BooleanSupplier incognitoEnabledSupplier,
+             BookmarkManagerOpener bookmarkManagerOpener,
+-            View nextFocusableView) {
++            View nextFocusableView,
++            WindowAndroid window) {
+         mToolbar =
+                 (BookmarkToolbar)
+                         selectableListLayout.initializeToolbar(
+@@ -77,7 +79,8 @@ public class BookmarkToolbarCoordinator {
+                 new BookmarkAddNewFolderCoordinator(context, modalDialogManager, bookmarkModel),
+                 endSearchRunnable,
+                 incognitoEnabledSupplier,
+-                bookmarkManagerOpener);
++                bookmarkManagerOpener,
++                window);
+ 
+         PropertyModelChangeProcessor.create(mModel, mToolbar, BookmarkToolbarViewBinder::bind);
+     }
+diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
+index 4e365c896969b..1869c9a1a537a 100644
+--- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
++++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
+@@ -31,6 +31,7 @@ import org.chromium.components.browser_ui.widget.dragreorder.DragReorderableRecy
+ import org.chromium.components.browser_ui.widget.dragreorder.DragReorderableRecyclerViewAdapter.DragListener;
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectableListToolbar.NavigationButton;
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectionDelegate;
++import org.chromium.ui.base.WindowAndroid;
+ import org.chromium.ui.modelutil.PropertyModel;
+ 
+ import java.util.Arrays;
+@@ -83,6 +84,7 @@ class BookmarkToolbarMediator
+     private final Runnable mEndSearchRunnable;
+     private final BooleanSupplier mIncognitoEnabledSupplier;
+     private final BookmarkManagerOpener mBookmarkManagerOpener;
++    private final WindowAndroid mWindow;
+ 
+     // TODO(crbug.com/40255666): Remove reference to BookmarkDelegate if possible.
+     private @Nullable BookmarkDelegate mBookmarkDelegate;
+@@ -103,10 +105,12 @@ class BookmarkToolbarMediator
+             BookmarkAddNewFolderCoordinator bookmarkAddNewFolderCoordinator,
+             Runnable endSearchRunnable,
+             BooleanSupplier incognitoEnabledSupplier,
+-            BookmarkManagerOpener bookmarkManagerOpener) {
++            BookmarkManagerOpener bookmarkManagerOpener,
++            WindowAndroid window) {
+         mContext = context;
+         mProfile = profile;
+         mModel = model;
++        mWindow = window;
+ 
+         mModel.set(BookmarkToolbarProperties.MENU_ID_CLICKED_FUNCTION, this::onMenuIdClick);
+         mDragReorderableRecyclerViewAdapter = dragReorderableRecyclerViewAdapter;
+@@ -249,6 +253,12 @@ class BookmarkToolbarMediator
+             }
+             mSelectionDelegate.clearSelection();
+             return true;
++        } else if (id == R.id.import_bookmarks) {
++            mBookmarkModel.importBookmarks(mWindow);
++            return true;
++        } else if (id == R.id.export_bookmarks) {
++            mBookmarkModel.exportBookmarks(mWindow);
++            return true;
+         }
+ 
+         assert false : "Unhandled menu click.";
+diff --git a/chrome/browser/importer/BUILD.gn b/chrome/browser/importer/BUILD.gn
+index 0ad7c3c675297..d737b4917cd90 100644
+--- a/chrome/browser/importer/BUILD.gn
++++ b/chrome/browser/importer/BUILD.gn
+@@ -2,7 +2,7 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-assert(is_win || is_mac || is_linux || is_chromeos)
++assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+ 
+ source_set("importer") {
+   sources = [
+@@ -70,6 +70,36 @@ source_set("impl") {
+   }
+ }
+ 
++source_set("vanadium_impl") {
++  public_deps = [ "//chrome/browser:browser_public_dependencies" ]
++
++  sources = [
++    "external_process_importer_client.cc",
++    "external_process_importer_host.cc",
++    "firefox_profile_lock.cc",
++    "firefox_profile_lock_posix.cc",
++    "importer_list.cc",
++    "importer_uma.cc",
++    "in_process_importer_bridge.cc",
++    "profile_writer.cc",
++  ]
++
++  deps = [
++    ":importer",
++    "//chrome/browser:shell_integration",
++    "//chrome/browser/favicon",
++    "//chrome/browser/history",
++    "//chrome/browser/profiles:profile",
++    "//chrome/browser/search_engines",
++    "//chrome/browser/webdata_services",
++    "//chrome/common/importer:interfaces",
++    "//chrome/utility",
++    "//components/bookmarks/browser",
++    "//components/bookmarks/common",
++    "//components/favicon/core",
++  ]
++}
++
+ source_set("browser_tests") {
+   testonly = true
+   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+diff --git a/chrome/browser/importer/external_process_importer_client.cc b/chrome/browser/importer/external_process_importer_client.cc
+index 6ee7a959fde3e..c03839f45faaf 100644
+--- a/chrome/browser/importer/external_process_importer_client.cc
++++ b/chrome/browser/importer/external_process_importer_client.cc
+@@ -42,7 +42,11 @@ void ExternalProcessImporterClient::Start() {
+   content::ServiceProcessHost::Launch(
+       profile_import_.BindNewPipeAndPassReceiver(),
+       content::ServiceProcessHost::Options()
++#if !BUILDFLAG(IS_ANDROID)
+           .WithDisplayName(IDS_UTILITY_PROCESS_PROFILE_IMPORTER_NAME)
++#else
++          .WithDisplayName(u"Profile Importer")
++#endif
+ #if BUILDFLAG(IS_MAC)
+           // Importing from Firefox involves loading a Firefox dylib into the
+           // importer service process. Use the child process that doesn't
+@@ -56,6 +60,7 @@ void ExternalProcessImporterClient::Start() {
+   // Dictionary of all localized strings that could be needed by the importer
+   // in the external process.
+   base::flat_map<uint32_t, std::string> localized_strings;
++#if !BUILDFLAG(IS_ANDROID)
+   localized_strings.try_emplace(IDS_BOOKMARK_GROUP,
+                                 l10n_util::GetStringUTF8(IDS_BOOKMARK_GROUP));
+   localized_strings.try_emplace(
+@@ -75,6 +80,7 @@ void ExternalProcessImporterClient::Start() {
+   localized_strings.try_emplace(
+       IDS_BOOKMARK_BAR_FOLDER_NAME,
+       l10n_util::GetStringUTF8(IDS_BOOKMARK_BAR_FOLDER_NAME));
++#endif
+ 
+   // If the utility process hasn't started yet the message will queue until it
+   // does.
+diff --git a/chrome/browser/importer/external_process_importer_host.cc b/chrome/browser/importer/external_process_importer_host.cc
+index 8a1d68e110774..5717c7e5f375f 100644
+--- a/chrome/browser/importer/external_process_importer_host.cc
++++ b/chrome/browser/importer/external_process_importer_host.cc
+@@ -130,10 +130,12 @@ void ExternalProcessImporterHost::OnTemplateURLServiceLoaded() {
+ 
+ void ExternalProcessImporterHost::ShowWarningDialog() {
+   DCHECK(!headless_);
++#if !BUILDFLAG(IS_ANDROID)
+   importer::ShowImportLockDialog(
+       parent_window_,
+       base::BindOnce(&ExternalProcessImporterHost::OnImportLockDialogEnd,
+                      weak_ptr_factory_.GetWeakPtr()));
++#endif
+ }
+ 
+ void ExternalProcessImporterHost::OnImportLockDialogEnd(bool is_continue) {
+diff --git a/chrome/browser/importer/importer_list.cc b/chrome/browser/importer/importer_list.cc
+index 62546b572bab8..b527d40135e30 100644
+--- a/chrome/browser/importer/importer_list.cc
++++ b/chrome/browser/importer/importer_list.cc
+@@ -188,8 +188,12 @@ std::vector<user_data_importer::SourceProfile> DetectSourceProfilesWorker(
+ #endif
+   if (include_interactive_profiles) {
+     user_data_importer::SourceProfile bookmarks_profile;
++#if !BUILDFLAG(IS_ANDROID)
+     bookmarks_profile.importer_name =
+         l10n_util::GetStringUTF16(IDS_IMPORT_FROM_BOOKMARKS_HTML_FILE);
++#else
++    bookmarks_profile.importer_name = u"Bookmarks HTML File";
++#endif
+     bookmarks_profile.importer_type = user_data_importer::TYPE_BOOKMARKS_FILE;
+     bookmarks_profile.services_supported = user_data_importer::FAVORITES;
+     profiles.push_back(bookmarks_profile);
+diff --git a/chrome/browser/importer/in_process_importer_bridge.cc b/chrome/browser/importer/in_process_importer_bridge.cc
+index fbb20f1ae0668..0d061402bdb30 100644
+--- a/chrome/browser/importer/in_process_importer_bridge.cc
++++ b/chrome/browser/importer/in_process_importer_bridge.cc
+@@ -102,11 +102,13 @@ std::unique_ptr<TemplateURL> CreateTemplateURL(const std::u16string& url,
+ 
+ }  // namespace
+ 
++InProcessImporterBridge::InProcessImporterBridge(ProfileWriter* writer)
++    : writer_(writer) {}
++
+ InProcessImporterBridge::InProcessImporterBridge(
+     ProfileWriter* writer,
+-    base::WeakPtr<ExternalProcessImporterHost> host) : writer_(writer),
+-                                                       host_(host) {
+-}
++    base::WeakPtr<ExternalProcessImporterHost> host)
++    : writer_(writer), host_(host) {}
+ 
+ void InProcessImporterBridge::AddBookmarks(
+     const std::vector<user_data_importer::ImportedBookmarkEntry>& bookmarks,
+diff --git a/chrome/browser/importer/in_process_importer_bridge.h b/chrome/browser/importer/in_process_importer_bridge.h
+index 61190844025f0..70079a6c92130 100644
+--- a/chrome/browser/importer/in_process_importer_bridge.h
++++ b/chrome/browser/importer/in_process_importer_bridge.h
+@@ -23,6 +23,8 @@ struct ImportedBookmarkEntry;
+ 
+ class InProcessImporterBridge : public ImporterBridge {
+  public:
++  InProcessImporterBridge(ProfileWriter* writer);
++
+   InProcessImporterBridge(ProfileWriter* writer,
+                           base::WeakPtr<ExternalProcessImporterHost> host);
+ 
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 915efb0127751..393deb7fd9529 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -4711,6 +4711,12 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
+       <message name="IDS_SORT_BY_LAST_OPENED"  desc="Option in the bookmarks manager to sort by last opened. [CHAR_LIMIT=24]">
+         Sort by last opened
+       </message>
++      <message name="IDS_IMPORT_BOOKMARKS"  desc="Import bookmarks from a file. [CHAR_LIMIT=24]">
++        Import bookmarks
++      </message>
++      <message name="IDS_EXPORT_BOOKMARKS"  desc="Export bookmarks to a file. [CHAR_LIMIT=24]">
++        Export bookmarks
++      </message>
+       <message name="IDS_SORT_BY_LAST_OPENED_ANNOUNCEMENT"  desc="Accessibility announcement in the bookmarks manager when sorting by last opened.">
+         Sorting by last opened
+       </message>
+diff --git a/chrome/common/importer/BUILD.gn b/chrome/common/importer/BUILD.gn
+index 6008173451433..62748161290a7 100644
+--- a/chrome/common/importer/BUILD.gn
++++ b/chrome/common/importer/BUILD.gn
+@@ -88,6 +88,12 @@ source_set("importer") {
+     "importer_bridge.h",
+     "pstore_declarations.h",
+   ]
++  if (is_android) {
++    sources -= [
++      "firefox_importer_utils.cc",
++      "firefox_importer_utils.h",
++    ]
++  }
+   if (is_chromeos || is_linux) {
+     sources += [ "firefox_importer_utils_linux.cc" ]
+   } else if (is_mac) {
+diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
+index 708d3db9a2b7d..6807d6a2fce4d 100644
+--- a/chrome/utility/BUILD.gn
++++ b/chrome/utility/BUILD.gn
+@@ -86,7 +86,7 @@ static_library("utility") {
+     deps += [ "//chrome/services/mac_notifications" ]
+   }
+ 
+-  if (!is_android) {
++  if (true) {
+     sources += [
+       "importer/bookmarks_file_importer.cc",
+       "importer/bookmarks_file_importer.h",
+@@ -99,7 +99,7 @@ static_library("utility") {
+       "importer/profile_import_impl.cc",
+       "importer/profile_import_impl.h",
+     ]
+-    if (!is_chromeos) {
++    if (!is_chromeos && !is_android) {
+       sources += [
+         "importer/firefox_importer.cc",
+         "importer/firefox_importer.h",
+@@ -111,7 +111,7 @@ static_library("utility") {
+         "importer/safari_importer.mm",
+       ]
+     }
+-    if (!is_mac && !is_chromeos) {
++    if (!is_mac && !is_chromeos && !is_android) {
+       # NSS decryptor is not needed on ChromeOS. Additionally, it depends on
+       # system NSS that is unavailable on MacOS/Fuchsia.
+       sources += [
+@@ -145,6 +145,9 @@ static_library("utility") {
+       "//services/proxy_resolver:lib",
+       "//services/screen_ai",
+     ]
++    if (is_android) {
++      deps -= [ "//services/screen_ai" ]
++    }
+   }
+ 
+   if (enable_extensions) {
+diff --git a/chrome/utility/importer/bookmarks_file_importer.cc b/chrome/utility/importer/bookmarks_file_importer.cc
+index 531abb2ea2fbf..1158e323c40f5 100644
+--- a/chrome/utility/importer/bookmarks_file_importer.cc
++++ b/chrome/utility/importer/bookmarks_file_importer.cc
+@@ -103,8 +103,8 @@ void BookmarksFileImporter::StartImport(
+       user_data_importer::ParseBookmarksUnsafe(raw_html);
+ 
+   if (!parsed_bookmarks.bookmarks.empty()) {
+-    std::u16string first_folder_name =
+-        bridge_->GetLocalizedString(IDS_BOOKMARK_GROUP);
++    std::u16string first_folder_name = u"Imported";
++    // bridge_->GetLocalizedString(IDS_BOOKMARK_GROUP);
+     std::erase_if(parsed_bookmarks.bookmarks,
+                   [](user_data_importer::ImportedBookmarkEntry bookmark) {
+                     return !internal::CanImportURL(bookmark.url);
+diff --git a/chrome/utility/importer/importer_creator.cc b/chrome/utility/importer/importer_creator.cc
+index 5f8f27c70bafe..ec2eb79f70948 100644
+--- a/chrome/utility/importer/importer_creator.cc
++++ b/chrome/utility/importer/importer_creator.cc
+@@ -36,7 +36,7 @@ scoped_refptr<Importer> CreateImporterByType(
+ #endif
+     case user_data_importer::TYPE_BOOKMARKS_FILE:
+       return new BookmarksFileImporter();
+-#if !BUILDFLAG(IS_CHROMEOS)
++#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
+     case user_data_importer::TYPE_FIREFOX:
+       return new FirefoxImporter();
+ #endif
+diff --git a/chrome/utility/services.cc b/chrome/utility/services.cc
+index 89429e8048537..fae129e84b43c 100644
+--- a/chrome/utility/services.cc
++++ b/chrome/utility/services.cc
+@@ -54,6 +54,9 @@
+ #include "chrome/services/system_signals/linux/linux_system_signals_service.h"
+ #endif  // BUILDFLAG(IS_LINUX)
+ 
++#include "chrome/common/importer/profile_import.mojom.h"
++#include "chrome/utility/importer/profile_import_impl.h"
++
+ #if !BUILDFLAG(IS_ANDROID)
+ #include "chrome/common/importer/profile_import.mojom.h"
+ #include "chrome/utility/importer/profile_import_impl.h"
+@@ -224,6 +227,11 @@ auto RunSystemSignalsService(
+ }
+ #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
+ 
++auto RunProfileImporter(
++    mojo::PendingReceiver<chrome::mojom::ProfileImport> receiver) {
++  return std::make_unique<ProfileImportImpl>(std::move(receiver));
++}
++
+ #if !BUILDFLAG(IS_ANDROID)
+ auto RunProxyResolver(
+     mojo::PendingReceiver<proxy_resolver::mojom::ProxyResolverFactory>
+@@ -441,6 +449,8 @@ void RegisterMainThreadServices(mojo::ServiceFactory& services) {
+   services.Add(RunCSVPasswordParser);
+   services.Add(ContentBookmarkParser);
+ 
++  services.Add(RunProfileImporter);
++
+ #if !BUILDFLAG(IS_ANDROID)
+   services.Add(RunProfileImporter);
+   services.Add(RunMirroringService);
+-- 
+2.51.0
+
