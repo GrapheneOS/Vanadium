@@ -1,13 +1,13 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Thu, 8 Feb 2024 15:22:13 +0000
-Subject: [PATCH] config: test: Add ConfigInfo on necessary integration test
- targets
+Subject: [PATCH] config: test: Add ConfigInfo on necessary test targets
 
 ---
  chrome/android/chrome_public_apk_tmpl.gni | 6 ++++++
+ content/test/BUILD.gn                     | 6 ++++++
  net/android/BUILD.gn                      | 4 ++++
- 2 files changed, 10 insertions(+)
+ 3 files changed, 16 insertions(+)
 
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
 index 7772f678b898b..ae4bc8048b73f 100644
@@ -25,6 +25,23 @@ index 7772f678b898b..ae4bc8048b73f 100644
 +    ]
    }
  }
+diff --git a/content/test/BUILD.gn b/content/test/BUILD.gn
+index dfd3674692bc9..8146142a25bec 100644
+--- a/content/test/BUILD.gn
++++ b/content/test/BUILD.gn
+@@ -1445,6 +1445,12 @@ if (is_android) {
+       "//testing/android/native_test:native_browser_test_java",
+       "//ui/android:ui_java",
+     ]
++    if (!defined(srcjar_deps)) {
++      srcjar_deps = []
++    }
++    srcjar_deps += [
++      "//vanadium/android_config:configinfo_srcjar_apk",
++    ]
+   }
+ 
+   android_resources("content_browsertests_resources") {
 diff --git a/net/android/BUILD.gn b/net/android/BUILD.gn
 index bb8c0ff76784e..defec20fae53d 100644
 --- a/net/android/BUILD.gn
