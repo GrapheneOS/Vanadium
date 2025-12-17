@@ -254,6 +254,28 @@ index 4de13fe88bee9..59c8b3c2a59c5 100644
  #include "sandbox/policy/linux/bpf_speech_recognition_policy_linux.h"
  #include "sandbox/policy/linux/bpf_utility_policy_linux.h"
 +#include "third_party/blink/public/common/switches.h"
++
++namespace {
++// Helper to check if V8 is running in jitless mode.
++// When jitless, dynamic code generation can be blocked via seccomp.
++bool IsJitlessModeEnabled() {
++  const base::CommandLine& command_line =
++      *base::CommandLine::ForCurrentProcess();
++  if (!command_line.HasSwitch(blink::switches::kJavaScriptFlags)) {
++    return false;
++  }
++  std::string js_flags =
++      command_line.GetSwitchValueASCII(blink::switches::kJavaScriptFlags);
++  std::vector<std::string_view> js_flag_list = base::SplitStringPiece(
++      js_flags, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
++  for (const auto& js_flag : js_flag_list) {
++    if (js_flag == "--jitless") {
++      return true;
++    }
++  }
++  return false;
++}
++}  // namespace
  
  #if BUILDFLAG(IS_CHROMEOS)
  #include "sandbox/policy/features.h"
@@ -263,26 +285,8 @@ index 4de13fe88bee9..59c8b3c2a59c5 100644
        return GetGpuProcessSandbox(options, MremapPolicy::kBlock);
 -    case sandbox::mojom::Sandbox::kRenderer:
 -      return std::make_unique<RendererProcessPolicy>();
-+    case sandbox::mojom::Sandbox::kRenderer: {
-+      const base::CommandLine& command_line =
-+          *base::CommandLine::ForCurrentProcess();
-+      bool dynamic_code_can_be_disabled = false;
-+      if (command_line.HasSwitch(blink::switches::kJavaScriptFlags)) {
-+        std::string js_flags =
-+            command_line.GetSwitchValueASCII(blink::switches::kJavaScriptFlags);
-+        std::vector<std::string_view> js_flag_list = base::SplitStringPiece(
-+            js_flags, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
-+        for (const auto& js_flag : js_flag_list) {
-+          if (js_flag == "--jitless") {
-+            // If v8 is running jitless then there is no need for the ability to
-+            // mark writable pages as executable to be available to the process.
-+            dynamic_code_can_be_disabled = true;
-+            break;
-+          }
-+        }
-+      }
-+      return std::make_unique<RendererProcessPolicy>(dynamic_code_can_be_disabled);
-+    }
++    case sandbox::mojom::Sandbox::kRenderer:
++      return std::make_unique<RendererProcessPolicy>(IsJitlessModeEnabled());
      case sandbox::mojom::Sandbox::kOnDeviceModelExecution:
        return GetGpuProcessSandbox(options, MremapPolicy::kAllow);
      case sandbox::mojom::Sandbox::kUtility:
@@ -294,26 +298,8 @@ index 4de13fe88bee9..59c8b3c2a59c5 100644
 -    case sandbox::mojom::Sandbox::kServiceWithJit:
 -      return std::make_unique<ServiceProcessPolicy>();
 +      return std::make_unique<ServiceProcessPolicy>(true);
-+    case sandbox::mojom::Sandbox::kServiceWithJit: {
-+      const base::CommandLine& command_line =
-+          *base::CommandLine::ForCurrentProcess();
-+      bool dynamic_code_can_be_disabled = false;
-+      if (command_line.HasSwitch(blink::switches::kJavaScriptFlags)) {
-+        std::string js_flags =
-+            command_line.GetSwitchValueASCII(blink::switches::kJavaScriptFlags);
-+        std::vector<std::string_view> js_flag_list = base::SplitStringPiece(
-+            js_flags, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
-+        for (const auto& js_flag : js_flag_list) {
-+          if (js_flag == "--jitless") {
-+            // If v8 is running jitless then there is no need for the ability to
-+            // mark writable pages as executable to be available to the process.
-+            dynamic_code_can_be_disabled = true;
-+            break;
-+          }
-+        }
-+      }
-+      return std::make_unique<ServiceProcessPolicy>(dynamic_code_can_be_disabled);
-+    }
++    case sandbox::mojom::Sandbox::kServiceWithJit:
++      return std::make_unique<ServiceProcessPolicy>(IsJitlessModeEnabled());
      case sandbox::mojom::Sandbox::kSpeechRecognition:
        return std::make_unique<SpeechRecognitionProcessPolicy>();
  #if BUILDFLAG(IS_LINUX)
