@@ -4,10 +4,11 @@ Date: Thu, 8 Feb 2024 15:22:13 +0000
 Subject: [PATCH] config: test: Add ConfigInfo on necessary test targets
 
 ---
- chrome/android/chrome_public_apk_tmpl.gni | 6 ++++++
- content/test/BUILD.gn                     | 6 ++++++
- net/android/BUILD.gn                      | 4 ++++
- 3 files changed, 16 insertions(+)
+ chrome/android/chrome_public_apk_tmpl.gni |  6 ++++++
+ content/shell/android/BUILD.gn            |  7 +++++++
+ net/android/BUILD.gn                      |  4 ++++
+ testing/test.gni                          | 16 ++++++++++++++++
+ 4 files changed, 33 insertions(+)
 
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
 index 7772f678b898b..ae4bc8048b73f 100644
@@ -25,23 +26,24 @@ index 7772f678b898b..ae4bc8048b73f 100644
 +    ]
    }
  }
-diff --git a/content/test/BUILD.gn b/content/test/BUILD.gn
-index dfd3674692bc9..8146142a25bec 100644
---- a/content/test/BUILD.gn
-+++ b/content/test/BUILD.gn
-@@ -1445,6 +1445,12 @@ if (is_android) {
-       "//testing/android/native_test:native_browser_test_java",
+diff --git a/content/shell/android/BUILD.gn b/content/shell/android/BUILD.gn
+index d4dfdf1d080c3..74caf5631cde3 100644
+--- a/content/shell/android/BUILD.gn
++++ b/content/shell/android/BUILD.gn
+@@ -204,6 +204,13 @@ template("content_shell_apk_tmpl") {
        "//ui/android:ui_java",
+       "//ui/gl:gl_headers",
      ]
 +    if (!defined(srcjar_deps)) {
-+      srcjar_deps = []
++      srcjar_deps = [
++      ]
 +    }
 +    srcjar_deps += [
 +      "//vanadium/android_config:configinfo_srcjar_apk",
 +    ]
+     loadable_modules = [ "$root_out_dir/libchrome_crashpad_handler.so" ]
    }
- 
-   android_resources("content_browsertests_resources") {
+ }
 diff --git a/net/android/BUILD.gn b/net/android/BUILD.gn
 index bb8c0ff76784e..defec20fae53d 100644
 --- a/net/android/BUILD.gn
@@ -57,3 +59,37 @@ index bb8c0ff76784e..defec20fae53d 100644
  }
  
  android_resources("net_unittests_apk_resources") {
+diff --git a/testing/test.gni b/testing/test.gni
+index 288236a7b1585..40d0417297fe4 100644
+--- a/testing/test.gni
++++ b/testing/test.gni
+@@ -621,6 +621,14 @@ template("test") {
+                 ] + _apk_specific_vars + _wrapper_script_vars +
+                 TESTONLY_AND_VISIBILITY)
+ 
++        if (!defined(srcjar_deps)) {
++          srcjar_deps = [
++          ]
++        }
++        srcjar_deps += [
++          "//vanadium/android_config:configinfo_srcjar_apk",
++        ]
++
+         # Use a crate name that avoids creating a warning due to double
+         # underscore (ie. `__`).
+         crate_name = _library_crate_name
+@@ -656,6 +664,14 @@ template("test") {
+           srcjar_deps = [ "${shared_library}__jni_registration" ]
+         }
+ 
++        if (!defined(srcjar_deps)) {
++          srcjar_deps = [
++          ]
++        }
++        srcjar_deps += [
++          "//vanadium/android_config:configinfo_srcjar_apk",
++        ]
++
+         if (defined(invoker.deps)) {
+           deps = invoker.deps
+         } else {

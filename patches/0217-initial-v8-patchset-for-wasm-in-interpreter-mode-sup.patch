@@ -6,9 +6,9 @@ Subject: [PATCH] initial v8 patchset for wasm in interpreter mode support
 Wasm in interpreter mode is implemented via DrumBrake, maintained by the
 Microsoft Edge DrumBrake WebAssembly developer team.
 ---
- ...e-Android-in-supported-platform-for-.patch | 22 +++++++++++++
- ...e-support-for-32-bit-binary-compilat.patch | 32 +++++++++++++++++++
- 2 files changed, 54 insertions(+)
+ ...e-Android-in-supported-platform-for-.patch | 22 +++++++++++++++
+ ...e-support-for-32-bit-binary-compilat.patch | 28 +++++++++++++++++++
+ 2 files changed, 50 insertions(+)
  create mode 100644 vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch
  create mode 100644 vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
 
@@ -42,10 +42,10 @@ index 0000000000000..85fa4817cf732
 + # Turbofan is enabled by default, except in lite mode.
 diff --git a/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch b/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
 new file mode 100644
-index 0000000000000..3d33e7c4070d4
+index 0000000000000..c0708e8620b25
 --- /dev/null
 +++ b/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,28 @@
 +From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 +From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 +Date: Wed, 7 Aug 2024 04:53:11 +0000
@@ -56,10 +56,10 @@ index 0000000000000..3d33e7c4070d4
 + 1 file changed, 12 insertions(+)
 +
 +diff --git a/BUILD.gn b/BUILD.gn
-+index 23a6f6bfdd2..4ec6d3787c6 100644
++index ac3e13fc216..85100d3b2ab 100644
 +--- a/BUILD.gn
 ++++ b/BUILD.gn
-+@@ -545,6 +545,18 @@ if (v8_enable_snapshot_native_code_counters == "") {
++@@ -552,6 +552,14 @@ if (v8_enable_snapshot_native_code_counters == "") {
 +   v8_enable_snapshot_native_code_counters = v8_enable_debugging_features
 + }
 + 
@@ -67,10 +67,6 @@ index 0000000000000..3d33e7c4070d4
 ++  if (v8_current_cpu == "arm" || v8_current_cpu == "x86") {
 ++    if (v8_enable_drumbrake) {
 ++      v8_enable_drumbrake = false
-++    }
-++
-++    if (v8_enable_pointer_compression_shared_cage != false) {
-++      v8_enable_pointer_compression_shared_cage = false
 ++    }
 ++  }
 ++}
