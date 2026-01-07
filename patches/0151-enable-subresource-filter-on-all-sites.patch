@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Thu, 22 Aug 2019 01:24:00 -0400
+Subject: [PATCH] enable subresource filter on all sites
+
+---
+ .../core/browser/subresource_filter_features.cc     | 13 ++++++++++++-
+ .../core/browser/subresource_filter_features.h      |  2 ++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/components/subresource_filter/core/browser/subresource_filter_features.cc b/components/subresource_filter/core/browser/subresource_filter_features.cc
+index 3386229935ce3..3934d293879f7 100644
+--- a/components/subresource_filter/core/browser/subresource_filter_features.cc
++++ b/components/subresource_filter/core/browser/subresource_filter_features.cc
+@@ -136,7 +136,9 @@ std::vector<Configuration> FillEnabledPresetConfigurations(
+       {kPresetPerformanceTestingDryRunOnAllSites, ad_tagging_enabled,
+        &Configuration::MakePresetForPerformanceTestingDryRunOnAllSites},
+       {kPresetLiveRunForBetterAds, true,
+-       &Configuration::MakePresetForLiveRunForBetterAds}};
++       &Configuration::MakePresetForLiveRunForBetterAds},
++      {kPresetLiveRunOnAllSites, true,
++       &Configuration::MakePresetForLiveRunOnAllSites}};
+ 
+   CommaSeparatedStrings enabled_presets(
+       TakeVariationParamOrReturnEmpty(params, kEnablePresetsParameterName));
+@@ -286,6 +288,7 @@ const char kPresetPerformanceTestingDryRunOnAllSites[] =
+     "performance_testing_dryrun_on_all_sites";
+ const char kPresetLiveRunForBetterAds[] =
+     "liverun_on_better_ads_violating_sites";
++const char kPresetLiveRunOnAllSites[] = "liverun_on_all_sites";
+ 
+ // Configuration --------------------------------------------------------------
+ 
+@@ -316,6 +319,14 @@ Configuration Configuration::MakePresetForLiveRunForBetterAds() {
+   return config;
+ }
+ 
++// static
++Configuration Configuration::MakePresetForLiveRunOnAllSites() {
++  Configuration config(mojom::ActivationLevel::kEnabled,
++                       ActivationScope::ALL_SITES);
++  config.activation_conditions.priority = 600;
++  return config;
++}
++
+ Configuration::Configuration() = default;
+ Configuration::Configuration(mojom::ActivationLevel activation_level,
+                              ActivationScope activation_scope,
+diff --git a/components/subresource_filter/core/browser/subresource_filter_features.h b/components/subresource_filter/core/browser/subresource_filter_features.h
+index 4e627279693e6..4e51177236a24 100644
+--- a/components/subresource_filter/core/browser/subresource_filter_features.h
++++ b/components/subresource_filter/core/browser/subresource_filter_features.h
+@@ -125,6 +125,7 @@ struct Configuration {
+   static Configuration MakePresetForLiveRunOnPhishingSites();
+   static Configuration MakePresetForPerformanceTestingDryRunOnAllSites();
+   static Configuration MakePresetForLiveRunForBetterAds();
++  static Configuration MakePresetForLiveRunOnAllSites();
+ 
+   ActivationConditions activation_conditions;
+   ActivationOptions activation_options;
+@@ -231,6 +232,7 @@ extern const char kDisablePresetsParameterName[];
+ extern const char kPresetLiveRunOnPhishingSites[];
+ extern const char kPresetPerformanceTestingDryRunOnAllSites[];
+ extern const char kPresetLiveRunForBetterAds[];
++extern const char kPresetLiveRunOnAllSites[];
+ 
+ }  // namespace subresource_filter
+ 

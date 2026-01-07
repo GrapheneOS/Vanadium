@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 6 May 2025 13:53:08 +0000
+Subject: [PATCH] Support to automatically apply patches to some subprojects
+
+---
+ DEPS                                         | 10 +++++
+ vanadium/common/apply_subprojects_patches.py | 46 ++++++++++++++++++++
+ 2 files changed, 56 insertions(+)
+ create mode 100644 vanadium/common/apply_subprojects_patches.py
+
+diff --git a/DEPS b/DEPS
+index f6d9d2f2d6a62..9e30df3484ead 100644
+--- a/DEPS
++++ b/DEPS
+@@ -4843,6 +4843,16 @@ hooks = [
+               '--urls',
+               'https://easylist.to/easylistgermany/easylistgermany.txt']
+   },
++  {
++    'name': 'apply_subprojects_patches',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/common/apply_subprojects_patches.py',
++              '--base_patch_dir',
++              'src/vanadium/subprojects_patches',
++              '--src_dir',
++              'src']
++  },
+ 
+ ]
+ 
+diff --git a/vanadium/common/apply_subprojects_patches.py b/vanadium/common/apply_subprojects_patches.py
+new file mode 100644
+index 0000000000000..291a15d801e0c
+--- /dev/null
++++ b/vanadium/common/apply_subprojects_patches.py
+@@ -0,0 +1,46 @@
++#!/usr/bin/env python3
++
++import argparse
++import os
++import pathlib
++import subprocess
++import sys
++
++
++subprojects_dir_to_patches_dir = {
++}
++
++
++def ApplySubprojectPatches(args):
++    src_dir = args.src_dir
++    base_patch_dir = args.base_patch_dir
++    for subproject_dir_rel_src in subprojects_dir_to_patches_dir:
++        subproject_patches_rel_src = subprojects_dir_to_patches_dir[subproject_dir_rel_src]
++        subproject_dir = os.path.join(src_dir, subproject_dir_rel_src)
++        if os.path.exists(os.path.join(subproject_dir, '.git/rebase-apply')):
++            am_abort_cmd = ['git', '-C', str(subproject_dir), 'am', '--abort']
++            print(f"aborting previous patch application for {subproject_dir_rel_src}")
++            subprocess.run(am_abort_cmd).check_returncode()
++        # Rough check for now when patches are applied manually or automatically in subproject
++        diff_check_cmd = ['git', '-C', str(src_dir), 'diff', '--', str(subproject_dir_rel_src)]
++        diff_check_output = subprocess.check_output(diff_check_cmd)
++        if diff_check_output.decode() != "":
++            print('Skipping patch application to subproject directory: '
++                  + str(subproject_dir_rel_src) + ', already applied patches via hooks')
++            continue
++        patches_dir_path = pathlib.Path(os.path.join(base_patch_dir, subproject_patches_rel_src))
++        patches_paths = sorted(patches_dir_path.glob('*.patch'))
++        for patches_path in patches_paths:
++            patches_path_abs = os.path.abspath(patches_path)
++            git_am_cmd = ['git', '-C', str(subproject_dir),
++                          'am', '--whitespace=nowarn', '--keep-non-patch', patches_path_abs]
++            subprocess.run(git_am_cmd).check_returncode()
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--src_dir', required=True,
++                        help='Relative directory for chromium src dir')
++    parser.add_argument('--base_patch_dir', required=True,
++                        help='Base directory where subproject patches are found')
++    ApplySubprojectPatches(parser.parse_args(sys.argv[1:]))

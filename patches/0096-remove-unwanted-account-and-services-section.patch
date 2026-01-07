@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 20 Aug 2021 16:13:42 +0000
+Subject: [PATCH] remove unwanted account and services section
+
+---
+ .../src/org/chromium/chrome/browser/settings/MainSettings.java  | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index a6d31bc5e88c6..aacf50edb0c76 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -388,6 +388,8 @@ public class MainSettings extends ChromeBaseSettingsFragment
+ 
+         SettingsExtUtils.safelyRemovePreference(this, "safety_check");
+         SettingsExtUtils.safelyRemovePreference(this, PREF_SAFETY_HUB);
++        SettingsExtUtils.safelyRemovePreference(this, PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION);
++        SettingsExtUtils.safelyRemovePreference(this, PREF_GOOGLE_SERVICES);
+     }
+ 
+     /**

@@ -40,22 +40,22 @@ index 9ef39f6192263..e1ef09e03b5fe 100644
      map->Add<payments::mojom::PaymentRequest>(
          &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
 diff --git a/android_webview/common/aw_feature_map.cc b/android_webview/common/aw_feature_map.cc
-index 45b4f62fdfdfc..b06b3feb59123 100644
+index eaf32e97d9204..405cd765f0413 100644
 --- a/android_webview/common/aw_feature_map.cc
 +++ b/android_webview/common/aw_feature_map.cc
-@@ -54,6 +54,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -51,6 +51,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &features::kWebViewHyperlinkContextMenu,
      &features::kWebViewInvokeZoomPickerOnGSU,
      &features::kWebViewLazyFetchHandWritingIcon,
 +    &features::kWebViewMediaIntegrityApiBlinkExtension,
      &features::kWebViewMixedContentAutoupgrades,
      &features::kWebViewMoveWorkToProviderInit,
-     &features::kWebViewMuteAudio,
+     &features::kWebViewOptInToGmsBindServiceOptimization,
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index b18bf6fe4a63f..a5243c3ba6bd1 100644
+index 046804a879862..f68dde5a76179 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -66,6 +66,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -47,6 +47,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kWebViewLazyFetchHandWritingIcon,
               base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -68,22 +68,22 @@ index b18bf6fe4a63f..a5243c3ba6bd1 100644
  // over HTTP on HTTPS sites) will be autoupgraded to HTTPS, and the load will be
  // blocked if the resource fails to load over HTTPS. This only affects apps that
 diff --git a/android_webview/common/aw_features.h b/android_webview/common/aw_features.h
-index 86863aea4b4bd..598142351ff92 100644
+index 9e34164142791..b225b6a3b2fc7 100644
 --- a/android_webview/common/aw_features.h
 +++ b/android_webview/common/aw_features.h
-@@ -28,6 +28,7 @@ BASE_DECLARE_FEATURE(kWebViewFileSystemAccess);
+@@ -24,6 +24,7 @@ BASE_DECLARE_FEATURE(kWebViewFileSystemAccess);
  BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
  BASE_DECLARE_FEATURE(kWebViewInvokeZoomPickerOnGSU);
  BASE_DECLARE_FEATURE(kWebViewLazyFetchHandWritingIcon);
 +BASE_DECLARE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension);
  BASE_DECLARE_FEATURE(kWebViewMixedContentAutoupgrades);
- BASE_DECLARE_FEATURE(kWebViewMuteAudio);
  BASE_DECLARE_FEATURE(kWebViewRenderDocument);
+ BASE_DECLARE_FEATURE(kWebViewTestFeature);
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-index 7e153afa09daa..15e685cf0e0cf 100644
+index 986ef05e2a753..db3aa564d419f 100644
 --- a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
 +++ b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-@@ -646,6 +646,10 @@ public final class ProductionSupportedFlagList {
+@@ -635,6 +635,10 @@ public final class ProductionSupportedFlagList {
          Flag.baseFeature("V8ScavengerHigherCapacity"),
          Flag.baseFeature("V8IncrementalMarkingStartUserVisible"),
          Flag.baseFeature("V8ExternalMemoryAccountedInGlobalLimit"),
@@ -384,11 +384,11 @@ index 492b3c7a409fa..3a7cfab121ebf 100644
          MockTokenProvider mockTokenProvider = new MockTokenProvider();
          mPlatformBridge.addProviderResponse(
 diff --git a/android_webview/renderer/aw_content_renderer_client.cc b/android_webview/renderer/aw_content_renderer_client.cc
-index 57ccb24bc9e4b..bb1f6b4f6d40b 100644
+index 9a09c8c44c7d0..2207b8119b93c 100644
 --- a/android_webview/renderer/aw_content_renderer_client.cc
 +++ b/android_webview/renderer/aw_content_renderer_client.cc
-@@ -228,10 +228,13 @@ void AwContentRendererClient::
-     blink::WebRuntimeFeatures::EnableSharedAutofill(true);
+@@ -232,10 +232,13 @@ void AwContentRendererClient::
+     blink::WebRuntimeFeatures::EnableManualText(true);
    }
  
 -  // Enable the overall android.webview namespace.

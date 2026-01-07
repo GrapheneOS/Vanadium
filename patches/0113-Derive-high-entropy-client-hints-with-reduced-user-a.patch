@@ -1,0 +1,114 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 12 Nov 2023 04:26:12 +0000
+Subject: [PATCH] Derive high entropy client hints with reduced user agent by
+ default
+
+This patchset adds support to disable high entropy client hints or to
+populate some of it with information derived from reduced user agent in
+Android.
+---
+ .../embedder_support/user_agent_utils.cc      | 29 +++++++++++++++++++
+ content/browser/client_hints/client_hints.cc  | 14 +++++++++
+ third_party/blink/common/features.cc          |  8 +++++
+ third_party/blink/public/common/features.h    |  3 ++
+ 4 files changed, 54 insertions(+)
+
+diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
+index e2e1c68ab7d87..9f60748d59461 100644
+--- a/components/embedder_support/user_agent_utils.cc
++++ b/components/embedder_support/user_agent_utils.cc
+@@ -691,6 +691,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
+                : metadata;
+   }
+ 
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsLowEntropyOnly)) {
++    return metadata;
++  }
++
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsFromReducedUA)) {
++    // Values reflected from reduced user agent obtained from
++    // GetReducedUserAgent from //content/common/user_agent.cc
++    std::string reduced_version_number =
++        base::StrCat({version_info::GetMajorVersionNumber(), ".0.",
++                      blink::features::kUserAgentFrozenBuildVersion.Get(), ".0"});
++    // See GetFormFactorsForClientHints. Do not include XR Form Factor.
++    // By default, use "Mobile" or "Desktop" depending on the `mobile` bit.
++    std::vector<std::string> form_factors = {
++        metadata.mobile ? blink::kMobileFormFactor : blink::kDesktopFormFactor};
++    metadata.brand_full_version_list =
++        GetUserAgentBrandList(version_info::GetMajorVersionNumber(),
++                              reduced_version_number,
++                              blink::UserAgentBrandVersionType::kFullVersion,
++                              std::nullopt);
++    // Only based on low-entropy client hints for mobile, keep the same logic.
++    metadata.form_factors = form_factors;
++    metadata.model = "K";
++    metadata.platform_version = "10.0.0";
++    metadata.full_version = reduced_version_number;
++    return metadata;
++  }
++
+   if (only_low_entropy_ch) {
+     return metadata;
+   }
+diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
+index 7dd544f2ac121..278ec3daf0f4b 100644
+--- a/content/browser/client_hints/client_hints.cc
++++ b/content/browser/client_hints/client_hints.cc
+@@ -861,6 +861,20 @@ void AddRequestClientHintsHeaders(
+ 
+   GURL url = origin.GetURL();
+ 
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsLowEntropyOnly)) {
++    return;
++  }
++
++  if (base::FeatureList::IsEnabled(
++          blink::features::kClientHintsFromReducedUA)) {
++    UpdateNavigationRequestClientUaHeadersImpl(
++        delegate, is_ua_override_on, frame_tree_node,
++        ClientUaHeaderCallType::kDuringCreation, headers, container_policy,
++        data, frame_tree_node);
++    return;
++  }
++
+   // Add Headers
+   if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
+     AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 31e802dadc861..4a23bbcdd23d8 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -375,6 +375,14 @@ BASE_FEATURE(kCaptureJSExecutionLocation, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ 
++// Enable low-entropy client hints only.
++BASE_FEATURE(kClientHintsLowEntropyOnly,
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
++// Use information from reduced user agent for high entropy client hints.
++BASE_FEATURE(kClientHintsFromReducedUA,
++            base::FEATURE_ENABLED_BY_DEFAULT);
++
+ BASE_FEATURE(kClearSiteDataPrefetchPrerenderCache,
+              base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
+index 0c17c6fa3bdec..4bdd1f6a18267 100644
+--- a/third_party/blink/public/common/features.h
++++ b/third_party/blink/public/common/features.h
+@@ -234,6 +234,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+ // If enabled, the HTMLDocumentParser will only check its budget after parsing a
+ // commonly slow token or for one out of 10 fast tokens.
+ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
++ 
++BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsLowEntropyOnly);
++BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsFromReducedUA);
+ 
+ // If enabled, the Clear-Site-Data header will handle "prefetchCache" and
+ // "prerenderCache" to clear the Prefetch and Prerender caches respectively.

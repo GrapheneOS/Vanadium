@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 10 Apr 2024 16:16:57 +0000
+Subject: [PATCH] content-filtering: Add support for updating content filtering
+ when accept-language is changed
+
+---
+ chrome/browser/language/android/BUILD.gn                        | 1 +
+ .../browser/language/settings/ContentLanguagesPreference.java   | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/chrome/browser/language/android/BUILD.gn b/chrome/browser/language/android/BUILD.gn
+index f14de26f34585..9cf5100ad8662 100644
+--- a/chrome/browser/language/android/BUILD.gn
++++ b/chrome/browser/language/android/BUILD.gn
+@@ -57,6 +57,7 @@ android_library("java") {
+     "//chrome/browser/preferences:pref_service_java",
+     "//chrome/browser/profiles/android:java",
+     "//chrome/browser/settings:java",
++    "//chrome/browser/subresource_filter/android:java",
+     "//chrome/browser/tab:java",
+     "//chrome/browser/ui/messages/android:java",
+     "//chrome/browser/util:java",
+diff --git a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
+index 77cf49968c74a..12f878611276e 100644
+--- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
++++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
+@@ -26,6 +26,7 @@ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.language.R;
+ import org.chromium.chrome.browser.preferences.Pref;
+ import org.chromium.chrome.browser.profiles.Profile;
++import org.chromium.chrome.browser.subresource_filter.RulesetUpdater;
+ import org.chromium.chrome.browser.translate.TranslateBridge;
+ import org.chromium.components.browser_ui.styles.SemanticColorUtils;
+ import org.chromium.components.browser_ui.widget.BrowserUiListMenuUtils;
+@@ -159,6 +160,7 @@ public class ContentLanguagesPreference extends Preference {
+             }
+             setDisplayedLanguages(
+                     LanguagesManager.getForProfile(getProfile()).getUserAcceptLanguageItems());
++            RulesetUpdater.update(/* ignoreVersionCheck */ true);
+         }
+     }
+ 

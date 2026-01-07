@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 25 Mar 2025 09:17:53 +0000
+Subject: [PATCH] Fix versionCode for 64-bit only builds
+
+---
+ chrome/version.gni | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/version.gni b/chrome/version.gni
+index e99d5631e71fa..ec39dc47824bd 100644
+--- a/chrome/version.gni
++++ b/chrome/version.gni
+@@ -420,9 +420,9 @@ if (is_android) {
+         }
+       } else {
+         if (_use_stable_package_name_for_trichrome) {
+-          true_true_true_false = trichrome_beta_version_code
++          true_true_true_false = trichrome_64_beta_version_code
+         } else {
+-          true_true_true_false = trichrome_version_code
++          true_true_true_false = trichrome_64_version_code
+         }
+       }
+     } else {
+@@ -444,7 +444,7 @@ if (is_android) {
+         true_true_true_false = monochrome_64_version_code
+         true_false_false_true = monochrome_32_version_code
+       } else {
+-        true_true_true_false = monochrome_version_code
++        true_true_true_false = monochrome_64_version_code
+       }
+     } else {
+       false_false_false_true = monochrome_version_code
+@@ -485,9 +485,9 @@ if (is_android) {
+         }
+       } else {
+         if (_use_beta_version_code) {
+-          true_true_true_false = webview_beta_version_code
++          true_true_true_false = webview_64_beta_version_code
+         } else {
+-          true_true_true_false = webview_stable_version_code
++          true_true_true_false = webview_64_stable_version_code
+         }
+       }
+     } else {

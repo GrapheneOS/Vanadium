@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 9 Jan 2024 08:48:45 +0000
+Subject: [PATCH] Add hooks for LibraryLoader on early initialization and
+ command line switches
+
+---
+ .../base/library_loader/LibraryLoader.java        |  8 ++++++++
+ .../base/library_loader/LibraryLoaderHooks.java   | 15 +++++++++++++++
+ base/base_android_library_ext.gni                 |  1 +
+ 3 files changed, 24 insertions(+)
+ create mode 100644 base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
+index f3a2e35b0dc03..b8862ab496011 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
+@@ -430,6 +430,7 @@ public class LibraryLoader {
+                             mLibraryProcessType, type));
+         }
+         mLibraryProcessType = type;
++        LibraryLoaderHooks.onSetLibraryProcessType(ContextUtils.getApplicationContext(), type);
+     }
+ 
+     public @LibraryProcessType int getLibraryProcessType() {
+@@ -748,6 +749,13 @@ public class LibraryLoader {
+         if (!CommandLine.isInitialized()) {
+             CommandLine.init(null);
+         }
++
++        if (!CommandLine.hasSwitchedToNative()) {
++            LibraryLoaderHooks.onBeforeCommandLineSwitchLocked(ContextUtils.getApplicationContext(), mLibraryProcessType);
++        } else {
++            LibraryLoaderHooks.onSubsequentCommandLineSwitchLockedCheck(ContextUtils.getApplicationContext(), mLibraryProcessType);
++        }
++
+         CommandLine.getInstance().switchToNativeImpl();
+     }
+ 
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+new file mode 100644
+index 0000000000000..255768f85f8fd
+--- /dev/null
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -0,0 +1,15 @@
++package org.chromium.base.library_loader;
++
++import android.content.Context;
++
++class LibraryLoaderHooks {
++
++    static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
++    }
++
++    static void onBeforeCommandLineSwitchLocked(Context appContext, @LibraryProcessType int type) {
++    }
++
++    static void onSubsequentCommandLineSwitchLockedCheck(Context appContext, @LibraryProcessType int type) {
++    }
++}
+diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
+index 777621c412fdb..a88ac1113d759 100644
+--- a/base/base_android_library_ext.gni
++++ b/base/base_android_library_ext.gni
+@@ -13,6 +13,7 @@ base_java_ext_srcjar_deps = [
+ 
+ base_library_loader_java_ext_java_sources = [
+   "android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
++  "android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java",
+ ]
+ 
+ base_library_loader_java_ext_deps = [

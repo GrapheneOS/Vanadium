@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 9 Jan 2024 05:58:19 +0000
+Subject: [PATCH] Extension of build system for java files in base layer
+
+---
+ base/BUILD.gn                     | 10 ++++++++++
+ base/base_android_library_ext.gni | 21 +++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
+ create mode 100644 base/base_android_library_ext.gni
+
+diff --git a/base/BUILD.gn b/base/BUILD.gn
+index 0ff3813afa3c0..b37f03ea87d70 100644
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -4801,6 +4801,11 @@ if (is_android) {
+       ":wrapped_class_loader_java",
+     ]
+ 
++    import("base_android_library_ext.gni")
++    sources += base_java_ext_java_sources
++    deps += base_java_ext_deps
++    srcjar_deps += base_java_ext_srcjar_deps
++
+     if (!is_cronet_build) {
+       proguard_configs += [
+         "android/proguard/chromium_apk.flags",
+@@ -5370,6 +5375,11 @@ if (is_android) {
+       "//third_party/androidx:androidx_annotation_annotation_java",
+       "//third_party/jni_zero:jni_zero_java",
+     ]
++
++    import("base_android_library_ext.gni")
++    sources += base_library_loader_java_ext_java_sources
++    deps += base_library_loader_java_ext_deps
++    srcjar_deps += base_library_loader_java_ext_srcjar_deps
+   }
+ 
+   generate_jni("base_shared_preferences_jni") {
+diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
+new file mode 100644
+index 0000000000000..38ead26ee277d
+--- /dev/null
++++ b/base/base_android_library_ext.gni
+@@ -0,0 +1,21 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_java_ext_java_sources = [
++]
++
++base_java_ext_deps = [
++]
++
++base_java_ext_srcjar_deps = [
++]
++
++base_library_loader_java_ext_java_sources = [
++]
++
++base_library_loader_java_ext_deps = [
++]
++
++base_library_loader_java_ext_srcjar_deps = [
++]

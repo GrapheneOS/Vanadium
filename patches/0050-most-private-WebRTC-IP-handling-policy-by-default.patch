@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 21 May 2020 12:58:04 -0400
+Subject: [PATCH] most private WebRTC IP handling policy by default
+
+---
+ chrome/browser/ui/browser_ui_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_ui_prefs.cc
+index ac94e7b124c72..e19b719e2aa37 100644
+--- a/chrome/browser/ui/browser_ui_prefs.cc
++++ b/chrome/browser/ui/browser_ui_prefs.cc
+@@ -144,7 +144,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+                                 false);
+ #endif
+   registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
+-                               blink::kWebRTCIPHandlingDefault);
++                               blink::kWebRTCIPHandlingDisableNonProxiedUdp);
+   registry->RegisterListPref(prefs::kWebRTCIPHandlingUrl, base::Value::List());
+   registry->RegisterBooleanPref(prefs::kWebRTCPostQuantumKeyAgreement, false);
+   registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());

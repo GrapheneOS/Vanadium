@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <quh4gko8.vanadium@gmail.com>
+Date: Thu, 23 Oct 2025 10:31:32 +0000
+Subject: [PATCH] Allow registration of passkeys regardless of residentKey
+ value
+
+---
+ .../components/webauthn/Fido2CredentialRequest.java         | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java b/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
+index ebf448ae5ac96..06802cca64a6f 100644
+--- a/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
++++ b/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
+@@ -391,8 +391,10 @@ public class Fido2CredentialRequest
+         //
+         // Payments requests are also routed to Play Services since we haven't
+         // defined how SPC works in CredMan yet.
+-        if (!rkDiscouraged
+-                && !options.isPaymentCredentialCreation
++        //
++        // Downstream change: Always send to Android 14+ CredMan even
++        // if residentKey=discouraged
++        if (!options.isPaymentCredentialCreation
+                 && getBarrierMode() == Barrier.Mode.ONLY_CRED_MAN) {
+             int result =
+                     mCredManHelper.startMakeRequest(

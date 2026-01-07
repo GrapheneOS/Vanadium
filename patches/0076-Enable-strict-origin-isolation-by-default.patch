@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: qua3k <cliffmaceyak@gmail.com>
+Date: Thu, 21 Oct 2021 00:00:00 +0000
+Subject: [PATCH] Enable strict origin isolation by default
+
+Upstream is in the process of enabling origin isolation by default
+in the process of deprecating `document.domain`. An insignificant
+number of Chrome page loads use `document.domain`.
+
+See https://crbug.com/1259920 and
+https://chromestatus.com/metrics/feature/timeline/popularity/2544
+for more detail.
+---
+ content/public/common/content_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
+index e3a4a47cfd64c..3e400c39f6a12 100644
+--- a/content/public/common/content_features.cc
++++ b/content/public/common/content_features.cc
+@@ -1017,7 +1017,7 @@ BASE_FEATURE(kSpareRendererForSitePerProcess, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Controls whether site isolation should use origins instead of scheme and
+ // eTLD+1.
+-BASE_FEATURE(kStrictOriginIsolation, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(kStrictOriginIsolation, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // When enabled, RenderWidgetHost in BFCache doesn't contribute to the priority
+ // of the renderer process.

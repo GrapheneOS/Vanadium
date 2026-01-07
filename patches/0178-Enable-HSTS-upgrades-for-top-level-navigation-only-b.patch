@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 17 Dec 2024 13:43:02 +0000
+Subject: [PATCH] Enable HSTS upgrades for top-level navigation only by default
+
+---
+ net/base/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 35f915afd2a7f..a55bf4f9fc291 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -636,7 +636,7 @@ const base::FeatureParam<base::TimeDelta>
+         /*name=*/"SimpleCachePrioritizedCachingPrioritizationPeriod",
+         /*default_value=*/base::Days(1)};
+ 
+-BASE_FEATURE(kHstsTopLevelNavigationsOnly, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(kHstsTopLevelNavigationsOnly, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ #if BUILDFLAG(IS_WIN)
+ BASE_FEATURE(kHttpCacheMappedFileFlushWin, base::FEATURE_DISABLED_BY_DEFAULT);

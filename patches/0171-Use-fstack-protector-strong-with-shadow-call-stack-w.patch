@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 17:22:04 +0000
+Subject: [PATCH] Use -fstack-protector-strong with shadow-call-stack when
+ enabled
+
+---
+ build/config/compiler/BUILD.gn | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 81df62af35d47..69d131019b067 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -443,7 +443,10 @@ config("compiler") {
+ 
+       scs_parameters = [
+         "-fsanitize=shadow-call-stack",
+-        "-fno-stack-protector",
++        # In Vanadium, we always enable fstack protector strong as fallback to SCS.
++        # This is to allow disabling SCS, if and only if necessary, without regressing previous stack protection
++        # on previous releases, and to preserve compatibility with some apps using WebView.
++        "-fstack-protector-strong",
+       ]
+       cflags += scs_parameters
+       ldflags += scs_parameters

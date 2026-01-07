@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: A Mak <refragable@mailbox.org>
+Date: Sat, 8 Aug 2020 11:17:59 -0700
+Subject: [PATCH] disable learn more link in incognito new tab
+
+Change since M139:
+
+Now also hides the not applicable third party cookie card text.
+---
+ .../chrome/browser/ntp/IncognitoDescriptionView.java       | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
+index ec788e96c6e50..f8899a41ca99f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/IncognitoDescriptionView.java
+@@ -418,8 +418,8 @@ public class IncognitoDescriptionView extends LinearLayout {
+                 new ChromeClickableSpan(
+                         mLearnMore.getSpanColor(), (view) -> mLearnMore.callOnClick());
+ 
+-        boolean learnMoreInSubtitle = mWidthDp > WIDE_LAYOUT_THRESHOLD_DP;
+-        mLearnMore.setVisibility(learnMoreInSubtitle ? View.GONE : View.VISIBLE);
++        boolean learnMoreInSubtitle = false;
++        mLearnMore.setVisibility(View.GONE);
+ 
+         if (!learnMoreInSubtitle) {
+             // Format the "Learn more" link.
+@@ -455,6 +455,9 @@ public class IncognitoDescriptionView extends LinearLayout {
+         mCookieControlsCard = findViewById(R.id.tracking_protection_card);
+         // Still null - not inflated yet.
+         if (mCookieControlsCard == null) return;
++        {
++            mCookieControlsCard.setVisibility(View.GONE);
++        }
+         if (mWidthDp <= WIDE_LAYOUT_THRESHOLD_DP) {
+             // Portrait
+             mCookieControlsCard.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;

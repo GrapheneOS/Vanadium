@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 8 Aug 2023 09:10:36 +0000
+Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
+ default
+
+---
+ .../identity_disc/IdentityDiscController.java        | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+index cfdc296a04347..efc59af14b241 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+@@ -70,6 +70,9 @@ public class IdentityDiscController
+                 IdentityManager.Observer,
+                 SyncService.SyncStateChangedListener,
+                 ButtonDataProvider {
++
++    private static final boolean ALLOW_NTP_AVATAR = false;
++
+     // Context is used for fetching resources and launching preferences page.
+     private final Context mContext;
+     private final ObservableSupplier<Profile> mProfileSupplier;
+@@ -145,6 +148,11 @@ public class IdentityDiscController
+             return;
+         }
+ 
++        if (!ALLOW_NTP_AVATAR) {
++            mButtonData.setCanShow(false);
++            return;
++        }
++
+         String email = CoreAccountInfo.getEmailFrom(getSignedInAccountInfo());
+         ensureProfileDataCache(mProfile);
+ 
+@@ -376,6 +384,10 @@ public class IdentityDiscController
+     }
+ 
+     private String getContentDescription(@Nullable String email) {
++        if (!ALLOW_NTP_AVATAR) {
++            return mContext.getString(R.string.accessibility_toolbar_btn_identity_disc);
++        }
++
+         if (email == null) {
+             return mContext.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
+         }

@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 17 Jun 2019 12:03:52 -0400
+Subject: [PATCH] disable search provider logo
+
+---
+ .../android/template_url_service_android.cc   | 24 +------------------
+ 1 file changed, 1 insertion(+), 23 deletions(-)
+
+diff --git a/components/search_engines/android/template_url_service_android.cc b/components/search_engines/android/template_url_service_android.cc
+index 12fa812c35027..c9f3d2b1918c8 100644
+--- a/components/search_engines/android/template_url_service_android.cc
++++ b/components/search_engines/android/template_url_service_android.cc
+@@ -175,29 +175,7 @@ jboolean TemplateUrlServiceAndroid::IsSearchByImageAvailable(JNIEnv* env) {
+ 
+ jboolean TemplateUrlServiceAndroid::DoesDefaultSearchEngineHaveLogo(
+     JNIEnv* env) {
+-  // |kSearchProviderLogoURL| applies to all search engines (Google or
+-  // third-party).
+-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+-          search_provider_logos::switches::kSearchProviderLogoURL)) {
+-    return true;
+-  }
+-
+-  // Google always has a logo.
+-  if (IsDefaultSearchEngineGoogle(env)) {
+-    return true;
+-  }
+-
+-  // Third-party search engines can have a doodle specified via the command
+-  // line, or a static logo or doodle from the TemplateURLService.
+-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+-          search_provider_logos::switches::kThirdPartyDoodleURL)) {
+-    return true;
+-  }
+-  const TemplateURL* default_search_provider =
+-      template_url_service_->GetDefaultSearchProvider();
+-  return default_search_provider &&
+-         (default_search_provider->doodle_url().is_valid() ||
+-          default_search_provider->logo_url().is_valid());
++  return false;
+ }
+ 
+ jboolean TemplateUrlServiceAndroid::IsDefaultSearchEngineGoogle(JNIEnv* env) {

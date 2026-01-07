@@ -1,0 +1,166 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 17 Jun 2022 10:15:43 +0000
+Subject: [PATCH] Toggle for closing tabs on exit
+
+---
+ .../shared_preferences/SharedPrefsUtils.java  |  3 +++
+ chrome/android/chrome_ext_java_sources.gni    |  1 +
+ .../java/res/xml/privacy_preferences_ext.xml  |  5 ++++
+ .../chrome/browser/ChromeTabbedActivity.java  |  1 +
+ .../chrome/browser/TabPreferencesUtils.java   | 24 +++++++++++++++++++
+ .../privacy/settings/PrivacySettingsExt.java  | 16 +++++++++++++
+ .../strings/android_chrome_ext_strings.grdp   |  6 +++++
+ 7 files changed, 56 insertions(+)
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
+
+diff --git a/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java b/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+index d482be2d6cc06..84784f7ec174c 100644
+--- a/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
++++ b/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+@@ -120,6 +120,8 @@ public final class SharedPrefsUtils {
+ 
+     // Stores SharedPreferences keys and its default value
+     public static class SharedPrefsExt {
++        public static final BoolSharedPref CLOSE_TABS_ON_EXIT =
++                new BoolSharedPref("close_tabs_on_exit", false);
+     }
+ 
+     static SharedPreferencesManager getSharedPrefManager() {
+@@ -130,6 +132,7 @@ public final class SharedPrefsUtils {
+     static boolean isKeyInUse(String key) {
+         // clang-format off
+         return Arrays.asList(
++            SharedPrefsExt.CLOSE_TABS_ON_EXIT.getKey()
+         ).contains(key);
+         // clang-format on
+     }
+diff --git a/chrome/android/chrome_ext_java_sources.gni b/chrome/android/chrome_ext_java_sources.gni
+index 598bfaf9cb860..dd9fae38f4152 100644
+--- a/chrome/android/chrome_ext_java_sources.gni
++++ b/chrome/android/chrome_ext_java_sources.gni
+@@ -5,4 +5,5 @@
+ chrome_ext_java_sources = [
+   "java/src/org/chromium/chrome/browser/settings/SettingsExtUtils.java",
+   "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
++  "java/src/org/chromium/chrome/browser/TabPreferencesUtils.java",
+ ]
+diff --git a/chrome/android/java/res/xml/privacy_preferences_ext.xml b/chrome/android/java/res/xml/privacy_preferences_ext.xml
+index 01e8c8217afed..ea1dd6c3f529c 100644
+--- a/chrome/android/java/res/xml/privacy_preferences_ext.xml
++++ b/chrome/android/java/res/xml/privacy_preferences_ext.xml
+@@ -10,5 +10,10 @@ that can be found in the LICENSE file.
+         android:title="@string/improve_search_suggestions_title"
+         android:summary="@string/improve_search_suggestions_summary"
+         android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="close_tabs_on_exit"
++        android:title="@string/close_tabs_on_exit_title"
++        android:summary="@string/close_tabs_on_exit_summary"
++        android:persistent="false"/>
+ </PreferenceScreen>
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index f2fc8f791b7ed..8fd885625dae0 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -2166,6 +2166,7 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+ 
+             boolean noRestoreState =
+                     CommandLine.getInstance().hasSwitch(ChromeSwitches.NO_RESTORE_STATE);
++            noRestoreState |= TabPreferencesUtils.shouldCloseTabsOnExit();
+             boolean shouldShowNtpAsHomeSurfaceAtStartup = false;
+             final AtomicBoolean isActiveUrlNtp = new AtomicBoolean(false);
+             if (noRestoreState) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
+new file mode 100644
+index 0000000000000..57aae64057cfb
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
+@@ -0,0 +1,24 @@
++// Copyright 2023 GrapheneOS
++// Use of this source code is governed by a GPLv2-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.base.shared_preferences.SharedPrefsUtils.SharedPrefsExt;
++import org.chromium.chrome.browser.preferences.Pref;
++import org.chromium.chrome.browser.profiles.Profile;
++import org.chromium.components.prefs.PrefService;
++import org.chromium.components.user_prefs.UserPrefs;
++
++/*
++ * Utility class for modifying tab-related browsing behaviors
++ * based on user preferences.
++ */
++public final class TabPreferencesUtils {
++
++    public static boolean shouldCloseTabsOnExit() {
++        return SharedPrefsExt.CLOSE_TABS_ON_EXIT.get();
++    }
++
++}
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index 46244eecf3e6c..b483c765f76f3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -26,6 +26,7 @@ import org.chromium.components.user_prefs.UserPrefs;
+ final class PrivacySettingsExt {
+ 
+     private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
++    private static final String PREF_CLOSE_TABS_ON_EXIT = SharedPrefsExt.CLOSE_TABS_ON_EXIT.getKey();
+ 
+     private static final Preference.OnPreferenceChangeListener getListener(@NonNull Profile profile) {
+         return (pref, val) -> {
+@@ -36,6 +37,8 @@ final class PrivacySettingsExt {
+             String key = pref.getKey();
+             if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
+                 prefService.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) val);
++            } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
++                SharedPrefsExt.CLOSE_TABS_ON_EXIT.put((boolean) val);
+             }
+             return true;
+         };
+@@ -84,6 +87,13 @@ final class PrivacySettingsExt {
+             searchSuggestionsPref.setOnPreferenceChangeListener(getListener(profile));
+             searchSuggestionsPref.setManagedPreferenceDelegate(getDelegate(profile));
+         }
++
++        ChromeSwitchPreference closeTabsOnExitPref =
++                (ChromeSwitchPreference) prefFragment.findPreference(PREF_CLOSE_TABS_ON_EXIT);
++        if (closeTabsOnExitPref != null) {
++            closeTabsOnExitPref.setOrder(PRIVACY_PREFERENCES_ORDER);
++            closeTabsOnExitPref.setOnPreferenceChangeListener(getListener(profile));
++        }
+     }
+ 
+     static void updatePreferences(@NonNull PreferenceFragmentCompat prefFragment, @NonNull Profile profile) {
+@@ -94,5 +104,11 @@ final class PrivacySettingsExt {
+         SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ searchSuggestionsPref,
+                 /* newSummary*/ null,
+                 /* newCheckedValue*/ prefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
++
++        ChromeSwitchPreference closeTabsOnExitPref =
++                (ChromeSwitchPreference) prefFragment.findPreference(PREF_CLOSE_TABS_ON_EXIT);
++        SettingsExtUtils.safelyUpdateSwitchPreference(/* switchPref */ closeTabsOnExitPref,
++                /* newSummary*/ null,
++                /* newCheckedValue*/ SharedPrefsExt.CLOSE_TABS_ON_EXIT.get());
+     }
+ }
+diff --git a/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp b/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+index ba31bf0fad150..a1018b43620cd 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
++++ b/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+@@ -3,4 +3,10 @@
+  Use of this source code is governed by a GPLv2 only-style license that can be
+  found in the LICENSE file. -->
+ <grit-part>
++  <message name="IDS_CLOSE_TABS_ON_EXIT_TITLE" desc="Title of closing tabs on exit menu item">
++    Close tabs on exit
++  </message>
++  <message name="IDS_CLOSE_TABS_ON_EXIT_SUMMARY" desc="Summary of closing tabs on exit menu item">
++    Don't persist tabs between browsing sessions
++  </message>
+ </grit-part>

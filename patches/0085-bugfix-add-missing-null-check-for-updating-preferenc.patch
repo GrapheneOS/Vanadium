@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 7 May 2025 15:51:42 +0000
+Subject: [PATCH] bugfix: add missing null check for updating preferences in
+ Privacy settings
+
+---
+ .../browser/privacy/settings/PrivacySettings.java    | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index 8d2eed2d2f227..71dc055818496 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -459,11 +459,13 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+         }
+ 
+         Preference javascriptOptimizerPref = findPreference(PREF_JAVASCRIPT_OPTIMIZER);
+-        javascriptOptimizerPref.setSummary(
+-                WebsitePreferenceBridge.isCategoryEnabled(
+-                                getProfile(), ContentSettingsType.JAVASCRIPT_OPTIMIZER)
+-                        ? R.string.website_settings_category_javascript_optimizer_allowed_list
+-                        : R.string.website_settings_category_javascript_optimizer_blocked_list);
++        if (javascriptOptimizerPref != null) {
++            javascriptOptimizerPref.setSummary(
++                    WebsitePreferenceBridge.isCategoryEnabled(
++                                    getProfile(), ContentSettingsType.JAVASCRIPT_OPTIMIZER)
++                            ? R.string.website_settings_category_javascript_optimizer_allowed_list
++                           : R.string.website_settings_category_javascript_optimizer_blocked_list);
++        }
+     }
+ 
+     private boolean showTrackingProtectionUi() {

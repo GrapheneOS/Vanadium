@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 23 Jul 2024 19:40:14 +0000
+Subject: [PATCH] Isolate sandboxed iframes per site by default
+
+---
+ third_party/blink/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index 4a23bbcdd23d8..4c511f2a856cf 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -1045,7 +1045,7 @@ BASE_FEATURE_ENUM_PARAM(IsolateSandboxedIframesGrouping,
+                         kIsolateSandboxedIframesGroupingParam,
+                         &kIsolateSandboxedIframes,
+                         "grouping",
+-                        IsolateSandboxedIframesGrouping::kPerOrigin,
++                        IsolateSandboxedIframesGrouping::kPerSite,
+                         &isolated_sandboxed_iframes_grouping_types);
+ 
+ BASE_FEATURE(kKeepAliveInBrowserMigration, base::FEATURE_ENABLED_BY_DEFAULT);

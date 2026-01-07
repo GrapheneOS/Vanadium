@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 1 Nov 2022 21:47:17 -0400
+Subject: [PATCH] set original-package to org.chromium.chrome
+
+This allows changing the app id to app.vanadium.browser while continuing
+to use the org.chromium.chrome app id for existing installs to preserve
+compatibility and user data.
+---
+ chrome/android/java/AndroidManifest.xml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index bd02a9b4d224e..b1243b8627e0a 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -22,6 +22,8 @@ by a child template that "extends" this file.
+     tools:ignore="MissingVersion">
+     <!-- android:versionCode and android:versionName is set through gyp. See build/common.gypi -->
+ 
++    <original-package android:name="org.chromium.chrome" />
++
+     <uses-feature android:glEsVersion="0x00030000" />
+ 
+ 

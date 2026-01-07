@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 24 Dec 2023 03:51:24 +0000
+Subject: [PATCH] Add an easily extensible way to reference targets easily in
+ ninja
+
+---
+ BUILD.gn          |  4 ++++
+ vanadium/BUILD.gn | 10 ++++++++++
+ 2 files changed, 14 insertions(+)
+ create mode 100644 vanadium/BUILD.gn
+
+diff --git a/BUILD.gn b/BUILD.gn
+index 4a53aa115f1ee..90e2a7b35c49b 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -427,6 +427,10 @@ group("gn_all") {
+       if (enable_chrome_android_internal) {
+         deps += [ "//clank" ]
+       }
++
++      deps += [
++        "//vanadium:vanadium_build_targets",
++      ]
+     }
+ 
+     if (is_linux || is_chromeos || is_android) {
+diff --git a/vanadium/BUILD.gn b/vanadium/BUILD.gn
+new file mode 100644
+index 0000000000000..34418da31ed32
+--- /dev/null
++++ b/vanadium/BUILD.gn
+@@ -0,0 +1,10 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++assert(is_android)
++# An group included in //BUILD.gn to make vanadium build target files reachable by GN.
++group("vanadium_build_targets") {
++  deps = [
++  ]
++}

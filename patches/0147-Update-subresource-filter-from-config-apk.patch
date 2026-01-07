@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 29 Dec 2023 11:04:00 +0000
+Subject: [PATCH] Update subresource filter from config apk
+
+Add needed deps for browser level static library for config component
+updates
+---
+ chrome/android/chrome_ext_deps.gni                              | 1 +
+ .../chrome/browser/init/ProcessInitializationHandler.java       | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
+index 0829b5df7e80d..a289a6fecd9fb 100644
+--- a/chrome/android/chrome_ext_deps.gni
++++ b/chrome/android/chrome_ext_deps.gni
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
+ 
+ chrome_ext_deps = [
++  "//chrome/browser/subresource_filter/android:java",
+ ]
+ 
+ chrome_ext_srcjar_deps = [
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
+index bc3cf49f0610e..348d7385863f8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
+@@ -101,6 +101,7 @@ import org.chromium.chrome.browser.quickactionsearchwidget.QuickActionSearchWidg
+ import org.chromium.chrome.browser.rlz.RevenueStats;
+ import org.chromium.chrome.browser.searchwidget.SearchWidgetProvider;
+ import org.chromium.chrome.browser.signin.SigninCheckerProvider;
++import org.chromium.chrome.browser.subresource_filter.RulesetUpdater;
+ import org.chromium.chrome.browser.tab.state.PersistedTabData;
+ import org.chromium.chrome.browser.tab.state.ShoppingPersistedTabData;
+ import org.chromium.chrome.browser.tabmodel.TabPersistentStoreImpl;
+@@ -749,6 +750,7 @@ public class ProcessInitializationHandler {
+         // Asynchronously query system accessibility state so it is ready for clients.
+         tasks.add(AccessibilityState::initializeOnStartup);
+         tasks.add(TabPersistentStoreImpl::onDeferredStartup);
++        tasks.add(RulesetUpdater::init);
+     }
+ 
+     /**

@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 25 Apr 2022 06:19:32 -0400
+Subject: [PATCH] disable more optimization guides features by default
+
+---
+ .../download/background_download_service_factory.cc       | 3 ++-
+ .../model_execution/optimization_guide_global_state.cc    | 7 +++++--
+ .../core/optimization_guide_features.cc                   | 8 ++++++++
+ .../optimization_guide/core/optimization_guide_features.h | 6 ++++++
+ 4 files changed, 21 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/browser/download/background_download_service_factory.cc b/chrome/browser/download/background_download_service_factory.cc
+index bde438ed438c6..71911553c4c65 100644
+--- a/chrome/browser/download/background_download_service_factory.cc
++++ b/chrome/browser/download/background_download_service_factory.cc
+@@ -179,7 +179,8 @@ BackgroundDownloadServiceFactory::BuildServiceInstanceFor(
+   }
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+ 
+-  if (!key->IsOffTheRecord()) {
++  if (optimization_guide::features::IsModelDownloadingEnabled() &&
++        !key->IsOffTheRecord()) {
+     clients->insert(std::make_pair(
+         download::DownloadClient::OPTIMIZATION_GUIDE_PREDICTION_MODELS,
+         std::make_unique<download::DeferredClientWrapper>(
+diff --git a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
+index c398dbccc9294..32904a980b3b9 100644
+--- a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
++++ b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
+@@ -190,8 +190,11 @@ ChromePredictionManager::ChromePredictionManager()
+                           OptimizationGuideLogger::GetInstance(),
+                           base::BindRepeating(&unzip::LaunchUnzipper)) {
+   prediction_model_store_.Initialize(GetBaseStoreDir());
+-  prediction_manager_.MaybeInitializeModelDownloads(
+-      profile_download_service_tracker_, g_browser_process->local_state());
++
++  if (optimization_guide::features::IsModelDownloadingEnabled()) {
++    prediction_manager_.MaybeInitializeModelDownloads(
++        profile_download_service_tracker_, g_browser_process->local_state());
++  }
+ }
+ ChromePredictionManager::~ChromePredictionManager() = default;
+ 
+diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
+index eea7f3faf7af9..7bba854531c3a 100644
+--- a/components/optimization_guide/core/optimization_guide_features.cc
++++ b/components/optimization_guide/core/optimization_guide_features.cc
+@@ -56,6 +56,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
+ // Enables the prediction of optimization targets.
+ BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
++// Enables the downloading of models. Restored downstream.
++BASE_FEATURE(kOptimizationGuideModelDownloading,
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
+ // This feature flag does not turn off any behavior, it is only used for
+ // experiment parameters.
+ BASE_FEATURE(kPageTextExtraction,
+@@ -339,6 +343,10 @@ base::TimeDelta ModelExecutionWatchdogDefaultTimeout() {
+       ));
+ }
+ 
++bool IsModelDownloadingEnabled() {
++  return base::FeatureList::IsEnabled(kOptimizationGuideModelDownloading);
++}
++
+ bool ShouldMetadataValidationFetchHostKeyed() {
+   DCHECK(base::FeatureList::IsEnabled(kOptimizationGuideMetadataValidation));
+   return GetFieldTrialParamByFeatureAsBool(kOptimizationGuideMetadataValidation,
+diff --git a/components/optimization_guide/core/optimization_guide_features.h b/components/optimization_guide/core/optimization_guide_features.h
+index 8fd0272509ba9..065bc0b9dfcfd 100644
+--- a/components/optimization_guide/core/optimization_guide_features.h
++++ b/components/optimization_guide/core/optimization_guide_features.h
+@@ -39,6 +39,8 @@ BASE_DECLARE_FEATURE(kOptimizationGuideFetchingForSRP);
+ COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
+ BASE_DECLARE_FEATURE(kOptimizationTargetPrediction);
+ COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
++BASE_DECLARE_FEATURE(kOptimizationGuideModelDownloading);
++COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
+ BASE_DECLARE_FEATURE(kPageTextExtraction);
+ COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
+ BASE_DECLARE_FEATURE(kPushNotifications);
+@@ -236,6 +238,10 @@ bool IsModelExecutionWatchdogEnabled();
+ COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
+ base::TimeDelta ModelExecutionWatchdogDefaultTimeout();
+ 
++// Whether the ability to download models is enabled.
++COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
++bool IsModelDownloadingEnabled();
++
+ // Returns whether the page entities model should be executed on page content
+ // for a user using |locale| as their browser language.
+ COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)

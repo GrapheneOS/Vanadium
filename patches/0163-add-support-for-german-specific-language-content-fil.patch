@@ -1,0 +1,82 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 29 Apr 2024 17:58:46 +0000
+Subject: [PATCH] add support for german-specific language content filtering
+ when German language is set
+
+---
+ DEPS                                                   | 10 ++++++++++
+ vanadium/android_config/BUILD.gn                       |  1 +
+ vanadium/android_config/filter_lists/BUILD.gn          |  8 ++++++++
+ .../app/vanadium/config/host/ConfigGenerator.java      |  7 +++++++
+ 4 files changed, 26 insertions(+)
+
+diff --git a/DEPS b/DEPS
+index c8edf134e3288..f6d9d2f2d6a62 100644
+--- a/DEPS
++++ b/DEPS
+@@ -4833,6 +4833,16 @@ hooks = [
+               'https://easylist.to/easylist/easylist.txt',
+               'https://easylist.to/easylist/easyprivacy.txt']
+   },
++  {
++    'name': 'fetch_filter_lists_germany',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_germany.txt',
++              '--urls',
++              'https://easylist.to/easylistgermany/easylistgermany.txt']
++  },
+ 
+ ]
+ 
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+index bb36a0ba6a200..72e386926ca0f 100644
+--- a/vanadium/android_config/BUILD.gn
++++ b/vanadium/android_config/BUILD.gn
+@@ -14,6 +14,7 @@ config_apk_tmpl("vanadium_config_apk") {
+   application_label = "Vanadium Config"
+   deps = [
+     "filter_lists:ruleset_assets",
++    "filter_lists:ruleset_germany_assets",
+     "proto:config_assets",
+   ]
+ }
+diff --git a/vanadium/android_config/filter_lists/BUILD.gn b/vanadium/android_config/filter_lists/BUILD.gn
+index 311f4facef0d5..c22e1585195c7 100644
+--- a/vanadium/android_config/filter_lists/BUILD.gn
++++ b/vanadium/android_config/filter_lists/BUILD.gn
+@@ -14,4 +14,12 @@ generate_unindexed_ruleset_assets("ruleset_assets") {
+   ]
+ 
+   asset_file_name = "unindexed_ruleset"
++}
++
++generate_unindexed_ruleset_assets("ruleset_germany_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_germany.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_germany"
+ }
+\ No newline at end of file
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index e73b03897d1e2..8d011bd2c687a 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -32,6 +32,13 @@ public class ConfigGenerator {
+                 .addAllComponents(components(
+                         component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
+                                 .setComponentFileName("unindexed_ruleset")
++                                .addAllAdditionalComponents(additionalComponents(
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_germany")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("de"))
++                                                ))
++                                        )
++                                ))
+                         )
+                 ))
+         ));

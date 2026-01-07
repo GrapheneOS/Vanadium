@@ -7,16 +7,16 @@ Subject: [PATCH] disable seed-based field trials
  components/variations/BUILD.gn                 |  7 +++++++
  components/variations/common_ext/BUILD.gn      | 18 ++++++++++++++++++
  components/variations/service/BUILD.gn         |  7 +++++++
- .../service/variations_field_trial_creator.cc  | 13 +++++++++++++
+ .../service/variations_field_trial_creator.cc  | 15 +++++++++++++++
  .../variations/synthetic_trial_registry.cc     |  3 +++
- 5 files changed, 48 insertions(+)
+ 5 files changed, 50 insertions(+)
  create mode 100644 components/variations/common_ext/BUILD.gn
 
 diff --git a/components/variations/BUILD.gn b/components/variations/BUILD.gn
-index 5130a835f47c2..9e1e6743c2274 100644
+index 3a3f80d4b79c4..401e7bb54b3c1 100644
 --- a/components/variations/BUILD.gn
 +++ b/components/variations/BUILD.gn
-@@ -164,6 +164,13 @@ component("variations") {
+@@ -165,6 +165,13 @@ component("variations") {
        "//components/variations/android:variations_seed_jni",
      ]
    }
@@ -55,10 +55,10 @@ index 0000000000000..2c448f85a384f
 +  ]
 +}
 diff --git a/components/variations/service/BUILD.gn b/components/variations/service/BUILD.gn
-index fda6153e144d1..61144785825c6 100644
+index f807c730f5bb9..26d42f5d86414 100644
 --- a/components/variations/service/BUILD.gn
 +++ b/components/variations/service/BUILD.gn
-@@ -75,6 +75,13 @@ static_library("service") {
+@@ -79,6 +79,13 @@ static_library("service") {
      "//services/network/public/cpp",
      "//ui/base",
    ]
@@ -73,10 +73,10 @@ index fda6153e144d1..61144785825c6 100644
  
  source_set("unit_tests") {
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index 2e0e1cfc4df1f..dcb0c4beb9725 100644
+index a52261ae7bd60..ac822eddd80f5 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -38,6 +38,7 @@
+@@ -41,6 +41,7 @@
  #include "components/metrics/metrics_state_manager.h"
  #include "components/prefs/pref_service.h"
  #include "components/variations/active_field_trials.h"
@@ -84,7 +84,7 @@ index 2e0e1cfc4df1f..dcb0c4beb9725 100644
  #include "components/variations/entropy_provider.h"
  #include "components/variations/field_trial_config/field_trial_util.h"
  #include "components/variations/platform_field_trials.h"
-@@ -253,9 +254,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -289,9 +290,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
@@ -100,24 +100,29 @@ index 2e0e1cfc4df1f..dcb0c4beb9725 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -320,23 +327,29 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -356,26 +363,34 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {
 +#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
-     // TODO(crbug.com/410008879): Make use of the result's
-     // seed_has_active_limited_layer field.
      create_trials_result = CreateTrialsFromSeed(
          entropy_providers, feature_list.get(), safe_seed_manager,
          std::move(client_filterable_state));
 +#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
    }
  
+   if (create_trials_result.applied_seed) {
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
+     FieldTrialsProvider::UpdateAppliedSeedHasActiveLimitedLayer(
+         create_trials_result.seed_has_active_limited_layer.value_or(false));
++#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
+   }
+ 
    if (add_entropy_source_to_variations_ids &&
        !create_trials_result.AppliedSeedHasActiveLimitedLayer()) {
++#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
      // TODO(crbug.com/424154785): Consider no longer transmitting LES values
      // alongside VariationsIDs.
-+#if BUILDFLAG(FIELDTRIAL_SEED_ENABLED)
      http_header_provider->SetLowEntropySourceValue(
          metrics_state_manager->GetLowEntropySource());
 +#endif // BUILDFLAG(FIELDTRIAL_SEED_ENABLED)

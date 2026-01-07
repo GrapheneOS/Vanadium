@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 12 Aug 2024 14:07:37 +0000
+Subject: [PATCH] Only enable shadow_call_stack on android arm64 target
+
+---
+ build/config/compiler/BUILD.gn | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index cc188175b0483..81df62af35d47 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -426,6 +426,12 @@ config("compiler") {
+     # --------------------------------
+     cflags += [ "-fno-strict-aliasing" ]  # See http://crbug.com/32204
+ 
++    if (enable_shadow_call_stack) {
++      if (!is_android || current_cpu != "arm64") {
++        enable_shadow_call_stack = false
++      }
++    }
++
+     # Stack protection. ShadowCallStack and Stack protector address the same
+     # problems. Therefore, we only enable one or the other. Clang advertises SCS as
+     # a stronger alternative to StackProtector, so we give SCS precedence over SP.

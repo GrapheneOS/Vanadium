@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 30 Apr 2025 07:32:17 +0000
+Subject: [PATCH] enable wasm in interprter mode when per-site JIT is disabled
+
+---
+ content/browser/renderer_host/render_process_host_impl.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
+index 0862e7572ddc3..2f75ee8d390a6 100644
+--- a/content/browser/renderer_host/render_process_host_impl.cc
++++ b/content/browser/renderer_host/render_process_host_impl.cc
+@@ -3603,6 +3603,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+   if (IsJitDisabled()) {
+     AppendToCommaSeparatedSwitch(
+         command_line, blink::switches::kJavaScriptFlags, "--jitless");
++    AppendToCommaSeparatedSwitch(
++        command_line, blink::switches::kJavaScriptFlags, "--wasm_jitless");
+   } else if (AreV8OptimizationsDisabled()) {
+     AppendToCommaSeparatedSwitch(command_line,
+                                  blink::switches::kJavaScriptFlags,

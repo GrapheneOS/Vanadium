@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Sat, 29 Nov 2025 16:43:14 +0000
+Subject: [PATCH] Apply toggle for opening links in incognito for explicit
+ intents
+
+---
+ .../chrome/browser/ChromeTabbedActivity.java  |  4 +++
+ .../browser/LaunchIntentDispatcher.java       |  3 ++
+ .../browser/LaunchIntentDispatcherHooks.java  | 31 +++++++++++++++++++
+ 3 files changed, 38 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index c6a4126aa66fe..28a491c7cadff 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -1662,6 +1662,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+                 return;
+             }
+ 
++            intent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(this, intent);
++
+             // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
+             // adding NEW_TASK flag to make sure backing from CCT brings up the caller activity,
+             // and not Chrome
+@@ -2161,6 +2163,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+             Log.i(TAG, "#initializeState");
+             Intent intent = getIntent();
+ 
++            intent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(this, intent);
++
+             boolean hadCipherData =
+                     CipherLazyHolder.sCipherInstance.restoreFromBundle(getSavedInstanceState());
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 1148a915f5e10..33461a5abcb13 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -508,6 +508,9 @@ public class LaunchIntentDispatcher {
+                     "Android.Intent.HasNonSpoofablePackageName", hasNonSpoofablePackageName());
+             boolean identityShared = maybePutCallingAppPackage(newIntent);
+             RecordHistogram.recordBooleanHistogram("Android.Intent.IdentityShared", identityShared);
++        } else {
++            newIntent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(
++                    mActivity, newIntent);
+         }
+ 
+         if (mActivity instanceof ChromeLauncherActivity) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+index 547e85324cac5..44a93116643d2 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+@@ -4,6 +4,8 @@ import android.app.Activity;
+ import android.content.Context;
+ import android.content.Intent;
+ 
++import org.chromium.base.IntentUtils;
++
+ final class LaunchIntentDispatcherHooks {
+ 
+     private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
+@@ -41,4 +43,33 @@ final class LaunchIntentDispatcherHooks {
+ 
+         return newIntent;
+     }
++
++    static Intent maybeModifyMainOrExplicitIntents(Activity activity, Intent intent) {
++        if (intent == null) {
++            return intent;
++        }
++
++        String urlFromIntent = IntentHandler.getUrlFromIntent(intent);
++        if (urlFromIntent == null) {
++            return intent;
++        }
++
++        if (IntentUtils.safeGetBooleanExtra(intent,
++                IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false)) {
++            return intent;
++        }
++
++        if (IntentUtils.isTrustedIntentFromSelf(intent)) {
++            return intent;
++        }
++
++        if (intent.getComponent() == null
++                && !Intent.ACTION_MAIN.equals(intent.getAction())) {
++            return intent;
++        }
++
++        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
++
++        return newIntent;
++    }
+ }

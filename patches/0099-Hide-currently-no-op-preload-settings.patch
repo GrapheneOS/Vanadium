@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 24 Jan 2022 19:22:26 +0000
+Subject: [PATCH] Hide currently no-op preload settings
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettings.java         | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index 2df46f659b68d..c9d549c1c59b6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -403,6 +403,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+             preloadPagesPreference.setSummary(
+                     PreloadPagesSettingsFragment.getPreloadPagesSummaryString(
+                             getContext(), getProfile()));
++            getPreferenceScreen().removePreference(preloadPagesPreference);
+         }
+ 
+         Preference secureDnsPref = findPreference(PREF_SECURE_DNS);

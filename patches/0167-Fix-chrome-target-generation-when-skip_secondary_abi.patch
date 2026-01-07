@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Sun, 28 Jul 2024 12:19:36 -0400
+Subject: [PATCH] Fix chrome target generation when skip_secondary_abi_for_cq
+ is set
+
+---
+ chrome/android/BUILD.gn | 56 +++++++++++++++++++++++------------------
+ 1 file changed, 32 insertions(+), 24 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index d56e7dc257dff..8667987e6c968 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -3527,42 +3527,50 @@ if (_is_default_toolchain &&
+     deps = []
+     if (enable_libs_and_assets_verification) {
+       deps += [
+-        ":trichrome_chrome_32_64_bundle_validate_libs_and_assets",
+-        ":trichrome_chrome_32_bundle_validate_libs_and_assets",
+-        ":trichrome_chrome_64_32_bundle_validate_libs_and_assets",
+         ":trichrome_chrome_64_bundle_validate_libs_and_assets",
+-        ":trichrome_library_32_64_apk_validate_libs_and_assets",
+-        ":trichrome_library_32_apk_validate_libs_and_assets",
+-        ":trichrome_library_64_32_apk_validate_libs_and_assets",
+         ":trichrome_library_64_apk_validate_libs_and_assets",
+-        "//android_webview:trichrome_webview_32_64_bundle_validate_libs_and_assets",
+-        "//android_webview:trichrome_webview_32_bundle_validate_libs_and_assets",
+-        "//android_webview:trichrome_webview_64_32_bundle_validate_libs_and_assets",
+         "//android_webview:trichrome_webview_64_bundle_validate_libs_and_assets",
+       ]
++      if (defined(android_app_secondary_abi)) {
++        deps += [
++          ":trichrome_chrome_32_64_bundle_validate_libs_and_assets",
++          ":trichrome_chrome_32_bundle_validate_libs_and_assets",
++          ":trichrome_chrome_64_32_bundle_validate_libs_and_assets",
++          ":trichrome_library_32_64_apk_validate_libs_and_assets",
++          ":trichrome_library_32_apk_validate_libs_and_assets",
++          ":trichrome_library_64_32_apk_validate_libs_and_assets",
++          "//android_webview:trichrome_webview_32_64_bundle_validate_libs_and_assets",
++          "//android_webview:trichrome_webview_32_bundle_validate_libs_and_assets",
++          "//android_webview:trichrome_webview_64_32_bundle_validate_libs_and_assets",
++        ]
++      }
+     }
+     if (enable_manifest_verification) {
+       deps += [
+-        ":trichrome_chrome_32_64_bundle__base_bundle_module_validate_android_manifest",
+-        ":trichrome_chrome_32_bundle__base_bundle_module_validate_android_manifest",
+-        ":trichrome_chrome_64_32_bundle__base_bundle_module_validate_android_manifest",
+-        ":trichrome_chrome_64_32_bundle_validate_manifests",
+-        ":trichrome_chrome_64_32_bundle_validate_proguard_config",
+         ":trichrome_chrome_64_bundle__base_bundle_module_validate_android_manifest",
+-        ":trichrome_library_32_64_apk_validate_android_manifest",
+-        ":trichrome_library_32_apk_validate_android_manifest",
+-        ":trichrome_library_64_32_apk_validate_android_manifest",
+         ":trichrome_library_64_apk_validate_android_manifest",
+-        "//android_webview:system_webview_32_64_base_bundle_module_validate_android_manifest",
+-        "//android_webview:system_webview_32_base_bundle_module_validate_android_manifest",
+-        "//android_webview:system_webview_64_32_base_bundle_module_validate_android_manifest",
+         "//android_webview:system_webview_64_base_bundle_module_validate_android_manifest",
+-        "//android_webview:trichrome_webview_32_64_base_bundle_module_validate_android_manifest",
+-        "//android_webview:trichrome_webview_32_base_bundle_module_validate_android_manifest",
+-        "//android_webview:trichrome_webview_64_32_base_bundle_module_validate_android_manifest",
+-        "//android_webview:trichrome_webview_64_32_bundle_validate_proguard_config",
+         "//android_webview:trichrome_webview_64_base_bundle_module_validate_android_manifest",
+       ]
++      if (defined(android_app_secondary_abi)) {
++        deps += [
++          ":trichrome_chrome_32_64_bundle__base_bundle_module_validate_android_manifest",
++          ":trichrome_chrome_32_bundle__base_bundle_module_validate_android_manifest",
++          ":trichrome_chrome_64_32_bundle__base_bundle_module_validate_android_manifest",
++          ":trichrome_chrome_64_32_bundle_validate_manifests",
++          ":trichrome_chrome_64_32_bundle_validate_proguard_config",
++          ":trichrome_library_32_64_apk_validate_android_manifest",
++          ":trichrome_library_32_apk_validate_android_manifest",
++          ":trichrome_library_64_32_apk_validate_android_manifest",
++          "//android_webview:system_webview_32_64_base_bundle_module_validate_android_manifest",
++          "//android_webview:system_webview_32_base_bundle_module_validate_android_manifest",
++          "//android_webview:system_webview_64_32_base_bundle_module_validate_android_manifest",
++          "//android_webview:trichrome_webview_32_64_base_bundle_module_validate_android_manifest",
++          "//android_webview:trichrome_webview_32_base_bundle_module_validate_android_manifest",
++          "//android_webview:trichrome_webview_64_32_base_bundle_module_validate_android_manifest",
++          "//android_webview:trichrome_webview_64_32_bundle_validate_proguard_config",
++        ]
++      }
+     }
+   }
+ }
