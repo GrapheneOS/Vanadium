@@ -4,8 +4,9 @@ Date: Sun, 23 Nov 2025 04:08:57 +0000
 Subject: [PATCH] disable additional buttons below search bar in new tabs
 
 ---
- chrome/browser/flags/android/chrome_feature_list.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ chrome/browser/flags/android/chrome_feature_list.cc           | 2 +-
+ .../org/chromium/chrome/browser/flags/ChromeFeatureList.java  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
 index d09e3a38c6198..c0b5e8c99cd83 100644
@@ -20,3 +21,25 @@ index d09e3a38c6198..c0b5e8c99cd83 100644
  BASE_FEATURE(kAndroidComposeplateAllLocales, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidComposeplateLFF, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidComposeplateLFFAllLocales, base::FEATURE_DISABLED_BY_DEFAULT);
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 918d8c31113dc..6df676518ce93 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -742,7 +742,7 @@ public abstract class ChromeFeatureList {
+             newCachedFlag(ANDROID_BOTTOM_TOOLBAR, true, true);
+     public static final CachedFlag sAndroidBottomToolbarV2 =
+             newCachedFlag(ANDROID_BOTTOM_TOOLBAR_V2, false, true);
+-    public static final CachedFlag sAndroidComposeplate = newCachedFlag(ANDROID_COMPOSEPLATE, true);
++    public static final CachedFlag sAndroidComposeplate = newCachedFlag(ANDROID_COMPOSEPLATE, false);
+     public static final CachedFlag sAndroidComposeplateLFF =
+             newCachedFlag(
+                     ANDROID_COMPOSEPLATE_LFF,
+@@ -1443,7 +1443,7 @@ public abstract class ChromeFeatureList {
+             newBooleanCachedFeatureParam(ANDROID_COMPOSEPLATE, "hide_incognito_button", false);
+ 
+     public static final BooleanCachedFeatureParam sAndroidComposeplateV2Enabled =
+-            newBooleanCachedFeatureParam(ANDROID_COMPOSEPLATE, "v2_enabled", true);
++            newBooleanCachedFeatureParam(ANDROID_COMPOSEPLATE, "v2_enabled", false);
+     public static final BooleanCachedFeatureParam sAndroidBottomToolbarDefaultToTop =
+             newBooleanCachedFeatureParam(ANDROID_BOTTOM_TOOLBAR, "default_to_top", true);
+ 
