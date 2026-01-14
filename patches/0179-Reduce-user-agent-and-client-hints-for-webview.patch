@@ -4,9 +4,10 @@ Date: Thu, 12 Dec 2024 07:09:40 +0000
 Subject: [PATCH] Reduce user agent and client hints for webview
 
 ---
- android_webview/browser/aw_field_trials.cc | 4 ----
- android_webview/common/aw_features.cc      | 2 +-
- 2 files changed, 1 insertion(+), 5 deletions(-)
+ android_webview/browser/aw_field_trials.cc           |  4 ----
+ android_webview/common/aw_features.cc                |  2 +-
+ .../chromium/WebViewChromiumFactoryProvider.java     | 12 ------------
+ 3 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
 index 093dadfd1fa18..38e93cf9b6ae0 100644
@@ -36,3 +37,26 @@ index f68dde5a76179..0faa534f3937e 100644
  
  // This enables WebView crashes.
  BASE_FEATURE(kWebViewEnableCrash, base::FEATURE_DISABLED_BY_DEFAULT);
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index 3946199d3fcb8..f52c7ccc4ec4e 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -676,18 +676,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             helper.applyFlagOverrides(
+                     Map.of(AwFeatures.WEBVIEW_FILE_SYSTEM_ACCESS, shouldEnableFileSystemAccess()));
+ 
+-            // Apply user-agent reduction overrides for WebView. These features
+-            // are intended to be enabled only for Android B+.
+-            // 1) ReduceUserAgentMinorVersion: Enables reduction of the user-agent minor version.
+-            // 2) WebViewReduceUAAndroidVersionDeviceModel: Enables reduction of the user-agent
+-            //    Android version and device model.
+-            helper.applyFlagOverrides(
+-                    Map.of(
+-                            AwFeatures.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL,
+-                            shouldEnableUserAgentReduction(),
+-                            BlinkFeatures.REDUCE_USER_AGENT_MINOR_VERSION,
+-                            shouldEnableUserAgentReduction()));
+-
+             setSingleton(this);
+         }
+ 

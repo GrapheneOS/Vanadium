@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 10 May 2025 01:30:54 +0000
+Subject: [PATCH] tmp: config: always reduce user agent for WebView
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index c75f23124e5cc..afcf67c48d061 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -51,6 +51,21 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.WEBVIEW))
++                                .setMaxVersion(7559_060_00L)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("WebViewReduceUAAndroidVersionDeviceModel")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("ReduceUserAgentMinorVersion")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 
