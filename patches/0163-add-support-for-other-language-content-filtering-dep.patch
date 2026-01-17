@@ -1,0 +1,232 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 29 Apr 2024 17:58:46 +0000
+Subject: [PATCH] add support for other language content filtering dependent on
+ language settings
+
+---
+ DEPS                                          | 70 +++++++++++++++++++
+ vanadium/android_config/BUILD.gn              |  7 ++
+ vanadium/android_config/filter_lists/BUILD.gn | 56 +++++++++++++++
+ .../vanadium/config/host/ConfigGenerator.java | 43 ++++++++++++
+ 4 files changed, 176 insertions(+)
+
+diff --git a/DEPS b/DEPS
+index c8edf134e3288..478d00aa4f90f 100644
+--- a/DEPS
++++ b/DEPS
+@@ -4833,6 +4833,76 @@ hooks = [
+               'https://easylist.to/easylist/easylist.txt',
+               'https://easylist.to/easylist/easyprivacy.txt']
+   },
++  {
++    'name': 'fetch_filter_lists_hebrew',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_hebrew.txt',
++              '--urls',
++              'https://raw.githubusercontent.com/easylist/EasyListHebrew/master/EasyListHebrew.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_dutch',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_dutch.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/easylistdutch.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_china',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_china.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/easylistchina.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_bulgaria',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_bulgaria.txt',
++              '--urls',
++              'http://stanev.org/abp/adblock_bg.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_vietnam',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_vietnam.txt',
++              '--urls',
++              'https://abpvn.com/filter/abpvn-IPl6HE.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_indonesia',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_indonesia.txt',
++              '--urls',
++              'https://raw.githubusercontent.com/heradhis/indonesianadblockrules/master/subscriptions/abpindo.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_germany',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_germany.txt',
++              '--urls',
++              'https://easylist.to/easylistgermany/easylistgermany.txt']
++  },
+ 
+ ]
+ 
+diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
+index bb36a0ba6a200..476d1f06e854d 100644
+--- a/vanadium/android_config/BUILD.gn
++++ b/vanadium/android_config/BUILD.gn
+@@ -14,6 +14,13 @@ config_apk_tmpl("vanadium_config_apk") {
+   application_label = "Vanadium Config"
+   deps = [
+     "filter_lists:ruleset_assets",
++    "filter_lists:ruleset_hebrew_assets",
++    "filter_lists:ruleset_dutch_assets",
++    "filter_lists:ruleset_china_assets",
++    "filter_lists:ruleset_bulgaria_assets",
++    "filter_lists:ruleset_vietnam_assets",
++    "filter_lists:ruleset_indonesia_assets",
++    "filter_lists:ruleset_germany_assets",
+     "proto:config_assets",
+   ]
+ }
+diff --git a/vanadium/android_config/filter_lists/BUILD.gn b/vanadium/android_config/filter_lists/BUILD.gn
+index 311f4facef0d5..9feef746b4c4b 100644
+--- a/vanadium/android_config/filter_lists/BUILD.gn
++++ b/vanadium/android_config/filter_lists/BUILD.gn
+@@ -14,4 +14,60 @@ generate_unindexed_ruleset_assets("ruleset_assets") {
+   ]
+ 
+   asset_file_name = "unindexed_ruleset"
++}
++
++generate_unindexed_ruleset_assets("ruleset_hebrew_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_hebrew.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_hebrew"
++}
++
++generate_unindexed_ruleset_assets("ruleset_dutch_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_dutch.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_dutch"
++}
++
++generate_unindexed_ruleset_assets("ruleset_china_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_china.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_china"
++}
++
++generate_unindexed_ruleset_assets("ruleset_bulgaria_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_bulgaria.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_bulgaria"
++}
++
++generate_unindexed_ruleset_assets("ruleset_vietnam_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_vietnam.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_vietnam"
++}
++
++generate_unindexed_ruleset_assets("ruleset_indonesia_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_indonesia.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_indonesia"
++}
++
++generate_unindexed_ruleset_assets("ruleset_germany_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_germany.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_germany"
+ }
+\ No newline at end of file
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index e73b03897d1e2..9bddc2137c4b3 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -32,6 +32,49 @@ public class ConfigGenerator {
+                 .addAllComponents(components(
+                         component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
+                                 .setComponentFileName("unindexed_ruleset")
++                                .addAllAdditionalComponents(additionalComponents(
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_hebrew")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("he"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_dutch")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("nl"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_china")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("zh"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_bulgaria")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("bg"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_vietnam")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("vi"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_indonesia")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("id"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_germany")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("de"))
++                                                ))
++                                        )
++                                ))
+                         )
+                 ))
+         ));
