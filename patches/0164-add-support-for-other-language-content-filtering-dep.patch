@@ -5,20 +5,30 @@ Subject: [PATCH] add support for other language content filtering dependent on
  language settings
 
 ---
- DEPS                                          | 70 +++++++++++++++++++
- vanadium/android_config/BUILD.gn              |  7 ++
- vanadium/android_config/filter_lists/BUILD.gn | 56 +++++++++++++++
- .../vanadium/config/host/ConfigGenerator.java | 43 ++++++++++++
- 4 files changed, 176 insertions(+)
+ DEPS                                          | 200 ++++++++++++++++++
+ vanadium/android_config/BUILD.gn              |  20 ++
+ vanadium/android_config/filter_lists/BUILD.gn | 160 ++++++++++++++
+ .../vanadium/config/host/ConfigGenerator.java | 147 +++++++++++++
+ 4 files changed, 527 insertions(+)
 
 diff --git a/DEPS b/DEPS
-index c8edf134e3288..c3db0015d3a54 100644
+index 6e3a77876bb23..0051221bc137e 100644
 --- a/DEPS
 +++ b/DEPS
-@@ -4833,6 +4833,76 @@ hooks = [
+@@ -4833,6 +4833,206 @@ hooks = [
                'https://easylist.to/easylist/easylist.txt',
                'https://easylist.to/easylist/easyprivacy.txt']
    },
++  {
++    'name': 'fetch_filter_lists_arabic',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_arabic.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/liste_ar.txt']
++  },
 +  {
 +    'name': 'fetch_filter_lists_bulgaria',
 +    'condition': 'checkout_android',
@@ -28,6 +38,26 @@ index c8edf134e3288..c3db0015d3a54 100644
 +              'src/vanadium/android_config/filter_lists/filter_lists_easylist_bulgaria.txt',
 +              '--urls',
 +              'http://stanev.org/abp/adblock_bg.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_spanish',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_spanish.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/easylistspanish.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_french',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_french.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/liste_fr.txt']
 +  },
 +  {
 +    'name': 'fetch_filter_lists_germany',
@@ -50,6 +80,16 @@ index c8edf134e3288..c3db0015d3a54 100644
 +              'https://raw.githubusercontent.com/easylist/EasyListHebrew/master/EasyListHebrew.txt']
 +  },
 +  {
++    'name': 'fetch_filter_lists_indian',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_indian.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/indianlist.txt']
++  },
++  {
 +    'name': 'fetch_filter_lists_indonesia',
 +    'condition': 'checkout_android',
 +    'action': ['python3',
@@ -60,6 +100,46 @@ index c8edf134e3288..c3db0015d3a54 100644
 +              'https://raw.githubusercontent.com/heradhis/indonesianadblockrules/master/subscriptions/abpindo.txt']
 +  },
 +  {
++    'name': 'fetch_filter_lists_italy',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_italy.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/easylistitaly.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_korean',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_korean.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/koreanlist.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_lithuanian',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_lithuanian.txt',
++              '--urls',
++              'https://raw.githubusercontent.com/EasyList-Lithuania/easylist_lithuania/master/easylistlithuania.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_latvian',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_latvian.txt',
++              '--urls',
++              'https://raw.githubusercontent.com/Latvian-List/adblock-latvian/master/lists/latvian-list.txt']
++  },
++  {
 +    'name': 'fetch_filter_lists_dutch',
 +    'condition': 'checkout_android',
 +    'action': ['python3',
@@ -68,6 +148,56 @@ index c8edf134e3288..c3db0015d3a54 100644
 +              'src/vanadium/android_config/filter_lists/filter_lists_easylist_dutch.txt',
 +              '--urls',
 +              'https://easylist-downloads.adblockplus.org/easylistdutch.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_nordic',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_nordic.txt',
++              '--urls',
++              'https://raw.githubusercontent.com/DandelionSprout/adfilt/master/NorwegianExperimentalList%20alternate%20versions/NordicFiltersABP-Inclusion.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_polish',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_polish.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/easylistpolish.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_portuguese',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_portuguese.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/easylistportuguese.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_romanian',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_romanian.txt',
++              '--urls',
++              'https://zoso.ro/pages/rolist.txt']
++  },
++  {
++    'name': 'fetch_filter_lists_russian',
++    'condition': 'checkout_android',
++    'action': ['python3',
++              'src/vanadium/android_config/filter_lists/filter_list_download.py',
++              '--output',
++              'src/vanadium/android_config/filter_lists/filter_lists_easylist_russian.txt',
++              '--urls',
++              'https://easylist-downloads.adblockplus.org/ruadlist.txt']
 +  },
 +  {
 +    'name': 'fetch_filter_lists_vietnam',
@@ -93,31 +223,52 @@ index c8edf134e3288..c3db0015d3a54 100644
  ]
  
 diff --git a/vanadium/android_config/BUILD.gn b/vanadium/android_config/BUILD.gn
-index bb36a0ba6a200..5fb2daae56b90 100644
+index bb36a0ba6a200..32d889b386dc9 100644
 --- a/vanadium/android_config/BUILD.gn
 +++ b/vanadium/android_config/BUILD.gn
-@@ -14,6 +14,13 @@ config_apk_tmpl("vanadium_config_apk") {
+@@ -14,6 +14,26 @@ config_apk_tmpl("vanadium_config_apk") {
    application_label = "Vanadium Config"
    deps = [
      "filter_lists:ruleset_assets",
++    "filter_lists:ruleset_arabic_assets",
 +    "filter_lists:ruleset_bulgaria_assets",
 +    "filter_lists:ruleset_germany_assets",
++    "filter_lists:ruleset_spanish_assets",
++    "filter_lists:ruleset_french_assets",
 +    "filter_lists:ruleset_hebrew_assets",
++    "filter_lists:ruleset_indian_assets",
 +    "filter_lists:ruleset_indonesia_assets",
++    "filter_lists:ruleset_italy_assets",
++    "filter_lists:ruleset_korean_assets",
 +    "filter_lists:ruleset_dutch_assets",
++    "filter_lists:ruleset_nordic_assets",
++    "filter_lists:ruleset_lithuanian_assets",
++    "filter_lists:ruleset_latvian_assets",
++    "filter_lists:ruleset_polish_assets",
++    "filter_lists:ruleset_portuguese_assets",
++    "filter_lists:ruleset_romanian_assets",
++    "filter_lists:ruleset_russian_assets",
 +    "filter_lists:ruleset_vietnam_assets",
 +    "filter_lists:ruleset_china_assets",
      "proto:config_assets",
    ]
  }
 diff --git a/vanadium/android_config/filter_lists/BUILD.gn b/vanadium/android_config/filter_lists/BUILD.gn
-index 311f4facef0d5..34c68c82d820c 100644
+index 311f4facef0d5..1c30abf594950 100644
 --- a/vanadium/android_config/filter_lists/BUILD.gn
 +++ b/vanadium/android_config/filter_lists/BUILD.gn
-@@ -14,4 +14,60 @@ generate_unindexed_ruleset_assets("ruleset_assets") {
+@@ -14,4 +14,164 @@ generate_unindexed_ruleset_assets("ruleset_assets") {
    ]
  
    asset_file_name = "unindexed_ruleset"
++}
++
++generate_unindexed_ruleset_assets("ruleset_arabic_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_arabic.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_arabic"
 +}
 +
 +generate_unindexed_ruleset_assets("ruleset_bulgaria_assets") {
@@ -136,12 +287,36 @@ index 311f4facef0d5..34c68c82d820c 100644
 +  asset_file_name = "unindexed_ruleset_germany"
 +}
 +
++generate_unindexed_ruleset_assets("ruleset_spanish_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_spanish.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_spanish"
++}
++
++generate_unindexed_ruleset_assets("ruleset_french_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_french.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_french"
++}
++
 +generate_unindexed_ruleset_assets("ruleset_hebrew_assets") {
 +  inputs = [
 +    "//vanadium/android_config/filter_lists/filter_lists_easylist_hebrew.txt",
 +  ]
 +
 +  asset_file_name = "unindexed_ruleset_hebrew"
++}
++
++generate_unindexed_ruleset_assets("ruleset_indian_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_indian.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_indian"
 +}
 +
 +generate_unindexed_ruleset_assets("ruleset_indonesia_assets") {
@@ -152,12 +327,84 @@ index 311f4facef0d5..34c68c82d820c 100644
 +  asset_file_name = "unindexed_ruleset_indonesia"
 +}
 +
++generate_unindexed_ruleset_assets("ruleset_italy_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_italy.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_italy"
++}
++
++generate_unindexed_ruleset_assets("ruleset_korean_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_korean.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_korean"
++}
++
++generate_unindexed_ruleset_assets("ruleset_lithuanian_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_lithuanian.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_lithuanian"
++}
++
++generate_unindexed_ruleset_assets("ruleset_latvian_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_latvian.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_latvian"
++}
++
 +generate_unindexed_ruleset_assets("ruleset_dutch_assets") {
 +  inputs = [
 +    "//vanadium/android_config/filter_lists/filter_lists_easylist_dutch.txt",
 +  ]
 +
 +  asset_file_name = "unindexed_ruleset_dutch"
++}
++
++generate_unindexed_ruleset_assets("ruleset_nordic_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_nordic.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_nordic"
++}
++
++generate_unindexed_ruleset_assets("ruleset_polish_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_polish.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_polish"
++}
++
++generate_unindexed_ruleset_assets("ruleset_portuguese_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_portuguese.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_portuguese"
++}
++
++generate_unindexed_ruleset_assets("ruleset_romanian_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_romanian.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_romanian"
++}
++
++generate_unindexed_ruleset_assets("ruleset_russian_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist_russian.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset_russian"
 +}
 +
 +generate_unindexed_ruleset_assets("ruleset_vietnam_assets") {
@@ -177,14 +424,20 @@ index 311f4facef0d5..34c68c82d820c 100644
  }
 \ No newline at end of file
 diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-index e73b03897d1e2..f3c3cb159b04c 100644
+index e73b03897d1e2..e0dc6e957d1ad 100644
 --- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 +++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-@@ -32,6 +32,49 @@ public class ConfigGenerator {
+@@ -32,6 +32,153 @@ public class ConfigGenerator {
                  .addAllComponents(components(
                          component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
                                  .setComponentFileName("unindexed_ruleset")
 +                                .addAllAdditionalComponents(additionalComponents(
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_arabic")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ar"))
++                                                ))
++                                        )
++                                        ,
 +                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_bulgaria")
 +                                                .addAllConditions(componentConditions(
 +                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("bg"))
@@ -197,9 +450,49 @@ index e73b03897d1e2..f3c3cb159b04c 100644
 +                                                ))
 +                                        )
 +                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_spanish")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("es"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_french")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("fr"))
++                                                ))
++                                        )
++                                        ,
 +                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_hebrew")
 +                                                .addAllConditions(componentConditions(
 +                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("he"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_indian")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("hi"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("bn"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("gu"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("pa"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("as"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("mr"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ta"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ml"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("te"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("kn"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ne"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("si"))
 +                                                ))
 +                                        )
 +                                        ,
@@ -209,9 +502,67 @@ index e73b03897d1e2..f3c3cb159b04c 100644
 +                                                ))
 +                                        )
 +                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_italy")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("it"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_korean")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ko"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_lithuanian")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("lt"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_latvian")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("lv"))
++                                                ))
++                                        )
++                                        ,
 +                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_dutch")
 +                                                .addAllConditions(componentConditions(
 +                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("nl"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_nordic")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("no"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("nn"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("kl"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_polish")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("pl"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_portuguese")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("pt"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_romanian")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ro"))
++                                                ))
++                                        )
++                                        ,
++                                        additionalComponent(additionalComponentParams -> additionalComponentParams.setComponentFileName("unindexed_ruleset_russian")
++                                                .addAllConditions(componentConditions(
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("ru"))
 +                                                ))
 +                                        )
 +                                        ,

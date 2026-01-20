@@ -537,7 +537,7 @@ index 595d550099c99..40dda32b0c018 100644
  inline constexpr char kEnableDoNotTrack[] = "enable_do_not_track";
  
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
-index 6bd119acb5a09..7de26c2c9f974 100644
+index 9bdb7c10319be..d1a0917e8be96 100644
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
 @@ -403,6 +403,29 @@ void AddAdditionalRequestHeaders(
@@ -571,10 +571,10 @@ index 6bd119acb5a09..7de26c2c9f974 100644
    if (NeedsHTTPOrigin(headers, method)) {
      url::Origin origin_header_value = initiator_origin.value_or(url::Origin());
 diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
-index 2a4b9b2a535f2..a0117b3443af9 100644
+index e22a59db4480b..adae681b160e2 100644
 --- a/content/renderer/render_frame_impl.cc
 +++ b/content/renderer/render_frame_impl.cc
-@@ -4507,6 +4507,31 @@ void RenderFrameImpl::FinalizeRequestInternal(
+@@ -4516,6 +4516,31 @@ void RenderFrameImpl::FinalizeRequestInternal(
      request.SetReferrerString(WebString());
      request.SetReferrerPolicy(network::mojom::ReferrerPolicy::kNever);
    }
