@@ -8,8 +8,8 @@ Subject: [PATCH] add support for other language content filtering dependent on
  DEPS                                          | 200 ++++++++++++++++++
  vanadium/android_config/BUILD.gn              |  20 ++
  vanadium/android_config/filter_lists/BUILD.gn | 160 ++++++++++++++
- .../vanadium/config/host/ConfigGenerator.java | 147 +++++++++++++
- 4 files changed, 527 insertions(+)
+ .../vanadium/config/host/ConfigGenerator.java | 155 ++++++++++++++
+ 4 files changed, 535 insertions(+)
 
 diff --git a/DEPS b/DEPS
 index 6e3a77876bb23..0051221bc137e 100644
@@ -424,10 +424,10 @@ index 311f4facef0d5..1c30abf594950 100644
  }
 \ No newline at end of file
 diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-index e73b03897d1e2..e0dc6e957d1ad 100644
+index e73b03897d1e2..fdd5aaf07f8c5 100644
 --- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
 +++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
-@@ -32,6 +32,153 @@ public class ConfigGenerator {
+@@ -32,6 +32,161 @@ public class ConfigGenerator {
                  .addAllComponents(components(
                          component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
                                  .setComponentFileName("unindexed_ruleset")
@@ -539,6 +539,14 @@ index e73b03897d1e2..e0dc6e957d1ad 100644
 +                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("nn"))
 +                                                        ,
 +                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("kl"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("da"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("fi"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("is"))
++                                                        ,
++                                                        componentCondition(componentConditionParams -> componentConditionParams.setLanguage("sv"))
 +                                                ))
 +                                        )
 +                                        ,
