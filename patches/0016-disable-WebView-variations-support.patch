@@ -9,10 +9,10 @@ Subject: [PATCH] disable WebView variations support
  2 files changed, 10 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index 1dfbbca9ec1b8..dd507aeb2c785 100644
+index b7fb5ea67293b..fd3883a6a2d61 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -665,12 +665,6 @@ public class WebViewChromiumAwInit {
+@@ -679,12 +679,6 @@ public class WebViewChromiumAwInit {
  
                      AwBrowserProcess.configureChildProcessLauncher();
  
@@ -26,10 +26,10 @@ index 1dfbbca9ec1b8..dd507aeb2c785 100644
  
          addBrowserProcessStartTasksToQueue(
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index ed4a0a7e1064d..3946199d3fcb8 100644
+index 394e3859feabb..2d7facd966842 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -661,10 +661,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -658,10 +658,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
              // This must happen after pref value has been read and SafeMode setup has completed.
              setupStartupTaskExperiments(androidXConfig);
  
@@ -39,4 +39,4 @@ index ed4a0a7e1064d..3946199d3fcb8 100644
 -
              if (WebViewCachedFlags.get()
                      .isCachedFeatureEnabled(AwFeatures.WEBVIEW_MOVE_WORK_TO_PROVIDER_INIT)) {
-                 PostTask.postTask(
+                 mAwInit.runNonUiThreadCapableStartupTasks();

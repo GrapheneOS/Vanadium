@@ -8,17 +8,17 @@ This patchset adds support to disable high entropy client hints or to
 populate some of it with information derived from reduced user agent in
 Android.
 ---
- .../embedder_support/user_agent_utils.cc      | 29 +++++++++++++++++++
- content/browser/client_hints/client_hints.cc  | 14 +++++++++
- third_party/blink/common/features.cc          |  8 +++++
+ .../embedder_support/user_agent_utils.cc      | 28 +++++++++++++++++++
+ content/browser/client_hints/client_hints.cc  | 14 ++++++++++
+ third_party/blink/common/features.cc          |  8 ++++++
  third_party/blink/public/common/features.h    |  3 ++
- 4 files changed, 54 insertions(+)
+ 4 files changed, 53 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
-index e2e1c68ab7d87..9f60748d59461 100644
+index 8ad68937f5262..89875b08f1691 100644
 --- a/components/embedder_support/user_agent_utils.cc
 +++ b/components/embedder_support/user_agent_utils.cc
-@@ -691,6 +691,35 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
+@@ -671,6 +671,34 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
                 : metadata;
    }
  
@@ -32,8 +32,7 @@ index e2e1c68ab7d87..9f60748d59461 100644
 +    // Values reflected from reduced user agent obtained from
 +    // GetReducedUserAgent from //content/common/user_agent.cc
 +    std::string reduced_version_number =
-+        base::StrCat({version_info::GetMajorVersionNumber(), ".0.",
-+                      blink::features::kUserAgentFrozenBuildVersion.Get(), ".0"});
++        base::StrCat({version_info::GetMajorVersionNumber(), ".0.0.0"});
 +    // See GetFormFactorsForClientHints. Do not include XR Form Factor.
 +    // By default, use "Mobile" or "Desktop" depending on the `mobile` bit.
 +    std::vector<std::string> form_factors = {
@@ -55,10 +54,10 @@ index e2e1c68ab7d87..9f60748d59461 100644
      return metadata;
    }
 diff --git a/content/browser/client_hints/client_hints.cc b/content/browser/client_hints/client_hints.cc
-index 7dd544f2ac121..278ec3daf0f4b 100644
+index 9ab260a73de45..95ba1b017a903 100644
 --- a/content/browser/client_hints/client_hints.cc
 +++ b/content/browser/client_hints/client_hints.cc
-@@ -861,6 +861,20 @@ void AddRequestClientHintsHeaders(
+@@ -860,6 +860,20 @@ void AddRequestClientHintsHeaders(
  
    GURL url = origin.GetURL();
  
@@ -80,12 +79,12 @@ index 7dd544f2ac121..278ec3daf0f4b 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 3416ee46fea0c..6be615b3b8611 100644
+index 8b6feefb344e7..7948d050339ce 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -375,6 +375,14 @@ BASE_FEATURE(kCaptureJSExecutionLocation, base::FEATURE_ENABLED_BY_DEFAULT);
- BASE_FEATURE(kCheckHTMLParserBudgetLessOften,
-              base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -373,6 +373,14 @@ BASE_FEATURE(kCanvas2DHibernationNoSmallCanvas,
+ // of the renderer eviction reasons for Back/Forward Cache.
+ BASE_FEATURE(kCaptureJSExecutionLocation, base::FEATURE_ENABLED_BY_DEFAULT);
  
 +// Enable low-entropy client hints only.
 +BASE_FEATURE(kClientHintsLowEntropyOnly,
@@ -99,16 +98,16 @@ index 3416ee46fea0c..6be615b3b8611 100644
               base::FEATURE_ENABLED_BY_DEFAULT);
  
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 45dbf0521937b..5f3f72c80ee10 100644
+index 96bab5aa51ee7..d2260d707575e 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -234,6 +234,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
- // If enabled, the HTMLDocumentParser will only check its budget after parsing a
- // commonly slow token or for one out of 10 fast tokens.
- BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCheckHTMLParserBudgetLessOften);
-+ 
+@@ -231,6 +231,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCanvas2DHibernationNoSmallCanvas);
+ 
+ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
+ 
 +BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsLowEntropyOnly);
 +BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClientHintsFromReducedUA);
- 
++ 
  // If enabled, the Clear-Site-Data header will handle "prefetchCache" and
  // "prerenderCache" to clear the Prefetch and Prerender caches respectively.
+ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kClearSiteDataPrefetchPrerenderCache);

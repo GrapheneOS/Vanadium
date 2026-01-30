@@ -11,10 +11,10 @@ Subject: [PATCH] Apply toggle for opening links in incognito for explicit
  3 files changed, 38 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index c6a4126aa66fe..28a491c7cadff 100644
+index c7355d94cdb9f..eac9581d27ac9 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1662,6 +1662,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -1663,6 +1663,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
                  return;
              }
  
@@ -23,20 +23,20 @@ index c6a4126aa66fe..28a491c7cadff 100644
              // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
              // adding NEW_TASK flag to make sure backing from CCT brings up the caller activity,
              // and not Chrome
-@@ -2161,6 +2163,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -2159,6 +2161,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
              Log.i(TAG, "#initializeState");
              Intent intent = getIntent();
  
 +            intent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(this, intent);
 +
-             boolean hadCipherData =
-                     CipherLazyHolder.sCipherInstance.restoreFromBundle(getSavedInstanceState());
- 
+             boolean hadCipherData = false;
+             PersistableBundle persistentState = getPersistentInstanceState();
+             if (shouldPersistAcrossReboots() && persistentState != null) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 1148a915f5e10..33461a5abcb13 100644
+index 6d58ebd6da16d..8383fca2cd84a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -508,6 +508,9 @@ public class LaunchIntentDispatcher {
+@@ -348,6 +348,9 @@ public class LaunchIntentDispatcher {
                      "Android.Intent.HasNonSpoofablePackageName", hasNonSpoofablePackageName());
              boolean identityShared = maybePutCallingAppPackage(newIntent);
              RecordHistogram.recordBooleanHistogram("Android.Intent.IdentityShared", identityShared);
@@ -47,7 +47,7 @@ index 1148a915f5e10..33461a5abcb13 100644
  
          if (mActivity instanceof ChromeLauncherActivity) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index 547e85324cac5..44a93116643d2 100644
+index 15ce590a23a0a..e3f8c19657965 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 @@ -4,6 +4,8 @@ import android.app.Activity;
@@ -56,10 +56,10 @@ index 547e85324cac5..44a93116643d2 100644
  
 +import org.chromium.base.IntentUtils;
 +
- final class LaunchIntentDispatcherHooks {
+ public final class LaunchIntentDispatcherHooks {
  
      private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
-@@ -41,4 +43,33 @@ final class LaunchIntentDispatcherHooks {
+@@ -41,4 +43,33 @@ public final class LaunchIntentDispatcherHooks {
  
          return newIntent;
      }

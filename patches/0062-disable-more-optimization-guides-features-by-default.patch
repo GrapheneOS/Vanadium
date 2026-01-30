@@ -25,10 +25,10 @@ index bde438ed438c6..71911553c4c65 100644
          download::DownloadClient::OPTIMIZATION_GUIDE_PREDICTION_MODELS,
          std::make_unique<download::DeferredClientWrapper>(
 diff --git a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
-index c398dbccc9294..32904a980b3b9 100644
+index c5915a0ff4fb4..d67c8248649a2 100644
 --- a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
 +++ b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
-@@ -190,8 +190,11 @@ ChromePredictionManager::ChromePredictionManager()
+@@ -189,8 +189,11 @@ ChromePredictionManager::ChromePredictionManager()
                            OptimizationGuideLogger::GetInstance(),
                            base::BindRepeating(&unzip::LaunchUnzipper)) {
    prediction_model_store_.Initialize(GetBaseStoreDir());
@@ -43,10 +43,10 @@ index c398dbccc9294..32904a980b3b9 100644
  ChromePredictionManager::~ChromePredictionManager() = default;
  
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index eea7f3faf7af9..7bba854531c3a 100644
+index cd2868de4272f..274e909c7b6b2 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -56,6 +56,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -55,6 +55,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
  // Enables the prediction of optimization targets.
  BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -57,7 +57,7 @@ index eea7f3faf7af9..7bba854531c3a 100644
  // This feature flag does not turn off any behavior, it is only used for
  // experiment parameters.
  BASE_FEATURE(kPageTextExtraction,
-@@ -339,6 +343,10 @@ base::TimeDelta ModelExecutionWatchdogDefaultTimeout() {
+@@ -338,6 +342,10 @@ base::TimeDelta ModelExecutionWatchdogDefaultTimeout() {
        ));
  }
  

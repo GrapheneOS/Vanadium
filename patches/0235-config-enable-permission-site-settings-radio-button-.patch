@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 17 Jan 2026 17:08:00 +0000
+Subject: [PATCH] config: enable permission site settings radio button by
+ default
+
+This is disabled by default on versions with older Chromium base version
+---
+ .../app/vanadium/config/host/ConfigGenerator.java      | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 7ab3440b5d8c6..7f9a4f22eb95c 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -199,6 +199,16 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER))
++                                .setMaxVersion(7559_999_99L)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("PermissionSiteSettingsRadioButton")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

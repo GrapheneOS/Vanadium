@@ -20,10 +20,10 @@ removes the Media Integrity blink extension API feature flag.
  7 files changed, 114 insertions(+), 6 deletions(-)
 
 diff --git a/android_webview/browser/aw_content_browser_client_receiver_bindings.cc b/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
-index 9ef39f6192263..e1ef09e03b5fe 100644
+index 9634fc6f2edc4..d3b10b68a1db8 100644
 --- a/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
 +++ b/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
-@@ -269,8 +269,13 @@ void AwContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+@@ -268,8 +268,13 @@ void AwContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
    map->Add<spellcheck::mojom::SpellCheckHost>(
        create_spellcheck_host, content::GetUIThreadTaskRunner({}));
  #endif
@@ -40,10 +40,10 @@ index 9ef39f6192263..e1ef09e03b5fe 100644
      map->Add<payments::mojom::PaymentRequest>(
          &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
 diff --git a/android_webview/common/aw_feature_map.cc b/android_webview/common/aw_feature_map.cc
-index eaf32e97d9204..405cd765f0413 100644
+index 4af2fde3cd318..7bb9976c6c494 100644
 --- a/android_webview/common/aw_feature_map.cc
 +++ b/android_webview/common/aw_feature_map.cc
-@@ -51,6 +51,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -52,6 +52,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &features::kWebViewHyperlinkContextMenu,
      &features::kWebViewInvokeZoomPickerOnGSU,
      &features::kWebViewLazyFetchHandWritingIcon,
@@ -52,7 +52,7 @@ index eaf32e97d9204..405cd765f0413 100644
      &features::kWebViewMoveWorkToProviderInit,
      &features::kWebViewOptInToGmsBindServiceOptimization,
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index 046804a879862..f68dde5a76179 100644
+index 946cf40e6a7c4..73b535eef9f2e 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
 @@ -47,6 +47,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -64,26 +64,26 @@ index 046804a879862..f68dde5a76179 100644
 +BASE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension,
 +             base::FEATURE_DISABLED_BY_DEFAULT);
 +
- // When enabled, passive mixed content (Audio/Video/Image subresources loaded
- // over HTTP on HTTPS sites) will be autoupgraded to HTTPS, and the load will be
- // blocked if the resource fails to load over HTTPS. This only affects apps that
+ // When enabled, cookie policy settings are captured at RestrictedCookieManager
+ // creation time and used throughout its lifetime. This enables shared memory
+ // cookie versioning to reduce IPC overhead.
 diff --git a/android_webview/common/aw_features.h b/android_webview/common/aw_features.h
-index 9e34164142791..b225b6a3b2fc7 100644
+index e1e2add9cedba..8fefbcd7ac4c1 100644
 --- a/android_webview/common/aw_features.h
 +++ b/android_webview/common/aw_features.h
-@@ -24,6 +24,7 @@ BASE_DECLARE_FEATURE(kWebViewFileSystemAccess);
- BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
+@@ -25,6 +25,7 @@ BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
  BASE_DECLARE_FEATURE(kWebViewInvokeZoomPickerOnGSU);
  BASE_DECLARE_FEATURE(kWebViewLazyFetchHandWritingIcon);
+ BASE_DECLARE_FEATURE(kWebViewLatchedCookiePolicy);
 +BASE_DECLARE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension);
  BASE_DECLARE_FEATURE(kWebViewMixedContentAutoupgrades);
  BASE_DECLARE_FEATURE(kWebViewRenderDocument);
  BASE_DECLARE_FEATURE(kWebViewTestFeature);
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-index 986ef05e2a753..db3aa564d419f 100644
+index cb605ae82931f..61e42e6d56d0b 100644
 --- a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
 +++ b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-@@ -635,6 +635,10 @@ public final class ProductionSupportedFlagList {
+@@ -633,6 +633,10 @@ public final class ProductionSupportedFlagList {
          Flag.baseFeature("V8ScavengerHigherCapacity"),
          Flag.baseFeature("V8IncrementalMarkingStartUserVisible"),
          Flag.baseFeature("V8ExternalMemoryAccountedInGlobalLimit"),

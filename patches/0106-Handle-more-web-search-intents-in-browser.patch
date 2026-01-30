@@ -6,7 +6,7 @@ Subject: [PATCH] Handle more web search intents in browser
 ---
  .../src/org/chromium/base/PackageManagerUtils.java     | 10 ++++++++++
  chrome/android/java/AndroidManifest.xml                |  5 +++++
- .../chrome/browser/LaunchIntentDispatcher.java         |  2 +-
+ .../browser/document/ChromeLauncherActivity.java       |  2 +-
  3 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/base/android/java/src/org/chromium/base/PackageManagerUtils.java b/base/android/java/src/org/chromium/base/PackageManagerUtils.java
@@ -31,10 +31,10 @@ index 56b1dcd70350e..1fa3a887eccb3 100644
       * @return Intent to query a list of installed home launchers.
       */
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index b1243b8627e0a..070080abdc781 100644
+index c75a6da6e85d6..977173cff1196 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1004,6 +1004,11 @@ by a child template that "extends" this file.
+@@ -1017,6 +1017,11 @@ by a child template that "extends" this file.
                  <!-- Permits Chrome to act as a default handler for WEB_SEARCH intents. -->
                  <category android:name="android.intent.category.DEFAULT" />
              </intent-filter>
@@ -46,16 +46,16 @@ index b1243b8627e0a..070080abdc781 100644
        </activity>
  
          <!-- GcmListenerService for messages from GCM. -->
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index fff2b6e255621..b738ba4371a06 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -232,7 +232,7 @@ public class LaunchIntentDispatcher {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
+index cb7c36fb5b94f..9d12638baf5d2 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
+@@ -167,7 +167,7 @@ public class ChromeLauncherActivity extends Activity {
          Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
          searchIntent.putExtra(SearchManager.QUERY, query);
  
 -        if (PackageManagerUtils.canResolveActivity(
 +        if (PackageManagerUtils.canOnlyOthersResolveActivity(
                  searchIntent, PackageManager.GET_RESOLVED_FILTER)) {
-             mActivity.startActivity(searchIntent);
+             startActivity(searchIntent);
          } else {

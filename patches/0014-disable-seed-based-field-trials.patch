@@ -13,7 +13,7 @@ Subject: [PATCH] disable seed-based field trials
  create mode 100644 components/variations/common_ext/BUILD.gn
 
 diff --git a/components/variations/BUILD.gn b/components/variations/BUILD.gn
-index 3a3f80d4b79c4..401e7bb54b3c1 100644
+index 461090ba3006c..b9415bd4ac7d5 100644
 --- a/components/variations/BUILD.gn
 +++ b/components/variations/BUILD.gn
 @@ -165,6 +165,13 @@ component("variations") {
@@ -73,7 +73,7 @@ index f807c730f5bb9..26d42f5d86414 100644
  
  source_set("unit_tests") {
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index a52261ae7bd60..ac822eddd80f5 100644
+index f5fd727d0d0bc..fdeb22dc44ef1 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
 @@ -41,6 +41,7 @@
@@ -84,7 +84,7 @@ index a52261ae7bd60..ac822eddd80f5 100644
  #include "components/variations/entropy_provider.h"
  #include "components/variations/field_trial_config/field_trial_util.h"
  #include "components/variations/platform_field_trials.h"
-@@ -289,9 +290,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -288,9 +289,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
@@ -100,7 +100,7 @@ index a52261ae7bd60..ac822eddd80f5 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -356,26 +363,34 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -355,26 +362,34 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {

@@ -12,9 +12,9 @@ JNI bind RulesetService.GetMostRecentlyIndexedVersion()
 ---
  .../subresource_filter/android/BUILD.gn       | 38 +++++++++
  .../subresource_filter/RulesetUpdater.java    | 80 +++++++++++++++++++
- .../android/ruleset_updater.cc                | 60 ++++++++++++++
+ .../android/ruleset_updater.cc                | 62 ++++++++++++++
  .../android/ruleset_updater.h                 | 17 ++++
- 4 files changed, 195 insertions(+)
+ 4 files changed, 197 insertions(+)
  create mode 100644 chrome/browser/subresource_filter/android/BUILD.gn
  create mode 100644 chrome/browser/subresource_filter/android/java/src/org/chromium/chrome/browser/subresource_filter/RulesetUpdater.java
  create mode 100644 chrome/browser/subresource_filter/android/ruleset_updater.cc
@@ -152,10 +152,10 @@ index 0000000000000..7f547b724ebc9
 +}
 diff --git a/chrome/browser/subresource_filter/android/ruleset_updater.cc b/chrome/browser/subresource_filter/android/ruleset_updater.cc
 new file mode 100644
-index 0000000000000..afdad76914a22
+index 0000000000000..b97c4c6ab0ab2
 --- /dev/null
 +++ b/chrome/browser/subresource_filter/android/ruleset_updater.cc
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,62 @@
 +// Copyright 2023-2024 GrapheneOS
 +// Use of this source code is governed by a GPL-2.0-style license that can be
 +// found in the LICENSE file.
@@ -169,19 +169,19 @@ index 0000000000000..afdad76914a22
 +#include "base/android/jni_string.h"
 +#include "chrome/browser/browser_process.h"
 +#include "chrome/browser/subresource_filter/android/jni_headers/RulesetUpdater_jni.h"
-+#include "components/subresource_filter/content/shared/browser/ruleset_service.h"
++#include "components/subresource_filter/content/browser/ruleset_service.h"
 +#include "components/subresource_filter/core/browser/ruleset_version.h"
 +
 +using base::android::ConvertJavaStringToUTF8;
 +using base::android::ConvertUTF8ToJavaString;
-+using base::android::JavaParamRef;
++using base::android::JavaRef;
 +using base::android::ScopedJavaLocalRef;
 +
 +namespace subresource_filter {
 +
 +static void JNI_RulesetUpdater_Update(JNIEnv *env,
-+    const JavaParamRef<jstring>& junindexed_content_version,
-+    const JavaParamRef<jstring>& junindexed_ruleset_path) {
++    const JavaRef<jstring>& junindexed_content_version,
++    const JavaRef<jstring>& junindexed_ruleset_path) {
 +  const std::string unindexed_content_version =
 +      ConvertJavaStringToUTF8(env, junindexed_content_version);
 +  const std::string unindexed_ruleset_path =
@@ -214,6 +214,8 @@ index 0000000000000..afdad76914a22
 +  return ConvertUTF8ToJavaString(env,
 +      ruleset_service->GetMostRecentlyIndexedVersion().content_version);
 +}
++
++DEFINE_JNI(RulesetUpdater)
 +
 +} // namespace subresource_filter
 diff --git a/chrome/browser/subresource_filter/android/ruleset_updater.h b/chrome/browser/subresource_filter/android/ruleset_updater.h

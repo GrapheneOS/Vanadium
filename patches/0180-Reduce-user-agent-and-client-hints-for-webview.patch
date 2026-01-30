@@ -10,10 +10,10 @@ Subject: [PATCH] Reduce user agent and client hints for webview
  3 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
-index 093dadfd1fa18..38e93cf9b6ae0 100644
+index cd6baf2e08d4c..689ab3c317acd 100644
 --- a/android_webview/browser/aw_field_trials.cc
 +++ b/android_webview/browser/aw_field_trials.cc
-@@ -84,10 +84,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+@@ -89,10 +89,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
    // Disable launch_handler on WebView.
    aw_feature_overrides.DisableFeature(::features::kAndroidWebAppLaunchHandler);
  
@@ -25,10 +25,10 @@ index 093dadfd1fa18..38e93cf9b6ae0 100644
    aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
  
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index f68dde5a76179..0faa534f3937e 100644
+index 73b535eef9f2e..04c26f25b673e 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -103,7 +103,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
+@@ -108,7 +108,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
  
  // This enables reducing webview user-agent android version and device model.
  BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
@@ -38,10 +38,10 @@ index f68dde5a76179..0faa534f3937e 100644
  // This enables WebView crashes.
  BASE_FEATURE(kWebViewEnableCrash, base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 3946199d3fcb8..f52c7ccc4ec4e 100644
+index 2d7facd966842..4a44a58e67172 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -676,18 +676,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -668,18 +668,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
              helper.applyFlagOverrides(
                      Map.of(AwFeatures.WEBVIEW_FILE_SYSTEM_ACCESS, shouldEnableFileSystemAccess()));
  

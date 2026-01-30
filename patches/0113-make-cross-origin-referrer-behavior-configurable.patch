@@ -401,7 +401,7 @@ index 0000000000000..520a22ee8756b
 +    private CrossOriginReferrerPolicyUtils() {}
 +}
 diff --git a/chrome/browser/net/profile_network_context_service.cc b/chrome/browser/net/profile_network_context_service.cc
-index 33ae329e398fb..90f713506be84 100644
+index 39aa7a3a463d1..576e43eaf56ae 100644
 --- a/chrome/browser/net/profile_network_context_service.cc
 +++ b/chrome/browser/net/profile_network_context_service.cc
 @@ -96,6 +96,7 @@
@@ -412,7 +412,7 @@ index 33ae329e398fb..90f713506be84 100644
  #include "services/network/public/mojom/network_context.mojom.h"
  #include "services/network/public/mojom/network_service.mojom.h"
  #include "third_party/blink/public/common/features.h"
-@@ -474,6 +475,11 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -482,6 +483,11 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
        prefs::kEnableReferrers, profile_prefs,
        base::BindRepeating(&ProfileNetworkContextService::UpdateReferrersEnabled,
                            base::Unretained(this)));
@@ -424,7 +424,7 @@ index 33ae329e398fb..90f713506be84 100644
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
  
-@@ -605,6 +611,8 @@ void ProfileNetworkContextService::RegisterProfilePrefs(
+@@ -613,6 +619,8 @@ void ProfileNetworkContextService::RegisterProfilePrefs(
    registry->RegisterBooleanPref(prefs::kGloballyScopeHTTPAuthCacheEnabled,
                                  false);
    registry->RegisterListPref(prefs::kHSTSPolicyBypassList);
@@ -433,7 +433,7 @@ index 33ae329e398fb..90f713506be84 100644
    registry->RegisterListPref(prefs::kCACertificates);
    registry->RegisterListPref(prefs::kCACertificatesWithConstraints);
    registry->RegisterListPref(prefs::kCADistrustedCertificates);
-@@ -708,6 +716,16 @@ void ProfileNetworkContextService::UpdateReferrersEnabled() {
+@@ -707,6 +715,16 @@ void ProfileNetworkContextService::UpdateReferrersEnabled() {
        });
  }
  
@@ -451,10 +451,10 @@ index 33ae329e398fb..90f713506be84 100644
    auto* prefs = profile_->GetPrefs();
    const base::Value::List& ct_excluded =
 diff --git a/chrome/browser/net/profile_network_context_service.h b/chrome/browser/net/profile_network_context_service.h
-index f1c7291eca17f..dd8d50c70f0bb 100644
+index e506f2638e969..cf31ab168955d 100644
 --- a/chrome/browser/net/profile_network_context_service.h
 +++ b/chrome/browser/net/profile_network_context_service.h
-@@ -171,6 +171,7 @@ class ProfileNetworkContextService
+@@ -170,6 +170,7 @@ class ProfileNetworkContextService
    std::string ComputeAcceptLanguage() const;
  
    void UpdateReferrersEnabled();
@@ -462,7 +462,7 @@ index f1c7291eca17f..dd8d50c70f0bb 100644
  
    // Gets the current CTPolicy from preferences.
    network::mojom::CTPolicyPtr GetCTPolicy();
-@@ -256,6 +257,7 @@ class ProfileNetworkContextService
+@@ -254,6 +255,7 @@ class ProfileNetworkContextService
    BooleanPrefMember quic_allowed_;
    StringPrefMember pref_accept_language_;
    BooleanPrefMember enable_referrers_;
@@ -471,10 +471,10 @@ index f1c7291eca17f..dd8d50c70f0bb 100644
  #if BUILDFLAG(IS_CHROMEOS)
    // These prefs are only used on ChromeOS in the login screen profile.
 diff --git a/chrome/browser/renderer_preferences_util.cc b/chrome/browser/renderer_preferences_util.cc
-index 6c664c1ed0a18..1ca9e761aa494 100644
+index 0768b062826e6..21f9a831b380e 100644
 --- a/chrome/browser/renderer_preferences_util.cc
 +++ b/chrome/browser/renderer_preferences_util.cc
-@@ -149,6 +149,9 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
+@@ -150,6 +150,9 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
    prefs->caret_blink_interval =
        ui::NativeTheme::GetInstanceForNativeUi()->caret_blink_interval();
    prefs->enable_referrers = pref_service->GetBoolean(prefs::kEnableReferrers);
@@ -522,10 +522,10 @@ index f1436cb64748b..cce31738938e1 100644
                                       renderer_callback);
    profile_pref_change_registrar_.Add(prefs::kWebRTCIPHandlingPolicy,
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
-index 595d550099c99..40dda32b0c018 100644
+index 898e1c48db1e1..9280600c3143a 100644
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -1551,6 +1551,10 @@ inline constexpr char kEnableHyperlinkAuditing[] = "enable_a_ping";
+@@ -1548,6 +1548,10 @@ inline constexpr char kEnableHyperlinkAuditing[] = "enable_a_ping";
  // Whether to enable sending referrers.
  inline constexpr char kEnableReferrers[] = "enable_referrers";
  
@@ -537,10 +537,10 @@ index 595d550099c99..40dda32b0c018 100644
  inline constexpr char kEnableDoNotTrack[] = "enable_do_not_track";
  
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
-index 9bdb7c10319be..d1a0917e8be96 100644
+index 401397fd1fc1e..e8fb444d23aa0 100644
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
-@@ -403,6 +403,29 @@ void AddAdditionalRequestHeaders(
+@@ -397,6 +397,29 @@ void AddAdditionalRequestHeaders(
          blink::mojom::Referrer(GURL(), network::mojom::ReferrerPolicy::kNever);
    }
  
@@ -571,10 +571,10 @@ index 9bdb7c10319be..d1a0917e8be96 100644
    if (NeedsHTTPOrigin(headers, method)) {
      url::Origin origin_header_value = initiator_origin.value_or(url::Origin());
 diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
-index e22a59db4480b..adae681b160e2 100644
+index 76fea215163d0..85ae53503566d 100644
 --- a/content/renderer/render_frame_impl.cc
 +++ b/content/renderer/render_frame_impl.cc
-@@ -4516,6 +4516,31 @@ void RenderFrameImpl::FinalizeRequestInternal(
+@@ -4521,6 +4521,31 @@ void RenderFrameImpl::FinalizeRequestInternal(
      request.SetReferrerString(WebString());
      request.SetReferrerPolicy(network::mojom::ReferrerPolicy::kNever);
    }
@@ -607,10 +607,10 @@ index e22a59db4480b..adae681b160e2 100644
  
  void RenderFrameImpl::DidLoadResourceFromMemoryCache(
 diff --git a/services/network/network_context.cc b/services/network/network_context.cc
-index 48d5d5c0eb741..44f04b5649f27 100644
+index 32a30604eb963..26fd653c93ec3 100644
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -1803,6 +1803,15 @@ void NetworkContext::SetEnableReferrers(bool enable_referrers) {
+@@ -1781,6 +1781,15 @@ void NetworkContext::SetEnableReferrers(bool enable_referrers) {
    network_delegate_->set_enable_referrers(enable_referrers);
  }
  
@@ -626,7 +626,7 @@ index 48d5d5c0eb741..44f04b5649f27 100644
  #if BUILDFLAG(IS_CT_SUPPORTED)
  void NetworkContext::SetCTPolicy(mojom::CTPolicyPtr ct_policy) {
    if (!require_ct_delegate_) {
-@@ -2700,6 +2709,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2678,6 +2687,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
    std::unique_ptr<NetworkServiceNetworkDelegate> network_delegate =
        std::make_unique<NetworkServiceNetworkDelegate>(
            params_->enable_referrers,
@@ -635,19 +635,19 @@ index 48d5d5c0eb741..44f04b5649f27 100644
            std::move(params_->proxy_error_client), this);
    network_delegate_ = network_delegate.get();
 diff --git a/services/network/network_context.h b/services/network/network_context.h
-index 855d72bd52824..ebff7e8f365b1 100644
+index f08d4e8883b04..25e8c336adaeb 100644
 --- a/services/network/network_context.h
 +++ b/services/network/network_context.h
-@@ -62,6 +62,7 @@
+@@ -60,6 +60,7 @@
+ #include "services/network/public/mojom/cookie_access_observer.mojom.h"
  #include "services/network/public/mojom/cookie_manager.mojom-shared.h"
  #include "services/network/public/mojom/host_resolver.mojom.h"
- #include "services/network/public/mojom/network_context.mojom-forward.h"
 +#include "services/network/public/mojom/network_context.mojom-shared.h"
  #include "services/network/public/mojom/network_context.mojom.h"
  #include "services/network/public/mojom/network_context_client.mojom.h"
  #include "services/network/public/mojom/network_service.mojom-forward.h"
-@@ -326,6 +327,8 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
-       override;
+@@ -320,6 +321,8 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
+       std::vector<mojom::MatchedNetworkConditionsPtr> conditions) override;
    void SetAcceptLanguage(const std::string& new_accept_language) override;
    void SetEnableReferrers(bool enable_referrers) override;
 +  void SetCrossOriginReferrerPolicy(
@@ -753,10 +753,10 @@ index 436f60d5d1fa7..4e488227588bc 100644
    mojo::Remote<mojom::ProxyErrorClient> proxy_error_client_;
    raw_ptr<NetworkContext> network_context_;
 diff --git a/services/network/public/mojom/network_context.mojom b/services/network/public/mojom/network_context.mojom
-index 709aae5568b73..5555298e67da2 100644
+index 918f209e89912..ab2d9231f1e5b 100644
 --- a/services/network/public/mojom/network_context.mojom
 +++ b/services/network/public/mojom/network_context.mojom
-@@ -301,6 +301,12 @@ struct NetworkContextFilePaths {
+@@ -304,6 +304,12 @@ struct NetworkContextFilePaths {
    bool trigger_migration = false;
  };
  
@@ -769,7 +769,7 @@ index 709aae5568b73..5555298e67da2 100644
  // Socket brokers used by the ClientSocketFactory for client sockets and
  // SocketFactory for server sockets.
  [EnableIf=is_win]
-@@ -328,6 +334,10 @@ struct NetworkContextParams {
+@@ -331,6 +337,10 @@ struct NetworkContextParams {
    // If false, the referrer of requests is never populated.
    bool enable_referrers = true;
  
@@ -780,7 +780,7 @@ index 709aae5568b73..5555298e67da2 100644
    // If true, requests initiated with referrers that don't match their referrer
    // policy will fail.
    bool validate_referrer_policy_on_initial_request = true;
-@@ -1289,6 +1299,10 @@ interface NetworkContext {
+@@ -1278,6 +1288,10 @@ interface NetworkContext {
    // If false, the referrer of requests is never populated.
    SetEnableReferrers(bool enable_referrers);
  
@@ -792,7 +792,7 @@ index 709aae5568b73..5555298e67da2 100644
    // NetworkContextParams set enforce_chrome_ct_policy to true.
    // TODO(rsleevi): Remove this once Chrome-specific policies are moved out
 diff --git a/services/network/test/test_network_context.h b/services/network/test/test_network_context.h
-index 9cb5bc9cb42c6..625c9444fff44 100644
+index d75be1e0f5090..8f88566fa97e9 100644
 --- a/services/network/test/test_network_context.h
 +++ b/services/network/test/test_network_context.h
 @@ -158,6 +158,8 @@ class TestNetworkContext : public mojom::NetworkContext {

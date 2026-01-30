@@ -9,10 +9,10 @@ Subject: [PATCH] bugfix: add missing null check for updating preferences in
  1 file changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 8d2eed2d2f227..71dc055818496 100644
+index 333f2f0f020df..bf1f497b9d644 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -459,11 +459,13 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -466,11 +466,13 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
          }
  
          Preference javascriptOptimizerPref = findPreference(PREF_JAVASCRIPT_OPTIMIZER);
@@ -26,8 +26,8 @@ index 8d2eed2d2f227..71dc055818496 100644
 +                    WebsitePreferenceBridge.isCategoryEnabled(
 +                                    getProfile(), ContentSettingsType.JAVASCRIPT_OPTIMIZER)
 +                            ? R.string.website_settings_category_javascript_optimizer_allowed_list
-+                           : R.string.website_settings_category_javascript_optimizer_blocked_list);
++                            : R.string.website_settings_category_javascript_optimizer_blocked_list);
 +        }
      }
  
-     private boolean showTrackingProtectionUi() {
+     /** Shows the advanced-protection-section if needed. */

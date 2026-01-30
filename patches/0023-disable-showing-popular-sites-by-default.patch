@@ -22,10 +22,10 @@ index 540e0b04c06c5..569b304845767 100644
  BASE_FEATURE(kNtpMostLikelyFaviconsFromServerFeature,
               "NTPMostLikelyFaviconsFromServer",
 diff --git a/components/ntp_tiles/most_visited_sites.cc b/components/ntp_tiles/most_visited_sites.cc
-index 686c1b7343ed5..85cd89a758ec0 100644
+index 7212843b6299f..d539e63699632 100644
 --- a/components/ntp_tiles/most_visited_sites.cc
 +++ b/components/ntp_tiles/most_visited_sites.cc
-@@ -258,9 +258,11 @@ void MostVisitedSites::AddMostVisitedURLsObserver(Observer* observer,
+@@ -265,9 +265,11 @@ void MostVisitedSites::AddMostVisitedURLsObserver(
    if (!is_observing_) {
      is_observing_ = true;
      if (popular_sites_ && NeedPopularSites(prefs_, GetMaxNumSites())) {
@@ -37,7 +37,7 @@ index 686c1b7343ed5..85cd89a758ec0 100644
      }
  
      if (top_sites_) {
-@@ -627,6 +629,7 @@ MostVisitedSites::CreatePopularSitesSections(
+@@ -634,6 +636,7 @@ MostVisitedSites::CreatePopularSitesSections(
      return sections;
    }
  
@@ -45,7 +45,7 @@ index 686c1b7343ed5..85cd89a758ec0 100644
    const std::set<std::string> no_hosts;
    for (const auto& section_type_and_sites : popular_sites()->sections()) {
      SectionType type = section_type_and_sites.first;
-@@ -644,6 +647,7 @@ MostVisitedSites::CreatePopularSitesSections(
+@@ -651,6 +654,7 @@ MostVisitedSites::CreatePopularSitesSections(
                                    /*num_max_tiles=*/GetMaxNumSites());
      }
    }

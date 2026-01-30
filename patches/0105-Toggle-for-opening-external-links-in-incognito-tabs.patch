@@ -65,10 +65,10 @@ index ea1dd6c3f529c..4f6b5a3ae75a5 100644
  </PreferenceScreen>
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 8fd885625dae0..c6a4126aa66fe 100644
+index d45f0ec9e8e69..c7355d94cdb9f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -4067,6 +4067,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -4047,6 +4047,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
          // - we decided to close the tab, but it was opened by an external app, so we will go
          //   exit Chrome on top of closing the tab
          final boolean minimizeApp =
@@ -78,10 +78,10 @@ index 8fd885625dae0..c6a4126aa66fe 100644
  
          BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 82ee706858de4..fff2b6e255621 100644
+index 989594ac0f66c..21c94cfd5bfa5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -486,6 +486,7 @@ public class LaunchIntentDispatcher {
+@@ -333,6 +333,7 @@ public class LaunchIntentDispatcher {
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {
@@ -91,7 +91,7 @@ index 82ee706858de4..fff2b6e255621 100644
              }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 new file mode 100644
-index 0000000000000..aaec00177de6e
+index 0000000000000..ecad711e804df
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 @@ -0,0 +1,15 @@
@@ -100,7 +100,7 @@ index 0000000000000..aaec00177de6e
 +import android.app.Activity;
 +import android.content.Intent;
 +
-+final class LaunchIntentDispatcherHooks {
++public final class LaunchIntentDispatcherHooks {
 +    static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
 +        Intent newIntent = intent;
 +        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {

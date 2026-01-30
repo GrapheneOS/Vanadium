@@ -14,10 +14,10 @@ settings.
  2 files changed, 12 insertions(+)
 
 diff --git a/components/content_settings/core/browser/content_settings_default_provider.cc b/components/content_settings/core/browser/content_settings_default_provider.cc
-index b4ff0f8db3a59..9cb0c734eb09c 100644
+index eb69bd3c495b0..a566fa3d3f11e 100644
 --- a/components/content_settings/core/browser/content_settings_default_provider.cc
 +++ b/components/content_settings/core/browser/content_settings_default_provider.cc
-@@ -86,8 +86,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialDefaultPref[] =
+@@ -87,8 +87,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialDefaultPref[] =
  // except via enterprise policy, so it is temporarily cleaned up here to revert
  // it to its default value.
  // TODO(https://crbug.com/367181093): clean this up.
@@ -25,10 +25,10 @@ index b4ff0f8db3a59..9cb0c734eb09c 100644
  constexpr char kBug364820109AlreadyWorkedAroundPref[] =
      "profile.did_work_around_bug_364820109_default";
 +#endif  // !BUILDFLAG(IS_ANDROID)
+ constexpr char kLocalNetworkAccessMigrateDefaultValuePref[] =
+     "profile.default_content_setting_values.has_migrated_local_network_access";
  #endif  // !BUILDFLAG(IS_IOS)
- 
- base::Value GetDefaultValue(const WebsiteSettingsInfo* info) {
-@@ -155,8 +157,10 @@ void DefaultProvider::RegisterProfilePrefs(
+@@ -162,8 +164,10 @@ void DefaultProvider::RegisterProfilePrefs(
    registry->RegisterIntegerPref(kObsoletePrivateNetworkGuardDefaultPref, 0);
  
  #if !BUILDFLAG(IS_IOS)
@@ -39,7 +39,7 @@ index b4ff0f8db3a59..9cb0c734eb09c 100644
  #endif  // !BUILDFLAG(IS_IOS)
  }
  
-@@ -410,8 +414,10 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
+@@ -420,8 +424,10 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
    prefs_->ClearPref(kObsoletePrivateNetworkGuardDefaultPref);
  
  #if !BUILDFLAG(IS_IOS)
@@ -51,10 +51,10 @@ index b4ff0f8db3a59..9cb0c734eb09c 100644
  }
  
 diff --git a/components/content_settings/core/browser/content_settings_pref_provider.cc b/components/content_settings/core/browser/content_settings_pref_provider.cc
-index c71bd5a1e04f7..0a353950d3aa4 100644
+index 403c5d0e68c46..a95e7ec82235e 100644
 --- a/components/content_settings/core/browser/content_settings_pref_provider.cc
 +++ b/components/content_settings/core/browser/content_settings_pref_provider.cc
-@@ -75,8 +75,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialExceptionsPref[] =
+@@ -76,8 +76,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialExceptionsPref[] =
  // except via enterprise policy, so it is temporarily cleaned up here to revert
  // it to its default value.
  // TODO(https://crbug.com/367181093): clean this up.
@@ -62,20 +62,20 @@ index c71bd5a1e04f7..0a353950d3aa4 100644
  constexpr char kBug364820109AlreadyWorkedAroundPref[] =
      "profile.did_work_around_bug_364820109_exceptions";
 +#endif  // !BUILDFLAG(IS_ANDROID)
+ constexpr char kLocalNetworkAccessMigrateExceptionsPref[] =
+     "profile.content_settings.exceptions.has_migrated_local_network_access";
  #endif  // !BUILDFLAG(IS_IOS)
- 
- }  // namespace
-@@ -123,7 +125,9 @@ void PrefProvider::RegisterProfilePrefs(
+@@ -126,7 +128,9 @@ void PrefProvider::RegisterProfilePrefs(
    registry->RegisterDictionaryPref(
        kObsoleteTopLevelTpcdOriginTrialExceptionsPref);
    // TODO(https://crbug.com/367181093): clean this up.
 +#if !BUILDFLAG(IS_ANDROID)
    registry->RegisterBooleanPref(kBug364820109AlreadyWorkedAroundPref, false);
 +#endif  // !BUILDFLAG(IS_ANDROID)
+   registry->RegisterBooleanPref(kLocalNetworkAccessMigrateExceptionsPref,
+                                 false);
  #endif  // !BUILDFLAG(IS_IOS)
- }
- 
-@@ -450,7 +454,9 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
+@@ -458,7 +462,9 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
    prefs_->ClearPref(kObsoleteTopLevelTpcdTrialExceptionsPref);
    prefs_->ClearPref(kObsoleteTopLevelTpcdOriginTrialExceptionsPref);
    // TODO(https://crbug.com/367181093): clean this up.

@@ -14,7 +14,7 @@ Microsoft Edge DrumBrake WebAssembly developer team.
 
 diff --git a/vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch b/vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch
 new file mode 100644
-index 0000000000000..e44dadc838da0
+index 0000000000000..c7d78281387e9
 --- /dev/null
 +++ b/vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch
 @@ -0,0 +1,22 @@
@@ -29,12 +29,12 @@ index 0000000000000..e44dadc838da0
 + 1 file changed, 1 insertion(+)
 +
 +diff --git a/gni/v8.gni b/gni/v8.gni
-+index 3c4f50334fd..37fc077d332 100644
++index 1648a63a9fc..b40d5c683c4 100644
 +--- a/gni/v8.gni
 ++++ b/gni/v8.gni
-+@@ -326,6 +326,7 @@ is_drumbrake_supported =
-+     v8_enable_webassembly && v8_enable_pointer_compression &&
-+     (v8_current_cpu == "x64" || v8_current_cpu == "arm64") &&
++@@ -325,6 +325,7 @@ is_drumbrake_supported =
++     (v8_current_cpu == "x64" || v8_current_cpu == "arm64" ||
++      v8_current_cpu == "riscv64") &&
 +     (target_os == "win" || target_os == "linux" || target_os == "mac" ||
 ++     target_os == "android" ||
 +      target_os == "ios")
@@ -42,7 +42,7 @@ index 0000000000000..e44dadc838da0
 + # Turbofan is enabled by default, except in lite mode.
 diff --git a/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch b/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
 new file mode 100644
-index 0000000000000..a69e1dc1c26dc
+index 0000000000000..c0708e8620b25
 --- /dev/null
 +++ b/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
 @@ -0,0 +1,28 @@
@@ -52,11 +52,11 @@ index 0000000000000..a69e1dc1c26dc
 +Subject: [PATCH] drumbrake: disable support for 32-bit binary compilation
 +
 +---
-+ BUILD.gn | 8 ++++++++
-+ 1 file changed, 8 insertions(+)
++ BUILD.gn | 12 ++++++++++++
++ 1 file changed, 12 insertions(+)
 +
 +diff --git a/BUILD.gn b/BUILD.gn
-+index 1bb7fc93c10..a37eba36c6b 100644
++index ac3e13fc216..85100d3b2ab 100644
 +--- a/BUILD.gn
 ++++ b/BUILD.gn
 +@@ -552,6 +552,14 @@ if (v8_enable_snapshot_native_code_counters == "") {

@@ -4,19 +4,245 @@ Date: Sun, 1 Jun 2025 15:36:35 +0000
 Subject: [PATCH] Disable opening PDF in the app by default
 
 ---
- content/public/common/content_features.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../CustomTabAppMenuPropertiesDelegate.java   |  9 +++++--
+ ...mTabAppMenuPropertiesDelegateUnitTest.java |  7 +++++-
+ .../flags/android/chrome_feature_list.cc      |  2 ++
+ .../flags/android/chrome_feature_list.h       |  1 +
+ .../browser/flags/ChromeFeatureList.java      |  1 +
+ .../chrome/browser/pdf/PdfPageUnitTest.java   |  3 +++
+ .../chromium/chrome/browser/pdf/PdfUtils.java | 25 +++++++++++++++++--
+ .../browser/android/content_feature_map.cc    |  1 +
+ .../browser/ContentFeatureList.java           |  2 ++
+ content/public/common/content_features.cc     |  3 +++
+ content/public/common/content_features.h      |  1 +
+ 11 files changed, 50 insertions(+), 5 deletions(-)
 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
+index ce6fad0847230..8149d437eb72c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
+@@ -40,6 +40,8 @@ import org.chromium.chrome.browser.toolbar.ToolbarManager;
+ import org.chromium.chrome.browser.ui.appmenu.AppMenuHandler;
+ import org.chromium.chrome.browser.ui.appmenu.AppMenuItemProperties;
+ import org.chromium.components.embedder_support.util.UrlConstants;
++import org.chromium.content_public.browser.ContentFeatureList;
++import org.chromium.content_public.browser.ContentFeatureMap;
+ import org.chromium.ui.modelutil.MVCListAdapter;
+ import org.chromium.ui.modelutil.PropertyModel;
+ import org.chromium.url.GURL;
+@@ -249,8 +251,11 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
+         boolean isContentScheme = url.getScheme().equals(UrlConstants.CONTENT_SCHEME);
+         // TODO(crbug.com/384992232): Hide open in Chrome for blob and data url until such view
+         //  intent can be handled.
+-        if (url.getScheme().equals(UrlConstants.BLOB_SCHEME)
+-                || url.getScheme().equals(UrlConstants.DATA_SCHEME)) {
++        if ((ContentFeatureMap.isEnabled(ContentFeatureList.ANDROID_OPEN_PDF_INLINE)
++                        || ChromeFeatureList.isEnabled(
++                                ChromeFeatureList.ANDROID_OPEN_PDF_INLINE_BACKPORT))
++                && (url.getScheme().equals(UrlConstants.BLOB_SCHEME)
++                        || url.getScheme().equals(UrlConstants.DATA_SCHEME))) {
+             openInChromeItemVisible = false;
+         }
+         addToHomeScreenVisible &=
+diff --git a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
+index ec250f75584e9..32a210954131b 100644
+--- a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
++++ b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
+@@ -58,6 +58,7 @@ import org.chromium.components.commerce.core.CommerceFeatureUtilsJni;
+ import org.chromium.components.commerce.core.ShoppingService;
+ import org.chromium.components.power_bookmarks.PowerBookmarkMeta;
+ import org.chromium.components.power_bookmarks.ShoppingSpecifics;
++import org.chromium.content_public.browser.ContentFeatureList;
+ import org.chromium.content_public.browser.NavigationController;
+ import org.chromium.content_public.browser.WebContents;
+ import org.chromium.ui.modelutil.MVCListAdapter;
+@@ -68,7 +69,11 @@ import java.util.function.Supplier;
+ 
+ /** Unit tests for {@link CustomTabAppMenuPropertiesDelegate}. */
+ @RunWith(BaseRobolectricTestRunner.class)
+-@DisableFeatures(ChromeFeatureList.READALOUD_IN_OVERFLOW_MENU_IN_CCT)
++@DisableFeatures({
++    ChromeFeatureList.READALOUD_IN_OVERFLOW_MENU_IN_CCT,
++    ContentFeatureList.ANDROID_OPEN_PDF_INLINE,
++    ChromeFeatureList.ANDROID_OPEN_PDF_INLINE_BACKPORT
++})
+ public class CustomTabAppMenuPropertiesDelegateUnitTest {
+     @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
+     @Mock private Tab mTab;
+diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
+index a04c528cc1030..1f35eb108a9f2 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -223,6 +223,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &kAndroidNewMediaPicker,
+     &kAndroidNoVisibleHintForDifferentTLD,
+     &kAndroidOmniboxFocusedNewTabPage,
++    &kAndroidOpenPdfInlineBackport,
+     &kAndroidPbDisablePulseAnimation,
+     &kAndroidPbDisableSmoothAnimation,
+     &kAndroidPinnedTabs,
+@@ -558,6 +559,7 @@ BASE_FEATURE(kAndroidLogoViewRefactor, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidNewMediaPicker, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidNoVisibleHintForDifferentTLD, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidOmniboxFocusedNewTabPage, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(kAndroidOpenPdfInlineBackport, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidPbDisablePulseAnimation, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidPbDisableSmoothAnimation, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidPinnedTabs, base::FEATURE_DISABLED_BY_DEFAULT);
+diff --git a/chrome/browser/flags/android/chrome_feature_list.h b/chrome/browser/flags/android/chrome_feature_list.h
+index 3d2b8dc498b71..808190a50d614 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.h
++++ b/chrome/browser/flags/android/chrome_feature_list.h
+@@ -45,6 +45,7 @@ BASE_DECLARE_FEATURE(kAndroidLogoViewRefactor);
+ BASE_DECLARE_FEATURE(kAndroidNewMediaPicker);
+ BASE_DECLARE_FEATURE(kAndroidNoVisibleHintForDifferentTLD);
+ BASE_DECLARE_FEATURE(kAndroidOmniboxFocusedNewTabPage);
++BASE_DECLARE_FEATURE(kAndroidOpenPdfInlineBackport);
+ BASE_DECLARE_FEATURE(kAndroidPbDisablePulseAnimation);
+ BASE_DECLARE_FEATURE(kAndroidPbDisableSmoothAnimation);
+ BASE_DECLARE_FEATURE(kAndroidPinnedTabs);
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 1547c22e5522c..8a7873450761d 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -192,6 +192,7 @@ public abstract class ChromeFeatureList {
+     public static final String ANDROID_OMNIBOX_FOCUSED_NEW_TAB_PAGE =
+             "AndroidOmniboxFocusedNewTabPage";
+     public static final String ANDROID_OPEN_INCOGNITO_AS_WINDOW = "AndroidOpenIncognitoAsWindow";
++    public static final String ANDROID_OPEN_PDF_INLINE_BACKPORT = "AndroidOpenPdfInlineBackport";
+     public static final String ANDROID_PB_DISABLE_PULSE_ANIMATION =
+             "AndroidPbDisablePulseAnimation";
+     public static final String ANDROID_PB_DISABLE_SMOOTH_ANIMATION =
+diff --git a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfPageUnitTest.java b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfPageUnitTest.java
+index 09487f5815708..2475e2f1a1284 100644
+--- a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfPageUnitTest.java
++++ b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfPageUnitTest.java
+@@ -26,15 +26,18 @@ import org.mockito.MockitoAnnotations;
+ 
+ import org.chromium.base.lifetime.Destroyable;
+ import org.chromium.base.test.BaseRobolectricTestRunner;
++import org.chromium.base.test.util.Features.EnableFeatures;
+ import org.chromium.base.test.util.HistogramWatcher;
+ import org.chromium.chrome.browser.profiles.Profile;
+ import org.chromium.chrome.browser.ui.native_page.NativePageHost;
+ import org.chromium.chrome.browser.util.ChromeFileProvider;
+ import org.chromium.components.embedder_support.util.UrlConstants;
++import org.chromium.content_public.browser.ContentFeatureList;
+ import org.chromium.ui.base.MimeTypeUtils;
+ import org.chromium.ui.base.TestActivity;
+ 
+ @RunWith(BaseRobolectricTestRunner.class)
++@EnableFeatures(ContentFeatureList.ANDROID_OPEN_PDF_INLINE)
+ public class PdfPageUnitTest {
+     @Rule
+     public ActivityScenarioRule<TestActivity> mActivityScenarioRule =
+diff --git a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
+index 61383fa4695fe..3208fdaaa6435 100644
+--- a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
++++ b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
+@@ -20,9 +20,12 @@ import org.chromium.base.Log;
+ import org.chromium.base.metrics.RecordHistogram;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
++import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.ui.native_page.NativePage;
+ import org.chromium.chrome.browser.util.ChromeFileProvider;
+ import org.chromium.components.embedder_support.util.UrlConstants;
++import org.chromium.content_public.browser.ContentFeatureList;
++import org.chromium.content_public.browser.ContentFeatureMap;
+ import org.chromium.content_public.browser.LoadUrlParams;
+ import org.chromium.ui.base.MimeTypeUtils;
+ import org.chromium.url.GURL;
+@@ -68,6 +71,9 @@ public class PdfUtils {
+     }
+ 
+     private static final String TAG = "PdfUtils";
++    private static final String PARAM_ANDROID_INLINE_PDF_IN_INCOGNITO = "inline_pdf_in_incognito";
++    private static final String PARAM_ANDROID_INLINE_PDF_BACKPORT_IN_INCOGNITO =
++            "inline_pdf_backport_in_incognito";
+     private static final Set<String> TRANSIENT_PDF_SCHEMES =
+             Set.of(
+                     UrlConstants.HTTP_SCHEME,
+@@ -134,14 +140,29 @@ public class PdfUtils {
+     public static boolean shouldOpenPdfInline(boolean isIncognito) {
+         if (sShouldOpenPdfInlineForTesting) return true;
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+-            if (isIncognito) {
++            if (!ContentFeatureMap.isEnabled(ContentFeatureList.ANDROID_OPEN_PDF_INLINE)) {
++                return false;
++            }
++            if (isIncognito
++                    && !ContentFeatureMap.getInstance()
++                            .getFieldTrialParamByFeatureAsBoolean(
++                                    ContentFeatureList.ANDROID_OPEN_PDF_INLINE,
++                                    PARAM_ANDROID_INLINE_PDF_IN_INCOGNITO,
++                                    false)) {
+                 return false;
+             }
+             return true;
+         }
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                 && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+-            if (isIncognito) {
++            if (!ChromeFeatureList.isEnabled(ChromeFeatureList.ANDROID_OPEN_PDF_INLINE_BACKPORT)) {
++                return false;
++            }
++            if (isIncognito
++                    && !ChromeFeatureList.getFieldTrialParamByFeatureAsBoolean(
++                            ChromeFeatureList.ANDROID_OPEN_PDF_INLINE_BACKPORT,
++                            PARAM_ANDROID_INLINE_PDF_BACKPORT_IN_INCOGNITO,
++                            false)) {
+                 return false;
+             }
+             return true;
+diff --git a/content/browser/android/content_feature_map.cc b/content/browser/android/content_feature_map.cc
+index bcf65b8833873..ad4d16673b617 100644
+--- a/content/browser/android/content_feature_map.cc
++++ b/content/browser/android/content_feature_map.cc
+@@ -49,6 +49,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &features::kAndroidDesktopZoomScaling,
+     &features::kAndroidFallbackToNextSlot,
+     &features::kAndroidMediaInsertion,
++    &features::kAndroidOpenPdfInline,
+     &features::kAndroidPkAutocorrectUnderline,
+     &features::kAndroidSpellingUnderlineInCompositionMode,
+     &features::kStrictHighRankProcessLRU,
+diff --git a/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java b/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java
+index 4a8c9f86db225..b16f374ad0206 100644
+--- a/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java
++++ b/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java
+@@ -60,6 +60,8 @@ public class ContentFeatureList {
+ 
+     public static final String ANDROID_MEDIA_INSERTION = "AndroidMediaInsertion";
+ 
++    public static final String ANDROID_OPEN_PDF_INLINE = "AndroidOpenPdfInline";
++
+     public static final String ANDROID_PK_AUTOCORRECT_UNDERLINE = "AndroidPkAutocorrectUnderline";
+ 
+     public static final String ANDROID_SPELLING_UNDERLINE_IN_COMPOSITION_MODE =
 diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
-index b0162fdbdc96a..e3a4a47cfd64c 100644
+index 4dc4bc7e6eb67..6100cf8603737 100644
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -1297,7 +1297,7 @@ const base::FeatureParam<int> kAndroidMonitorZoomScalingFactor{
+@@ -1311,6 +1311,9 @@ const base::FeatureParam<int> kAndroidDesktopZoomScalingFactor{
+ const base::FeatureParam<int> kAndroidMonitorZoomScalingFactor{
      &kAndroidDesktopZoomScaling, "monitor-zoom-scaling-factor", 100};
  
- // Enable open PDF inline on Android.
--BASE_FEATURE(kAndroidOpenPdfInline, base::FEATURE_ENABLED_BY_DEFAULT);
++// Enable open PDF inline on Android.
 +BASE_FEATURE(kAndroidOpenPdfInline, base::FEATURE_DISABLED_BY_DEFAULT);
- 
++
  // A feature to enable launch handler and file handler api for Chrome on Android
  BASE_FEATURE(kAndroidWebAppLaunchHandler, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+diff --git a/content/public/common/content_features.h b/content/public/common/content_features.h
+index 8e1f2444c91c6..0ef2e0ff33076 100644
+--- a/content/public/common/content_features.h
++++ b/content/public/common/content_features.h
+@@ -355,6 +355,7 @@ CONTENT_EXPORT extern const base::FeatureParam<int>
+     kAndroidDesktopZoomScalingFactor;
+ CONTENT_EXPORT extern const base::FeatureParam<int>
+     kAndroidMonitorZoomScalingFactor;
++CONTENT_EXPORT BASE_DECLARE_FEATURE(kAndroidOpenPdfInline);
+ CONTENT_EXPORT BASE_DECLARE_FEATURE(kAndroidWebAppLaunchHandler);
+ CONTENT_EXPORT BASE_DECLARE_FEATURE(
+     kGinJavaBridgeMojoSkipClearObjectsOnMainDocumentReady);

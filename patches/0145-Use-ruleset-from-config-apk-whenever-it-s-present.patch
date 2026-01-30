@@ -5,7 +5,7 @@ Subject: [PATCH] Use ruleset from config apk whenever it's present
 
 ---
  .../android/subresource_filter_android.gni            |  3 +++
- .../content/shared/browser/ruleset_service.cc         | 11 +++++++++++
+ .../content/browser/ruleset_service.cc                | 11 +++++++++++
  2 files changed, 14 insertions(+)
 
 diff --git a/components/subresource_filter/android/subresource_filter_android.gni b/components/subresource_filter/android/subresource_filter_android.gni
@@ -28,10 +28,10 @@ index b0e9583bf84af..b3a33697d2a89 100644
  ]
  
  subresource_filter_android_java_srcjar_deps = [
-diff --git a/components/subresource_filter/content/shared/browser/ruleset_service.cc b/components/subresource_filter/content/shared/browser/ruleset_service.cc
-index 0cc96e45d7ad2..54990fb8218da 100644
---- a/components/subresource_filter/content/shared/browser/ruleset_service.cc
-+++ b/components/subresource_filter/content/shared/browser/ruleset_service.cc
+diff --git a/components/subresource_filter/content/browser/ruleset_service.cc b/components/subresource_filter/content/browser/ruleset_service.cc
+index 2a0b24cf57cd8..b504b6f87e7b3 100644
+--- a/components/subresource_filter/content/browser/ruleset_service.cc
++++ b/components/subresource_filter/content/browser/ruleset_service.cc
 @@ -27,6 +27,9 @@
  #include "base/trace_event/traced_value.h"
  #include "components/prefs/pref_registry_simple.h"
@@ -39,8 +39,8 @@ index 0cc96e45d7ad2..54990fb8218da 100644
 +#if BUILDFLAG(IS_ANDROID)
 +#include "components/subresource_filter/android_config/subresource_filter_fetching.h"
 +#endif // BUILDFLAG(IS_ANDROID)
- #include "components/subresource_filter/content/shared/browser/ruleset_publisher.h"
- #include "components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.h"
+ #include "components/subresource_filter/content/browser/ruleset_publisher.h"
+ #include "components/subresource_filter/content/browser/unindexed_ruleset_stream_generator.h"
  #include "components/subresource_filter/core/browser/subresource_filter_constants.h"
 @@ -251,7 +254,12 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
    if (most_recently_indexed_version.IsCurrentFormatVersion() &&

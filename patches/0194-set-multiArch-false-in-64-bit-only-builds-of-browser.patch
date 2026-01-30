@@ -11,9 +11,8 @@ set multiArch=false to allow its installation on OS with 32-bit support.
  android_webview/nonembedded/java/AndroidManifest.xml     | 4 ++++
  android_webview/system_webview_apk_tmpl.gni              | 2 ++
  chrome/android/chrome_public_apk_tmpl.gni                | 4 ++++
- chrome/android/java/AndroidManifest_monochrome.xml       | 4 ++++
  chrome/android/java/AndroidManifest_trichrome_chrome.xml | 4 ++++
- 5 files changed, 18 insertions(+)
+ 4 files changed, 14 insertions(+)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
 index 5e58430a33918..f4ac495bac69b 100644
@@ -45,36 +44,20 @@ index 84e2ab0a74256..fcef5d482110d 100644
      includes = []
      if (defined(invoker.jinja_input)) {
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 6872adbeed971..bc7ed79e305d6 100644
+index 8d75f71b234f2..203a4f58c244c 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -208,6 +208,10 @@ template("chrome_common_apk_or_module_tmpl") {
+@@ -200,6 +200,10 @@ template("chrome_common_apk_or_module_tmpl") {
      output = _android_manifest
      variables = default_chrome_public_jinja_variables +
                  [ "manifest_package=$_manifest_package" ]
-+    if (_is_trichrome || _is_monochrome) {
++    if (_is_trichrome) {
 +      _has_secondary_abi = !android_64bit_target_cpu || _include_32_bit_webview
 +      variables += [ "has_secondary_abi=$_has_secondary_abi" ]
 +    }
      if (_is_trichrome) {
        input = "//chrome/android/java/AndroidManifest_trichrome_chrome.xml"
        includes = [ "//chrome/android/java/AndroidManifest.xml" ]
-diff --git a/chrome/android/java/AndroidManifest_monochrome.xml b/chrome/android/java/AndroidManifest_monochrome.xml
-index 0ace7332cf79a..0df94b1b7237d 100644
---- a/chrome/android/java/AndroidManifest_monochrome.xml
-+++ b/chrome/android/java/AndroidManifest_monochrome.xml
-@@ -17,7 +17,11 @@
- 
- {% block extra_application_attributes %}
- {{ super() }}
-+{% if has_secondary_abi is defined and has_secondary_abi == 'false' %}
-+android:multiArch="false"
-+{% else %}
- android:multiArch="true"
-+{% endif %}
- {% if force_32_bit is defined and force_32_bit == 'true' %}
- android:use32bitAbi="true"
- {% endif %}
 diff --git a/chrome/android/java/AndroidManifest_trichrome_chrome.xml b/chrome/android/java/AndroidManifest_trichrome_chrome.xml
 index 0f3d25bc30f92..d1313d753adc8 100644
 --- a/chrome/android/java/AndroidManifest_trichrome_chrome.xml

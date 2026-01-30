@@ -9,10 +9,10 @@ Subject: [PATCH] Apply toggle for opening links in incognito for custom tabs
  2 files changed, 18 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index b738ba4371a06..5e865e6bd1d42 100644
+index 21c94cfd5bfa5..6d58ebd6da16d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -287,6 +287,7 @@ public class LaunchIntentDispatcher {
+@@ -160,6 +160,7 @@ public class LaunchIntentDispatcher {
          newIntent.setAction(Intent.ACTION_VIEW);
          newIntent.setData(uri);
          newIntent.setClassName(context, CustomTabActivity.class.getName());
@@ -21,7 +21,7 @@ index b738ba4371a06..5e865e6bd1d42 100644
          newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index aaec00177de6e..c282d5311d57f 100644
+index ecad711e804df..70999e290c382 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 @@ -1,9 +1,20 @@
@@ -31,7 +31,7 @@ index aaec00177de6e..c282d5311d57f 100644
 +import android.content.Context;
  import android.content.Intent;
  
- final class LaunchIntentDispatcherHooks {
+ public final class LaunchIntentDispatcherHooks {
 +
 +    private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
 +        Intent newIntent = intent;
@@ -45,7 +45,7 @@ index aaec00177de6e..c282d5311d57f 100644
      static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
          Intent newIntent = intent;
          if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-@@ -12,4 +23,10 @@ final class LaunchIntentDispatcherHooks {
+@@ -12,4 +23,10 @@ public final class LaunchIntentDispatcherHooks {
  
          return newIntent;
      }

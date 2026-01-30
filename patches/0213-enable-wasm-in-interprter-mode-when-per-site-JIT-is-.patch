@@ -8,10 +8,10 @@ Subject: [PATCH] enable wasm in interprter mode when per-site JIT is disabled
  1 file changed, 2 insertions(+)
 
 diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
-index 6ad685197a92c..c84e7bc735be5 100644
+index 2ad7efb8632ca..95f12e26dda2c 100644
 --- a/content/browser/renderer_host/render_process_host_impl.cc
 +++ b/content/browser/renderer_host/render_process_host_impl.cc
-@@ -3603,6 +3603,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+@@ -3613,6 +3613,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
    if (IsJitDisabled()) {
      AppendToCommaSeparatedSwitch(
          command_line, blink::switches::kJavaScriptFlags, "--jitless");

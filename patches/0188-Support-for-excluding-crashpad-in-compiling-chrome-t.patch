@@ -20,7 +20,7 @@ index 4c76245f15f45..34ce37bea69b4 100644
 +  include_crashpad = false
  }
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 4e840f8e57913..6872adbeed971 100644
+index 397a0246c68fa..8d75f71b234f2 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
 @@ -9,6 +9,7 @@ import("//build/config/android/rules.gni")
@@ -31,14 +31,14 @@ index 4e840f8e57913..6872adbeed971 100644
  import("//chrome/android/modules/chrome_bundle_tmpl.gni")
  import("//chrome/android/modules/chrome_feature_modules.gni")
  import("//chrome/android/trichrome.gni")
-@@ -673,6 +674,9 @@ template("chrome_common_apk_or_module_tmpl") {
+@@ -578,6 +579,9 @@ template("chrome_common_apk_or_module_tmpl") {
      }
  
      # TODO(agrieve): Use Crashpad trampoline in chrome_public_apk.
 +    if (!include_crashpad) {
 +      # Empty loadable module for now until stub crashpad shared object is needed.
 +    } else
-     if (!_is_monochrome && !_is_trichrome) {
+     if (!_is_trichrome) {
        deps +=
            [ "//components/crash/core/app:chrome_crashpad_handler_named_as_so" ]
 diff --git a/chrome/android/trichrome.gni b/chrome/android/trichrome.gni

@@ -4,38 +4,38 @@ Date: Thu, 1 Feb 2024 17:58:40 +0000
 Subject: [PATCH] Apply toggle for opening links in incognito for share intents
 
 ---
- .../org/chromium/chrome/browser/LaunchIntentDispatcher.java | 5 +++++
  .../chrome/browser/LaunchIntentDispatcherHooks.java         | 6 ++++++
+ .../chrome/browser/document/ChromeLauncherActivity.java     | 5 +++++
  2 files changed, 11 insertions(+)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index b0be2144e1aa2..1148a915f5e10 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -168,6 +168,11 @@ public class LaunchIntentDispatcher {
-         boolean incognito =
-                 mIntent.getBooleanExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
- 
-+        if (Intent.ACTION_SEND.equals(mIntent.getAction())
-+                && "text/plain".equals(mIntent.getType())) {
-+            LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(mActivity, mIntent);
-+        }
-+
-         String url = IntentHandler.getUrlFromIntent(mIntent);
- 
-         // Check if a web search Intent is being handled.
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index 6cdfa50279aa0..547e85324cac5 100644
+index 110de8d981749..15ce590a23a0a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-@@ -35,4 +35,10 @@ final class LaunchIntentDispatcherHooks {
+@@ -35,4 +35,10 @@ public final class LaunchIntentDispatcherHooks {
  
          return newIntent;
      }
 +
-+    static Intent maybeModifyActionSendIntents(Activity activity, Intent intent) {
++    public static Intent maybeModifyActionSendIntents(Activity activity, Intent intent) {
 +        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
 +
 +        return newIntent;
 +    }
  }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
+index 4b1ea1f4d68e5..728d011d5023a 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
+@@ -91,6 +91,11 @@ public class ChromeLauncherActivity extends Activity {
+         // Check if a web search Intent is being handled.
+         if (processWebSearchIntent(tabId, intent)) return;
+ 
++        if (Intent.ACTION_SEND.equals(intent.getAction())
++                && "text/plain".equals(intent.getType())) {
++            org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(this, intent);
++        }
++
+         // Check if a LIVE WebappActivity has to be brought back to the foreground.  We can't
+         // check for a dead WebappActivity because we don't have that information without a global
+         // TabManager.  If that ever lands, code to bring back any Tab could be consolidated

@@ -16,7 +16,7 @@ settings.
  6 files changed, 19 insertions(+), 14 deletions(-)
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
-index 4d25f0427c89e..6f4984b566373 100644
+index 5b31da5eb5d7b..67482129b73c0 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/ContentSettingsResources.java
 @@ -149,15 +149,15 @@ public class ContentSettingsResources {
@@ -42,10 +42,10 @@ index 4d25f0427c89e..6f4984b566373 100644
              case ContentSettingsType.ANTI_ABUSE:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 8f388d40fd425..ea1fb48364afd 100644
+index b1992cc004480..e82846cbc9d49 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-@@ -1248,10 +1248,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -1239,10 +1239,8 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
                          && findPreference(assumeNonNull(getPreferenceKey(ContentSettingsType.ADS)))
                                  != null;
  
@@ -59,10 +59,10 @@ index 8f388d40fd425..ea1fb48364afd 100644
  
      @RequiresNonNull({"mSite"})
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
-index 89db616f9985a..6d12a8883c713 100644
+index 198071e59d5e0..48f300bc9f47b 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
-@@ -169,8 +169,6 @@ public class SiteSettings extends BaseSiteSettingsFragment
+@@ -168,8 +168,6 @@ public class SiteSettings extends BaseSiteSettingsFragment
                  p.setSummary(ContentSettingsResources.getGeolocationAllowedSummary());
              } else if (Type.CLIPBOARD == prefCategory && !checked) {
                  p.setSummary(ContentSettingsResources.getClipboardBlockedListSummary());
@@ -72,7 +72,7 @@ index 89db616f9985a..6d12a8883c713 100644
                  p.setSummary(ContentSettingsResources.getSoundBlockedListSummary());
              } else if (Type.REQUEST_DESKTOP_SITE == prefCategory) {
 diff --git a/components/browser_ui/strings/android/site_settings.grdp b/components/browser_ui/strings/android/site_settings.grdp
-index 306d4309fd560..147a46718b20b 100644
+index aa888f8f25a32..0869cded19820 100644
 --- a/components/browser_ui/strings/android/site_settings.grdp
 +++ b/components/browser_ui/strings/android/site_settings.grdp
 @@ -16,6 +16,9 @@
@@ -86,7 +86,7 @@ index 306d4309fd560..147a46718b20b 100644
      Auto-verify
    </message>
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index f5ac7ba2526e8..39911ce3bc538 100644
+index ad13d14f4c97a..bb8f339ee8cac 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
 @@ -93,8 +93,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {
@@ -101,7 +101,7 @@ index f5ac7ba2526e8..39911ce3bc538 100644
         IDS_SITE_SETTINGS_TYPE_SOUND_MID_SENTENCE},
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
 diff --git a/components/site_settings_strings.grdp b/components/site_settings_strings.grdp
-index 26941202af2c0..eddd31c31819e 100644
+index a97c029732c92..3bf454d3c6f21 100644
 --- a/components/site_settings_strings.grdp
 +++ b/components/site_settings_strings.grdp
 @@ -7,6 +7,12 @@
