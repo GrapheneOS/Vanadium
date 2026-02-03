@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Mon, 26 Jan 2026 07:09:49 +0000
+Subject: [PATCH] Respect connectivity check setting on when to run google dns
+ probe
+
+---
+ .../browser/net/dns_probe_service_factory.cc  | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/chrome/browser/net/dns_probe_service_factory.cc b/chrome/browser/net/dns_probe_service_factory.cc
+index 215d64be605de..94df867c38557 100644
+--- a/chrome/browser/net/dns_probe_service_factory.cc
++++ b/chrome/browser/net/dns_probe_service_factory.cc
+@@ -33,6 +33,14 @@
+ #include "services/network/public/cpp/network_context_getter.h"
+ #include "services/network/public/mojom/network_service.mojom.h"
+ 
++#if BUILDFLAG(IS_ANDROID)
++#include "base/feature_list.h"
++#include "net/conn_checks/android/conn_checks_util.h"
++#include "net/conn_checks/android/features.h"
++using net::android::ConnChecksOsSetting;
++using net::android::GetConnChecksOsSetting;
++#endif // BUILDFLAG(IS_ANDROID)
++
+ namespace chrome_browser_net {
+ 
+ namespace {
+@@ -251,8 +259,19 @@ void DnsProbeServiceImpl::StartProbes() {
+   // is destroyed.
+   current_config_runner_->RunProbe(base::BindOnce(
+       &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
++#if BUILDFLAG(IS_ANDROID)
++  if (base::FeatureList::IsEnabled(
++      net::android::features::kRespectConnChecksOsSetting)) {
++    ConnChecksOsSetting setting = GetConnChecksOsSetting();
++    if (setting == ConnChecksOsSetting::STANDARD) {
++      google_config_runner_->RunProbe(base::BindOnce(
++          &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
++    }
++  }
++#else
+   google_config_runner_->RunProbe(base::BindOnce(
+       &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
++#endif // BUILDFLAG(IS_ANDROID)
+   probe_start_time_ = tick_clock_->NowTicks();
+   state_ = STATE_PROBE_RUNNING;
+ 

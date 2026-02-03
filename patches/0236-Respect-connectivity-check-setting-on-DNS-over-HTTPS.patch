@@ -1,0 +1,102 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 23 Jan 2026 15:37:12 +0000
+Subject: [PATCH] Respect connectivity check setting on DNS-over-HTTPS
+
+---
+ net/dns/BUILD.gn           |  7 ++++++
+ net/dns/dns_transaction.cc | 48 +++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 54 insertions(+), 1 deletion(-)
+
+diff --git a/net/dns/BUILD.gn b/net/dns/BUILD.gn
+index 5ed1605df7339..651e4ec767660 100644
+--- a/net/dns/BUILD.gn
++++ b/net/dns/BUILD.gn
+@@ -197,6 +197,13 @@ source_set("dns") {
+     ":host_resolver_manager",
+     ":mdns_client",
+   ]
++
++  if (is_android) {
++    deps += [
++      "//net/conn_checks/android:conn_checks_util",
++      "//net/conn_checks/android:feature_map",
++    ]
++  }
+ }
+ 
+ # The standard API of net/dns.
+diff --git a/net/dns/dns_transaction.cc b/net/dns/dns_transaction.cc
+index 274a305ba47d7..28d16d64ebbfe 100644
+--- a/net/dns/dns_transaction.cc
++++ b/net/dns/dns_transaction.cc
+@@ -87,6 +87,14 @@
+ #include "net/url_request/url_request_context_builder.h"
+ #include "url/url_constants.h"
+ 
++#if BUILDFLAG(IS_ANDROID)
++#include "base/feature_list.h"
++#include "net/conn_checks/android/conn_checks_util.h"
++#include "net/conn_checks/android/features.h"
++using net::android::ConnChecksOsSetting;
++using net::android::GetConnChecksOsSetting;
++#endif // BUILDFLAG(IS_ANDROID)
++
+ namespace net {
+ 
+ namespace {
+@@ -1016,8 +1024,19 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+     DCHECK(!session_->config().doh_config.servers().empty());
+     DCHECK(context_);
+ 
++    std::string kHostname;
++#if BUILDFLAG(IS_ANDROID)
++    if (base::FeatureList::IsEnabled(
++        net::android::features::kRespectConnChecksOsSetting)) {
++      // This can be overriden later in probing attempts.
++      kHostname = kDohProbeHostname;
++    } else {
++      // This is always kept and never overridden.
++      kHostname = android::kGrapheneOsDohProbeHostname;
++    }
++#endif // BUILDFLAG(IS_ANDROID)
+     std::optional<std::vector<uint8_t>> qname =
+-        dns_names_util::DottedNameToNetwork(kDohProbeHostname);
++        dns_names_util::DottedNameToNetwork(kHostname);
+     DCHECK(qname.has_value());
+     formatted_probe_qname_ = std::move(qname).value();
+ 
+@@ -1103,6 +1122,33 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+                        probe_stats, network_change, sequence_start_time),
+         probe_stats->backoff_entry->GetTimeUntilRelease());
+ 
++#if BUILDFLAG(IS_ANDROID)
++    if (base::FeatureList::IsEnabled(
++        net::android::features::kRespectConnChecksOsSetting)) {
++      ConnChecksOsSetting conn_checks_os_setting = GetConnChecksOsSetting();
++      if (conn_checks_os_setting == ConnChecksOsSetting::DISABLED) {
++        // skipping the check would break detection of broken DoH
++        LOG(INFO) << "dns_probe_query: ConnChecksOsSetting::DISABLED, "
++                  << "falling back to default hostname";
++        conn_checks_os_setting = ConnChecksOsSetting::DEFAULT;
++      }
++
++      std::string override_hostname;
++      if (conn_checks_os_setting == ConnChecksOsSetting::STANDARD) {
++        override_hostname = net::android::kGrapheneOsDohProbeHostname;
++      } else {
++        override_hostname = net::android::kGrapheneOsDohProbeHostname;
++      }
++      std::optional<std::vector<uint8_t>> override_qname_opt =
++          dns_names_util::DottedNameToNetwork(override_hostname);
++      std::vector<uint8_t> override_qname =
++          std::move(override_qname_opt).value();
++      if (override_qname != formatted_probe_qname_) {
++        probe_stats->probe_attempts.clear();
++        formatted_probe_qname_ = override_qname;
++      }
++    }
++#endif // BUILDFLAG(IS_ANDROID)
+     uint32_t attempt_number = probe_stats->probe_attempts.size();
+     ConstructDnsHTTPAttempt(
+         session_.get(), doh_server_index, formatted_probe_qname_,

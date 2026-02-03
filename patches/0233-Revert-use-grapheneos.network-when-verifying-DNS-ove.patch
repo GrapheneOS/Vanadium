@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 23 Jan 2026 15:00:19 +0000
+Subject: [PATCH] Revert "use grapheneos.network when verifying DNS-over-HTTPS
+ availability"
+
+This reverts commit d24ebfdcd511e6782514099bacc152012f17cc72.
+---
+ chrome/browser/net/dns_probe_runner.cc | 2 +-
+ net/dns/dns_transaction.h              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/net/dns_probe_runner.cc b/chrome/browser/net/dns_probe_runner.cc
+index 3e80727d6bee0..b6c0d207d007a 100644
+--- a/chrome/browser/net/dns_probe_runner.cc
++++ b/chrome/browser/net/dns_probe_runner.cc
+@@ -18,7 +18,7 @@
+ 
+ namespace chrome_browser_net {
+ 
+-const char DnsProbeRunner::kKnownGoodHostname[] = "connectivitycheck.grapheneos.network";
++const char DnsProbeRunner::kKnownGoodHostname[] = "google.com";
+ 
+ namespace {
+ 
+diff --git a/net/dns/dns_transaction.h b/net/dns/dns_transaction.h
+index 3e4315885522f..0a78c56b0d78f 100644
+--- a/net/dns/dns_transaction.h
++++ b/net/dns/dns_transaction.h
+@@ -28,7 +28,7 @@ class NetLogWithSource;
+ class ResolveContext;
+ 
+ // The hostname probed by CreateDohProbeRunner().
+-inline constexpr std::string_view kDohProbeHostname = "connectivitycheck.grapheneos.network";
++inline constexpr std::string_view kDohProbeHostname = "www.gstatic.com";
+ 
+ // DnsTransaction implements a stub DNS resolver as defined in RFC 1034.
+ // The DnsTransaction takes care of retransmissions, name server fallback (or
