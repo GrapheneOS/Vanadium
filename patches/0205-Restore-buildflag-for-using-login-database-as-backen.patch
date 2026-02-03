@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 14 Sep 2025 15:59:54 +0000
+Subject: [PATCH] Restore buildflag for using login database as backend
+
+---
+ components/password_manager/core/browser/BUILD.gn | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/components/password_manager/core/browser/BUILD.gn b/components/password_manager/core/browser/BUILD.gn
+index ae78be56d1d8e..19709d87c22b1 100644
+--- a/components/password_manager/core/browser/BUILD.gn
++++ b/components/password_manager/core/browser/BUILD.gn
+@@ -230,6 +230,9 @@ static_library("browser") {
+       "//components/webauthn/android",
+       "//services/metrics/public/cpp:ukm_builders",
+     ]
++    deps += [
++      ":password_manager_buildflags",
++    ]
+   }
+ 
+   if (!is_android) {
+@@ -280,6 +283,9 @@ if (is_android) {
+       "//components/password_manager/core/common",
+       "//components/prefs",
+     ]
++    deps += [
++      ":password_manager_buildflags",
++    ]
+   }
+ }
+ 
+@@ -621,4 +627,7 @@ source_set("unit_tests") {
+ buildflag_header("password_manager_buildflags") {
+   header = "password_manager_buildflags.h"
+   flags = [ "PASSWORD_MANAGER_USE_INTERNAL_ANDROID_RESOURCES=$password_manager_use_internal_android_resources" ]
++  flags += [
++    "USE_LOGIN_DATABASE_AS_BACKEND=$use_login_database_as_backend",
++  ]
+ }

@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Fri, 26 Dec 2025 14:35:31 +0000
+Subject: [PATCH] fix crashes caused by removing Google services settings
+
+---
+ .../org/chromium/chrome/browser/settings/MainSettings.java   | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+index aacf50edb0c76..75c4085858c88 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
+@@ -511,11 +511,6 @@ public class MainSettings extends ChromeBaseSettingsFragment
+         } else {
+             removePreferenceIfPresent(PREF_DEVELOPER);
+         }
+-        if (ChromeFeatureList.sAndroidSettingsContainment.isEnabled()) {
+-            // TODO(crbug.com/439911511): Remove old resources once the feature is launched.
+-            findPreference(PREF_GOOGLE_SERVICES)
+-                    .setIcon(R.drawable.ic_google_services_48dp_with_bg_containment);
+-        }
+         notifyPreferencesUpdated();
+     }
+ 
