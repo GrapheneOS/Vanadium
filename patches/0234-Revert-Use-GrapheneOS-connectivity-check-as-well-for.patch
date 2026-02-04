@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 23 Jan 2026 16:01:05 +0000
+Subject: [PATCH] Revert "Use GrapheneOS connectivity check as well for Help
+ and Feedback menu"
+
+This reverts commit 3994faff805b5151de49d8916be2bdfb34ecf27a.
+---
+ .../chromium/chrome/browser/feedback/ConnectivityChecker.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
+index 8008415e6d0c6..abb3c77c8fc56 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
+@@ -35,9 +35,9 @@ public final class ConnectivityChecker {
+     private static final String TAG = "feedback";
+ 
+     private static final String DEFAULT_HTTP_NO_CONTENT_URL =
+-            "http://connectivitycheck.grapheneos.network/generate_204";
++            "http://clients4.google.com/generate_204";
+     private static final String DEFAULT_HTTPS_NO_CONTENT_URL =
+-            "https://connectivitycheck.grapheneos.network/generate_204";
++            "https://clients4.google.com/generate_204";
+ 
+     private static String sHttpNoContentUrl = DEFAULT_HTTP_NO_CONTENT_URL;
+     private static String sHttpsNoContentUrl = DEFAULT_HTTPS_NO_CONTENT_URL;

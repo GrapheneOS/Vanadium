@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index bb7037ea9972d..1e560a6dc9ca9 100644
+index ba5ddf7d8837e..814d98d27ba5e 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -6008,16 +6008,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -5990,16 +5990,6 @@ const FeatureEntry kFeatureEntries[] = {
       kOsCrOS | kOsLinux | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoUseEventFd)},
  #endif
@@ -30,7 +30,7 @@ index bb7037ea9972d..1e560a6dc9ca9 100644
  #if !BUILDFLAG(IS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS)
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 15599af3de6da..ff3469959af44 100644
+index 34c4e2282e9a4..71a69eb749a0a 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
 @@ -1590,11 +1590,7 @@ const base::FeatureParam<base::TimeDelta> kSCTLogMaxIngestionRandomDelay{

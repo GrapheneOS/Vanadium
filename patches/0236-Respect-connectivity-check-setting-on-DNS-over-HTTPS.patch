@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 23 Jan 2026 15:37:12 +0000
+Subject: [PATCH] Respect connectivity check setting on DNS-over-HTTPS
+
+---
+ net/dns/BUILD.gn           |  7 ++++++
+ net/dns/dns_transaction.cc | 49 +++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 55 insertions(+), 1 deletion(-)
+
+diff --git a/net/dns/BUILD.gn b/net/dns/BUILD.gn
+index 5ed1605df7339..651e4ec767660 100644
+--- a/net/dns/BUILD.gn
++++ b/net/dns/BUILD.gn
+@@ -197,6 +197,13 @@ source_set("dns") {
+     ":host_resolver_manager",
+     ":mdns_client",
+   ]
++
++  if (is_android) {
++    deps += [
++      "//net/conn_checks/android:conn_checks_util",
++      "//net/conn_checks/android:feature_map",
++    ]
++  }
+ }
+ 
+ # The standard API of net/dns.
+diff --git a/net/dns/dns_transaction.cc b/net/dns/dns_transaction.cc
+index 274a305ba47d7..a6e122fbc4a0d 100644
+--- a/net/dns/dns_transaction.cc
++++ b/net/dns/dns_transaction.cc
+@@ -87,6 +87,14 @@
+ #include "net/url_request/url_request_context_builder.h"
+ #include "url/url_constants.h"
+ 
++#if BUILDFLAG(IS_ANDROID)
++#include "base/feature_list.h"
++#include "net/conn_checks/android/conn_checks_util.h"
++#include "net/conn_checks/android/features.h"
++using net::android::ConnChecksOsSetting;
++using net::android::GetConnChecksOsSetting;
++#endif // BUILDFLAG(IS_ANDROID)
++
+ namespace net {
+ 
+ namespace {
+@@ -1016,6 +1024,13 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+     DCHECK(!session_->config().doh_config.servers().empty());
+     DCHECK(context_);
+ 
++#if BUILDFLAG(IS_ANDROID)
++    std::optional<std::vector<uint8_t>> grapheneos_qname =
++        dns_names_util::DottedNameToNetwork(
++            android::kGrapheneOsDohProbeHostname);
++    DCHECK(grapheneos_qname.has_value());
++    formatted_probe_grapheneos_qname_ = std::move(grapheneos_qname).value();
++#endif // BUILDFLAG(IS_ANDROID)
+     std::optional<std::vector<uint8_t>> qname =
+         dns_names_util::DottedNameToNetwork(kDohProbeHostname);
+     DCHECK(qname.has_value());
+@@ -1103,9 +1118,38 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+                        probe_stats, network_change, sequence_start_time),
+         probe_stats->backoff_entry->GetTimeUntilRelease());
+ 
++    std::vector<uint8_t> qname;
++#if BUILDFLAG(IS_ANDROID)
++    if (base::FeatureList::IsEnabled(
++        net::android::features::kRespectConnChecksOsSetting)) {
++      ConnChecksOsSetting conn_checks_os_setting = GetConnChecksOsSetting();
++      if (conn_checks_os_setting == ConnChecksOsSetting::DISABLED) {
++        // skipping the check would break detection of broken DoH
++        LOG(INFO) << "dns_probe_query: ConnChecksOsSetting::DISABLED, "
++                  << "falling back to default hostname";
++        conn_checks_os_setting = ConnChecksOsSetting::DEFAULT;
++      }
++
++      if (conn_checks_os_setting == ConnChecksOsSetting::STANDARD) {
++        qname = formatted_probe_qname_;
++      } else {
++        qname = formatted_probe_grapheneos_qname_;
++      }
++      if (!probe_stats->probe_attempts.empty()) {
++        auto prev_qname = probe_stats->probe_attempts.at(0)->GetQuery()->qname();
++        if (prev_qname != qname) {
++          probe_stats->probe_attempts.clear();
++        }
++      }
++    } else {
++      qname = formatted_probe_grapheneos_qname_;
++    }
++#else
++    qname = formatted_probe_qname_;
++#endif // BUILDFLAG(IS_ANDROID)
+     uint32_t attempt_number = probe_stats->probe_attempts.size();
+     ConstructDnsHTTPAttempt(
+-        session_.get(), doh_server_index, formatted_probe_qname_,
++        session_.get(), doh_server_index, qname,
+         dns_protocol::kTypeA, /*opt_rdata=*/nullptr,
+         &probe_stats->probe_attempts, context_->url_request_context(),
+         context_->isolation_info(), RequestPriority::DEFAULT_PRIORITY,
+@@ -1188,6 +1232,9 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+ 
+   base::WeakPtr<DnsSession> session_;
+   base::WeakPtr<ResolveContext> context_;
++#if BUILDFLAG(IS_ANDROID)
++  std::vector<uint8_t> formatted_probe_grapheneos_qname_;
++#endif
+   std::vector<uint8_t> formatted_probe_qname_;
+ 
+   // List of ProbeStats, one for each DoH server, indexed by the DoH server

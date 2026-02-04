@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 23 Jan 2026 15:45:48 +0000
+Subject: [PATCH] Respect connectivity check setting on dns_probe_runner
+
+---
+ chrome/browser/net/dns_probe_runner.cc        | 34 ++++++++++++++++++-
+ .../browser/static_library_browser_deps.gni   |  2 ++
+ 2 files changed, 35 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/net/dns_probe_runner.cc b/chrome/browser/net/dns_probe_runner.cc
+index b6c0d207d007a..86a58f2c46176 100644
+--- a/chrome/browser/net/dns_probe_runner.cc
++++ b/chrome/browser/net/dns_probe_runner.cc
+@@ -16,6 +16,14 @@
+ #include "net/dns/public/resolve_error_info.h"
+ #include "services/network/public/mojom/network_context.mojom.h"
+ 
++#if BUILDFLAG(IS_ANDROID)
++#include "base/feature_list.h"
++#include "net/conn_checks/android/conn_checks_util.h"
++#include "net/conn_checks/android/features.h"
++using net::android::ConnChecksOsSetting;
++using net::android::GetConnChecksOsSetting;
++#endif // BUILDFLAG(IS_ANDROID)
++
+ namespace chrome_browser_net {
+ 
+ const char DnsProbeRunner::kKnownGoodHostname[] = "google.com";
+@@ -84,6 +92,30 @@ DnsProbeRunner::~DnsProbeRunner() {
+ }
+ 
+ void DnsProbeRunner::RunProbe(base::OnceClosure callback) {
++#if BUILDFLAG(IS_ANDROID)
++  std::string_view host;
++  if (base::FeatureList::IsEnabled(
++      net::android::features::kRespectConnChecksOsSetting)) {
++    ConnChecksOsSetting setting = GetConnChecksOsSetting();
++    if (setting == ConnChecksOsSetting::DISABLED) {
++      // skipping the check would break detection of broken DoH
++      LOG(INFO) << "dns_probe_query: ConnChecksOsSetting::DISABLED, "
++                << "falling back to default hostname";
++      setting = ConnChecksOsSetting::DEFAULT;
++    }
++
++    if (setting == ConnChecksOsSetting::STANDARD) {
++      host = kKnownGoodHostname;
++    } else {
++      host = net::android::kGrapheneOsDohProbeHostname;
++    }
++  } else {
++    host = net::android::kGrapheneOsDohProbeHostname;
++  }
++#else
++  char host[] = kKnownGoodHostName;
++#endif // BUILDFLAG(IS_ANDROID)
++
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+   DCHECK(!callback.is_null());
+   DCHECK(host_resolver_);
+@@ -102,7 +134,7 @@ void DnsProbeRunner::RunProbe(base::OnceClosure callback) {
+   // Use transient NAKs - don't want cached responses anyways, so no benefit
+   // from sharing a cache, beyond multiple probes not evicting anything.
+   host_resolver_->ResolveHost(network::mojom::HostResolverHost::NewHostPortPair(
+-                                  net::HostPortPair(kKnownGoodHostname, 443)),
++                                  net::HostPortPair(host, 443)),
+                               net::NetworkAnonymizationKey::CreateTransient(),
+                               std::move(parameters),
+                               receiver_.BindNewPipeAndPassRemote());
+diff --git a/chrome/browser/static_library_browser_deps.gni b/chrome/browser/static_library_browser_deps.gni
+index 7d7644253dc23..666322f45d1fa 100644
+--- a/chrome/browser/static_library_browser_deps.gni
++++ b/chrome/browser/static_library_browser_deps.gni
+@@ -7,4 +7,6 @@ assert(is_android)
+ static_library_browser_deps = [
+   "//chrome/browser/subresource_filter/android:android",
+   "//components/subresource_filter/android_config:android",
++  "//net/conn_checks/android:conn_checks_util",
++  "//net/conn_checks/android:feature_map",
+ ]

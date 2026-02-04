@@ -1,0 +1,85 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Fri, 23 Jan 2026 16:00:56 +0000
+Subject: [PATCH] Respect connectivity check setting on browser connectivity
+ checker
+
+---
+ chrome/android/chrome_ext_deps.gni            |  2 +
+ .../browser/feedback/ConnectivityChecker.java | 43 +++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+
+diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
+index 522092c9820ce..74890edbf81b1 100644
+--- a/chrome/android/chrome_ext_deps.gni
++++ b/chrome/android/chrome_ext_deps.gni
+@@ -4,6 +4,8 @@
+ 
+ chrome_ext_deps = [
+   "//chrome/browser/subresource_filter/android:java",
++  "//net/conn_checks/android:conn_checks_util_java",
++  "//net/conn_checks/android:feature_map_java",
+   "//vanadium/android_config/proto:browser_config_parser_java",
+ ]
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
+index abb3c77c8fc56..42638c7ca3b97 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
+@@ -117,6 +117,27 @@ public final class ConnectivityChecker {
+      */
+     public static void checkConnectivitySystemNetworkStack(
+             boolean useHttps, int timeoutMs, ConnectivityCheckerCallback callback) {
++        @org.chromium.net.conn_checks.ConnChecksOsSetting
++        int connChecksSetting = org.chromium.net.conn_checks.ConnChecksUtil.getConnChecksSetting();
++        switch (connChecksSetting) {
++            case org.chromium.net.conn_checks.ConnChecksOsSetting.DISABLED -> {
++                postResult(callback, ConnectivityCheckResult.ERROR);
++                return;
++            }
++
++            case org.chromium.net.conn_checks.ConnChecksOsSetting.GRAPHENEOS -> {
++                final String httpNoContentUrl =
++                        "http://connectivitycheck.grapheneos.network/generate_204";
++                final String httpsNoContentUrl =
++                        "https://connectivitycheck.grapheneos.network/generate_204";
++                String url = useHttps ? httpsNoContentUrl : httpNoContentUrl;
++                checkConnectivitySystemNetworkStack(url, timeoutMs, callback);
++                return;
++            }
++
++            default -> {
++            }
++        }
+         String url = useHttps ? sHttpsNoContentUrl : sHttpNoContentUrl;
+         checkConnectivitySystemNetworkStack(url, timeoutMs, callback);
+     }
+@@ -194,6 +215,28 @@ public final class ConnectivityChecker {
+             boolean useHttps,
+             int timeoutMs,
+             ConnectivityCheckerCallback callback) {
++        @org.chromium.net.conn_checks.ConnChecksOsSetting
++        int connChecksSetting = org.chromium.net.conn_checks.ConnChecksUtil.getConnChecksSetting();
++        switch (connChecksSetting) {
++            case org.chromium.net.conn_checks.ConnChecksOsSetting.DISABLED -> {
++                postResult(callback, ConnectivityCheckResult.ERROR);
++                return;
++            }
++
++            case org.chromium.net.conn_checks.ConnChecksOsSetting.GRAPHENEOS -> {
++                final String httpNoContentUrl =
++                        "http://connectivitycheck.grapheneos.network/generate_204";
++                final String httpsNoContentUrl =
++                        "https://connectivitycheck.grapheneos.network/generate_204";
++                String url = useHttps ? httpsNoContentUrl : httpNoContentUrl;
++                checkConnectivityChromeNetworkStack(profile, url, timeoutMs, callback);
++                return;
++            }
++
++            default -> {
++            }
++        }
++
+         String url = useHttps ? sHttpsNoContentUrl : sHttpNoContentUrl;
+         checkConnectivityChromeNetworkStack(profile, url, timeoutMs, callback);
+     }
