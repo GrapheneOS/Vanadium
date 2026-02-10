@@ -1,0 +1,336 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Giovanni=20Ortu=C3=B1o=20Urquidi?= <ortuno@chromium.org>
+Date: Mon, 9 Feb 2026 09:07:55 -0800
+Subject: [PATCH] LNA: Use split LNA permissions in
+ PeerConnectionDependencyFactory
+
+This CL updates LocalNetworkAccessPermission::RequestPermission to
+request the new granular permissions (LOCAL_NETWORK and
+LOOPBACK_NETWORK) instead of the deprecated LOCAL_NETWORK_ACCESS
+permission when the kLocalNetworkAccessChecksSplitPermissions feature is
+enabled.
+
+It also adds browser tests to verify that:
+ 1. WebRTC connections to loopback addresses trigger the
+    LOOPBACK_NETWORK permission check.
+ 2. WebRTC connections to local addresses trigger the LOCAL_NETWORK
+    permission check.
+ 3. The permission outcomes (granted/denied) are respected.
+
+And updates the web tests to use the new permission.
+
+Fixed: 481295187
+Change-Id: Id18badac180fcdcc64b3eb8dd3bf5de0d668b84c
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/7545863
+Reviewed-by: Chris Thompson <cthomp@chromium.org>
+Reviewed-by: Guido Urdaneta <guidou@chromium.org>
+Commit-Queue: Giovanni Ortuno Urquidi <ortuno@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1581807}
+---
+ ...ork_access_split_permission_browsertest.cc | 151 ++++++++++++++++++
+ .../peer_connection_dependency_factory.cc     |  16 +-
+ ...-network-access-with-loopback-address.html |  10 +-
+ ...work-access-with-public-address.https.html |  10 +-
+ 4 files changed, 175 insertions(+), 12 deletions(-)
+
+diff --git a/chrome/browser/local_network_access/local_network_access_split_permission_browsertest.cc b/chrome/browser/local_network_access/local_network_access_split_permission_browsertest.cc
+index db1200a52a01c..56fb155e937f9 100644
+--- a/chrome/browser/local_network_access/local_network_access_split_permission_browsertest.cc
++++ b/chrome/browser/local_network_access/local_network_access_split_permission_browsertest.cc
+@@ -2,6 +2,9 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++#include <string_view>
++
++#include "base/strings/stringprintf.h"
+ #include "chrome/browser/local_network_access/local_network_access_browsertest_base.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/common/url_constants.h"
+@@ -37,6 +40,23 @@ std::string QueryPermissionScript(std::string_view permission) {
+       permission);
+ }
+ 
++std::string WaitForPermissionScript(std::string_view permission) {
++  return content::JsReplace(
++      R"(
++        (async () => {
++          const status = await navigator.permissions.query({name: $1});
++          if (status.state !== 'prompt') return status.state;
++          await new Promise(resolve => {
++            status.onchange = () => {
++              resolve();
++            };
++          });
++          return status.state;
++        })()
++      )",
++      permission);
++}
++
+ }  // namespace
+ 
+ class LocalNetworkAccessSplitPermissionOffBrowserTest
+@@ -570,4 +590,135 @@ IN_PROC_BROWSER_TEST_F(LocalNetworkAccessSplitPermissionOnBrowserTest,
+           .ExtractBool());
+ }
+ 
++struct WebRtcTestParam {
++  std::string_view test_name;
++  std::string_view candidate_ip;
++  bool accept_permission;
++  std::string_view expected_loopback_state;
++  std::string_view expected_local_state;
++  std::string_view expected_deprecated_state;
++};
++
++constexpr WebRtcTestParam kWebRtcTestParams[] = {
++    {
++        .test_name = "LoopbackGranted",
++        .candidate_ip = "127.0.0.1",
++        .accept_permission = true,
++        .expected_loopback_state = "granted",
++        .expected_local_state = "prompt",
++        .expected_deprecated_state = "granted",
++    },
++    {
++        .test_name = "LoopbackDenied",
++        .candidate_ip = "127.0.0.1",
++        .accept_permission = false,
++        .expected_loopback_state = "denied",
++        .expected_local_state = "prompt",
++        .expected_deprecated_state = "denied",
++    },
++    {
++        .test_name = "LocalGranted",
++        .candidate_ip = "192.168.1.1",
++        .accept_permission = true,
++        .expected_loopback_state = "prompt",
++        .expected_local_state = "granted",
++        .expected_deprecated_state = "granted",
++    },
++    {
++        .test_name = "LocalDenied",
++        .candidate_ip = "192.168.1.1",
++        .accept_permission = false,
++        .expected_loopback_state = "prompt",
++        .expected_local_state = "denied",
++        .expected_deprecated_state = "denied",
++    },
++};
++
++class LocalNetworkAccessSplitPermissionWebRtcBrowserTest
++    : public LocalNetworkAccessSplitPermissionOnBrowserTest,
++      public testing::WithParamInterface<WebRtcTestParam> {
++ public:
++  static std::string DescribeParams(
++      const testing::TestParamInfo<ParamType>& info) {
++    return std::string(info.param.test_name);
++  }
++
++ private:
++  base::test::ScopedFeatureList feature_list_{
++      network::features::kLocalNetworkAccessChecksWebRTC};
++};
++
++IN_PROC_BROWSER_TEST_P(LocalNetworkAccessSplitPermissionWebRtcBrowserTest,
++                       SetRemoteDescription) {
++  ASSERT_TRUE(content::NavigateToURL(
++      web_contents(),
++      https_public_server().GetURL("a.com", kTreatAsPublicAddressPath)));
++
++  // Configure the permission request response.
++  bubble_factory()->set_response_type(
++      GetParam().accept_permission
++          ? permissions::PermissionRequestManager::AutoResponseType::ACCEPT_ALL
++          : permissions::PermissionRequestManager::AutoResponseType::DENY_ALL);
++
++  const std::string remote_description = base::StringPrintf(
++      R"(v=0
++o=- 3988109818200882900 2 IN IP4 0.0.0.0
++s=-
++t=0 0
++a=msid-semantic: WMS
++m=application 9 UDP/DTLS/SCTP webrtc-datachannel
++c=IN IP4 0.0.0.0
++a=mid:0
++a=ice-ufrag:someRemoteUfrag
++a=ice-pwd:someRemotePasswordGeneratedString
++a=sctpmap:5000 webrtc-datachannel 1024
++a=fingerprint:sha-256 11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00
++a=candidate:1 1 UDP 2130706431 %s 12345 typ host generation 0
++)",
++      GetParam().candidate_ip);
++
++  std::string script = R"(
++    (async () => {
++      const pc = new RTCPeerConnection();
++      const dataChannel = pc.createDataChannel("myWebRTCChannel");
++      const offer = await pc.createOffer();
++      await pc.setLocalDescription(offer);
++      await pc.setRemoteDescription({
++        type: 'answer',
++        sdp: $1
++      });
++    })()
++  )";
++
++  EXPECT_TRUE(content::ExecJs(web_contents(),
++                              content::JsReplace(script, remote_description)));
++
++  // Verify permission states. WebRTC asks for permission asynchronously, so we
++  // wait for the permission state to switch from "prompt" before we check it.
++  if (GetParam().expected_loopback_state != "prompt") {
++    EXPECT_EQ(GetParam().expected_loopback_state,
++              content::EvalJs(web_contents(),
++                              WaitForPermissionScript("loopback-network")));
++    EXPECT_EQ("prompt", content::EvalJs(web_contents(), QueryPermissionScript(
++                                                            "local-network")));
++  } else {
++    EXPECT_EQ(GetParam().expected_local_state,
++              content::EvalJs(web_contents(),
++                              WaitForPermissionScript("local-network")));
++    EXPECT_EQ("prompt",
++              content::EvalJs(web_contents(),
++                              QueryPermissionScript("loopback-network")));
++  }
++
++  EXPECT_EQ(GetParam().expected_deprecated_state,
++            content::EvalJs(web_contents(),
++                            QueryPermissionScript("local-network-access")));
++}
++
++INSTANTIATE_TEST_SUITE_P(
++    /* no prefix */,
++    LocalNetworkAccessSplitPermissionWebRtcBrowserTest,
++    testing::ValuesIn(kWebRtcTestParams),
++    LocalNetworkAccessSplitPermissionWebRtcBrowserTest::DescribeParams);
++
+ }  // namespace local_network_access
+diff --git a/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc b/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
+index 01f965c75071b..2ca5eb0344e0f 100644
+--- a/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
++++ b/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
+@@ -279,10 +279,22 @@ class LocalNetworkAccessPermission final
+     DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+     CHECK(RuntimeEnabledFeatures::LocalNetworkAccessWebRTCEnabled());
+ 
++    mojom::blink::PermissionName permission_name =
++        mojom::blink::PermissionName::LOCAL_NETWORK_ACCESS;
++    if (base::FeatureList::IsEnabled(
++            network::features::kLocalNetworkAccessChecksSplitPermissions)) {
++      network::mojom::IPAddressSpace target_address_space =
++          FromSocketAddress(candidate_address);
++      if (target_address_space == network::mojom::IPAddressSpace::kLoopback) {
++        permission_name = mojom::blink::PermissionName::LOOPBACK_NETWORK;
++      } else {
++        permission_name = mojom::blink::PermissionName::LOCAL_NETWORK;
++      }
++    }
++
+     callback_ = std::move(callback);
+     permission_service_->RequestPermission(
+-        CreatePermissionDescriptor(
+-            mojom::blink::PermissionName::LOCAL_NETWORK_ACCESS),
++        CreatePermissionDescriptor(permission_name),
+         /*user_gesture=*/false,
+         BindRepeating(
+             &LocalNetworkAccessPermission::OnPermissionRequested,
+diff --git a/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-loopback-address.html b/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-loopback-address.html
+index d14c52c051d01..9c561de77995a 100644
+--- a/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-loopback-address.html
++++ b/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-loopback-address.html
+@@ -11,7 +11,7 @@
+   "use strict";
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "denied");
++    await test_driver.set_permission({ name: 'loopback-network' }, "denied");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -28,7 +28,7 @@
+   }, 'setRemoteDescription() doesn\'t crash with denied permission and local address.');
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "granted");
++    await test_driver.set_permission({ name: 'loopback-network' }, "granted");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -45,7 +45,7 @@
+   }, 'setRemoteDescription() doesn\'t crash with granted permission and local address.');
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "denied");
++    await test_driver.set_permission({ name: 'loopback-network' }, "denied");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -68,7 +68,7 @@
+   }, 'addIceCandidate() doesn\'t crash with denied permission and local address.');
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "granted");
++    await test_driver.set_permission({ name: 'loopback-network' }, "granted");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -93,7 +93,7 @@
+   for (const serverType of ['turn', 'stun']) {
+     for (const permissionStatus of ['granted', 'denied']) {
+       promise_test(async t => {
+-        await test_driver.set_permission({ name: 'local-network-access' },
++        await test_driver.set_permission({ name: 'loopback-network' },
+           permissionStatus);
+ 
+         const pc = new RTCPeerConnection({
+diff --git a/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-public-address.https.html b/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-public-address.https.html
+index 35c581f55b589..f30cf26e1fbfc 100644
+--- a/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-public-address.https.html
++++ b/third_party/blink/web_tests/fast/peerconnection/RTCPeerConnection-local-network-access-with-public-address.https.html
+@@ -11,7 +11,7 @@
+   "use strict";
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "denied");
++    await test_driver.set_permission({ name: 'loopback-network' }, "denied");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -31,7 +31,7 @@
+   }, 'setRemoteDescription() doesn\'t crash with denied permission and local address.');
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "granted");
++    await test_driver.set_permission({ name: 'loopback-network' }, "granted");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -48,7 +48,7 @@
+   }, 'setRemoteDescription() doesn\'t crash with granted permission and local address.');
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "denied");
++    await test_driver.set_permission({ name: 'loopback-network' }, "denied");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -74,7 +74,7 @@
+   }, 'addIceCandidate() doesn\'t crash with denied permission and local address.');
+ 
+   promise_test(async t => {
+-    await test_driver.set_permission({ name: 'local-network-access' }, "granted");
++    await test_driver.set_permission({ name: 'loopback-network' }, "granted");
+ 
+     const pc = new RTCPeerConnection();
+     const dataChannel = await pc.createDataChannel("myWebRTCChannel");
+@@ -99,7 +99,7 @@
+   for (const serverType of ['turn', 'stun']) {
+     for (const permissionStatus of ['granted', 'denied']) {
+       promise_test(async t => {
+-        await test_driver.set_permission({ name: 'local-network-access' },
++        await test_driver.set_permission({ name: 'loopback-network' },
+           permissionStatus);
+ 
+         const pc = new RTCPeerConnection({
