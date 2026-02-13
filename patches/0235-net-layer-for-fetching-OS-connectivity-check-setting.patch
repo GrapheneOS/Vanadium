@@ -144,7 +144,7 @@ index 0000000000000..5ad9a89fa5040
 +}
 diff --git a/net/conn_checks/android/conn_checks_util.cc b/net/conn_checks/android/conn_checks_util.cc
 new file mode 100644
-index 0000000000000..7e56a7dd17f95
+index 0000000000000..b72ec6a4dc923
 --- /dev/null
 +++ b/net/conn_checks/android/conn_checks_util.cc
 @@ -0,0 +1,18 @@
@@ -160,7 +160,7 @@ index 0000000000000..7e56a7dd17f95
 +  JNIEnv* env = base::android::AttachCurrentThread();
 +  int setting = Java_ConnChecksUtil_getConnChecksSetting(env);
 +  return (setting < GRAPHENEOS || setting > DISABLED)
-+            ? GRAPHENEOS : static_cast<ConnChecksOsSetting>(setting);
++            ? DEFAULT : static_cast<ConnChecksOsSetting>(setting);
 +}
 +
 +} // namespace net::android
