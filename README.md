@@ -6,4 +6,5 @@ there's no need for Vanadium to replace it. Similarly, it can deploy security fe
 breakage on other operating systems due to the ability to fix compatibility problems in the OS.
 
 See [the official build documentation](https://grapheneos.org/build#browser-and-webview) for build
-instructions.
+instructions. See the [Vanadium section of our GrapheneOS features overview](https://grapheneos.org/features#vanadium) and the [web browsing section of 
+our usage guide](https://grapheneos.org/usage#web-browsing) for more information about Vanadium.
