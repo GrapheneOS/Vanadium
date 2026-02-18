@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 10 May 2025 01:30:54 +0000
+Subject: [PATCH] config: disable domain reliability feature
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java        | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index fdd5aaf07f8c5..7ab3440b5d8c6 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -190,6 +190,15 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER))
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("disable-domain-reliability")
++                                .setFlagType(FlagType.ENABLED_SWITCH)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Sun, 11 Jan 2026 06:06:12 +0000
+Subject: [PATCH] tmp: 1/n build fixes with wasm in interpreter mode support
+ enabled
+
+---
+ ...03-Post-increment-the-erase-iterator.patch | 28 +++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+ create mode 100644 vanadium/subprojects_patches/v8/0003-Post-increment-the-erase-iterator.patch
+
+diff --git a/vanadium/subprojects_patches/v8/0003-Post-increment-the-erase-iterator.patch b/vanadium/subprojects_patches/v8/0003-Post-increment-the-erase-iterator.patch
+new file mode 100644
+index 0000000000000..d9b85cd91b2df
+--- /dev/null
++++ b/vanadium/subprojects_patches/v8/0003-Post-increment-the-erase-iterator.patch
+@@ -0,0 +1,28 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Jeffrey Yu <yuje@google.com>
++Date: Sat, 10 Jan 2026 19:57:51 +0000
++Subject: [PATCH] Post-increment the erase iterator.
++
++Unlike STL maps, `absl::flat_hash_map` doesn't return an iterator on the
++`.erase()` operation.
++
++Follow-up to https://crrev.com/c/7408119.
++
++Change-Id: I9782f61b109bd968b43423df72cf27841dbb7c24
++---
++ src/wasm/interpreter/wasm-interpreter.cc | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/src/wasm/interpreter/wasm-interpreter.cc b/src/wasm/interpreter/wasm-interpreter.cc
++index 0ffd63bab4b..99c942015a5 100644
++--- a/src/wasm/interpreter/wasm-interpreter.cc
+++++ b/src/wasm/interpreter/wasm-interpreter.cc
++@@ -186,7 +186,7 @@ void WasmInterpreterThreadMap::NotifyIsolateDisposal(Isolate* isolate) {
++     WasmInterpreterThread* thread = it->second.get();
++     if (thread->GetIsolate() == isolate) {
++       thread->TerminateExecutionTimers();
++-      it = map_.erase(it);
+++      map_.erase(it++);
++     } else {
++       ++it;
++     }

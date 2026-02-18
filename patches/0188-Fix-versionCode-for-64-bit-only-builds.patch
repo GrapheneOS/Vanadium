@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 25 Mar 2025 09:17:53 +0000
+Subject: [PATCH] Fix versionCode for 64-bit only builds
+
+---
+ chrome/version.gni | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/version.gni b/chrome/version.gni
+index 8471f2e0272fb..7eec17885029b 100644
+--- a/chrome/version.gni
++++ b/chrome/version.gni
+@@ -421,9 +421,9 @@ if (is_android) {
+         }
+       } else {
+         if (_use_stable_package_name_for_trichrome) {
+-          true_true_true_false = trichrome_beta_version_code
++          true_true_true_false = trichrome_64_beta_version_code
+         } else {
+-          true_true_true_false = trichrome_version_code
++          true_true_true_false = trichrome_64_version_code
+         }
+       }
+     } else {
+@@ -470,9 +470,9 @@ if (is_android) {
+         }
+       } else {
+         if (_use_beta_version_code) {
+-          true_true_true_false = webview_beta_version_code
++          true_true_true_false = webview_64_beta_version_code
+         } else {
+-          true_true_true_false = webview_stable_version_code
++          true_true_true_false = webview_64_stable_version_code
+         }
+       }
+     } else {

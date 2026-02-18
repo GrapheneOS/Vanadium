@@ -1,0 +1,81 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Thu, 20 Feb 2025 16:31:07 +0000
+Subject: [PATCH] support redirecting barcode detection to downstream impl
+
+---
+ services/shape_detection/BUILD.gn             | 21 +++++++++++++++++++
+ .../BarcodeDetectionProviderImpl.java         | 14 +++++++++++++
+ 2 files changed, 35 insertions(+)
+
+diff --git a/services/shape_detection/BUILD.gn b/services/shape_detection/BUILD.gn
+index e55432dba076a..d9337c0115389 100644
+--- a/services/shape_detection/BUILD.gn
++++ b/services/shape_detection/BUILD.gn
+@@ -106,6 +106,15 @@ source_set("lib") {
+ 
+   if (is_android) {
+     deps += [ ":shape_detection_jni_headers" ]
++
++    # START downstream added deps
++
++    deps += [
++      "android/downstream_impl:features",
++    ]
++
++    # END downstream added deps
++
+   } else if (is_chromeos || is_linux) {
+     sources += [
+       "shape_detection_sandbox_hook.cc",
+@@ -151,6 +160,18 @@ if (is_android) {
+       "//third_party/jni_zero:jni_zero_java",
+       "//ui/gfx/geometry/mojom:mojom_java",
+     ]
++
++    # START downstream added sources, deps
++
++    sources += [
++    ]
++
++    deps += [
++      "//services/shape_detection/android/downstream_impl:downstream_impls_java",
++    ]
++
++    # END downstream added sources, deps
++
+   }
+ }
+ 
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
+index bfa0c88679ff9..c6fdc5050edea 100644
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
+@@ -31,6 +31,16 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
+     @Override
+     public void createBarcodeDetection(
+             InterfaceRequest<BarcodeDetection> request, BarcodeDetectorOptions options) {
++        if (DownstreamImpls.shouldUseBarcodeDetectionImpl()) {
++            Log.i(TAG, "Redirecting to downstream barcode implementation, creating impl...");
++            BarcodeDetection impl = DownstreamImpls.getBarcodeDetection(options);
++            if (impl == null) {
++                Log.i(TAG, "Stubbed out implementation found");
++                return;
++            }
++            BarcodeDetection.MANAGER.bind(impl, request);
++            return;
++        }
+         BarcodeDetection.MANAGER.bind(new BarcodeDetectionImpl(options), request);
+     }
+ 
+@@ -65,6 +75,10 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
+ 
+     public static @Nullable BarcodeDetectionProvider create() {
+         Context ctx = ContextUtils.getApplicationContext();
++        if (DownstreamImpls.shouldUseBarcodeDetectionImpl()) {
++            Log.i(TAG, "Redirecting to downstream barcode implementation, creating provider...");
++            return new BarcodeDetectionProviderImpl();
++        }
+         if (!ChromiumPlayServicesAvailability.isGooglePlayServicesAvailable(ctx)) {
+             Log.w(TAG, "Google Play Services not available");
+             return null;

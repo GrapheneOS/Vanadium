@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <quh4gko8.vanadium@gmail.com>
+Date: Thu, 8 Jan 2026 09:48:06 +0000
+Subject: [PATCH] tmp: guard enable local network access check split
+ permissions by default
+
+---
+ services/network/public/cpp/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index bae1b46a89396..78b4d41eac43a 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -258,7 +258,7 @@ BASE_FEATURE(kLocalNetworkAccessChecksWebTransport,
+ // Splits the Local Network Access permission into 2 permissions. See
+ // crbug.com/465491626.
+ BASE_FEATURE(kLocalNetworkAccessChecksSplitPermissions,
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT); // guard
+ 
+ // If enabled, then the network service will parse the Cookie-Indices header.
+ // This does not currently control changing cache behavior according to the

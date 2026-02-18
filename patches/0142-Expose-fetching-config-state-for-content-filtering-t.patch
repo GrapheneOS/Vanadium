@@ -1,0 +1,147 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 7 Dec 2023 08:19:44 +0000
+Subject: [PATCH] Expose fetching config state for content filtering to native
+ calls
+
+---
+ .../android_config/BUILD.gn                   | 36 +++++++++++++++++++
+ .../SubresourceFilterFetching.java            | 30 ++++++++++++++++
+ .../subresource_filter_fetching.cc            | 24 +++++++++++++
+ .../subresource_filter_fetching.h             | 15 ++++++++
+ 4 files changed, 105 insertions(+)
+ create mode 100644 components/subresource_filter/android_config/BUILD.gn
+ create mode 100644 components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
+ create mode 100644 components/subresource_filter/android_config/subresource_filter_fetching.cc
+ create mode 100644 components/subresource_filter/android_config/subresource_filter_fetching.h
+
+diff --git a/components/subresource_filter/android_config/BUILD.gn b/components/subresource_filter/android_config/BUILD.gn
+new file mode 100644
+index 0000000000000..3e216ca2933dd
+--- /dev/null
++++ b/components/subresource_filter/android_config/BUILD.gn
+@@ -0,0 +1,36 @@
++# Copyright 2020 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++import("//third_party/jni_zero/jni_zero.gni")
++
++generate_jni("subresource_filter_fetching_jni_headers") {
++  sources = [
++    "java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java",
++  ]
++}
++
++android_library("java") {
++  srcjar_deps = [ ":subresource_filter_fetching_jni_headers" ]
++  sources = [
++    "java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java",
++  ]
++  deps = [
++    ":subresource_filter_fetching_jni_headers",
++    "//base:base_java",
++    "//third_party/jni_zero:jni_zero_java",
++    "//vanadium/android_config/proto:browser_config_parser_java",
++  ]
++}
++
++source_set("android") {
++  sources = [
++    "subresource_filter_fetching.cc",
++    "subresource_filter_fetching.h",
++  ]
++  deps = [
++    ":subresource_filter_fetching_jni_headers",
++    "//base",
++  ]
++}
+diff --git a/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java b/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
+new file mode 100644
+index 0000000000000..28b1610d64d05
+--- /dev/null
++++ b/components/subresource_filter/android_config/java/src/org/chromium/components/subresource_filter/SubresourceFilterFetching.java
+@@ -0,0 +1,30 @@
++package org.chromium.components.subresource_filter;
++
++import org.jni_zero.CalledByNative;
++import org.jni_zero.JNINamespace;
++
++import app.vanadium.config.SubresourceFilterComponentUtils;
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
++
++@JNINamespace("subresource_filter")
++public class SubresourceFilterFetching {
++
++    public static long getUnindexedRulesetVersion() {
++        return VanadiumConfParser.getConfigVersionCode();
++    }
++
++    public static byte[] getUnindexedRulesetData() {
++        return VanadiumConfParser.getByteArrayForComponent(ComponentType.SUBRESOURCE_FILTER_TOOLS);
++    }
++
++    @CalledByNative
++    public static boolean isInitialized() {
++        return VanadiumConfParser.isInitialized();
++    }
++
++    @CalledByNative
++    public static boolean deleteUnindexedFile() {
++        return SubresourceFilterComponentUtils.deleteComponentFileForParsing();
++    }
++}
+diff --git a/components/subresource_filter/android_config/subresource_filter_fetching.cc b/components/subresource_filter/android_config/subresource_filter_fetching.cc
+new file mode 100644
+index 0000000000000..b9e3c65069b7d
+--- /dev/null
++++ b/components/subresource_filter/android_config/subresource_filter_fetching.cc
+@@ -0,0 +1,24 @@
++// Copyright 2021 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "components/subresource_filter/android_config/subresource_filter_fetching.h"
++
++#include <string>
++
++#include "base/android/jni_android.h"
++#include "components/subresource_filter/android_config/subresource_filter_fetching_jni_headers/SubresourceFilterFetching_jni.h"
++
++namespace subresource_filter {
++
++bool IsInitializedFromConfig() {
++  JNIEnv* env = base::android::AttachCurrentThread();
++  return Java_SubresourceFilterFetching_isInitialized(env);
++}
++
++bool DeleteUnindexedFile() {
++  JNIEnv* env = base::android::AttachCurrentThread();
++  return Java_SubresourceFilterFetching_deleteUnindexedFile(env);
++}
++
++}
+diff --git a/components/subresource_filter/android_config/subresource_filter_fetching.h b/components/subresource_filter/android_config/subresource_filter_fetching.h
+new file mode 100644
+index 0000000000000..fc36417aa70e8
+--- /dev/null
++++ b/components/subresource_filter/android_config/subresource_filter_fetching.h
+@@ -0,0 +1,15 @@
++// Copyright 2021 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef COMPONENTS_SUBRESOURCE_FILTER_ANDROID_CONFIG_SUBRESOURCE_FILTER_FETCHING_H_
++#define COMPONENTS_SUBRESOURCE_FILTER_ANDROID_CONFIG_SUBRESOURCE_FILTER_FETCHING_H_
++
++#include <string>
++
++namespace subresource_filter {
++bool IsInitializedFromConfig();
++bool DeleteUnindexedFile();
++} // namespace subresource_filter
++
++#endif // COMPONENTS_SUBRESOURCE_FILTER_ANDROID_CONFIG_SUBRESOURCE_FILTER_FETCHING_H_
+\ No newline at end of file

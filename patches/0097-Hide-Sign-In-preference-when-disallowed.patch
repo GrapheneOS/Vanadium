@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 29 Aug 2021 19:31:00 +0000
+Subject: [PATCH] Hide Sign In preference when disallowed
+
+---
+ .../chromium/chrome/browser/sync/settings/SignInPreference.java  | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SignInPreference.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SignInPreference.java
+index a9a58bd6719ac..cb37e9ec97395 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SignInPreference.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SignInPreference.java
+@@ -178,6 +178,7 @@ public class SignInPreference extends Preference
+     }
+ 
+     private void setupSigninDisallowed() {
++        setViewEnabledAndShowAlertIcon(/* enabled= */ false, /* alertIconVisible= */ false);
+         mWasGenericSigninPromoDisplayed = false;
+     }
+ 
