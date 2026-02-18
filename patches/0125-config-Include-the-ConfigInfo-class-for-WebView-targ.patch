@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 6 Dec 2023 17:11:31 +0000
+Subject: [PATCH] config: Include the ConfigInfo class for WebView targets with
+ java code
+
+---
+ android_webview/system_webview_apk_tmpl.gni | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
+index dae8b22d795db..55832f66c5f05 100644
+--- a/android_webview/system_webview_apk_tmpl.gni
++++ b/android_webview/system_webview_apk_tmpl.gni
+@@ -253,6 +253,15 @@ template("system_webview_apk_or_module_tmpl") {
+       }
+     }
+ 
++    if (!_omit_dex) {
++      if (!defined(srcjar_deps)) {
++        srcjar_deps = []
++      }
++      srcjar_deps += [
++        "//vanadium/android_config:configinfo_srcjar_apk",
++      ]
++    }
++
+     if (_include_primary_support) {
+       deps += [
+         "//android_webview:webview_primary_abi_assets",
