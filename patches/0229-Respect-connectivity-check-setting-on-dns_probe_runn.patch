@@ -9,7 +9,7 @@ Subject: [PATCH] Respect connectivity check setting on dns_probe_runner
  2 files changed, 35 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/browser/net/dns_probe_runner.cc b/chrome/browser/net/dns_probe_runner.cc
-index b6c0d207d007a..86a58f2c46176 100644
+index b6c0d207d007a..d260d3e4bf0f3 100644
 --- a/chrome/browser/net/dns_probe_runner.cc
 +++ b/chrome/browser/net/dns_probe_runner.cc
 @@ -16,6 +16,14 @@
@@ -52,7 +52,7 @@ index b6c0d207d007a..86a58f2c46176 100644
 +    host = net::android::kGrapheneOsDohProbeHostname;
 +  }
 +#else
-+  char host[] = kKnownGoodHostName;
++  std::string_view host = kKnownGoodHostname;
 +#endif // BUILDFLAG(IS_ANDROID)
 +
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);

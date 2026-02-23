@@ -401,7 +401,7 @@ index 0000000000000..520a22ee8756b
 +    private CrossOriginReferrerPolicyUtils() {}
 +}
 diff --git a/chrome/browser/net/profile_network_context_service.cc b/chrome/browser/net/profile_network_context_service.cc
-index 39aa7a3a463d1..576e43eaf56ae 100644
+index 39aa7a3a463d1..dec31a110c5d2 100644
 --- a/chrome/browser/net/profile_network_context_service.cc
 +++ b/chrome/browser/net/profile_network_context_service.cc
 @@ -96,6 +96,7 @@
@@ -438,7 +438,7 @@ index 39aa7a3a463d1..576e43eaf56ae 100644
  }
  
 +void ProfileNetworkContextService::UpdateCrossOriginReferrerPolicy() {
-+  const bool cross_origin_referrer_policy = cross_origin_referrer_policy_.GetValue();
++  const int cross_origin_referrer_policy = cross_origin_referrer_policy_.GetValue();
 +  profile_->ForEachLoadedStoragePartition(
 +      [&](content::StoragePartition* storage_partition) {
 +        storage_partition->GetNetworkContext()->SetCrossOriginReferrerPolicy(
