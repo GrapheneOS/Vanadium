@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 13 Feb 2026 12:59:46 +0000
+Subject: [PATCH] add support for appending build flags for Vanadium
+
+---
+ build/config/compiler/BUILD.gn |  3 +++
+ build/config/vanadium/BUILD.gn | 33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 36 insertions(+)
+ create mode 100644 build/config/vanadium/BUILD.gn
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 3caedebb1d279..dbd66f2477b80 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -485,6 +485,9 @@ config("compiler") {
+     if (fatal_linker_warnings && is_apple) {
+       ldflags += [ "-Wl,-fatal_warnings" ]
+     }
++
++    # Additional Vanadium compiler flags
++    configs += [ "//build/config/vanadium:compiler" ]
+   }
+ 
+   # Non-Apple Posix and Fuchsia compiler flags setup.
+diff --git a/build/config/vanadium/BUILD.gn b/build/config/vanadium/BUILD.gn
+new file mode 100644
+index 0000000000000..7b0b324b92bf7
+--- /dev/null
++++ b/build/config/vanadium/BUILD.gn
+@@ -0,0 +1,33 @@
++# Copyright 2014 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//build/config/c++/c++.gni")
++import("//build/config/compiler/compiler.gni")
++import("//build/config/sanitizers/sanitizers.gni")
++
++if (is_android) {
++  import("//build/config/android/rules.gni")
++}
++
++if (current_toolchain == default_toolchain) {
++  import("//build/toolchain/concurrent_links.gni")
++}
++
++# This file is based on //build/config/android/BUILD.gn.
++# This is included by reference in the //build/config/compiler config that
++# is applied to all targets. It is here to separate out the logic that is
++# Vanadium-only.
++config("compiler") {
++  asmflags = []
++  cflags = []
++  cflags_c = []
++  cflags_cc = []
++  cflags_objc = []
++  cflags_objcc = []
++  rustenv = []
++  rustflags = []
++  ldflags = []
++  defines = []
++  configs = []
++}

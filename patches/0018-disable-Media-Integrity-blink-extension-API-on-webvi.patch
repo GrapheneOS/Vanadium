@@ -1,0 +1,407 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 18 Jul 2024 06:03:46 +0000
+Subject: [PATCH] disable Media Integrity blink extension API on webview by
+ default
+
+Since 141.0.7358.0:
+
+Reverts
+https://chromium-review.googlesource.com/c/chromium/src/+/6851563, which
+removes the Media Integrity blink extension API feature flag.
+---
+ ...ontent_browser_client_receiver_bindings.cc |  9 +-
+ android_webview/common/aw_feature_map.cc      |  1 +
+ android_webview/common/aw_features.cc         |  5 ++
+ android_webview/common/aw_features.h          |  1 +
+ .../common/ProductionSupportedFlagList.java   |  4 +
+ .../test/AwMediaIntegrityApiTest.java         | 89 +++++++++++++++++++
+ .../renderer/aw_content_renderer_client.cc    | 11 ++-
+ 7 files changed, 114 insertions(+), 6 deletions(-)
+
+diff --git a/android_webview/browser/aw_content_browser_client_receiver_bindings.cc b/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
+index 9634fc6f2edc4..d3b10b68a1db8 100644
+--- a/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
++++ b/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
+@@ -268,8 +268,13 @@ void AwContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+   map->Add<spellcheck::mojom::SpellCheckHost>(
+       create_spellcheck_host, content::GetUIThreadTaskRunner({}));
+ #endif
+-  map->Add<blink::mojom::WebViewMediaIntegrityService>(
+-      &BindMediaIntegrityServiceReceiver);
++
++  if (base::FeatureList::IsEnabled(
++          features::kWebViewMediaIntegrityApiBlinkExtension)) {
++    map->Add<blink::mojom::WebViewMediaIntegrityService>(
++        &BindMediaIntegrityServiceReceiver);
++  }
++
+   if (base::FeatureList::IsEnabled(::features::kWebPayments)) {
+     map->Add<payments::mojom::PaymentRequest>(
+         &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
+diff --git a/android_webview/common/aw_feature_map.cc b/android_webview/common/aw_feature_map.cc
+index c390e597f7310..73e0b82b65ae1 100644
+--- a/android_webview/common/aw_feature_map.cc
++++ b/android_webview/common/aw_feature_map.cc
+@@ -54,6 +54,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &features::kWebViewHyperlinkContextMenu,
+     &features::kWebViewInvokeZoomPickerOnGSU,
+     &features::kWebViewLazyFetchHandWritingIcon,
++    &features::kWebViewMediaIntegrityApiBlinkExtension,
+     &features::kWebViewMixedContentAutoupgrades,
+     &features::kWebViewMoveWorkToProviderInit,
+     &features::kWebViewOptInToGmsBindServiceOptimization,
+diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
+index bf68a814565df..a33c161a2ebca 100644
+--- a/android_webview/common/aw_features.cc
++++ b/android_webview/common/aw_features.cc
+@@ -54,6 +54,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kWebViewLazyFetchHandWritingIcon,
+              base::FEATURE_ENABLED_BY_DEFAULT);
+ 
++// Enable the WebView Media Integrity API as a Blink extension.
++// This feature requires `kWebViewMediaIntegrityApi` to be disabled.
++BASE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension,
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
+ // When enabled, cookie policy settings are captured at RestrictedCookieManager
+ // creation time and used throughout its lifetime. This enables shared memory
+ // cookie versioning to reduce IPC overhead.
+diff --git a/android_webview/common/aw_features.h b/android_webview/common/aw_features.h
+index 8662f2f76d665..3ba7be6540080 100644
+--- a/android_webview/common/aw_features.h
++++ b/android_webview/common/aw_features.h
+@@ -30,6 +30,7 @@ BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
+ BASE_DECLARE_FEATURE(kWebViewInvokeZoomPickerOnGSU);
+ BASE_DECLARE_FEATURE(kWebViewLazyFetchHandWritingIcon);
+ BASE_DECLARE_FEATURE(kWebViewLatchedCookiePolicy);
++BASE_DECLARE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension);
+ BASE_DECLARE_FEATURE(kWebViewMixedContentAutoupgrades);
+ BASE_DECLARE_FEATURE(kWebViewRenderDocument);
+ BASE_DECLARE_FEATURE(kWebViewTestFeature);
+diff --git a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
+index bda774a9c55a1..0d9e5f8141448 100644
+--- a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
++++ b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
+@@ -674,6 +674,10 @@ public final class ProductionSupportedFlagList {
+         Flag.baseFeature("V8ScavengerHigherCapacity"),
+         Flag.baseFeature("V8IncrementalMarkingStartUserVisible"),
+         Flag.baseFeature("V8ExternalMemoryAccountedInGlobalLimit"),
++        Flag.baseFeature(
++                AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION,
++                "Enable the WebView Media Integrity API as a Blink extension. Only works if"
++                        + " WebViewMediaIntegrityApi is disabled."),
+         Flag.baseFeature(
+                 "PMProcessPriorityPolicy",
+                 "Controls whether the priority of renderers is controlled by the performance "
+diff --git a/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java b/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java
+index 492b3c7a409fa..3a7cfab121ebf 100644
+--- a/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java
++++ b/android_webview/javatests/src/org/chromium/android_webview/test/AwMediaIntegrityApiTest.java
+@@ -21,6 +21,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
+ import org.chromium.android_webview.AwContents;
+ import org.chromium.android_webview.JsReplyProxy;
+ import org.chromium.android_webview.WebMessageListener;
++import org.chromium.android_webview.common.AwFeatures;
+ import org.chromium.android_webview.common.MediaIntegrityApiStatus;
+ import org.chromium.android_webview.common.MediaIntegrityErrorCode;
+ import org.chromium.android_webview.common.MediaIntegrityErrorWrapper;
+@@ -32,6 +33,7 @@ import org.chromium.android_webview.test.AwActivityTestRule.TestDependencyFactor
+ import org.chromium.base.ThreadUtils;
+ import org.chromium.base.test.util.Batch;
+ import org.chromium.base.test.util.CallbackHelper;
++import org.chromium.base.test.util.CommandLineFlags;
+ import org.chromium.content_public.browser.MessagePayload;
+ import org.chromium.content_public.browser.MessagePort;
+ import org.chromium.net.test.util.TestWebServer;
+@@ -109,6 +111,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testApiSurfaceExposed() throws Exception {
+         // Check the method name is exposed
+         assertJsTruthy("android.webview.getExperimentalMediaIntegrityTokenProvider");
+@@ -129,6 +134,18 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "disable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
++    public void testApiSurfaceNotExposedWhenFeatureDisabled() throws Exception {
++        assertJsTruthy("!('android' in window)");
++    }
++
++    @Test
++    @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterNotExposedForDataUris() throws Throwable {
+         mRule.loadDataSync(
+                 mAwContents, mContentsClient.getOnPageFinishedHelper(), "", "text/html", false);
+@@ -137,6 +154,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterExposedButRejectedForDataUrisWithHttpsBaseUrls()
+             throws Throwable {
+         // An HTTPS base URL has a secure context, unlike a plain data URL. This exposes the API,
+@@ -158,6 +178,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterNotExposedForAboutBlank() throws Throwable {
+         mRule.loadUrlSync(mAwContents, mContentsClient.getOnPageFinishedHelper(), "about:blank");
+         assertNotExposed();
+@@ -165,6 +188,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterNotExposedForPlaintextHttp() throws Throwable {
+         mRule.loadDataWithBaseUrlSync(
+                 mAwContents,
+@@ -179,6 +205,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterUseableForLocalhostHttp() throws Throwable {
+         try (TestWebServer server = TestWebServer.start()) {
+             String url = server.setEmptyResponse("");
+@@ -211,6 +240,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterExposedButRejectedForFileUris() throws Throwable {
+         mRule.loadUrlSync(
+                 mAwContents,
+@@ -225,6 +257,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testProviderGetterExposedButRejectedForContentUris() throws Throwable {
+         final String testHtmlContentPath = "hello.html";
+         final String testHtmlContent =
+@@ -245,6 +280,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenProviderIsNotConstructable() throws Exception {
+         // Try to construct a new token provider and turn the error into a string.
+         String script =
+@@ -269,6 +307,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testAbleToGetTokenProviderAndToken() throws Exception {
+         String mockToken = "abc123def456";
+         MockTokenProvider mockTokenProvider = new MockTokenProvider();
+@@ -297,6 +338,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testErrorWhenAppDisablesApiGlobally() throws Exception {
+         mAwContents
+                 .getSettings()
+@@ -313,6 +357,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testErrorWhenAppDisabledApiForUrl() throws Exception {
+         String testScript =
+                 getTestScript(CLOUD_PROJECT_NUMBER, asStringConstant(CONTENT_BINDING_HASH));
+@@ -334,6 +381,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testErrorWhenApiDisabledForSourceButEnabledForTopLevel() throws Exception {
+         final String result;
+         try (final TestWebServer topLevelServer = TestWebServer.startSsl();
+@@ -363,6 +413,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testGetTokenWhenApiEnabledForSourceButDisabledForTopLevel() throws Exception {
+         final String mockToken = "abc123def456";
+         final MockTokenProvider mockTokenProvider = new MockTokenProvider();
+@@ -396,6 +449,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testCloudProjectNumberAccessibleOnTokenProvider() throws Exception {
+         MockTokenProvider mockTokenProvider = new MockTokenProvider();
+         mPlatformBridge.addProviderResponse(
+@@ -424,6 +480,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenProviderReusedWhenUsingSamePartition() throws Exception {
+         String mockToken = "abc123def456";
+ 
+@@ -447,6 +506,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenProviderNotReusedAfterApiModeChange() throws Exception {
+         String mockToken = "abc123def456";
+ 
+@@ -498,6 +560,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenProviderNotReusedAcrossDistinctOrigins() throws Exception {
+         String mockTokenTestServer1 = "abc123def456";
+         String mockTokenTestServer2 = "555555555";
+@@ -559,6 +624,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenProviderNotReusedAcrossDistinctPartyIFrames() throws Exception {
+         String mockTokenA = "abc123def456";
+         String mockTokenB = "555555555";
+@@ -613,6 +681,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenProviderNotReusedIfInvalid() throws Exception {
+ 
+         MockTokenProvider mockTokenProvider1 = new MockTokenProvider();
+@@ -647,6 +718,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenRequestAcceptsEmptyString() throws Exception {
+         String mockToken = "abc123def456";
+ 
+@@ -665,6 +739,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenRequestAcceptsNull() throws Exception {
+         String mockToken = "abc123def456";
+ 
+@@ -683,6 +760,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testTokenRequestAcceptsMissingParameterAsNull() throws Exception {
+         String mockToken = "abc123def456";
+ 
+@@ -701,6 +781,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testInvalidCloudProjectNumbersAreRejected() throws Exception {
+         // Only numbers up to 2^53-1 can be represented correctly in JavaScript.
+         // Test that numbers larger than this are rejected.
+@@ -721,6 +804,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testErrorsMappedGetTokenProvider() throws Exception {
+         mPlatformBridge.addProviderError(
+                 CLOUD_PROJECT_NUMBER,
+@@ -765,6 +851,9 @@ public class AwMediaIntegrityApiTest extends AwParameterizedTest {
+ 
+     @Test
+     @MediumTest
++    @CommandLineFlags.Add({
++        "enable-features=" + AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION
++    })
+     public void testErrorsMappedRequestToken() throws Exception {
+         MockTokenProvider mockTokenProvider = new MockTokenProvider();
+         mPlatformBridge.addProviderResponse(
+diff --git a/android_webview/renderer/aw_content_renderer_client.cc b/android_webview/renderer/aw_content_renderer_client.cc
+index 0681a1fca1b03..694f323744026 100644
+--- a/android_webview/renderer/aw_content_renderer_client.cc
++++ b/android_webview/renderer/aw_content_renderer_client.cc
+@@ -232,10 +232,13 @@ void AwContentRendererClient::
+     blink::WebRuntimeFeatures::EnableManualText(true);
+   }
+ 
+-  // Enable the overall android.webview namespace.
+-  blink::WebRuntimeFeatures::EnableBlinkExtensionWebView(true);
+-  // Enable the android.webview.getExperimentalMediaIntegrityProvider API.
+-  blink::WebRuntimeFeatures::EnableBlinkExtensionWebViewMediaIntegrity(true);
++  if (base::FeatureList::IsEnabled(
++          features::kWebViewMediaIntegrityApiBlinkExtension)) {
++    // Enable the overall android.webview namespace.
++    blink::WebRuntimeFeatures::EnableBlinkExtensionWebView(true);
++    // Enable the android.webview.getExperimentalMediaIntegrityProvider API.
++    blink::WebRuntimeFeatures::EnableBlinkExtensionWebViewMediaIntegrity(true);
++  }
+ }
+ 
+ void AwContentRendererClient::WebViewCreated(

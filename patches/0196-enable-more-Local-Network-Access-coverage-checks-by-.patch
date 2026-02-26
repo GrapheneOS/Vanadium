@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 4 Jun 2025 06:35:07 +0000
+Subject: [PATCH] enable more Local Network Access coverage checks by default
+
+---
+ services/network/public/cpp/features.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index d47cad6a585b7..3408f3f916863 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -244,7 +244,7 @@ BASE_FEATURE_PARAM(bool,
+ //
+ // Spec: https://wicg.github.io/local-network-access/
+ BASE_FEATURE(kLocalNetworkAccessChecksWebRTC,
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Enables the Network Service to use an existing Mojo data pipe producer
+ // handle for the response body, instead of creating its own. This is primarily
+@@ -266,7 +266,7 @@ BASE_FEATURE_PARAM(bool,
+ //
+ // Spec: https://wicg.github.io/local-network-access/
+ BASE_FEATURE(kLocalNetworkAccessChecksWebSockets,
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Enables Local Network Access checks for WebTransport.
+ // Blocks local network requests without user permission to prevent exploitation
+@@ -274,7 +274,7 @@ BASE_FEATURE(kLocalNetworkAccessChecksWebSockets,
+ //
+ // Spec: https://wicg.github.io/local-network-access/
+ BASE_FEATURE(kLocalNetworkAccessChecksWebTransport,
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // Splits the Local Network Access permission into 2 permissions. See
+ // crbug.com/465491626.

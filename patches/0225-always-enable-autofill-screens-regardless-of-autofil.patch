@@ -1,0 +1,631 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Sun, 23 Nov 2025 04:08:57 +0000
+Subject: [PATCH] always enable autofill screens regardless of autofill
+ settings
+
+---
+ .../AutofillPaymentMethodsFragment.java       |  4 +-
+ .../settings/AutofillProfilesFragment.java    |  4 +-
+ .../AutofillPaymentMethodsFragmentTest.java   | 35 ++++++++++++++++
+ .../AutofillProfilesFragmentTest.java         | 10 +++++
+ ...mentMethodsFragmentBuyNowPayLaterTest.java |  3 +-
+ .../options/AutofillOptionsCoordinator.java   | 37 +++++++++++------
+ .../RadioButtonGroupThirdPartyPreference.java | 14 +++++++
+ .../autofill/options/AutofillOptionsTest.java | 40 ++++++++++++++++++-
+ .../flags/android/chrome_feature_list.cc      |  6 +++
+ .../flags/android/chrome_feature_list.h       |  1 +
+ .../browser/flags/ChromeFeatureList.java      |  2 +
+ .../strings/android_chrome_strings.grd        |  6 +++
+ ...OFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1 |  1 +
+ ...FILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1 |  1 +
+ components/autofill_strings.grdp              |  8 +++-
+ ...PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1 |  2 +-
+ ...Y_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1 |  1 +
+ ..._PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1 |  2 +-
+ ...TY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1 |  1 +
+ 19 files changed, 158 insertions(+), 20 deletions(-)
+ create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
+ create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
+ create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
+ create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
+index e5cc7f9c70023..b35803529bcef 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
+@@ -831,7 +831,9 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+     private static boolean disabledSettingsInThirdPartyMode(Profile profile) {
+         return (AutofillClientProviderUtils.getAndroidAutofillFrameworkAvailability(
+                                 UserPrefs.get(profile))
+-                        == AndroidAutofillAvailabilityStatus.AVAILABLE);
++                        == AndroidAutofillAvailabilityStatus.AVAILABLE)
++                && ChromeFeatureList.isEnabled(
++                        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN);
+     }
+ 
+     static boolean shouldShowManagePix(PersonalDataManager manager, Profile profile) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java
+index 9bf0d2fe521fc..1b73b4d8d8101 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java
+@@ -467,7 +467,9 @@ public class AutofillProfilesFragment extends ChromeBaseSettingsFragment
+     private static boolean disabledSettingsInThirdPartyMode(Profile profile) {
+         return AutofillClientProviderUtils.getAndroidAutofillFrameworkAvailability(
+                         UserPrefs.get(profile))
+-                == AndroidAutofillAvailabilityStatus.AVAILABLE;
++                == AndroidAutofillAvailabilityStatus.AVAILABLE
++                && ChromeFeatureList.isEnabled(
++                        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN);
+     }
+ 
+     public static final ChromeBaseSearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentTest.java
+index 8d24e88ff8b5b..0fc2798c722a7 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentTest.java
+@@ -1854,6 +1854,7 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @EnableFeatures({ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN})
+     public void testSettingsState_SaveAndFillPaymentMethodsDisabledInThirdPartyMode()
+             throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+@@ -1874,6 +1875,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     @Restriction(DeviceRestriction.RESTRICTION_TYPE_NON_AUTO)
+     public void testSettingsState_MandatoryReauthDisabledInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+@@ -1890,6 +1894,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_SaveCVCDisabledInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -1907,6 +1914,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_CardBenefitsHiddenInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -1924,6 +1934,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_CardsListShownInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -1941,6 +1954,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_IbanListShownInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -1958,6 +1974,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_AddCardHiddenInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -1974,6 +1993,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_AddIbanButtonHiddenInthirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -1991,6 +2013,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_PaymentAppsShownInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -2020,6 +2045,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_LoyaltyCardsDisabledInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -2039,6 +2067,7 @@ public class AutofillPaymentMethodsFragmentTest {
+     @Test
+     @MediumTest
+     @EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN,
+         ChromeFeatureList.AUTOFILL_SYNC_EWALLET_ACCOUNTS,
+         ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM
+     })
+@@ -2074,6 +2103,7 @@ public class AutofillPaymentMethodsFragmentTest {
+     @Test
+     @MediumTest
+     @EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN,
+         ChromeFeatureList.AUTOFILL_SYNC_EWALLET_ACCOUNTS,
+     })
+     @DisableFeatures({ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM})
+@@ -2098,6 +2128,7 @@ public class AutofillPaymentMethodsFragmentTest {
+     @Test
+     @MediumTest
+     @EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN,
+         ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM
+     })
+     @DisableFeatures({ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM})
+@@ -2121,6 +2152,9 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testDisabledSettingsText_shownInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -2136,6 +2170,7 @@ public class AutofillPaymentMethodsFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @EnableFeatures({ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN})
+     public void testDisabledSettingsText_linksToAutofillOptionsPage() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragmentTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragmentTest.java
+index 64994a8d8af15..12e940865683f 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragmentTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragmentTest.java
+@@ -64,6 +64,7 @@ import org.chromium.base.test.util.CriteriaHelper;
+ import org.chromium.base.test.util.DisabledTest;
+ import org.chromium.base.test.util.DoNotBatch;
+ import org.chromium.base.test.util.Feature;
++import org.chromium.base.test.util.Features;
+ import org.chromium.base.test.util.Features.EnableFeatures;
+ import org.chromium.base.test.util.HistogramWatcher;
+ import org.chromium.build.annotations.Nullable;
+@@ -900,6 +901,9 @@ public class AutofillProfilesFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testSettingsState_thirdPartyMode() throws Exception {
+         setUpMockPrimaryAccount(TestAccounts.ACCOUNT1);
+         setUpMockSyncService(Collections.singleton(UserSelectableType.AUTOFILL));
+@@ -943,6 +947,9 @@ public class AutofillProfilesFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testDisabledSettingsText_shownInThirdPartyMode() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+@@ -961,6 +968,9 @@ public class AutofillProfilesFragmentTest {
+ 
+     @Test
+     @MediumTest
++    @Features.EnableFeatures({
++        ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
++    })
+     public void testDisabledSettingsText_linksToAutofillOptionsPage() throws Exception {
+         ThreadUtils.runOnUiThreadBlocking(
+                 () -> {
+diff --git a/chrome/android/junit/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentBuyNowPayLaterTest.java b/chrome/android/junit/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentBuyNowPayLaterTest.java
+index 0310d8a17ff9e..b942bd06e640e 100644
+--- a/chrome/android/junit/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentBuyNowPayLaterTest.java
++++ b/chrome/android/junit/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragmentBuyNowPayLaterTest.java
+@@ -60,7 +60,8 @@ import java.util.List;
+     ChromeFeatureList.AUTOFILL_ENABLE_CARD_BENEFITS_FOR_AMERICAN_EXPRESS,
+     ChromeFeatureList.AUTOFILL_ENABLE_CARD_BENEFITS_FOR_BMO,
+     ChromeFeatureList.AUTOFILL_ENABLE_FLAT_RATE_CARD_BENEFITS_FROM_CURINOS,
+-    ChromeFeatureList.AUTOFILL_ENABLE_LOYALTY_CARDS_FILLING
++    ChromeFeatureList.AUTOFILL_ENABLE_LOYALTY_CARDS_FILLING,
++    ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN
+ })
+ public class AutofillPaymentMethodsFragmentBuyNowPayLaterTest {
+     @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java
+index b9eb16d7b4436..9a6fac304dab1 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java
+@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
+ import org.chromium.chrome.browser.autofill.R;
++import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.ui.modaldialog.ModalDialogManager;
+ import org.chromium.ui.modaldialog.ModalDialogProperties;
+ import org.chromium.ui.modelutil.PropertyModel;
+@@ -148,19 +149,29 @@ public class AutofillOptionsCoordinator {
+                                 getString(R.string.autofill_options_undo_toggle_change))
+                         .with(ModalDialogProperties.CANCEL_ON_TOUCH_OUTSIDE, true)
+                         .with(ModalDialogProperties.CONTROLLER, mMediator);
+-        builder.with(
+-                        ModalDialogProperties.TITLE,
+-                        getString(R.string.autofill_options_change_autofill_service_title))
+-                .with(
+-                        ModalDialogProperties.MESSAGE_PARAGRAPHS,
+-                        new ArrayList<>(
+-                                Arrays.asList(
+-                                        getString(
+-                                                R.string
+-                                                        .autofill_options_restart_prompt_paragraph_1_text),
+-                                        getString(
+-                                                R.string
+-                                                        .autofill_options_restart_prompt_paragraph_2_text))));
++        if (ChromeFeatureList.isEnabled(
++                ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)) {
++            builder.with(
++                            ModalDialogProperties.TITLE,
++                            getString(R.string.autofill_options_change_autofill_service_title))
++                    .with(
++                            ModalDialogProperties.MESSAGE_PARAGRAPHS,
++                            new ArrayList<>(
++                                    Arrays.asList(
++                                            getString(
++                                                    R.string
++                                                            .autofill_options_restart_prompt_paragraph_1_text),
++                                            getString(
++                                                    R.string
++                                                            .autofill_options_restart_prompt_paragraph_2_text))));
++        } else {
++            builder.with(
++                            ModalDialogProperties.TITLE,
++                            getString(R.string.autofill_options_restart_prompt_title))
++                    .with(
++                            ModalDialogProperties.MESSAGE_PARAGRAPH_1,
++                            getString(R.string.autofill_options_restart_prompt_text));
++        }
+         return builder.build();
+     }
+ 
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java
+index ef3740e0bfc4e..9d30e2434b2c2 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java
+@@ -16,6 +16,7 @@ import androidx.preference.PreferenceViewHolder;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
+ import org.chromium.chrome.browser.autofill.R;
++import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.components.browser_ui.settings.ContainedRadioButtonGroupPreference;
+ import org.chromium.components.browser_ui.widget.RadioButtonWithDescription;
+ import org.chromium.components.browser_ui.widget.RadioButtonWithDescriptionLayout;
+@@ -91,6 +92,19 @@ public final class RadioButtonGroupThirdPartyPreference
+ 
+         group.setOnCheckedChangeListener(this::onCheckedChanged);
+         setSelectedOption(mSelectedOption); // Update UI according to internal state.
++        if (ChromeFeatureList.isEnabled(
++                ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)) {
++            mDefaultOption.setDescriptionText(
++                    getContext()
++                            .getResources()
++                            .getString(
++                                    R.string.autofill_third_party_filling_default_description_new));
++            mOptInOption.setDescriptionText(
++                    getContext()
++                            .getResources()
++                            .getString(
++                                    R.string.autofill_third_party_filling_opt_in_description_new));
++        }
+     }
+ 
+     /**
+diff --git a/chrome/browser/autofill/android/junit/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsTest.java b/chrome/browser/autofill/android/junit/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsTest.java
+index 7ff2384fcc061..2bce6cc5354b3 100644
+--- a/chrome/browser/autofill/android/junit/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsTest.java
++++ b/chrome/browser/autofill/android/junit/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsTest.java
+@@ -157,6 +157,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void constructedWithPrefAsDefaultForOption() {
+         doReturn(EXAMPLE_SERVICE_PACKAGE).when(mAutofillManager).getAutofillServiceComponentName();
+         doReturn(true).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+@@ -174,6 +175,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void optionDisabledForAwgUpdatesOnResume() {
+         doReturn(AWG_PACKAGE).when(mAutofillManager).getAutofillServiceComponentName();
+         doReturn(false).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+@@ -203,6 +205,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void optionDisabledByPolicy() {
+         doReturn(EXAMPLE_SERVICE_PACKAGE).when(mAutofillManager).getAutofillServiceComponentName();
+         doReturn(false).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+@@ -224,6 +227,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void optionEnabledToSwitchOffAwg() {
+         doReturn(AWG_PACKAGE).when(mAutofillManager).getAutofillServiceComponentName();
+         doReturn(true).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+@@ -243,6 +247,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void toggledOptionRecordedInHistogram() {
+         HistogramWatcher histogramWatcher =
+                 HistogramWatcher.newSingleRecordWatcher(
+@@ -276,6 +281,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void updateSettingsFromPrefOnViewCreated() {
+         doReturn(true).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+         doReturn(true).when(mPrefs).getBoolean(Pref.AUTOFILL_THIRD_PARTY_PASSWORD_MANAGERS_ALLOWED);
+@@ -289,6 +295,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void toggledOptionSetsPrefAndRestarts() {
+         HistogramWatcher histogramWatcher =
+                 HistogramWatcher.newSingleRecordWatcher(
+@@ -313,6 +320,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void toggledOptionResetsWithoutConfirmation() {
+         HistogramWatcher histogramWatcher =
+                 HistogramWatcher.newSingleRecordWatcher(
+@@ -338,6 +346,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void toggledOptionResetsWhenDismissed() {
+         doReturn(false).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+         doReturn(true).when(mPrefs).getBoolean(Pref.AUTOFILL_THIRD_PARTY_PASSWORD_MANAGERS_ALLOWED);
+@@ -359,6 +368,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void setPrefTogglesOptionOnResume() {
+         doReturn(false).when(mPrefs).getBoolean(Pref.AUTOFILL_USING_PLATFORM_AUTOFILL);
+         doReturn(true).when(mPrefs).getBoolean(Pref.AUTOFILL_THIRD_PARTY_PASSWORD_MANAGERS_ALLOWED);
+@@ -379,6 +389,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void suppliesTitle() {
+         AutofillOptionsCoordinator.createFor(mFragment, this::assertModalNotUsed, Assert::fail);
+ 
+@@ -387,7 +398,8 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
+-    public void setsPref() {
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
++    public void setsPrefOld() {
+         // Update on initial binding. Shouldn't trigger dialogs or restart.
+         AutofillOptionsCoordinator.createFor(mFragment, this::assertModalNotUsed, Assert::fail);
+ 
+@@ -410,6 +422,31 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @EnableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
++    public void setsPref() {
++        // Update on initial binding. Shouldn't trigger dialogs or restart.
++        AutofillOptionsCoordinator.createFor(mFragment, this::assertModalNotUsed, Assert::fail);
++
++        assertEquals(
++                AutofillOptionsFragment.PREF_AUTOFILL_THIRD_PARTY_FILLING,
++                getRadioButtonComponent().getKey());
++        assertEquals(
++                getRadioButtonComponent().getDefaultButton().getPrimaryText(),
++                getString(R.string.autofill_third_party_filling_default));
++        assertEquals(
++                getRadioButtonComponent().getDefaultButton().getDescriptionText(),
++                getString(R.string.autofill_third_party_filling_default_description_new));
++        assertEquals(
++                getRadioButtonComponent().getOptInButton().getPrimaryText(),
++                getString(R.string.autofill_third_party_filling_opt_in));
++        assertEquals(
++                getRadioButtonComponent().getOptInButton().getDescriptionText(),
++                getString(R.string.autofill_third_party_filling_opt_in_description_new));
++    }
++
++    @Test
++    @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void injectedHelpTriggersAutofillHelp() {
+         Menu helpMenu = mock(Menu.class);
+         MenuItem helpItem = mock(MenuItem.class);
+@@ -431,6 +468,7 @@ public class AutofillOptionsTest {
+ 
+     @Test
+     @SmallTest
++    @DisableFeatures(ChromeFeatureList.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN)
+     public void passedReferrerRecordedInHistogram() {
+         HistogramWatcher histogramWatcher =
+                 HistogramWatcher.newSingleRecordWatcher(
+diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
+index 6216ea2fba675..0cad5365e8d2c 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -441,6 +441,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &kTabWindowManagerReportIndicesMismatch,
+     &kTestDefaultDisabled,
+     &kTestDefaultEnabled,
++    &kThirdPartyDisableChromeAutofillSettingsScreen,
+     &kTinkerTankBottomSheet,
+     &kToolbarPhoneAnimationRefactor,
+     &kToolbarSnapshotRefactor,
+@@ -788,6 +789,11 @@ BASE_FEATURE(kTabSwitcherGroupSuggestionsTestModeAndroid, base::FEATURE_DISABLED
+ BASE_FEATURE(kTabWindowManagerReportIndicesMismatch, base::FEATURE_ENABLED_BY_DEFAULT);
+ BASE_FEATURE(kTestDefaultDisabled, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kTestDefaultEnabled, base::FEATURE_ENABLED_BY_DEFAULT);
++// If the user configured Chrome to use 3P autofill and this feature is enabled,
++// Chrome will disable the preferences in the "Payment methods" and "Addresses
++// and more" screen in the Chrome settings that don't apply in third party mode
++// and would confuse the user.
++BASE_FEATURE(kThirdPartyDisableChromeAutofillSettingsScreen, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kTinkerTankBottomSheet, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kToolbarPhoneAnimationRefactor, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kToolbarSnapshotRefactor, base::FEATURE_DISABLED_BY_DEFAULT);
+diff --git a/chrome/browser/flags/android/chrome_feature_list.h b/chrome/browser/flags/android/chrome_feature_list.h
+index bdf4110dc00bf..4fb14ad1ca848 100644
+--- a/chrome/browser/flags/android/chrome_feature_list.h
++++ b/chrome/browser/flags/android/chrome_feature_list.h
+@@ -273,6 +273,7 @@ BASE_DECLARE_FEATURE(kTabSwitcherGroupSuggestionsTestModeAndroid);
+ BASE_DECLARE_FEATURE(kTabWindowManagerReportIndicesMismatch);
+ BASE_DECLARE_FEATURE(kTestDefaultDisabled);
+ BASE_DECLARE_FEATURE(kTestDefaultEnabled);
++BASE_DECLARE_FEATURE(kThirdPartyDisableChromeAutofillSettingsScreen);
+ BASE_DECLARE_FEATURE(kTinkerTankBottomSheet);
+ BASE_DECLARE_FEATURE(kToolbarPhoneAnimationRefactor);
+ BASE_DECLARE_FEATURE(kToolbarSnapshotRefactor);
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index b07be07294148..de62eae93b4f3 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -668,6 +668,8 @@ public abstract class ChromeFeatureList {
+     public static final String TASK_MANAGER_CLANK = "TaskManagerClank";
+     public static final String TEST_DEFAULT_DISABLED = "TestDefaultDisabled";
+     public static final String TEST_DEFAULT_ENABLED = "TestDefaultEnabled";
++    public static final String THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN =
++            "ThirdPartyDisableChromeAutofillSettingsScreen";
+     public static final String TINKER_TANK_BOTTOM_SHEET = "TinkerTankBottomSheet";
+     public static final String TOOLBAR_PHONE_ANIMATION_REFACTOR = "ToolbarPhoneAnimationRefactor";
+     public static final String TOOLBAR_SCROLL_ABLATION = "AndroidToolbarScrollAblation";
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 80168b707c970..e7f5319f7f219 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -641,9 +641,15 @@ For more settings that use data to improve your Vanadium experience, go to <ph n
+       <message name="IDS_AUTOFILL_OPTIONS_CONFIRM_RESTART" desc="Description below switch toggling the use of third-party autofill in Vanadium." formatter_data="android_java">
+         Restart Vanadium
+       </message>
++      <message name="IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
++        Restart Vanadium?
++      </message>
+       <message name="IDS_AUTOFILL_OPTIONS_CHANGE_AUTOFILL_SERVICE_TITLE" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
+         Change autofill service?
+       </message>
++      <message name="IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
++        To finish setting up autofill, restart Vanadium now. Your tabs will automatically reopen.
++      </message>
+       <message name="IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_PARAGRAPH_1_TEXT" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
+         After Vanadium restarts, your info saved from your new provider will be used to autofill passwords, passkeys, addresses, payment methods, and other info.
+       </message>
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1 b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
+new file mode 100644
+index 0000000000000..7ad19dc30474d
+--- /dev/null
++++ b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
+@@ -0,0 +1 @@
++0397c7f77964cacbe565a8765976018a14a2e62a
+\ No newline at end of file
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1 b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
+new file mode 100644
+index 0000000000000..7ad19dc30474d
+--- /dev/null
++++ b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
+@@ -0,0 +1 @@
++0397c7f77964cacbe565a8765976018a14a2e62a
+\ No newline at end of file
+diff --git a/components/autofill_strings.grdp b/components/autofill_strings.grdp
+index bc34238599050..bc57f08c2bb1e 100644
+--- a/components/autofill_strings.grdp
++++ b/components/autofill_strings.grdp
+@@ -509,9 +509,15 @@
+       Autofill using another service
+     </message>
+     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION" desc="Description shown on the option to use the default Vanadium autofill experience." formatter_data="android_java">
+-      Use info saved in your Google Account to autofill passwords, passkeys, addresses, payment methods, and other info
++      Use Google Password Manager and Vanadium Autofill to save and fill passwords, payment methods, and addresses
+     </message>
+     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION" desc="Description shown on the option enabling the use of third-party autofill in Vanadium." formatter_data="android_java">
++      To use another autofill service in Vanadium, turn it on in Android settings and here
++    </message>
++    <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW" desc="Description shown on the option to use the default Vanadium autofill experience." formatter_data="android_java">
++      Use info saved in your Google Account to autofill passwords, passkeys, addresses, payment methods, and other info
++    </message>
++    <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW" desc="Description shown on the option enabling the use of third-party autofill in Vanadium." formatter_data="android_java">
+       To use another autofill service in Vanadium, choose your autofill provider in Android settings
+     </message>
+     <message name="IDS_PAYMENT_METHODS_SETTINGS_LOYALTY_CARDS_TITLE" desc="Title for the payment methods settings page row that links the user to the Google Wallet app." formatter_data="android_java">
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1
+index 1427cbeaebde5..f7681fd553273 100644
+--- a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1
+@@ -1 +1 @@
+-91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
++c02763e3bd6519924b42979a23bf8afa58cd60a1
+\ No newline at end of file
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
+new file mode 100644
+index 0000000000000..1427cbeaebde5
+--- /dev/null
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
+@@ -0,0 +1 @@
++91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1
+index 1427cbeaebde5..f7681fd553273 100644
+--- a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1
+@@ -1 +1 @@
+-91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
++c02763e3bd6519924b42979a23bf8afa58cd60a1
+\ No newline at end of file
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
+new file mode 100644
+index 0000000000000..1427cbeaebde5
+--- /dev/null
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
+@@ -0,0 +1 @@
++91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file

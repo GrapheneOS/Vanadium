@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 31 Jul 2024 12:35:24 +0000
+Subject: [PATCH] enable stack clash protection for arm64 targets
+
+---
+ build/config/vanadium/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/build/config/vanadium/BUILD.gn b/build/config/vanadium/BUILD.gn
+index 7b0b324b92bf7..1389f9d1c3254 100644
+--- a/build/config/vanadium/BUILD.gn
++++ b/build/config/vanadium/BUILD.gn
+@@ -30,4 +30,8 @@ config("compiler") {
+   ldflags = []
+   defines = []
+   configs = []
++
++  if (target_cpu == "arm64") {
++    cflags += [ "-fstack-clash-protection" ]
++  }
+ }

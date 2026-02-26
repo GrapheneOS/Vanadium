@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 22 Dec 2016 07:15:34 -0500
+Subject: [PATCH] enable -fwrapv in Clang for non-UBSan builds
+
+---
+ build/config/vanadium/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/build/config/vanadium/BUILD.gn b/build/config/vanadium/BUILD.gn
+index 1389f9d1c3254..6eeb90a4286db 100644
+--- a/build/config/vanadium/BUILD.gn
++++ b/build/config/vanadium/BUILD.gn
+@@ -34,4 +34,8 @@ config("compiler") {
+   if (target_cpu == "arm64") {
+     cflags += [ "-fstack-clash-protection" ]
+   }
++
++  if (is_clang && !is_ubsan && !is_ubsan_security) {
++    cflags += [ "-fwrapv" ]
++  }
+ }

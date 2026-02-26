@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 8 Apr 2020 20:48:17 -0400
+Subject: [PATCH] enable -ftrivial-auto-var-init=zero
+
+---
+ build/config/vanadium/BUILD.gn | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/build/config/vanadium/BUILD.gn b/build/config/vanadium/BUILD.gn
+index 6eeb90a4286db..e7088931e760d 100644
+--- a/build/config/vanadium/BUILD.gn
++++ b/build/config/vanadium/BUILD.gn
+@@ -38,4 +38,10 @@ config("compiler") {
+   if (is_clang && !is_ubsan && !is_ubsan_security) {
+     cflags += [ "-fwrapv" ]
+   }
++
++  if (is_clang) {
++    cflags += [
++      "-ftrivial-auto-var-init=zero",
++    ]
++  }
+ }

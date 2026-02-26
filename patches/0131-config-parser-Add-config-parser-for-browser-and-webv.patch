@@ -1,0 +1,582 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 29 Dec 2023 05:21:43 +0000
+Subject: [PATCH] config-parser: Add config parser for browser and webview
+
+Squashed with support for conditional component parsing in
+the config app (VanadiumConfig).
+
+Changes since:
+  - 138.0.7204.157.1:
+    - removed unused support for multiple apks holding component files
+    - simplified parsing support of components from a single config app
+    - unify versioning for component files based on config app
+---
+ vanadium/android_config/proto/BUILD.gn        |  11 +
+ .../config/VanadiumConfConditionals.java      |  42 ++
+ .../vanadium/config/VanadiumConfParser.java   | 487 ++++++++++++++++++
+ 3 files changed, 540 insertions(+)
+ create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+ create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+
+diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
+index e3cf1229f8920..c50128b1f40e8 100644
+--- a/vanadium/android_config/proto/BUILD.gn
++++ b/vanadium/android_config/proto/BUILD.gn
+@@ -51,3 +51,14 @@ action("config_generation") {
+     ":config_generator_java",
+   ]
+ }
++
++android_library("browser_config_parser_java") {
++  sources = [
++    "java/src/app/vanadium/config/VanadiumConfConditionals.java",
++    "java/src/app/vanadium/config/VanadiumConfParser.java",
++  ]
++  deps = [
++    ":config_proto_java",
++    "//vanadium/android_config:configinfo_java",
++  ]
++}
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+new file mode 100644
+index 0000000000000..39d8de8b26056
+--- /dev/null
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
+@@ -0,0 +1,42 @@
++package app.vanadium.config;
++
++import android.util.Log;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
++
++public final class VanadiumConfConditionals {
++
++    public static final String TAG = "cr_VanadiumConfConditionals";
++
++    public interface ConditionSupplier {
++        boolean isUserAcceptLanguageIncluded(ComponentCondition componentCondition);
++    }
++
++    private static volatile ConditionSupplier conditionSupplier;
++
++    private static ConditionSupplier getConditionSupplier() {
++        return VanadiumConfConditionals.conditionSupplier;
++    }
++
++    static boolean isConditionSatisfied(ComponentCondition condition) {
++        ConditionSupplier curConditionSupplier = getConditionSupplier();
++        if (curConditionSupplier == null) {
++            Log.d(TAG, "Conditional component not supported");
++            return false;
++        }
++
++        if (condition == null || ComponentCondition.getDefaultInstance().equals(condition)) {
++            return false;
++        }
++
++        if (!curConditionSupplier.isUserAcceptLanguageIncluded(condition)) {
++            return false;
++        }
++
++        return true;
++    }
++
++    public static void setBrowserConditionals(ConditionSupplier conditionSupplier) {
++        VanadiumConfConditionals.conditionSupplier = conditionSupplier;
++    }
++}
+diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+new file mode 100644
+index 0000000000000..f3be6b5f9fdcd
+--- /dev/null
++++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -0,0 +1,487 @@
++package app.vanadium.config;
++
++import android.content.Context;
++import android.content.pm.PackageInfo;
++import android.content.pm.PackageManager;
++import android.os.Build;
++import android.os.Process;
++import android.util.ArrayMap;
++import android.util.Log;
++import android.util.SparseArray;
++
++import com.google.protobuf.ByteString;
++
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.HashSet;
++import java.util.List;
++import java.util.Map;
++import java.util.Set;
++import java.util.concurrent.ExecutionException;
++import java.util.concurrent.ExecutorService;
++import java.util.concurrent.Executors;
++import java.util.concurrent.Future;
++import java.util.function.Consumer;
++import java.util.zip.ZipEntry;
++import java.util.zip.ZipFile;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Component;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
++import app.vanadium.config.proto.VanadiumConfigProto.Config;
++import app.vanadium.config.proto.VanadiumConfigProto.Configs;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType;
++
++public final class VanadiumConfParser {
++
++    private static final String TAG = "cr_VanadiumConfParser";
++
++    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
++
++    private static final class ParsedConfigs {
++
++        private final SparseArray<ParsedFlagSet> flags;
++        private final SparseArray<ParsedComponent> components;
++        private final long configVersionCode;
++        private final String configApkFilePath;
++
++        ParsedConfigs(SparseArray<ParsedFlagSet> flags, SparseArray<ParsedComponent> components,
++                      long configVersionCode, String configApkFilePath) {
++            this.flags = flags;
++            this.components = components;
++            this.configVersionCode = configVersionCode;
++            this.configApkFilePath = configApkFilePath;
++        }
++
++        private ParsedFlagSet getFlagSetOrDefault(FlagType flagType) {
++            return flags.get(flagType.getNumber(), ParsedFlagSet.EMPTY);
++        }
++
++        private ParsedComponent getComponentOrDefault(ComponentType componentType) {
++            return components.get(componentType.getNumber(), ParsedComponent.EMPTY);
++        }
++
++        private static final ParsedConfigs EMPTY = new ParsedConfigs(
++                new SparseArray<>(0), new SparseArray<>(0), -1L, null);
++    }
++
++    private static final class ParsedComponent {
++        private final ComponentType componentType;
++        private final String componentFileName;
++        private final List<AdditionalComponent> additionalComponents;
++
++        private volatile Future<byte[]> componentByteArray;
++        private volatile byte[] cachedComponentByteArray;
++
++        private ParsedComponent(Component component) {
++            this.componentType = component.getComponentType();
++            this.componentFileName = component.getComponentFileName();
++            this.additionalComponents = component.getAdditionalComponentsList();
++        }
++
++        private static final ParsedComponent EMPTY = new ParsedComponent(Component.getDefaultInstance());
++
++        private void initializeComponentByteArrayFetching(String configApkFilePath) {
++            this.componentByteArray = executor.submit(() -> getByteArrayForMainComponentInternal(configApkFilePath));
++        }
++
++        private byte[] getByteArrayForComponentInternal(String configApkFilePath) {
++            if (componentFileName == null) {
++                Log.e(TAG, "component file name not provided");
++                return null;
++            }
++
++            if (configApkFilePath == null) {
++                Log.d(TAG, "No file path provided");
++                return null;
++            }
++
++            byte[] res = getByteArrayForMainComponent(configApkFilePath);
++            for (AdditionalComponent additionalComponent: additionalComponents) {
++                if (additionalComponent.getConditionsCount() != 0) {
++                    boolean isConditionSatisfied = false;
++                    for (ComponentCondition condition : additionalComponent.getConditionsList()) {
++                        if (VanadiumConfConditionals.isConditionSatisfied(condition)) {
++                            isConditionSatisfied = true;
++                            break;
++                        }
++                    }
++
++                    if (!isConditionSatisfied) {
++                        continue;
++                    }
++                }
++
++                byte[] additionalRes = getByteArrayForComponentInternalInFile(
++                        configApkFilePath, additionalComponent.getComponentFileName());
++                if (res == null) {
++                    res = additionalRes;
++                } else if (additionalRes != null) {
++                    byte[] newRes = new byte[res.length + additionalRes.length];
++                    System.arraycopy(res, 0, newRes, 0, res.length);
++                    System.arraycopy(additionalRes, 0, newRes, res.length, additionalRes.length);
++                    res = newRes;
++                }
++            }
++
++            return res;
++        }
++
++        private byte[] getByteArrayForMainComponentInternal(String configApkFilePath) {
++            return getByteArrayForComponentInternalInFile(configApkFilePath, componentFileName);
++        }
++
++        private byte[] getByteArrayForComponentInternalInFile(String configApkFilePath, String fileName) {
++            try (ZipFile f = new ZipFile(configApkFilePath)) {
++                ZipEntry e = f.getEntry(fileName);
++                if (e == null) {
++                    Log.e(TAG, "Component file not found inside the component apk");
++                    return null;
++                }
++
++                try (InputStream inputStream = f.getInputStream(e)) {
++                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
++                        return inputStream.readAllBytes();
++                    }
++
++                    return ByteString.readFrom(inputStream).toByteArray();
++                }
++            } catch (IOException ignored) {
++                Log.e(TAG, "unable to read zip file");
++                return null;
++            }
++        }
++
++        private byte[] getComponentByteArray(String configApkFilePath) {
++            return getByteArrayForComponentInternal(configApkFilePath);
++        }
++
++        private byte[] getByteArrayForMainComponent(String configApkFilePath) {
++            byte[] curComponentByteArray = cachedComponentByteArray;
++            if (curComponentByteArray != null) {
++                if (ConfigInfo.IS_DEBUG) {
++                    Log.i(TAG, "value has been cached for " + componentType.toString());
++                }
++                return curComponentByteArray;
++            }
++
++            try {
++                curComponentByteArray = this.componentByteArray.get();
++                if (componentByteArray.isCancelled()) {
++                    componentByteArray = executor.submit(() -> getByteArrayForMainComponentInternal(configApkFilePath));
++                }
++                cachedComponentByteArray = curComponentByteArray;
++                return curComponentByteArray;
++            } catch (ExecutionException e) {
++                Log.e(TAG, "unexpected error from value retrieval", e);
++                return null;
++            } catch (InterruptedException e) {
++                Log.e(TAG, "thread interrupted", e);
++                return null;
++            }
++        }
++    }
++
++    private static final class ParsedFlagSet {
++        private final FlagType flagType;
++        private final ArrayMap<String, Set<String>> flagSet;
++        private ParsedFlagSet(FlagType flagType, ArrayMap<String, Set<String>> flagSet) {
++            this.flagType = flagType;
++            this.flagSet = flagSet;
++        }
++
++        private static final ParsedFlagSet EMPTY = new ParsedFlagSet(FlagType.UNKNOWN, new ArrayMap<>());
++    }
++
++    private static volatile Future<ParsedConfigs> futureParsedConfigs;
++    private static volatile ParsedConfigs parsedConfigs;
++
++    public static Map<String, Set<String>> getFlagsFor(FlagType flagType) {
++        if (!isInitialized()) {
++            Log.e(TAG, "No parsed config found, parsing not initialized");
++            return Map.of();
++        }
++
++        ParsedFlagSet parsedFlagSet = getParsedConfigs().getFlagSetOrDefault(flagType);
++        if (parsedFlagSet.flagType != flagType) {
++            Log.e(TAG, "", new IllegalStateException("Mismatched flag type"));
++            return Map.of();
++        }
++
++        return parsedFlagSet.flagSet;
++    }
++
++    public static byte[] getByteArrayForComponent(ComponentType componentType) {
++        if (!isInitialized()) {
++            Log.e(TAG, "No parsed config found, parsing not initialized");
++            return null;
++        }
++
++        ParsedConfigs parsedConfigs = getParsedConfigs();
++        ParsedComponent parsedComponent = parsedConfigs.getComponentOrDefault(componentType);
++        if (parsedComponent.componentType != componentType) {
++            Log.e(TAG, "", new IllegalStateException("Mismatched component type"));
++            return null;
++        }
++
++        return parsedComponent.getComponentByteArray(parsedConfigs.configApkFilePath);
++    }
++
++    public static long getConfigVersionCode() {
++        if (!isInitialized()) {
++            Log.e(TAG, "No parsed config found, parsing not initialized");
++            return -1L;
++        }
++
++        return getParsedConfigs().configVersionCode;
++    }
++
++    public static void initForBrowser(Context ctx) {
++        init(ctx, SpecType.BROWSER);
++    }
++
++    public static void initForWebView(Context ctx) {
++        init(ctx, SpecType.WEBVIEW);
++    }
++
++    public static boolean isInitialized() {
++        if (!isEligible()) {
++            return false;
++        }
++
++        if (Process.isIsolated()) {
++            return false;
++        }
++
++        return getParsedConfigs() != null;
++    }
++
++    private static void init(Context ctx, SpecType specType) {
++        if (!isEligible()) {
++            Log.d(TAG, "config packages feature is unsupported on current process or OS version");
++            return;
++        }
++
++        if (!verifyConfigPackage(ctx)) {
++            Log.w(TAG, "not initializing parsing with unverified config package");
++            return;
++        }
++
++        if (isInitialized()) {
++            Log.w(TAG, "Not reinitializing on already parsed config package");
++            return;
++        }
++
++        parseInBackground(ctx, specType);
++    }
++
++    private static boolean verifyConfigPackage(Context ctx) {
++        return verifyPackage(ctx, ConfigInfo.CONFIG_APK_PACKAGE, ConfigInfo.CONFIG_APK_SHA256_CERTDIGEST);
++    }
++
++    private static boolean verifyPackage(Context ctx, String pkgName, byte[] sha256CertDigestBytes) {
++        if (!isEligible()) {
++            return false;
++        }
++
++        return ctx.getPackageManager().hasSigningCertificate(
++                pkgName, sha256CertDigestBytes, PackageManager.CERT_INPUT_SHA256);
++    }
++
++    private static ParsedConfigs getParsedConfigs() {
++        if (futureParsedConfigs == null) {
++            if (ConfigInfo.IS_DEBUG) {
++                Log.i(TAG, "config has " + ((parsedConfigs == null) ? "not yet " : "") + "been parsed");
++            }
++
++            return parsedConfigs;
++        }
++
++        try {
++            Future<ParsedConfigs> curFutureParsedConfigs = futureParsedConfigs;
++            parsedConfigs = curFutureParsedConfigs.get();
++            futureParsedConfigs = null;
++        } catch (ExecutionException e) {
++            Log.e(TAG, "Config app failed to be parsed", e);
++        } catch (InterruptedException e) {
++            Log.e(TAG, "Thread has been interrupted for config parsing", e);
++        }
++
++        return parsedConfigs;
++    }
++
++    private static void parseInBackground(Context ctx, SpecType specType) {
++        futureParsedConfigs = executor.submit(() -> {
++            parsedConfigs = parse(ctx, specType);
++            return parsedConfigs;
++        });
++    }
++
++    private static ParsedConfigs parse(Context ctx, SpecType specType) {
++        if (!isEligible()) {
++            Log.d(TAG, "Config apk feature is unsupported below android 13");
++            return null;
++        }
++
++        PackageInfo unverifiedConfigPkgInfo = getPackageInfoOrNull(
++                ctx, ConfigInfo.CONFIG_APK_PACKAGE, PackageManager.MATCH_DISABLED_COMPONENTS);
++        if (unverifiedConfigPkgInfo == null) {
++            Log.e(TAG, "unverified config package not found", new IllegalStateException());
++            return null;
++        }
++
++        if (!verifyConfigPackage(ctx)) {
++            Log.w(TAG, "not parsing config with unverified config package");
++            return ParsedConfigs.EMPTY;
++        }
++
++        PackageInfo selfPkgInfo = getPackageInfoOrNull(ctx, ctx.getPackageName(), 0);
++        if (selfPkgInfo == null) {
++            Log.wtf(TAG, "", new IllegalStateException("must be able to find own package"));
++            return ParsedConfigs.EMPTY;
++        }
++
++        PackageInfo configPkgInfo = getPackageInfoOrNull(
++                ctx, ConfigInfo.CONFIG_APK_PACKAGE, PackageManager.MATCH_DISABLED_COMPONENTS);
++        if (configPkgInfo == null) {
++            Log.e(TAG, "config package not found", new IllegalStateException("must be able to find config package once verified"));
++            return ParsedConfigs.EMPTY;
++        }
++
++        final long configVersionCode = configPkgInfo.getLongVersionCode();
++
++        if (parsedConfigs != null) {
++            if (configVersionCode <= parsedConfigs.configVersionCode) {
++                Log.w(TAG, "Only update to newer versions are allowed to update parsed config," +
++                        " returning the previously parsed config");
++                return parsedConfigs;
++            }
++        }
++
++        String configApkFilePath = configPkgInfo.applicationInfo.publicSourceDir;
++        Configs configs;
++        try (ZipFile f = new ZipFile(configApkFilePath)) {
++            ZipEntry e = f.getEntry("proto_config.pb2");
++            if (e == null) {
++                Log.e(TAG, "missing config for runtime flag changes");
++                return ParsedConfigs.EMPTY;
++            }
++            try (InputStream inputStream = f.getInputStream(e)) {
++                configs = Configs.parseFrom(inputStream);
++            }
++        } catch (IOException ignored) {
++            Log.e(TAG, "unable to read zip file");
++            return ParsedConfigs.EMPTY;
++        }
++
++        {
++            boolean hasOtherComponentApks = false;
++            final SparseArray<ParsedFlagSet> pendingFlags = new SparseArray<>();
++            final SparseArray<ParsedComponent> pendingComponents = new SparseArray<>();
++
++            final ArrayMap<String, Set<String>> enabledFeatureFlags = new ArrayMap<>();
++            final ArrayMap<String, Set<String>> disabledFeatureFlags = new ArrayMap<>();
++            final ArrayMap<String, Set<String>> enabledSwitchFlags = new ArrayMap<>();
++            final ArrayMap<String, Set<String>> disabledSwitchFlags = new ArrayMap<>();
++
++            Spec defaultSpec = Spec.getDefaultInstance();
++            for (Config config : configs.getConfigsList()) {
++                Spec spec = config.getSpec();
++                final long minVersionCode = spec.getMinVersion();
++                final long maxVersionCode = spec.getMaxVersion();
++                final long curVersionCode = selfPkgInfo.getLongVersionCode();
++
++                if (minVersionCode != defaultSpec.getMinVersion()
++                        && minVersionCode > curVersionCode) {
++                    continue;
++                } else if (maxVersionCode != defaultSpec.getMaxVersion()
++                        && maxVersionCode < curVersionCode) {
++                    continue;
++                } else if ((spec.getSpecTypes() & (1L << specType.getNumber())) == 0) {
++                    continue;
++                }
++
++                Consumer<List<Flag>> appendFlagsToTypes = flagList -> {
++                    for (Flag flag : flagList) {
++                        final String flagName = flag.getFlagName();
++                        final Set<String> flagValues = new HashSet<>(flag.getFlagValueList());
++                        final FlagType flagType = flag.getFlagType();
++                        if (flagType == FlagType.ENABLED_FEATURE) {
++                            enabledFeatureFlags.put(flagName, flagValues);
++                        } else if (flagType == FlagType.DISABLED_FEATURE) {
++                            disabledFeatureFlags.put(flagName, flagValues);
++                        } else if (flagType == FlagType.ENABLED_SWITCH) {
++                            enabledSwitchFlags.put(flagName, flagValues);
++                        } else if (flagType == FlagType.DISABLED_SWITCH) {
++                            disabledSwitchFlags.put(flagName, flagValues);
++                        } else {
++                            throw new IllegalStateException();
++                        }
++                    }
++                };
++
++                appendFlagsToTypes.accept(config.getFlagsList());
++
++                for (Component component : config.getComponentsList()) {
++                    int componentType = component.getComponentType().getNumber();
++                    if (ComponentType.forNumber(componentType) == null) {
++                        continue;
++                    }
++
++                    ParsedComponent parsedComponent = new ParsedComponent(component);
++                    parsedComponent.initializeComponentByteArrayFetching(configApkFilePath);
++                    pendingComponents.put(componentType, parsedComponent);
++                    appendFlagsToTypes.accept(component.getDependentFlagsList());
++                }
++            }
++
++            pendingFlags.set(FlagType.ENABLED_FEATURE.getNumber(), new ParsedFlagSet(FlagType.ENABLED_FEATURE, enabledFeatureFlags));
++            pendingFlags.set(FlagType.DISABLED_FEATURE.getNumber(), new ParsedFlagSet(FlagType.DISABLED_FEATURE, disabledFeatureFlags));
++            pendingFlags.set(FlagType.ENABLED_SWITCH.getNumber(), new ParsedFlagSet(FlagType.ENABLED_SWITCH, enabledSwitchFlags));
++            pendingFlags.set(FlagType.DISABLED_SWITCH.getNumber(), new ParsedFlagSet(FlagType.DISABLED_SWITCH, disabledSwitchFlags));
++
++            // Restart is required for config changes to take effect.
++            attachPackageAsCurrentProcessDependency(ctx, ConfigInfo.CONFIG_APK_PACKAGE);
++            return new ParsedConfigs(pendingFlags, pendingComponents, configVersionCode,
++                    configApkFilePath);
++        }
++    }
++
++    // Attach the package as dependency of the current process to restart the browser
++    // and webview when the provided package is updated.
++    private static void attachPackageAsCurrentProcessDependency(Context ctx, String pkgName) {
++        try {
++            Context configApkContext = ctx.createPackageContext(pkgName,
++                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
++            // The method that facilitates attaching a package as dependency of current process.
++            configApkContext.getClassLoader();
++        } catch (PackageManager.NameNotFoundException e) {
++            Log.w(TAG, "App " + pkgName + " failed to be attached as dependency" +
++                    " of browser or webview process", e);
++        }
++
++    }
++
++    private static PackageInfo getPackageInfoOrNull(Context ctx, String pkgName, int flags) {
++        if (!isEligible()) {
++            return null;
++        }
++
++        try {
++            return ctx.getPackageManager().getPackageInfo(pkgName, flags);
++        } catch (PackageManager.NameNotFoundException e) {
++            Log.e(TAG, "package " + pkgName + " not found", e);
++            return null;
++        }
++    }
++
++    private static boolean isEligible() {
++        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
++    }
++
++    private VanadiumConfParser() {}
++}
+\ No newline at end of file

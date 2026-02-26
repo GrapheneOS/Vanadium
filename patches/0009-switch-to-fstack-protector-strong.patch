@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 26 Dec 2018 10:20:24 -0500
+Subject: [PATCH] switch to -fstack-protector-strong
+
+---
+ build/config/compiler/BUILD.gn | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index dbd66f2477b80..97ba822c74802 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -465,7 +465,7 @@ config("compiler") {
+       } else if (is_posix || is_fuchsia) {
+         if (current_os != "aix") {
+           # Not available on aix.
+-          cflags += [ "-fstack-protector" ]
++          cflags += [ "-fstack-protector-strong" ]
+         }
+       }
+     }

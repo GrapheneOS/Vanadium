@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 14 Sep 2025 15:57:42 +0000
+Subject: [PATCH] Restore build args of using login database as backend
+
+---
+ components/password_manager/core/browser/buildflags.gni | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/components/password_manager/core/browser/buildflags.gni b/components/password_manager/core/browser/buildflags.gni
+index c157fcc7d459f..4beb3d0c91a94 100644
+--- a/components/password_manager/core/browser/buildflags.gni
++++ b/components/password_manager/core/browser/buildflags.gni
+@@ -5,6 +5,14 @@
+ import("//build/config/android/config.gni")
+ import("//build/config/chrome_build.gni")
+ 
++declare_args() {
++  # The legacy password store backend is supported on android but usually disabled
++  # in favor of a downstream implementation. Important: the support for this flag
++  # is planned to be removed in November 2024.
++  # DOWNSTREAM CHANGE: This is momentarily kept until a replacement app has been made.
++  use_login_database_as_backend = !is_android
++}
++
+ # Drawables from the downstream clank/ repository are
+ # used for branded builds.
+ password_manager_use_internal_android_resources =

@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 21 May 2020 14:07:54 -0400
+Subject: [PATCH] disable broken warning for auto var init
+
+---
+ build/config/vanadium/BUILD.gn | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/build/config/vanadium/BUILD.gn b/build/config/vanadium/BUILD.gn
+index e7088931e760d..c2a5ae017deb8 100644
+--- a/build/config/vanadium/BUILD.gn
++++ b/build/config/vanadium/BUILD.gn
+@@ -42,6 +42,7 @@ config("compiler") {
+   if (is_clang) {
+     cflags += [
+       "-ftrivial-auto-var-init=zero",
++      "-Wno-unused-command-line-argument",
+     ]
+   }
+ }
