@@ -9,7 +9,7 @@ Subject: [PATCH] Respect connectivity check setting on dns_probe_runner
  2 files changed, 35 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/browser/net/dns_probe_runner.cc b/chrome/browser/net/dns_probe_runner.cc
-index b6c0d207d007a..d260d3e4bf0f3 100644
+index b6c0d207d007a..94d7254ef93b9 100644
 --- a/chrome/browser/net/dns_probe_runner.cc
 +++ b/chrome/browser/net/dns_probe_runner.cc
 @@ -16,6 +16,14 @@
@@ -18,8 +18,8 @@ index b6c0d207d007a..d260d3e4bf0f3 100644
  
 +#if BUILDFLAG(IS_ANDROID)
 +#include "base/feature_list.h"
-+#include "net/conn_checks/android/conn_checks_util.h"
-+#include "net/conn_checks/android/features.h"
++#include "net/downstream/conn_checks/android/conn_checks_util.h"
++#include "net/downstream/conn_checks/android/features.h"
 +using net::android::ConnChecksOsSetting;
 +using net::android::GetConnChecksOsSetting;
 +#endif // BUILDFLAG(IS_ANDROID)
@@ -68,13 +68,13 @@ index b6c0d207d007a..d260d3e4bf0f3 100644
                                std::move(parameters),
                                receiver_.BindNewPipeAndPassRemote());
 diff --git a/chrome/browser/static_library_browser_deps.gni b/chrome/browser/static_library_browser_deps.gni
-index 7d7644253dc23..666322f45d1fa 100644
+index 7d7644253dc23..cf53287c06866 100644
 --- a/chrome/browser/static_library_browser_deps.gni
 +++ b/chrome/browser/static_library_browser_deps.gni
 @@ -7,4 +7,6 @@ assert(is_android)
  static_library_browser_deps = [
    "//chrome/browser/subresource_filter/android:android",
    "//components/subresource_filter/android_config:android",
-+  "//net/conn_checks/android:conn_checks_util",
-+  "//net/conn_checks/android:feature_map",
++  "//net/downstream/conn_checks/android:conn_checks_util",
++  "//net/downstream/conn_checks/android:feature_map",
  ]

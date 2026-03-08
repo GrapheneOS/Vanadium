@@ -4,27 +4,27 @@ Date: Tue, 17 Feb 2026 06:45:45 +0000
 Subject: [PATCH] service layer for downstream impl usage of shape detection
 
 ---
- .../android/downstream_impl/BUILD.gn          |  94 +++++
- .../android/downstream_impl/features.cc       |  72 ++++
- .../android/downstream_impl/features.h        |  18 +
+ .../shape_detection/android/BUILD.gn          |  94 +++++
+ .../shape_detection/android/features.cc       |  72 ++++
+ .../shape_detection/android/features.h        |  18 +
  .../shape_detection/DownstreamImpls.java      | 106 ++++++
  .../DownstreamImplsFeatureList.java           |  57 +++
  .../DownstreamImplsFeatureMap.java            |  42 +++
  .../ZxingBarcodeDetectionImpl.java            | 343 ++++++++++++++++++
  7 files changed, 732 insertions(+)
- create mode 100644 services/shape_detection/android/downstream_impl/BUILD.gn
- create mode 100644 services/shape_detection/android/downstream_impl/features.cc
- create mode 100644 services/shape_detection/android/downstream_impl/features.h
- create mode 100644 services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImpls.java
- create mode 100644 services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java
- create mode 100644 services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java
- create mode 100644 services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java
+ create mode 100644 services/downstream/shape_detection/android/BUILD.gn
+ create mode 100644 services/downstream/shape_detection/android/features.cc
+ create mode 100644 services/downstream/shape_detection/android/features.h
+ create mode 100644 services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImpls.java
+ create mode 100644 services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java
+ create mode 100644 services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java
+ create mode 100644 services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java
 
-diff --git a/services/shape_detection/android/downstream_impl/BUILD.gn b/services/shape_detection/android/downstream_impl/BUILD.gn
+diff --git a/services/downstream/shape_detection/android/BUILD.gn b/services/downstream/shape_detection/android/BUILD.gn
 new file mode 100644
 index 0000000000000..17cb62c05b9ba
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/BUILD.gn
++++ b/services/downstream/shape_detection/android/BUILD.gn
 @@ -0,0 +1,94 @@
 +import("//third_party/jni_zero/jni_zero.gni")
 +
@@ -120,13 +120,13 @@ index 0000000000000..17cb62c05b9ba
 +  ]
 +}
 +
-diff --git a/services/shape_detection/android/downstream_impl/features.cc b/services/shape_detection/android/downstream_impl/features.cc
+diff --git a/services/downstream/shape_detection/android/features.cc b/services/downstream/shape_detection/android/features.cc
 new file mode 100644
-index 0000000000000..451eebe8868c4
+index 0000000000000..cee25d6b0c480
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/features.cc
++++ b/services/downstream/shape_detection/android/features.cc
 @@ -0,0 +1,72 @@
-+#include "services/shape_detection/android/downstream_impl/features.h"
++#include "services/downstream/shape_detection/android/features.h"
 +
 +#include "base/android/feature_map.h"
 +#include "base/android/jni_android.h"
@@ -134,7 +134,7 @@ index 0000000000000..451eebe8868c4
 +#include "base/metrics/field_trial_params.h"
 +#include "base/no_destructor.h"
 +
-+#include "services/shape_detection/android/downstream_impl/feature_map_jni_headers/DownstreamImplsFeatureMap_jni.h"
++#include "services/downstream/shape_detection/android/feature_map_jni_headers/DownstreamImplsFeatureMap_jni.h"
 +
 +namespace {
 +
@@ -198,14 +198,14 @@ index 0000000000000..451eebe8868c4
 +}
 +
 +DEFINE_JNI(DownstreamImplsFeatureMap)
-diff --git a/services/shape_detection/android/downstream_impl/features.h b/services/shape_detection/android/downstream_impl/features.h
+diff --git a/services/downstream/shape_detection/android/features.h b/services/downstream/shape_detection/android/features.h
 new file mode 100644
-index 0000000000000..8bd913c9cf133
+index 0000000000000..a6f6d07e22114
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/features.h
++++ b/services/downstream/shape_detection/android/features.h
 @@ -0,0 +1,18 @@
-+#ifndef SERVICES_SHAPE_DETECTION_ANDROID_DOWNSTREAM_IMPL_FEATURE_H_
-+#define SERVICES_SHAPE_DETECTION_ANDROID_DOWNSTREAM_IMPL_FEATURE_H_
++#ifndef SERVICES_DOWNSTREAM_SHAPE_DETECTION_ANDROID_FEATURE_H_
++#define SERVICES_DOWNSTREAM_SHAPE_DETECTION_ANDROID_FEATURE_H_
 +
 +#include <jni.h>
 +
@@ -220,13 +220,13 @@ index 0000000000000..8bd913c9cf133
 +BASE_DECLARE_FEATURE_PARAM(int, kUseTextDetectionImplUsageMode);
 +BASE_DECLARE_FEATURE_PARAM(int, kUseTextDetectionImplDetectMode);
 +
-+#endif // SERVICES_SHAPE_DETECTION_ANDROID_DOWNSTREAM_IMPL_FEATURE_H_
++#endif // SERVICES_DOWNSTREAM_SHAPE_DETECTION_ANDROID_FEATURE_H_
 +
-diff --git a/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImpls.java b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImpls.java
+diff --git a/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImpls.java b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImpls.java
 new file mode 100644
 index 0000000000000..b4a6abc166184
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImpls.java
++++ b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImpls.java
 @@ -0,0 +1,106 @@
 +package org.chromium.shape_detection;
 +
@@ -334,11 +334,11 @@ index 0000000000000..b4a6abc166184
 +        return null;
 +    }
 +}
-diff --git a/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java
+diff --git a/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java
 new file mode 100644
 index 0000000000000..4f369e93a45ef
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java
++++ b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureList.java
 @@ -0,0 +1,57 @@
 +package org.chromium.shape_detection;
 +
@@ -397,11 +397,11 @@ index 0000000000000..4f369e93a45ef
 +                    DETECT_MODE_PARAM,
 +                    DownstreamImplDetectMode.NONE);
 +}
-diff --git a/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java
+diff --git a/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java
 new file mode 100644
 index 0000000000000..7f94b3f481954
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java
++++ b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/DownstreamImplsFeatureMap.java
 @@ -0,0 +1,42 @@
 +package org.chromium.shape_detection;
 +
@@ -445,11 +445,11 @@ index 0000000000000..7f94b3f481954
 +    }
 +}
 +
-diff --git a/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java
+diff --git a/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java
 new file mode 100644
 index 0000000000000..9844ac1bcf841
 --- /dev/null
-+++ b/services/shape_detection/android/downstream_impl/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java
++++ b/services/downstream/shape_detection/android/java/src/org/chromium/shape_detection/ZxingBarcodeDetectionImpl.java
 @@ -0,0 +1,343 @@
 +package org.chromium.shape_detection;
 +

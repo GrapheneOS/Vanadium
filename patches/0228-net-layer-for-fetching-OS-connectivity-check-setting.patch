@@ -4,29 +4,29 @@ Date: Fri, 23 Jan 2026 15:20:18 +0000
 Subject: [PATCH] net layer for fetching OS connectivity check settings
 
 ---
- net/conn_checks/android/BUILD.gn              | 114 ++++++++++++++++++
- net/conn_checks/android/conn_checks_util.cc   |  18 +++
- net/conn_checks/android/conn_checks_util.h    |  26 ++++
- net/conn_checks/android/features.cc           |  36 ++++++
- net/conn_checks/android/features.h            |  16 +++
+ net/downstream/conn_checks/android/BUILD.gn   | 114 ++++++++++++++++++
+ .../conn_checks/android/conn_checks_util.cc   |  18 +++
+ .../conn_checks/android/conn_checks_util.h    |  26 ++++
+ .../conn_checks/android/features.cc           |  36 ++++++
+ net/downstream/conn_checks/android/features.h |  16 +++
  .../conn_checks/ConnChecksFeatureList.java    |  16 +++
  .../net/conn_checks/ConnChecksFeatureMap.java |  40 ++++++
  .../net/conn_checks/ConnChecksUtil.java       |  73 +++++++++++
  8 files changed, 339 insertions(+)
- create mode 100644 net/conn_checks/android/BUILD.gn
- create mode 100644 net/conn_checks/android/conn_checks_util.cc
- create mode 100644 net/conn_checks/android/conn_checks_util.h
- create mode 100644 net/conn_checks/android/features.cc
- create mode 100644 net/conn_checks/android/features.h
- create mode 100644 net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java
- create mode 100644 net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java
- create mode 100644 net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
+ create mode 100644 net/downstream/conn_checks/android/BUILD.gn
+ create mode 100644 net/downstream/conn_checks/android/conn_checks_util.cc
+ create mode 100644 net/downstream/conn_checks/android/conn_checks_util.h
+ create mode 100644 net/downstream/conn_checks/android/features.cc
+ create mode 100644 net/downstream/conn_checks/android/features.h
+ create mode 100644 net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java
+ create mode 100644 net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java
+ create mode 100644 net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
 
-diff --git a/net/conn_checks/android/BUILD.gn b/net/conn_checks/android/BUILD.gn
+diff --git a/net/downstream/conn_checks/android/BUILD.gn b/net/downstream/conn_checks/android/BUILD.gn
 new file mode 100644
 index 0000000000000..5ad9a89fa5040
 --- /dev/null
-+++ b/net/conn_checks/android/BUILD.gn
++++ b/net/downstream/conn_checks/android/BUILD.gn
 @@ -0,0 +1,114 @@
 +import("//build/config/android/config.gni")
 +import("//build/config/android/rules.gni")
@@ -142,17 +142,17 @@ index 0000000000000..5ad9a89fa5040
 +  public_deps = [
 +  ]
 +}
-diff --git a/net/conn_checks/android/conn_checks_util.cc b/net/conn_checks/android/conn_checks_util.cc
+diff --git a/net/downstream/conn_checks/android/conn_checks_util.cc b/net/downstream/conn_checks/android/conn_checks_util.cc
 new file mode 100644
-index 0000000000000..b72ec6a4dc923
+index 0000000000000..7a1fe7ead4ae1
 --- /dev/null
-+++ b/net/conn_checks/android/conn_checks_util.cc
++++ b/net/downstream/conn_checks/android/conn_checks_util.cc
 @@ -0,0 +1,18 @@
-+#include "net/conn_checks/android/conn_checks_util.h"
++#include "net/downstream/conn_checks/android/conn_checks_util.h"
 +
 +#include "base/android/jni_android.h"
 +
-+#include "net/conn_checks/android/conn_checks_util_jni_headers/ConnChecksUtil_jni.h"
++#include "net/downstream/conn_checks/android/conn_checks_util_jni_headers/ConnChecksUtil_jni.h"
 +
 +namespace net::android {
 +
@@ -166,14 +166,14 @@ index 0000000000000..b72ec6a4dc923
 +} // namespace net::android
 +
 +DEFINE_JNI(ConnChecksUtil)
-diff --git a/net/conn_checks/android/conn_checks_util.h b/net/conn_checks/android/conn_checks_util.h
+diff --git a/net/downstream/conn_checks/android/conn_checks_util.h b/net/downstream/conn_checks/android/conn_checks_util.h
 new file mode 100644
-index 0000000000000..a309bf4de556a
+index 0000000000000..c887fc66f0fbf
 --- /dev/null
-+++ b/net/conn_checks/android/conn_checks_util.h
++++ b/net/downstream/conn_checks/android/conn_checks_util.h
 @@ -0,0 +1,26 @@
-+#ifndef NET_CONN_CHECKS_ANDROID_CONN_CHECKS_UTIL_H_
-+#define NET_CONN_CHECKS_ANDROID_CONN_CHECKS_UTIL_H_
++#ifndef NET_DOWNSTREAM_CONN_CHECKS_ANDROID_CONN_CHECKS_UTIL_H_
++#define NET_DOWNSTREAM_CONN_CHECKS_ANDROID_CONN_CHECKS_UTIL_H_
 +
 +#include <jni.h>
 +#include <string_view>
@@ -197,21 +197,21 @@ index 0000000000000..a309bf4de556a
 +}  // namespace net::android
 +
 +
-+#endif // NET_CONN_CHECKS_ANDROID_CONN_CHECKS_UTIL_H_
-diff --git a/net/conn_checks/android/features.cc b/net/conn_checks/android/features.cc
++#endif // NET_DOWNSTREAM_CONN_CHECKS_ANDROID_CONN_CHECKS_UTIL_H_
+diff --git a/net/downstream/conn_checks/android/features.cc b/net/downstream/conn_checks/android/features.cc
 new file mode 100644
-index 0000000000000..10e77bc9cf5fe
+index 0000000000000..c3de4e2f6ee5c
 --- /dev/null
-+++ b/net/conn_checks/android/features.cc
++++ b/net/downstream/conn_checks/android/features.cc
 @@ -0,0 +1,36 @@
-+#include "net/conn_checks/android/features.h"
++#include "net/downstream/conn_checks/android/features.h"
 +
 +#include "base/android/feature_map.h"
 +#include "base/android/jni_android.h"
 +#include "base/feature_list.h"
 +#include "base/no_destructor.h"
 +
-+#include "net/conn_checks/android/feature_map_jni_headers/ConnChecksFeatureMap_jni.h"
++#include "net/downstream/conn_checks/android/feature_map_jni_headers/ConnChecksFeatureMap_jni.h"
 +
 +namespace net::android::features {
 +
@@ -240,14 +240,14 @@ index 0000000000000..10e77bc9cf5fe
 +
 +DEFINE_JNI(ConnChecksFeatureMap)
 +
-diff --git a/net/conn_checks/android/features.h b/net/conn_checks/android/features.h
+diff --git a/net/downstream/conn_checks/android/features.h b/net/downstream/conn_checks/android/features.h
 new file mode 100644
-index 0000000000000..c49df4e448c43
+index 0000000000000..253a99f7fcf36
 --- /dev/null
-+++ b/net/conn_checks/android/features.h
++++ b/net/downstream/conn_checks/android/features.h
 @@ -0,0 +1,16 @@
-+#ifndef NET_CONN_CHECKS_ANDROID_FEATURE_H_
-+#define NET_CONN_CHECKS_ANDROID_FEATURE_H_
++#ifndef NET_DOWNSTREAM_CONN_CHECKS_ANDROID_FEATURE_H_
++#define NET_DOWNSTREAM_CONN_CHECKS_ANDROID_FEATURE_H_
 +
 +#include <jni.h>
 +
@@ -261,12 +261,12 @@ index 0000000000000..c49df4e448c43
 +}  // namespace net::android::features
 +
 +
-+#endif // NET_CONN_CHECKS_ANDROID_FEATURE_H_
-diff --git a/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java b/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java
++#endif // NET_DOWNSTREAM_CONN_CHECKS_ANDROID_FEATURE_H_
+diff --git a/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java
 new file mode 100644
 index 0000000000000..c7226508c0c61
 --- /dev/null
-+++ b/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java
++++ b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureList.java
 @@ -0,0 +1,16 @@
 +package org.chromium.net.conn_checks;
 +
@@ -284,11 +284,11 @@ index 0000000000000..c7226508c0c61
 +    }
 +}
 +
-diff --git a/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java b/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java
+diff --git a/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java
 new file mode 100644
 index 0000000000000..3f8931e264159
 --- /dev/null
-+++ b/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java
++++ b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksFeatureMap.java
 @@ -0,0 +1,40 @@
 +package org.chromium.net.conn_checks;
 +
@@ -330,11 +330,11 @@ index 0000000000000..3f8931e264159
 +    }
 +}
 +
-diff --git a/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java b/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
+diff --git a/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
 new file mode 100644
 index 0000000000000..a88a868275cc2
 --- /dev/null
-+++ b/net/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
++++ b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
 @@ -0,0 +1,73 @@
 +package org.chromium.net.conn_checks;
 +

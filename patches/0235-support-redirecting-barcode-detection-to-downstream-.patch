@@ -9,7 +9,7 @@ Subject: [PATCH] support redirecting barcode detection to downstream impl
  2 files changed, 35 insertions(+)
 
 diff --git a/services/shape_detection/BUILD.gn b/services/shape_detection/BUILD.gn
-index e55432dba076a..d9337c0115389 100644
+index e55432dba076a..5dfdb1b2ffc1d 100644
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
 @@ -106,6 +106,15 @@ source_set("lib") {
@@ -20,7 +20,7 @@ index e55432dba076a..d9337c0115389 100644
 +    # START downstream added deps
 +
 +    deps += [
-+      "android/downstream_impl:features",
++      "//services/downstream/shape_detection/android:features",
 +    ]
 +
 +    # END downstream added deps
@@ -39,7 +39,7 @@ index e55432dba076a..d9337c0115389 100644
 +    ]
 +
 +    deps += [
-+      "//services/shape_detection/android/downstream_impl:downstream_impls_java",
++      "//services/downstream/shape_detection/android:downstream_impls_java",
 +    ]
 +
 +    # END downstream added sources, deps
