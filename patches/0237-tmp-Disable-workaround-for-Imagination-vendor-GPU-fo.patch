@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 8 Mar 2026 11:00:03 +0000
+Subject: [PATCH] tmp: Disable workaround for Imagination vendor GPU for WebGL
+
+This currently causes MTE crashes with more website with this workaround
+active than without it being active for Imagination vendor GPU, which is
+the GPU used for 10th gen Pixels.
+---
+ gpu/config/gpu_driver_bug_list.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gpu/config/gpu_driver_bug_list.json b/gpu/config/gpu_driver_bug_list.json
+index 848bbea3001e1..432e17f257944 100644
+--- a/gpu/config/gpu_driver_bug_list.json
++++ b/gpu/config/gpu_driver_bug_list.json
+@@ -3824,7 +3824,7 @@
+       "os": {
+         "type": "android"
+       },
+-      "gl_vendor": "Imagination.*",
++      "gl_vendor": "DisabledWorkaroundPrefix.Imagination.*",
+       "features": [
+         "ensure_previous_framebuffer_not_deleted"
+       ]
