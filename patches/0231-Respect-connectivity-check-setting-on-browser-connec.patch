@@ -10,18 +10,17 @@ Subject: [PATCH] Respect connectivity check setting on browser connectivity
  2 files changed, 45 insertions(+)
 
 diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
-index 522092c9820ce..141f2cd5c1459 100644
+index 12287d4e6f284..bb199ab1e648d 100644
 --- a/chrome/android/chrome_ext_deps.gni
 +++ b/chrome/android/chrome_ext_deps.gni
-@@ -4,6 +4,8 @@
- 
+@@ -5,5 +5,7 @@
  chrome_ext_deps = [
+   "//base/downstream/android:base_settings_java",
    "//chrome/browser/subresource_filter/android:java",
 +  "//net/downstream/conn_checks/android:conn_checks_util_java",
 +  "//net/downstream/conn_checks/android:feature_map_java",
    "//vanadium/android_config/proto:browser_config_parser_java",
  ]
- 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java
 index abb3c77c8fc56..42638c7ca3b97 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java

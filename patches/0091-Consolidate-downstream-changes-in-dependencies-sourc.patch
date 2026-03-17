@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 13 Mar 2023 08:41:43 +0000
+Subject: [PATCH] Consolidate downstream changes in dependencies, sources for
+ chrome layer
+
+---
+ chrome/android/BUILD.gn                      | 11 +++++++++++
+ chrome/android/chrome_ext_deps.gni           |  6 ++++++
+ chrome/android/chrome_ext_java_resources.gni |  6 ++++++
+ chrome/android/chrome_ext_java_sources.gni   |  6 ++++++
+ chrome/android/chrome_ext_srcjar_deps.gni    |  6 ++++++
+ 5 files changed, 35 insertions(+)
+ create mode 100644 chrome/android/chrome_ext_deps.gni
+ create mode 100644 chrome/android/chrome_ext_java_resources.gni
+ create mode 100644 chrome/android/chrome_ext_java_sources.gni
+ create mode 100644 chrome/android/chrome_ext_srcjar_deps.gni
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 9851800713a1b..94e76c2a3602d 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -167,6 +167,9 @@ if (_is_default_toolchain) {
+ 
+   android_resources("chrome_app_java_resources") {
+     sources = chrome_java_resources
++    # Extension of sources at chrome_app_java_resources
++    import("//chrome/android/chrome_ext_java_resources.gni")
++    sources += chrome_ext_java_resources
+     sources += [ "//chrome/android/java/res_app/layout/main.xml" ]
+ 
+     deps = [
+@@ -834,6 +837,14 @@ if (_is_default_toolchain) {
+     # From java_sources.gni.
+     sources = chrome_java_sources
+ 
++    # Extension of sources, deps, and srcjar_deps for chrome_java target
++    import("//chrome/android/chrome_ext_java_sources.gni")
++    sources += chrome_ext_java_sources
++    import("//chrome/android/chrome_ext_deps.gni")
++    deps += chrome_ext_deps
++    import("//chrome/android/chrome_ext_srcjar_deps.gni")
++    srcjar_deps += chrome_ext_srcjar_deps
++
+     # Include sources from feed_java_sources.gni.
+     sources += feed_java_sources
+     srcjar_deps += feed_srcjar_deps
+diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
+new file mode 100644
+index 0000000000000..45019569a0f78
+--- /dev/null
++++ b/chrome/android/chrome_ext_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2.0 only-style license that can be
++# found in the LICENSE file.
++
++chrome_ext_deps = [
++]
+diff --git a/chrome/android/chrome_ext_java_resources.gni b/chrome/android/chrome_ext_java_resources.gni
+new file mode 100644
+index 0000000000000..1f969c1ea46cf
+--- /dev/null
++++ b/chrome/android/chrome_ext_java_resources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2.0 only-style license that can be
++# found in the LICENSE file.
++
++chrome_ext_java_resources = [
++]
+diff --git a/chrome/android/chrome_ext_java_sources.gni b/chrome/android/chrome_ext_java_sources.gni
+new file mode 100644
+index 0000000000000..db246a7ae06ce
+--- /dev/null
++++ b/chrome/android/chrome_ext_java_sources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2.0 only-style license that can be
++# found in the LICENSE file.
++
++chrome_ext_java_sources = [
++]
+diff --git a/chrome/android/chrome_ext_srcjar_deps.gni b/chrome/android/chrome_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..788e9482b5d72
+--- /dev/null
++++ b/chrome/android/chrome_ext_srcjar_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2.0 only-style license that can be
++# found in the LICENSE file.
++
++chrome_ext_srcjar_deps = [
++]
