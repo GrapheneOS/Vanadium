@@ -6,7 +6,7 @@ Subject: [PATCH] Always start child processes in jitless mode when execmem is
 
 ---
  .../library_loader/LibraryLoaderHooks.java    | 31 +++++++++++++++++++
- base/base_android_library_ext.gni             |  1 +
+ base/base_library_loader_java_ext_deps.gni    |  1 +
  2 files changed, 32 insertions(+)
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
@@ -60,15 +60,13 @@ index b1a621f62770a..43c4fa9301949 100644
      }
  
      static void onSubsequentCommandLineSwitchLockedCheck(Context appContext, @LibraryProcessType int type) {
-diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
-index 80fb1746d8aa9..5d007a5e9dcf8 100644
---- a/base/base_android_library_ext.gni
-+++ b/base/base_android_library_ext.gni
-@@ -19,6 +19,7 @@ base_library_loader_java_ext_java_sources = [
+diff --git a/base/base_library_loader_java_ext_deps.gni b/base/base_library_loader_java_ext_deps.gni
+index 8300469435f39..db540a25dde69 100644
+--- a/base/base_library_loader_java_ext_deps.gni
++++ b/base/base_library_loader_java_ext_deps.gni
+@@ -4,4 +4,5 @@
  
  base_library_loader_java_ext_deps = [
    "//vanadium/android_config/proto:browser_config_parser_java",
 +  "//vanadium/ext/custom_os:custom_os_apis_java",
  ]
- 
- base_library_loader_java_ext_srcjar_deps = [

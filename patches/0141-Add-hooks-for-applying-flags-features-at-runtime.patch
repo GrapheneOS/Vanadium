@@ -8,7 +8,7 @@ org.chromium.android_webview.common.FlagOverrideHelper, which cannot be
 directly referenced, as its only available for WebView code.
 ---
  .../VanadiumCommandLineUtils.java             | 58 +++++++++++++++++++
- base/base_android_library_ext.gni             |  1 +
+ base/base_library_loader_java_ext_sources.gni |  1 +
  2 files changed, 59 insertions(+)
  create mode 100644 base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
 
@@ -76,15 +76,13 @@ index 0000000000000..c2a9e9bcd57a3
 +        }
 +    }
 +}
-diff --git a/base/base_android_library_ext.gni b/base/base_android_library_ext.gni
-index 38ead26ee277d..777621c412fdb 100644
---- a/base/base_android_library_ext.gni
-+++ b/base/base_android_library_ext.gni
-@@ -12,6 +12,7 @@ base_java_ext_srcjar_deps = [
- ]
+diff --git a/base/base_library_loader_java_ext_sources.gni b/base/base_library_loader_java_ext_sources.gni
+index 03df50a823169..9b0d9d0e926f9 100644
+--- a/base/base_library_loader_java_ext_sources.gni
++++ b/base/base_library_loader_java_ext_sources.gni
+@@ -3,4 +3,5 @@
+ # found in the LICENSE file.
  
- base_library_loader_java_ext_java_sources = [
+ base_library_loader_java_ext_sources = [
 +  "android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
  ]
- 
- base_library_loader_java_ext_deps = [

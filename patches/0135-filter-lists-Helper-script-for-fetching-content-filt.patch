@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 2 Dec 2023 06:57:57 +0000
+Subject: [PATCH] filter-lists: Helper script for fetching content filtering
+ ruleset
+
+---
+ .../android_config/filter_lists/.gitignore    |  2 ++
+ .../filter_lists/filter_list_download.py      | 32 +++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+ create mode 100644 vanadium/android_config/filter_lists/.gitignore
+ create mode 100644 vanadium/android_config/filter_lists/filter_list_download.py
+
+diff --git a/vanadium/android_config/filter_lists/.gitignore b/vanadium/android_config/filter_lists/.gitignore
+new file mode 100644
+index 0000000000000..ef8e27c65ce18
+--- /dev/null
++++ b/vanadium/android_config/filter_lists/.gitignore
+@@ -0,0 +1,2 @@
++/*.txt
++/*.txt.sha256
+diff --git a/vanadium/android_config/filter_lists/filter_list_download.py b/vanadium/android_config/filter_lists/filter_list_download.py
+new file mode 100644
+index 0000000000000..257d00449c0b5
+--- /dev/null
++++ b/vanadium/android_config/filter_lists/filter_list_download.py
+@@ -0,0 +1,32 @@
++#!/usr/bin/env python3
++#
++# SPDX-License-Identifier: GPL-v2.0
++
++import argparse
++import os
++import ssl
++import sys
++import urllib.request
++
++
++def FetchAndGenerateFilterList(args):
++    urls = sorted(list(set(args.urls)))
++    for url in urls:
++        if not url.startswith("https://"):
++            continue
++        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
++        context.minimum_version = ssl.TLSVersion.TLSv1_3
++        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
++        with urllib.request.urlopen(url=req, context=context, timeout=30) as res:
++            while True:
++                buf = res.read(4096)
++                if not buf:
++                    break
++                args.output.write(buf)
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--urls', nargs='+',
++                        help='Relative path to folders to search for duplicate includes check_in.')
++    parser.add_argument('--output', required=True, type=argparse.FileType('wb'), default=sys.stdout)
++    FetchAndGenerateFilterList(parser.parse_args(sys.argv[1:]))

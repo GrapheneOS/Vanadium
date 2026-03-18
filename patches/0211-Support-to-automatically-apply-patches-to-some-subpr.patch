@@ -10,7 +10,7 @@ Subject: [PATCH] Support to automatically apply patches to some subprojects
  create mode 100644 vanadium/common/apply_subprojects_patches.py
 
 diff --git a/DEPS b/DEPS
-index 94202b98709ca..9d15b4703a1e2 100644
+index 87f9b6026150e..5fd033a741540 100644
 --- a/DEPS
 +++ b/DEPS
 @@ -5029,6 +5029,16 @@ hooks = [
@@ -32,7 +32,7 @@ index 94202b98709ca..9d15b4703a1e2 100644
  
 diff --git a/vanadium/common/apply_subprojects_patches.py b/vanadium/common/apply_subprojects_patches.py
 new file mode 100644
-index 0000000000000..554831ebf6bd5
+index 0000000000000..9a37100e5f832
 --- /dev/null
 +++ b/vanadium/common/apply_subprojects_patches.py
 @@ -0,0 +1,50 @@
@@ -73,9 +73,9 @@ index 0000000000000..554831ebf6bd5
 +            git_am_cmd = ['git', '-C', str(subproject_dir),
 +                          'am', '--whitespace=nowarn', '--keep-non-patch', patches_path_abs]
 +            if subprocess.run(git_am_cmd).returncode != 0:
-+                git_am_abort_cmd = ['git', '-C', str(subproject_dir),
-+                              'am', '--abort']
-+                subprocess.run(git_am_abort_cmd).check_returncode()
++                git_am_skip_cmd = ['git', '-C', str(subproject_dir),
++                                   'am', '--skip']
++                subprocess.run(git_am_skip_cmd).check_returncode()
 +
 +
 +

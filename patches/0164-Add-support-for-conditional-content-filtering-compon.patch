@@ -10,17 +10,15 @@ Subject: [PATCH] Add support for conditional content filtering component based
  2 files changed, 55 insertions(+)
 
 diff --git a/chrome/android/chrome_ext_deps.gni b/chrome/android/chrome_ext_deps.gni
-index a289a6fecd9fb..522092c9820ce 100644
+index 0a714fd047cc4..12287d4e6f284 100644
 --- a/chrome/android/chrome_ext_deps.gni
 +++ b/chrome/android/chrome_ext_deps.gni
-@@ -4,6 +4,7 @@
- 
+@@ -5,4 +5,5 @@
  chrome_ext_deps = [
+   "//base/downstream/android:base_settings_java",
    "//chrome/browser/subresource_filter/android:java",
 +  "//vanadium/android_config/proto:browser_config_parser_java",
  ]
- 
- chrome_ext_srcjar_deps = [
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 index a445c2b87e4fe..69661acda2f5f 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java

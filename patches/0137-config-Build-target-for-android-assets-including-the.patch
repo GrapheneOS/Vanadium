@@ -1,0 +1,99 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 2 Dec 2023 06:58:23 +0000
+Subject: [PATCH] config: Build target for android assets including the content
+ filtering file
+
+---
+ vanadium/android_config/filter_lists/BUILD.gn | 17 ++++++
+ .../filter_lists/generate_ruleset.gni         | 55 +++++++++++++++++++
+ 2 files changed, 72 insertions(+)
+ create mode 100644 vanadium/android_config/filter_lists/BUILD.gn
+ create mode 100644 vanadium/android_config/filter_lists/generate_ruleset.gni
+
+diff --git a/vanadium/android_config/filter_lists/BUILD.gn b/vanadium/android_config/filter_lists/BUILD.gn
+new file mode 100644
+index 0000000000000..311f4facef0d5
+--- /dev/null
++++ b/vanadium/android_config/filter_lists/BUILD.gn
+@@ -0,0 +1,17 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//build/compiled_action.gni")
++import("//build/config/android/rules.gni")
++import("generate_ruleset.gni")
++
++assert(is_android)
++
++generate_unindexed_ruleset_assets("ruleset_assets") {
++  inputs = [
++    "//vanadium/android_config/filter_lists/filter_lists_easylist.txt",
++  ]
++
++  asset_file_name = "unindexed_ruleset"
++}
+\ No newline at end of file
+diff --git a/vanadium/android_config/filter_lists/generate_ruleset.gni b/vanadium/android_config/filter_lists/generate_ruleset.gni
+new file mode 100644
+index 0000000000000..a0d016ec3f2d3
+--- /dev/null
++++ b/vanadium/android_config/filter_lists/generate_ruleset.gni
+@@ -0,0 +1,55 @@
++# Copyright 2023 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import("//build/compiled_action.gni")
++import("//build/config/android/rules.gni")
++
++assert(is_android)
++
++template("generate_unindexed_ruleset_assets") {
++  assert(defined(invoker.inputs), "Cannot have empty list for generate unindexed rulesets assets from filter lists")
++  assert(defined(invoker.asset_file_name), "Cannot have empty file name defined for asset")
++  _compiled_action_target_name = "${target_name}__compile_from_filter_list__"
++
++  compiled_action(_compiled_action_target_name) {
++    tool = "//components/subresource_filter/tools:ruleset_converter"
++
++    outputs = [
++      "$root_out_dir/${invoker.asset_file_name}",
++    ]
++
++    inputs = invoker.inputs
++
++    deps = [
++      "//components/subresource_filter/tools:ruleset_converter",
++    ]
++    rebased_input_files = []
++    foreach(input_file, inputs) {
++      rebased_input_files += [
++        rebase_path(input_file, root_build_dir),
++      ]
++    }
++
++
++    args = [
++      "--input_format=filter-list",
++      "--output_format=unindexed-ruleset",
++      "--input_files=" + string_join(",", rebased_input_files),
++      "--output_file=" + rebase_path(outputs[0], root_build_dir),
++    ]
++  }
++
++  android_assets(target_name) {
++    disable_compression = true
++    renaming_sources = [
++      "$root_out_dir/${invoker.asset_file_name}",
++    ]
++    renaming_destinations = [
++      "../${invoker.asset_file_name}",
++    ]
++    deps = [
++      ":${_compiled_action_target_name}",
++    ]
++  }
++}
+\ No newline at end of file
