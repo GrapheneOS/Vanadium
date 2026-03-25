@@ -20,10 +20,10 @@ https://chromium-review.googlesource.com/c/chromium/src/+/5840556
  2 files changed, 50 insertions(+)
 
 diff --git a/components/content_settings/core/browser/content_settings_default_provider.cc b/components/content_settings/core/browser/content_settings_default_provider.cc
-index 16a3f55c59871..b73939961c380 100644
+index 8ed7502e238a5..0898cfa28c67c 100644
 --- a/components/content_settings/core/browser/content_settings_default_provider.cc
 +++ b/components/content_settings/core/browser/content_settings_default_provider.cc
-@@ -116,6 +116,20 @@ const std::string& GetPrefName(ContentSettingsType type) {
+@@ -120,6 +120,20 @@ const std::string& GetPrefName(ContentSettingsType type) {
  
  }  // namespace
  
@@ -44,7 +44,7 @@ index 16a3f55c59871..b73939961c380 100644
  // static
  void DefaultProvider::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
-@@ -172,6 +186,10 @@ void DefaultProvider::RegisterProfilePrefs(
+@@ -176,6 +190,10 @@ void DefaultProvider::RegisterProfilePrefs(
    registry->RegisterBooleanPref(kBug364820109AlreadyWorkedAroundPref, false);
  #endif  // !BUILDFLAG(IS_ANDROID)
  #endif  // !BUILDFLAG(IS_IOS)
@@ -55,7 +55,7 @@ index 16a3f55c59871..b73939961c380 100644
  }
  
  DefaultProvider::DefaultProvider(PrefService* prefs,
-@@ -433,6 +451,13 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
+@@ -438,6 +456,13 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
    prefs_->ClearPref(kBug364820109AlreadyWorkedAroundPref);
  #endif  // !BUILDFLAG(IS_ANDROID)
  #endif  // !BUILDFLAG(IS_IOS)

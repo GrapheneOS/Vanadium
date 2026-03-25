@@ -5,28 +5,19 @@ Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
  default
 
 ---
- .../identity_disc/IdentityDiscController.java        | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ .../browser/identity_disc/IdentityDiscController.java     | 5 +++++
+ .../chromium/chrome/browser/ui/signin/SigninUtils.java    | 8 ++++++++
+ 2 files changed, 13 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-index 517247560d2e2..df83e413ccd1b 100644
+index 835f68e76dd19..f71b6d972d938 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
-@@ -71,6 +71,9 @@ public class IdentityDiscController
-                 IdentityManager.Observer,
-                 SyncService.SyncStateChangedListener,
-                 ButtonDataProvider {
-+
-+    private static final boolean ALLOW_NTP_AVATAR = false;
-+
-     // Context is used for fetching resources and launching preferences page.
-     private final Context mContext;
-     private final MonotonicObservableSupplier<Profile> mProfileSupplier;
-@@ -147,6 +150,11 @@ public class IdentityDiscController
+@@ -196,6 +196,11 @@ public class IdentityDiscController
              return;
          }
  
-+        if (!ALLOW_NTP_AVATAR) {
++        if (!SigninUtils.allowNtpAvatar()) {
 +            mButtonData.setCanShow(false);
 +            return;
 +        }
@@ -34,14 +25,26 @@ index 517247560d2e2..df83e413ccd1b 100644
          String email = CoreAccountInfo.getEmailFrom(getSignedInAccountInfo());
          ensureProfileDataCache(mProfile);
  
-@@ -378,6 +386,10 @@ public class IdentityDiscController
+diff --git a/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java b/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java
+index a8a16328f057d..e89a54235efc9 100644
+--- a/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java
++++ b/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java
+@@ -121,10 +121,18 @@ public final class SigninUtils {
+                 && !DialogWhenLargeContentLayout.shouldShowAsDialog(context);
      }
  
-     private String getContentDescription(@Nullable String email) {
-+        if (!ALLOW_NTP_AVATAR) {
-+            return mContext.getString(R.string.accessibility_toolbar_btn_identity_disc);
++    public static boolean allowNtpAvatar() {
++        return false;
++    }
++
+     public static String getContentDescriptionForIdentityDisc(
+             Context context,
+             @Nullable DisplayableProfileData profileData,
+             @UserActionableError int identityError) {
++        if (!allowNtpAvatar()) {
++            return context.getString(R.string.accessibility_toolbar_btn_identity_disc);
 +        }
 +
-         if (email == null) {
-             return mContext.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
+         if (profileData == null) {
+             return context.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
          }

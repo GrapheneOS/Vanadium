@@ -10,12 +10,12 @@ Subject: [PATCH] add support for appending build flags for Vanadium
  create mode 100644 build/config/vanadium/BUILD.gn
 
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index 3caedebb1d279..dbd66f2477b80 100644
+index c092446fa0715..69b768bff2a59 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -485,6 +485,9 @@ config("compiler") {
-     if (fatal_linker_warnings && is_apple) {
-       ldflags += [ "-Wl,-fatal_warnings" ]
+@@ -469,6 +469,9 @@ config("compiler") {
+         }
+       }
      }
 +
 +    # Additional Vanadium compiler flags

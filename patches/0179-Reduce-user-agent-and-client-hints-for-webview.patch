@@ -4,18 +4,18 @@ Date: Thu, 12 Dec 2024 07:09:40 +0000
 Subject: [PATCH] Reduce user agent and client hints for webview
 
 ---
- android_webview/browser/aw_field_trials.cc           |  4 ----
- android_webview/common/aw_features.cc                |  2 +-
- .../chromium/WebViewChromiumFactoryProvider.java     | 12 ------------
- 3 files changed, 1 insertion(+), 17 deletions(-)
+ android_webview/browser/aw_field_trials.cc    |  4 ----
+ android_webview/common/aw_features.cc         |  2 +-
+ .../WebViewChromiumFactoryProvider.java       | 22 -------------------
+ 3 files changed, 1 insertion(+), 27 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
-index ee925a45af212..4f8ae5a0c300f 100644
+index cd77dcfb39448..439527e728efa 100644
 --- a/android_webview/browser/aw_field_trials.cc
 +++ b/android_webview/browser/aw_field_trials.cc
 @@ -85,10 +85,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
    // Disable launch_handler on WebView.
-   aw_feature_overrides.DisableFeature(::features::kAndroidWebAppLaunchHandler);
+   aw_feature_overrides.DisableFeature(blink::features::kWebAppLaunchQueue);
  
 -  // Disable Reducing User Agent minor version on WebView.
 -  aw_feature_overrides.DisableFeature(
@@ -25,10 +25,10 @@ index ee925a45af212..4f8ae5a0c300f 100644
    aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
  
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index a33c161a2ebca..54957335b2f5d 100644
+index 77899adcf1e8a..373de0250e452 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -115,7 +115,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
+@@ -122,7 +122,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
  
  // This enables reducing webview user-agent android version and device model.
  BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
@@ -38,24 +38,34 @@ index a33c161a2ebca..54957335b2f5d 100644
  // This enables WebView crashes.
  BASE_FEATURE(kWebViewEnableCrash, base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index e9cecc668cf99..338abef1ed6b1 100644
+index f21c3d13c3113..c156579df2ffc 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -687,18 +687,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -701,28 +701,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
              helper.applyFlagOverrides(
                      Map.of(AwFeatures.WEBVIEW_FILE_SYSTEM_ACCESS, shouldEnableFileSystemAccess()));
  
--            // Apply user-agent reduction overrides for WebView. These features
--            // are intended to be enabled only for Android B+.
+-            // Set user-agent reduction command-line switches and feature flags for WebView.
+-            // We set command line switches as well because we want to read the configuration before
+-            // feature flags are set for enabling `getDefaultUserAgent` to not wait for browser
+-            // startup.
+-            // These features are intended to be enabled only for Android B+.
 -            // 1) ReduceUserAgentMinorVersion: Enables reduction of the user-agent minor version.
 -            // 2) WebViewReduceUAAndroidVersionDeviceModel: Enables reduction of the user-agent
 -            //    Android version and device model.
+-            boolean shouldEnableUserAgentReduction = shouldEnableUserAgentReduction();
 -            helper.applyFlagOverrides(
 -                    Map.of(
 -                            AwFeatures.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL,
--                            shouldEnableUserAgentReduction(),
+-                            shouldEnableUserAgentReduction,
 -                            BlinkFeatures.REDUCE_USER_AGENT_MINOR_VERSION,
--                            shouldEnableUserAgentReduction()));
+-                            shouldEnableUserAgentReduction));
+-            if (shouldEnableUserAgentReduction) {
+-                CommandLine.getInstance()
+-                        .appendSwitch(AwSwitches.WEBVIEW_REDUCE_USER_AGENT_MINOR_VERSION);
+-                CommandLine.getInstance()
+-                        .appendSwitch(AwSwitches.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL);
+-            }
 -
              setSingleton(this);
          }

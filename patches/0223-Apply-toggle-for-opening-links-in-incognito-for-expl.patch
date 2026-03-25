@@ -11,10 +11,10 @@ Subject: [PATCH] Apply toggle for opening links in incognito for explicit
  3 files changed, 38 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index 2c6a818bbefe1..29d86d88d3b9a 100644
+index 9ca804b89455f..d3ce992b67b97 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1709,6 +1709,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -1730,6 +1730,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
                  return;
              }
  
@@ -23,7 +23,7 @@ index 2c6a818bbefe1..29d86d88d3b9a 100644
              // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
              // adding NEW_TASK flag to make sure backing from CCT brings up the caller activity,
              // and not Chrome
-@@ -2207,6 +2209,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -2226,6 +2228,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
              Log.i(TAG, "#initializeState");
              Intent intent = getIntent();
  
@@ -33,10 +33,10 @@ index 2c6a818bbefe1..29d86d88d3b9a 100644
              PersistableBundle persistentState = getPersistentInstanceState();
              if (shouldPersistAcrossReboots() && persistentState != null) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 6d58ebd6da16d..8383fca2cd84a 100644
+index 0da4043133eeb..8c129f29b5571 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -348,6 +348,9 @@ public class LaunchIntentDispatcher {
+@@ -357,6 +357,9 @@ public class LaunchIntentDispatcher {
                      "Android.Intent.HasNonSpoofablePackageName", hasNonSpoofablePackageName());
              boolean identityShared = maybePutCallingAppPackage(newIntent);
              RecordHistogram.recordBooleanHistogram("Android.Intent.IdentityShared", identityShared);

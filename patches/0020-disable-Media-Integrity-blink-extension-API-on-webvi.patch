@@ -40,10 +40,10 @@ index 9634fc6f2edc4..d3b10b68a1db8 100644
      map->Add<payments::mojom::PaymentRequest>(
          &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
 diff --git a/android_webview/common/aw_feature_map.cc b/android_webview/common/aw_feature_map.cc
-index c390e597f7310..73e0b82b65ae1 100644
+index 34df9410a6c4a..c95c8875fe103 100644
 --- a/android_webview/common/aw_feature_map.cc
 +++ b/android_webview/common/aw_feature_map.cc
-@@ -54,6 +54,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -55,6 +55,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &features::kWebViewHyperlinkContextMenu,
      &features::kWebViewInvokeZoomPickerOnGSU,
      &features::kWebViewLazyFetchHandWritingIcon,
@@ -52,7 +52,7 @@ index c390e597f7310..73e0b82b65ae1 100644
      &features::kWebViewMoveWorkToProviderInit,
      &features::kWebViewOptInToGmsBindServiceOptimization,
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index bf68a814565df..a33c161a2ebca 100644
+index aedd695042f5e..77899adcf1e8a 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
 @@ -54,6 +54,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -68,7 +68,7 @@ index bf68a814565df..a33c161a2ebca 100644
  // creation time and used throughout its lifetime. This enables shared memory
  // cookie versioning to reduce IPC overhead.
 diff --git a/android_webview/common/aw_features.h b/android_webview/common/aw_features.h
-index 8662f2f76d665..3ba7be6540080 100644
+index 947c9d2aa7a4d..79190f9e8ebc4 100644
 --- a/android_webview/common/aw_features.h
 +++ b/android_webview/common/aw_features.h
 @@ -30,6 +30,7 @@ BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
@@ -77,13 +77,13 @@ index 8662f2f76d665..3ba7be6540080 100644
  BASE_DECLARE_FEATURE(kWebViewLatchedCookiePolicy);
 +BASE_DECLARE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension);
  BASE_DECLARE_FEATURE(kWebViewMixedContentAutoupgrades);
+ BASE_DECLARE_FEATURE(kWebViewNonBlockingCookieStoreHandoff);
  BASE_DECLARE_FEATURE(kWebViewRenderDocument);
- BASE_DECLARE_FEATURE(kWebViewTestFeature);
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-index bda774a9c55a1..0d9e5f8141448 100644
+index 9cbf4a91238be..51c7eb4107410 100644
 --- a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
 +++ b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-@@ -674,6 +674,10 @@ public final class ProductionSupportedFlagList {
+@@ -699,6 +699,10 @@ public final class ProductionSupportedFlagList {
          Flag.baseFeature("V8ScavengerHigherCapacity"),
          Flag.baseFeature("V8IncrementalMarkingStartUserVisible"),
          Flag.baseFeature("V8ExternalMemoryAccountedInGlobalLimit"),

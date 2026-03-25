@@ -12,10 +12,10 @@ Subject: [PATCH] Match skipping compatibility check default value checks in
  4 files changed, 63 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
-index 8e26b26c2d83c..5553daa417cd5 100644
+index c853dbe3d4526..c634392440c46 100644
 --- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
 +++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsMediator.java
-@@ -169,7 +169,7 @@ class AutofillOptionsMediator implements ModalDialogProperties.Controller {
+@@ -271,7 +271,7 @@ public class AutofillOptionsMediator implements ModalDialogProperties.Controller
              case AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_NOT_SUPPORTED:
              case AndroidAutofillAvailabilityStatus.UNKNOWN_ANDROID_AUTOFILL_SERVICE:
              case AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_SERVICE_IS_GOOGLE:
@@ -79,10 +79,10 @@ index 1e4e36b0fd8ec..97b4fe30c91e8 100644
    RecordWhetherAndroidPrefResets(*prefs, uses_platform_autofill_);
    // Ensure the pref is reset if platform autofill is restricted.
 diff --git a/components/autofill/core/common/autofill_features.cc b/components/autofill/core/common/autofill_features.cc
-index dc064c487ec6e..848ac5302aeb5 100644
+index 5d6f5a1eb0c97..b318d22ad17e1 100644
 --- a/components/autofill/core/common/autofill_features.cc
 +++ b/components/autofill/core/common/autofill_features.cc
-@@ -899,6 +899,13 @@ BASE_FEATURE(kAutofillSupportSplitZipCode, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -970,6 +970,13 @@ BASE_FEATURE(kAutofillSupportSplitZipCode, base::FEATURE_DISABLED_BY_DEFAULT);
  // virtual view structures to third party providers.
  BASE_FEATURE(kAutofillThirdPartyModeContentProvider,
               base::FEATURE_ENABLED_BY_DEFAULT);
@@ -97,10 +97,10 @@ index dc064c487ec6e..848ac5302aeb5 100644
  // If enabled, stores the last used Autofill Service in a pref. This allows to
  // restore the user's preference to use platform Autofill on restart.
 diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
-index 8c71570517ca6..93dca5d789068 100644
+index 755ed0254adfe..2d7ad479ec5cf 100644
 --- a/components/autofill/core/common/autofill_features.h
 +++ b/components/autofill/core/common/autofill_features.h
-@@ -306,6 +306,29 @@ COMPONENT_EXPORT(AUTOFILL) BASE_DECLARE_FEATURE(kAutofillSupportSplitZipCode);
+@@ -329,6 +329,29 @@ COMPONENT_EXPORT(AUTOFILL) BASE_DECLARE_FEATURE(kAutofillSupportSplitZipCode);
  COMPONENT_EXPORT(AUTOFILL)
  BASE_DECLARE_FEATURE(kAutofillThirdPartyModeContentProvider);
  COMPONENT_EXPORT(AUTOFILL)
@@ -129,4 +129,4 @@ index 8c71570517ca6..93dca5d789068 100644
 +COMPONENT_EXPORT(AUTOFILL)
  BASE_DECLARE_FEATURE(kAutofillThirdPartyModeRestoredOnStart);
  #endif  // BUILDFLAG(IS_ANDROID)
- COMPONENT_EXPORT(AUTOFILL) BASE_DECLARE_FEATURE(kAutofillUKMExperimentalFields);
+ COMPONENT_EXPORT(AUTOFILL) BASE_DECLARE_FEATURE(kAutofillTrackSelectFieldEdits);

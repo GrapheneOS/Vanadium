@@ -73,10 +73,10 @@ index 9be541d64491c..b7487efe50add 100644
  
  source_set("unit_tests") {
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index 7226775d57812..dbb6c7dc1925b 100644
+index 5e7adcc2611f9..32992839a4966 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -41,6 +41,7 @@
+@@ -35,6 +35,7 @@
  #include "components/metrics/metrics_state_manager.h"
  #include "components/prefs/pref_service.h"
  #include "components/variations/active_field_trials.h"
@@ -84,7 +84,7 @@ index 7226775d57812..dbb6c7dc1925b 100644
  #include "components/variations/entropy_provider.h"
  #include "components/variations/field_trial_config/field_trial_util.h"
  #include "components/variations/platform_field_trials.h"
-@@ -285,9 +286,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -247,9 +248,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
@@ -100,7 +100,7 @@ index 7226775d57812..dbb6c7dc1925b 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -352,26 +359,34 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -314,26 +321,34 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {

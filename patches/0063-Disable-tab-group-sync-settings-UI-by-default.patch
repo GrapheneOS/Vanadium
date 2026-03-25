@@ -36,10 +36,10 @@ index 9b95b8e5e60c3..2b127db9aab74 100644
      }
  
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index bc2f1591cedbd..10702c487f14a 100644
+index fea8113d6e521..0e107913977d9 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -513,6 +513,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -517,6 +517,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &syncer::kSyncTrustedVaultErrorMessageDuration,
      &syncer::kUnoPhase2FollowUp,
      &syncer::kWebApkBackupAndRestoreBackend,
@@ -48,20 +48,20 @@ index bc2f1591cedbd..10702c487f14a 100644
      &variations::kOmniboxAutofocusOnIncognitoNtp,
      &visited_url_ranking::features::kGroupSuggestionService,
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 42aa17f9251e9..780efb6f2815f 100644
+index c998cf2e0c4f0..ec525aeb39451 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -649,6 +649,8 @@ public abstract class ChromeFeatureList {
+@@ -656,6 +656,8 @@ public abstract class ChromeFeatureList {
+             "SyncTrustedVaultErrorMessageDuration";
      public static final String TAB_BOTTOM_SHEET = "TabBottomSheet";
      public static final String TAB_CLOSURE_METHOD_REFACTOR = "TabClosureMethodRefactor";
-     public static final String TAB_FREEZING_USES_DISCARD = "TabFreezingUsesDiscard";
 +    public static final String TAB_GROUP_SYNC_AUTO_OPEN_KILL_SWITCH =
 +            "TabGroupSyncAutoOpenKillSwitch";
      public static final String TAB_MODEL_INIT_FIXES = "TabModelInitFixes";
      public static final String TAB_STORAGE_SQLITE_PROTOTYPE = "TabStorageSqlitePrototype";
      public static final String TAB_STRIP_AUTO_SELECT_ON_CLOSE_CHANGE =
 diff --git a/components/saved_tab_groups/public/features.cc b/components/saved_tab_groups/public/features.cc
-index 92cd0265bd2c3..8d9d760312906 100644
+index 4475c91bb5bae..4bbadc425089f 100644
 --- a/components/saved_tab_groups/public/features.cc
 +++ b/components/saved_tab_groups/public/features.cc
 @@ -22,6 +22,13 @@ constexpr char kGroupCleanUpTimeIntervalInSecondsFinchKey[] =
@@ -79,10 +79,10 @@ index 92cd0265bd2c3..8d9d760312906 100644
  // triggered without attention..
  BASE_FEATURE(kRestrictDownloadOnSyncedTabs, base::FEATURE_ENABLED_BY_DEFAULT);
 diff --git a/components/saved_tab_groups/public/features.h b/components/saved_tab_groups/public/features.h
-index 9317c211ae273..21d685aba82cf 100644
+index 0a4ea50afdfa7..2c7c5ec09b448 100644
 --- a/components/saved_tab_groups/public/features.h
 +++ b/components/saved_tab_groups/public/features.h
-@@ -16,6 +16,8 @@ BASE_DECLARE_FEATURE(kTabGroupsSaveV2);
+@@ -17,6 +17,8 @@ BASE_DECLARE_FEATURE(kTabGroupsSaveV2);
  
  BASE_DECLARE_FEATURE(kTabGroupSyncDelegateAndroid);
  

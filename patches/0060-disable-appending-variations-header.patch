@@ -4,22 +4,28 @@ Date: Sat, 15 Jan 2022 13:34:33 -0500
 Subject: [PATCH] disable appending variations header
 
 ---
- components/variations/net/variations_http_headers.cc | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ components/variations/net/variations_http_headers.cc | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
 diff --git a/components/variations/net/variations_http_headers.cc b/components/variations/net/variations_http_headers.cc
-index 24d792ec77b71..016dfd1079e4b 100644
+index 2fed9d22f58d6..1ff775f79b9e3 100644
 --- a/components/variations/net/variations_http_headers.cc
 +++ b/components/variations/net/variations_http_headers.cc
-@@ -120,10 +120,7 @@ URLValidationResult GetUrlValidationResult(const GURL& url) {
- // Also, logs the result of validating |url| in histograms, one of which ends in
- // |suffix|.
- bool ShouldAppendVariationsHeader(const GURL& url, const std::string& suffix) {
--  URLValidationResult result = GetUrlValidationResult(url);
--  base::UmaHistogramEnumeration(
--      "Variations.Headers.URLValidationResult." + suffix, result);
--  return result == URLValidationResult::kShouldAppend;
+@@ -123,16 +123,7 @@ URLValidationResult GetUrlValidationResult(const GURL& url) {
+ // rather than `headers`, to be exempted from CORS checks, and to avoid exposing
+ // the header to service workers.
+ bool ShouldAppendVariationsHeader(const GURL& url, InIncognito incognito) {
+-  // Note the criteria for attaching client experiment headers:
+-  // 1. We only transmit to Google owned domains which can evaluate
+-  // experiments.
+-  //    1a. These include hosts which have a standard postfix such as:
+-  //         *.doubleclick.net or *.googlesyndication.com or
+-  //         exactly www.googleadservices.com or
+-  //         international TLD domains *.google.<TLD> or *.youtube.<TLD>.
+-  // 2. Only transmit for non-Incognito profiles.
+-  return incognito == InIncognito::kNo &&
+-         GetUrlValidationResult(url) == URLValidationResult::kShouldAppend;
 +  return false;
  }
  
- // Returns true if the request is sent from a Google web property, i.e. from a
+ // Returns non-empty `std::string` if `variations_headers` has a header value

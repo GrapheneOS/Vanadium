@@ -24,10 +24,10 @@ Subject: [PATCH] Extension of build system for java files in base layer
  create mode 100644 base/base_shared_preferences_java_ext_sources.gni
 
 diff --git a/base/BUILD.gn b/base/BUILD.gn
-index d0317b2920ca8..2015c06486e74 100644
+index c9811ba7835ed..561a5587cb176 100644
 --- a/base/BUILD.gn
 +++ b/base/BUILD.gn
-@@ -4865,6 +4865,13 @@ if (is_android) {
+@@ -4883,6 +4883,13 @@ if (is_android) {
        ":wrapped_class_loader_java",
      ]
  
@@ -41,7 +41,7 @@ index d0317b2920ca8..2015c06486e74 100644
      if (!is_cronet_build) {
        proguard_configs += [
          "android/proguard/chromium_apk.flags",
-@@ -5451,6 +5458,13 @@ if (is_android) {
+@@ -5474,6 +5481,13 @@ if (is_android) {
        "//third_party/androidx:androidx_annotation_annotation_java",
        "//third_party/jni_zero:jni_zero_java",
      ]
@@ -55,7 +55,7 @@ index d0317b2920ca8..2015c06486e74 100644
    }
  
    generate_jni("base_shared_preferences_jni") {
-@@ -5474,6 +5488,11 @@ if (is_android) {
+@@ -5497,6 +5511,11 @@ if (is_android) {
        "android/java/src/org/chromium/base/shared_preferences/SharedPreferencesManager.java",
        "android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java",
      ]

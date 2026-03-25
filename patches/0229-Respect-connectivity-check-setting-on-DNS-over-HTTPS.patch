@@ -9,10 +9,10 @@ Subject: [PATCH] Respect connectivity check setting on DNS-over-HTTPS
  2 files changed, 55 insertions(+), 1 deletion(-)
 
 diff --git a/net/dns/BUILD.gn b/net/dns/BUILD.gn
-index c83337113e00b..35a27b1e156a4 100644
+index d8509119f1c9e..2f542de22ab80 100644
 --- a/net/dns/BUILD.gn
 +++ b/net/dns/BUILD.gn
-@@ -197,6 +197,13 @@ source_set("dns") {
+@@ -207,6 +207,13 @@ source_set("dns") {
      ":host_resolver_manager",
      ":mdns_client",
    ]
@@ -27,10 +27,10 @@ index c83337113e00b..35a27b1e156a4 100644
  
  # The standard API of net/dns.
 diff --git a/net/dns/dns_transaction.cc b/net/dns/dns_transaction.cc
-index ff0b81e091ecb..78685bfabaa0c 100644
+index 2dd0533cdcf7c..5f393fa945792 100644
 --- a/net/dns/dns_transaction.cc
 +++ b/net/dns/dns_transaction.cc
-@@ -86,6 +86,14 @@
+@@ -90,6 +90,14 @@
  #include "net/url_request/url_request_context_builder.h"
  #include "url/url_constants.h"
  
@@ -45,7 +45,7 @@ index ff0b81e091ecb..78685bfabaa0c 100644
  namespace net {
  
  namespace {
-@@ -1014,6 +1022,13 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+@@ -184,6 +192,13 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
      DCHECK(!session_->config().doh_config.servers().empty());
      DCHECK(context_);
  
@@ -59,7 +59,7 @@ index ff0b81e091ecb..78685bfabaa0c 100644
      std::optional<std::vector<uint8_t>> qname =
          dns_names_util::DottedNameToNetwork(kDohProbeHostname);
      DCHECK(qname.has_value());
-@@ -1101,9 +1116,38 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+@@ -271,10 +286,39 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
                         probe_stats, network_change, sequence_start_time),
          probe_stats->backoff_entry->GetTimeUntilRelease());
  
@@ -94,12 +94,13 @@ index ff0b81e091ecb..78685bfabaa0c 100644
 +#endif // BUILDFLAG(IS_ANDROID)
      uint32_t attempt_number = probe_stats->probe_attempts.size();
      ConstructDnsHTTPAttempt(
--        session_.get(), doh_server_index, formatted_probe_qname_,
-+        session_.get(), doh_server_index, qname,
-         dns_protocol::kTypeA, /*opt_rdata=*/nullptr,
+         context_->GetWeakPtr(), session_.get(), doh_server_index,
+-        formatted_probe_qname_, dns_protocol::kTypeA, /*opt_rdata=*/nullptr,
++        qname, dns_protocol::kTypeA, /*opt_rdata=*/nullptr,
          &probe_stats->probe_attempts, context_->url_request_context(),
          context_->isolation_info(), RequestPriority::DEFAULT_PRIORITY,
-@@ -1186,6 +1230,9 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+         /*is_probe=*/true);
+@@ -356,6 +400,9 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
  
    base::WeakPtr<DnsSession> session_;
    base::WeakPtr<ResolveContext> context_;
