@@ -9,8 +9,8 @@ list of search engines on all regions.
  ...l_settings.json-search-engines-secti.patch |  140 ++
  ...ent-maximum-number-of-search-engines.patch |   34 +
  ...ment-version-for-search-engines-data.patch |   34 +
- ...n-all-regional-list-of-search-engine.patch | 1242 +++++++++++++++++
- 4 files changed, 1450 insertions(+)
+ ...n-all-regional-list-of-search-engine.patch | 1241 +++++++++++++++++
+ 4 files changed, 1449 insertions(+)
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
  create mode 100644 vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
@@ -18,7 +18,7 @@ list of search engines on all regions.
 
 diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
 new file mode 100644
-index 0000000000000..ee609d40b7ad4
+index 0000000000000..de1535c5a848b
 --- /dev/null
 +++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0001-Reformat-regional_settings.json-search-engines-secti.patch
 @@ -0,0 +1,140 @@
@@ -42,7 +42,7 @@ index 0000000000000..ee609d40b7ad4
 + 1 file changed, 54 insertions(+), 8 deletions(-)
 +
 +diff --git a/definitions/regional_settings.json b/definitions/regional_settings.json
-+index 9bd4f39..7bdc719 100644
++index 45b3734..6316beb 100644
 +--- a/definitions/regional_settings.json
 ++++ b/definitions/regional_settings.json
 +@@ -194,7 +194,13 @@
@@ -164,7 +164,7 @@ index 0000000000000..ee609d40b7ad4
 +   "aggregation": {
 diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
 new file mode 100644
-index 0000000000000..e80ec646c6eff
+index 0000000000000..5e943c3c4ac1b
 --- /dev/null
 +++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0002-Increment-maximum-number-of-search-engines.patch
 @@ -0,0 +1,34 @@
@@ -190,7 +190,7 @@ index 0000000000000..e80ec646c6eff
 + 1 file changed, 1 insertion(+), 1 deletion(-)
 +
 +diff --git a/definitions/prepopulated_engines.json b/definitions/prepopulated_engines.json
-+index c05f9ad..c2a68e9 100644
++index f546e9b..30bcb27 100644
 +--- a/definitions/prepopulated_engines.json
 ++++ b/definitions/prepopulated_engines.json
 +@@ -22,7 +22,7 @@
@@ -204,7 +204,7 @@ index 0000000000000..e80ec646c6eff
 +     // existing data should get a new version. Otherwise, existing data may
 diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
 new file mode 100644
-index 0000000000000..4479f2af51019
+index 0000000000000..bffc9b3ec1cd0
 --- /dev/null
 +++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0003-Increment-version-for-search-engines-data.patch
 @@ -0,0 +1,34 @@
@@ -230,24 +230,24 @@ index 0000000000000..4479f2af51019
 + 1 file changed, 1 insertion(+), 1 deletion(-)
 +
 +diff --git a/definitions/prepopulated_engines.json b/definitions/prepopulated_engines.json
-+index 9a97180..777d0ae 100644
++index 30bcb27..4e2cb5d 100644
 +--- a/definitions/prepopulated_engines.json
 ++++ b/definitions/prepopulated_engines.json
 +@@ -28,7 +28,7 @@
 +     // existing data should get a new version. Otherwise, existing data may
 +     // continue to be used and updates made here will not always appear.
 +     // Also then run tools/search_engine_choice/generate_search_engine_icons.py.
-+-    "kCurrentDataVersion": 196
-++    "kCurrentDataVersion": 197
++-    "kCurrentDataVersion": 197
+++    "kCurrentDataVersion": 198
 +   },
 + 
 +   // The following engines are included in country lists and are added to the
 diff --git a/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
 new file mode 100644
-index 0000000000000..f760879291a06
+index 0000000000000..dc774e2b5a9ea
 --- /dev/null
 +++ b/vanadium/subprojects_patches/third_party/search_engines_data/resources/0004-Add-DuckDuckGo-on-all-regional-list-of-search-engine.patch
-@@ -0,0 +1,1242 @@
+@@ -0,0 +1,1241 @@
 +From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 +From: quh4gko8 <quh4gko8.vanadium@gmail.com>
 +Date: Fri, 7 Nov 2025 07:00:17 +0000
@@ -267,7 +267,7 @@ index 0000000000000..f760879291a06
 + 1 file changed, 137 insertions(+), 131 deletions(-)
 +
 +diff --git a/definitions/regional_settings.json b/definitions/regional_settings.json
-+index 7bdc719..e9a5406 100644
++index 6316beb..f0edd08 100644
 +--- a/definitions/regional_settings.json
 ++++ b/definitions/regional_settings.json
 +@@ -6,39 +6,39 @@
@@ -513,8 +513,8 @@ index 0000000000000..f760879291a06
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
-+         "&yahoo_emea",
 +         "&ecosia",
++         "&qwant",
 +@@ -238,10 +239,10 @@
 +     "CZ": {
 +       // Czechia
@@ -592,8 +592,8 @@ index 0000000000000..f760879291a06
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
-+         "&qwant",
-+@@ -320,20 +321,20 @@
++         "&privacywall",
++@@ -320,19 +321,19 @@
 +     "EG": {
 +       // Egypt
 +       "search_engines": [
@@ -612,11 +612,10 @@ index 0000000000000..f760879291a06
 ++        "&duckduckgo",
 +         "&google",
 +         "&brave",
-+         "&bing",
 +-        "&duckduckgo",
++         "&bing",
 +         "&ecosia",
 +         "&yahoo_es",
-+         "&privacywall",
 +@@ -343,9 +344,9 @@
 +     "FI": {
 +       // Finland
@@ -647,11 +646,11 @@ index 0000000000000..f760879291a06
 +         "&google",
 +         "&brave",
 +         "&ecosia",
-+         "&bing",
-+-        "&duckduckgo",
 +         "&qwant",
++-        "&duckduckgo",
++         "&bing",
 +         "&yahoo_fr",
-+         "&lilo"
++         "&privacywall"
 +@@ -379,19 +380,19 @@
 +     "GB": {
 +       // United Kingdom
@@ -713,8 +712,8 @@ index 0000000000000..f760879291a06
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
-+         "&yep",
 +         "&ecosia",
++         "&yep",
 +@@ -445,10 +447,10 @@
 +     "HU": {
 +       // Hungary
@@ -726,7 +725,7 @@ index 0000000000000..f760879291a06
 +-        "&duckduckgo",
 +         "&ecosia",
 +         "&yep",
-+         "&yahoo_emea",
++         "&qwant",
 +@@ -458,18 +460,18 @@
 +     "ID": {
 +       // Indonesia
@@ -921,7 +920,7 @@ index 0000000000000..f760879291a06
 +-        "&duckduckgo",
 +         "&bing",
 +         "&ecosia",
-+         "&yahoo_emea",
++         "&qwant",
 +@@ -653,9 +657,9 @@
 +     "LU": {
 +       // Luxembourg
@@ -1024,8 +1023,8 @@ index 0000000000000..f760879291a06
 +         "&bing",
 +-        "&duckduckgo",
 +         "&ecosia",
-+         "&yahoo_emea",
 +         "&privacywall",
++         "&yahoo_emea",
 +@@ -752,38 +756,38 @@
 +     "MX": {
 +       // Mexico
@@ -1157,8 +1156,8 @@ index 0000000000000..f760879291a06
 +         "&brave",
 +-        "&duckduckgo",
 +         "&bing",
-+         "&yahoo_emea",
 +         "&ecosia",
++         "&yahoo_emea",
 +@@ -881,20 +885,20 @@
 +     "PR": {
 +       // Puerto Rico
@@ -1212,9 +1211,9 @@ index 0000000000000..f760879291a06
 +         "&google",
 +         "&brave",
 +-        "&duckduckgo",
-+         "&yahoo_emea",
 +         "&bing",
-+         "&yep",
++         "&yahoo_emea",
++         "&ecosia",
 +@@ -937,48 +941,48 @@
 +     "RS": {
 +       // Serbia
