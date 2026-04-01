@@ -4,19 +4,54 @@ Date: Fri, 7 Nov 2025 06:29:43 +0000
 Subject: [PATCH] disable misleading new tab cards by default
 
 ---
- chrome/browser/flags/android/chrome_feature_list.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../magic_stack/HomeModulesConfigManager.java | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index f1686bdfea86f..31150a7236ca0 100644
---- a/chrome/browser/flags/android/chrome_feature_list.cc
-+++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -709,7 +709,7 @@ BASE_FEATURE(kLoadNativeEarly, base::FEATURE_DISABLED_BY_DEFAULT);
- BASE_FEATURE(kLockBackPressHandlerAtStart, base::FEATURE_ENABLED_BY_DEFAULT);
- BASE_FEATURE(kLockTopControlsOnLargeTablets, base::FEATURE_DISABLED_BY_DEFAULT);
- BASE_FEATURE(kLockTopControlsOnLargeTabletsV2, base::FEATURE_DISABLED_BY_DEFAULT);
--BASE_FEATURE(kMagicStackAndroid, base::FEATURE_ENABLED_BY_DEFAULT);
-+BASE_FEATURE(kMagicStackAndroid, base::FEATURE_DISABLED_BY_DEFAULT);
- // Enables an experimental feature which forces mayLaunchUrl to use a different
- // storage partition. This may reduce performance. This should not be enabled by
- // default.
+diff --git a/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java b/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
+index 6ccce2f65e756..a03b43641404b 100644
+--- a/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
++++ b/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
+@@ -88,10 +88,8 @@ public class HomeModulesConfigManager {
+      * @param moduleType {@link ModuleType} needed to be notified to the listeners.
+      */
+     public boolean getPrefModuleTypeEnabled(@ModuleType int moduleType) {
+-        boolean defaultEnabled =
+-                !ChromeFeatureList.sNtpSimplification.isEnabled() || !DeviceInfo.isDesktop();
+-        return mSharedPreferencesManager.readBoolean(
+-                getSettingsPreferenceKey(moduleType), defaultEnabled);
++        // On Android, the magic stack is disabled by default,
++        return false;
+     }
+ 
+     /**
+@@ -101,14 +99,13 @@ public class HomeModulesConfigManager {
+      * @param enabled True is the module type is enabled.
+      */
+     public void setPrefModuleTypeEnabled(@ModuleType int moduleType, boolean enabled) {
+-        mSharedPreferencesManager.writeBoolean(getSettingsPreferenceKey(moduleType), enabled);
+-        notifyModuleTypeUpdated(moduleType, enabled);
++        // On Android, the magic stack is disabled by default,
+     }
+ 
+     /** Returns the user preference for whether all cards in the magic stack are enabled. */
+     public boolean getPrefAllCardsEnabled() {
+-        return mSharedPreferencesManager.readBoolean(
+-                ChromePreferenceKeys.HOME_MODULE_CARDS_ENABLED, true);
++        // On Android, the magic stack is disabled by default,
++        return false;
+     }
+ 
+     /**
+@@ -117,11 +114,7 @@ public class HomeModulesConfigManager {
+      * @param enabled True is all cards are enabled.
+      */
+     public void setPrefAllCardsEnabled(boolean enabled) {
+-        mSharedPreferencesManager.writeBoolean(
+-                ChromePreferenceKeys.HOME_MODULE_CARDS_ENABLED, enabled);
+-        for (HomeModulesStateListener listener : mHomepageStateListeners) {
+-            listener.allCardsConfigChanged(enabled);
+-        }
++        // On Android, the magic stack is disabled by default,
+     }
+ 
+     /** Sets a mocked instance for testing. */

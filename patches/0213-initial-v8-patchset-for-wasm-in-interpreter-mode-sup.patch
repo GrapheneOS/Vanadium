@@ -14,7 +14,7 @@ Microsoft Edge DrumBrake WebAssembly developer team.
 
 diff --git a/vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch b/vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch
 new file mode 100644
-index 0000000000000..6e297b9a0f214
+index 0000000000000..15474f601dcc8
 --- /dev/null
 +++ b/vanadium/subprojects_patches/v8/0001-drumbrake-Include-Android-in-supported-platform-for-.patch
 @@ -0,0 +1,22 @@
@@ -29,10 +29,10 @@ index 0000000000000..6e297b9a0f214
 + 1 file changed, 1 insertion(+)
 +
 +diff --git a/gni/v8.gni b/gni/v8.gni
-+index e29a7c5de3c..1105cc2c16f 100644
++index b616a1f0abc..c79831e7571 100644
 +--- a/gni/v8.gni
 ++++ b/gni/v8.gni
-+@@ -326,6 +326,7 @@ is_drumbrake_supported =
++@@ -350,6 +350,7 @@ is_drumbrake_supported =
 +     (v8_current_cpu == "x64" || v8_current_cpu == "arm64" ||
 +      v8_current_cpu == "riscv64") &&
 +     (target_os == "win" || target_os == "linux" || target_os == "mac" ||
@@ -42,7 +42,7 @@ index 0000000000000..6e297b9a0f214
 + # Turbofan is enabled by default, except in lite mode.
 diff --git a/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch b/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
 new file mode 100644
-index 0000000000000..ca9ab5d1fa319
+index 0000000000000..0a3a7c151956e
 --- /dev/null
 +++ b/vanadium/subprojects_patches/v8/0002-drumbrake-disable-support-for-32-bit-binary-compilat.patch
 @@ -0,0 +1,28 @@
@@ -56,10 +56,10 @@ index 0000000000000..ca9ab5d1fa319
 + 1 file changed, 8 insertions(+)
 +
 +diff --git a/BUILD.gn b/BUILD.gn
-+index 55bacfd1fc7..3a40f81b7cb 100644
++index a5c7d847781..0ff1d44eafd 100644
 +--- a/BUILD.gn
 ++++ b/BUILD.gn
-+@@ -563,6 +563,14 @@ if (v8_enable_snapshot_native_code_counters == "") {
++@@ -565,6 +565,14 @@ if (v8_enable_snapshot_native_code_counters == "") {
 +   v8_enable_snapshot_native_code_counters = v8_enable_debugging_features
 + }
 + 
