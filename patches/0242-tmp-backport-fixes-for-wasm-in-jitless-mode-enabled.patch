@@ -1,0 +1,256 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 2 Apr 2026 17:00:08 +0000
+Subject: [PATCH] [tmp] backport fixes for wasm in jitless mode enabled
+
+---
+ ...eter-Fix-handling-of-globals-storage.patch | 240 ++++++++++++++++++
+ 1 file changed, 240 insertions(+)
+ create mode 100644 vanadium/subprojects_patches/v8/0003-Wasm-interpreter-Fix-handling-of-globals-storage.patch
+
+diff --git a/vanadium/subprojects_patches/v8/0003-Wasm-interpreter-Fix-handling-of-globals-storage.patch b/vanadium/subprojects_patches/v8/0003-Wasm-interpreter-Fix-handling-of-globals-storage.patch
+new file mode 100644
+index 0000000000000..4903215597a1a
+--- /dev/null
++++ b/vanadium/subprojects_patches/v8/0003-Wasm-interpreter-Fix-handling-of-globals-storage.patch
+@@ -0,0 +1,240 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Paolo Severini <paolosev@microsoft.com>
++Date: Wed, 11 Mar 2026 19:32:50 +0100
++Subject: [PATCH] [Wasm interpreter] Fix handling of globals storage
++
++This fixes the Wasm interpreter build and all the tests after a
++recent change to the handling of globals' storage.
++The fix avoids caching the location of the globals because they can
++be moved by the GC. Instead, the location is looked up on demand
++when needed.
++
++Also fixes an unrelated issue after a recent change to SafepointEntry.
++
++Also fixes the build after a revert made to Managed<T>::raw(), which
++does not return a std::shared_ptr<T> anymore.
++
++Bug: 491318550
++
++Change-Id: Ib87912d83f3a1af45bc713a3ef51fda56a173224
++Reviewed-on: https://chromium-review.googlesource.com/c/v8/v8/+/7653296
++Reviewed-by: Jakob Kummerow <jkummerow@chromium.org>
++Commit-Queue: Paolo Severini <paolosev@microsoft.com>
++Cr-Commit-Position: refs/heads/main@{#105772}
++---
++ src/execution/frames.cc                       |  4 ++-
++ .../wasm-interpreter-runtime-inl.h            |  4 ++-
++ .../interpreter/wasm-interpreter-runtime.cc   | 13 ----------
++ .../interpreter/wasm-interpreter-runtime.h    |  3 ---
++ test/filecheck/filecheck.status               |  8 ++++++
++ test/message/message.status                   |  4 +++
++ test/mjsunit/mjsunit.status                   | 25 +++++++++++++++++++
++ test/wasm-spec-tests/wasm-spec-tests.status   |  1 +
++ 8 files changed, 44 insertions(+), 18 deletions(-)
++
++diff --git a/src/execution/frames.cc b/src/execution/frames.cc
++index d5c7b45fb66..13ef6780688 100644
++--- a/src/execution/frames.cc
+++++ b/src/execution/frames.cc
++@@ -1788,7 +1788,9 @@ void WasmFrame::Iterate(RootVisitor* v) const {
++     auto pair =
++         wasm::GetWasmCodeManager()->LookupCodeAndSafepoint(isolate(), pc());
++     wasm::WasmCode* wasm_code = pair.first;
++-    safepoint_entry.CopyFrom(pair.second);
+++    if (pair.second.is_initialized()) {
+++      safepoint_entry.CopyFrom(pair.second);
+++    }
++     DCHECK(wasm_code);
++     interpreter_wasm_code = DrumBrakeWasmCode::Compiled(wasm_code);
++   }
++diff --git a/src/wasm/interpreter/wasm-interpreter-runtime-inl.h b/src/wasm/interpreter/wasm-interpreter-runtime-inl.h
++index 4f43785e4d3..1684801fcbf 100644
++--- a/src/wasm/interpreter/wasm-interpreter-runtime-inl.h
+++++ b/src/wasm/interpreter/wasm-interpreter-runtime-inl.h
++@@ -51,7 +51,9 @@ inline bool WasmInterpreterRuntime::BoundsCheckMemRange(
++ 
++ inline Address WasmInterpreterRuntime::GetGlobalAddress(uint32_t index) {
++   DCHECK_LT(index, module_->globals.size());
++-  return global_addresses_[index];
+++  DisallowGarbageCollection no_gc;
+++  const WasmGlobal& global = module_->globals[index];
+++  return wasm_trusted_instance_data()->GetGlobalStorage(global, no_gc);
++ }
++ 
++ inline DirectHandle<Object> WasmInterpreterRuntime::GetGlobalRef(
++diff --git a/src/wasm/interpreter/wasm-interpreter-runtime.cc b/src/wasm/interpreter/wasm-interpreter-runtime.cc
++index 7deb884566c..9293e57afeb 100644
++--- a/src/wasm/interpreter/wasm-interpreter-runtime.cc
+++++ b/src/wasm/interpreter/wasm-interpreter-runtime.cc
++@@ -335,7 +335,6 @@ WasmInterpreterRuntime::WasmInterpreterRuntime(
++ {
++   DCHECK(v8_flags.wasm_jitless);
++ 
++-  InitGlobalAddressCache();
++   InitMemoryAddresses();
++   InitIndirectFunctionTables();
++ 
++@@ -350,18 +349,6 @@ WasmInterpreterRuntime::WasmInterpreterRuntime(
++                                                   wasm_to_js_code_addr);
++ }
++ 
++-void WasmInterpreterRuntime::InitGlobalAddressCache() {
++-  DisallowGarbageCollection no_gc;
++-  global_addresses_.resize(module_->globals.size());
++-  for (size_t index = 0; index < module_->globals.size(); index++) {
++-    const WasmGlobal& global = module_->globals[index];
++-    if (!global.type.is_ref()) {
++-      global_addresses_[index] =
++-          wasm_trusted_instance_data()->GetGlobalStorage(global, no_gc);
++-    }
++-  }
++-}
++-
++ // static
++ void WasmInterpreterRuntime::UpdateMemoryAddress(
++     DirectHandle<WasmInstanceObject> instance, uint32_t memory_index) {
++diff --git a/src/wasm/interpreter/wasm-interpreter-runtime.h b/src/wasm/interpreter/wasm-interpreter-runtime.h
++index 9131ea10e7b..7f419da2054 100644
++--- a/src/wasm/interpreter/wasm-interpreter-runtime.h
+++++ b/src/wasm/interpreter/wasm-interpreter-runtime.h
++@@ -280,7 +280,6 @@ class WasmInterpreterRuntime {
++   inline bool BoundsCheckMemRange(uint32_t memory_index, uint64_t index,
++                                   uint64_t* size, Address* out_address) const;
++ 
++-  void InitGlobalAddressCache();
++   inline void InitMemoryAddresses();
++   void InitIndirectFunctionTables();
++ 
++@@ -349,8 +348,6 @@ class WasmInterpreterRuntime {
++ #pragma clang diagnostic pop
++ #endif  // __clang__
++ 
++-  std::vector<Address> global_addresses_;
++-
++   struct IndirectCallValue {
++     enum class Mode { kInvalid, kInternalCall, kExternalCall };
++ 
++diff --git a/test/filecheck/filecheck.status b/test/filecheck/filecheck.status
++index c5bf403a04c..0d21742f303 100644
++--- a/test/filecheck/filecheck.status
+++++ b/test/filecheck/filecheck.status
++@@ -23,6 +23,14 @@
++   'js-wasm-wrapper-inlining-lazy-deopt': [SKIP],
++ }],  # variant in (jitless, nooptimization)
++ 
+++['variant == jitless', {
+++  # Deopt tests are not supported in jitless mode.
+++  'wasm-deopt-multi-instance': [SKIP],
+++  'deopt-too-much-feedback': [SKIP],
+++  'wasm-deopt-max-limit': [SKIP],
+++  'wasm-deopt-max-input-count': [SKIP],
+++}], # variant == jitless
+++
++ ['single_generation', {
++   # TODO(42204563): These tests rely on the shared heap which is incompatible
++   # with single generation.
++diff --git a/test/message/message.status b/test/message/message.status
++index cb0bd71c983..72af4c78c06 100644
++--- a/test/message/message.status
+++++ b/test/message/message.status
++@@ -84,6 +84,8 @@
++   # Skip tests that require Wasm experimental features not supported by the
++   # Wasm interpreter, or that explicitly require compilation.
++ 
+++  'wasm-debug-trace-minimal': [SKIP],
+++
++   # Tests that require compilation
++   'fail/wasm-async-compile-fail': [SKIP],
++   'js-wasm-wrapper-inlining-turbolev*': [SKIP],
++@@ -99,6 +101,8 @@
++   # Different error message
++   'fail/wasm-async-instantiate-fail': [SKIP],
++ 
+++  # Tests using %WasmTierUpFunction()
+++  'wasm-trace-deopt-64': [SKIP],
++ }],  # has_webassembly and variant == jitless
++ 
++ ################################################################################
++diff --git a/test/mjsunit/mjsunit.status b/test/mjsunit/mjsunit.status
++index 1c4d4411c57..e1cdee18500 100644
++--- a/test/mjsunit/mjsunit.status
+++++ b/test/mjsunit/mjsunit.status
++@@ -660,12 +660,16 @@
++   'wasm/extended-constants': [SKIP],
++ 
++   # --experimental-wasm-stack-switching
+++  'regress/wasm/regress-483269968': [SKIP],
++   'regress/wasm/regress-v8-14471': [SKIP],
++   'wasm/jspi*': [SKIP],
++   'wasm/growable-stacks': [SKIP],
++ 
++   # --experimental-wasm-wasmfx
++   'regress/wasm/regress-455832038': [SKIP],
+++  'regress/wasm/regress-473272199': [SKIP],
+++  'regress/wasm/regress-488089242': [SKIP],
+++  'regress/wasm/regress-489349562': [SKIP],
++   'wasm/cont-bind': [SKIP],
++   'wasm/resume-throw': [SKIP],
++   'wasm/stack-switching*': [SKIP],
++@@ -782,6 +786,11 @@
++ 
++   # --experimental-wasm-rab-integration
++   'regress/wasm/regress-451144692': [SKIP],
+++  'regress/wasm/regress-476461881': [SKIP],
+++  'regress/wasm/regress-482759504': [SKIP],
+++  'regress/wasm/regress-483643012': [SKIP],
+++  'regress/wasm/regress-487444465': [SKIP],
+++  'regress/wasm/regress-489029655': [SKIP],
++   'wasm/grow-huge-memory-resizable-buffer*': [SKIP],
++   'wasm/grow-memory-detaching-resizable-buffer': [SKIP],
++   'wasm/grow-memory-in-branch-resizable-buffer': [SKIP],
++@@ -802,6 +811,8 @@
++   'regress/wasm/regress-436362279': [SKIP],
++   'regress/wasm/regress-436937141': [SKIP],
++   'regress/wasm/regress-443377612': [SKIP],
+++  'regress/wasm/regress-446122633': [SKIP],
+++  'regress/wasm/regress-446124893': [SKIP],
++   'regress/wasm/regress-447613211': [SKIP],
++   'regress/wasm/regress-448404198': [SKIP],
++   'regress/wasm/regress-452541294': [SKIP],
++@@ -870,6 +881,7 @@
++   'regress/wasm/regress-373702823': [SKIP],
++   'regress/wasm/regress-383356864': [SKIP],
++   'regress/wasm/regress-456319253': [SKIP],
+++  'regress/wasm/regress-484405356': [SKIP],
++   'regress/wasm/regress-crbug-1507751': [SKIP],
++   'wasm/bit-shift-right': [SKIP],
++   'wasm/bounds-check-turbofan': [SKIP],
++@@ -893,7 +905,20 @@
++   'wasm/graceful_shutdown_during_tierup': [SKIP],
++ 
++   # --turboshaft-wasm-in-js-inlining
+++  'regress/wasm/regress-382564224': [SKIP],
++   'regress/wasm/regress-422639603': [SKIP],
+++  'regress/wasm/regress-449028728': [SKIP],
+++  'regress/wasm/regress-451240002': [SKIP],
+++  'regress/wasm/regress-462045796': [SKIP],
+++
+++  # Turbolev
+++  'turbolev/regress-475583927': [SKIP],
+++  'turbolev/regress-477658238': [SKIP],
+++
+++  # --experimental-wasm-js-interop
+++  'regress/wasm/regress-470127856': [SKIP],
+++  'regress/wasm/regress-471380636': [SKIP],
+++  'regress/wasm/regress-474491347': [SKIP],
++ 
++   # The interpreter call stack contains an additional top frame if we throw a
++   # type-mismatch exception before executing the Wasm function.
++diff --git a/test/wasm-spec-tests/wasm-spec-tests.status b/test/wasm-spec-tests/wasm-spec-tests.status
++index 7a928285d38..95e070a16af 100644
++--- a/test/wasm-spec-tests/wasm-spec-tests.status
+++++ b/test/wasm-spec-tests/wasm-spec-tests.status
++@@ -92,6 +92,7 @@
++ 
++ ##############################################################################
++ ['has_wasm_interpreter and variant == jitless', {
+++  'float_exprs': [SKIP],
++   'memory64/*': [SKIP],
++   'multi-memory/*': [SKIP],
++   'instance': [SKIP],
