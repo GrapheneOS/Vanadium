@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 29 Dec 2023 08:11:10 +0000
+Subject: [PATCH] config: Build target for android assets for config file
+ protobuf
+
+---
+ vanadium/android_config/proto/BUILD.gn | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
+index c50128b1f40e8..5f04b2dca6267 100644
+--- a/vanadium/android_config/proto/BUILD.gn
++++ b/vanadium/android_config/proto/BUILD.gn
+@@ -62,3 +62,16 @@ android_library("browser_config_parser_java") {
+     "//vanadium/android_config:configinfo_java",
+   ]
+ }
++
++android_assets("config_assets") {
++  disable_compression = true
++  renaming_sources = [
++    "$root_out_dir/proto_config.pb2",
++  ]
++  renaming_destinations = [
++    "../proto_config.pb2"
++  ]
++  deps = [
++    ":config_generation"
++  ]
++}

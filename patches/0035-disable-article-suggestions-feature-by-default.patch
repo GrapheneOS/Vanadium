@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 8 Mar 2018 22:43:12 -0500
+Subject: [PATCH] disable article suggestions feature by default
+
+---
+ components/feed/core/shared_prefs/pref_names.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/components/feed/core/shared_prefs/pref_names.cc b/components/feed/core/shared_prefs/pref_names.cc
+index 50f880e715489..c80632a001c40 100644
+--- a/components/feed/core/shared_prefs/pref_names.cc
++++ b/components/feed/core/shared_prefs/pref_names.cc
+@@ -24,9 +24,9 @@ const char kArticlesListVisible[] = "ntp_snippets.list_visible";
+ const char kEnableSnippetsByDse[] = "ntp_snippets_by_dse.enable";
+ 
+ void RegisterFeedSharedProfilePrefs(PrefRegistrySimple* registry) {
+-  registry->RegisterBooleanPref(kEnableSnippets, true);
+-  registry->RegisterBooleanPref(kArticlesListVisible, true);
+-  registry->RegisterBooleanPref(kEnableSnippetsByDse, true);
++  registry->RegisterBooleanPref(kEnableSnippets, false);
++  registry->RegisterBooleanPref(kArticlesListVisible, false);
++  registry->RegisterBooleanPref(kEnableSnippetsByDse, false);
+ }
+ 
+ }  // namespace prefs

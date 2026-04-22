@@ -1,0 +1,245 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 22 Dec 2023 07:19:23 +0000
+Subject: [PATCH] config: Add protobuf generator, parser for config apk
+ contents
+
+---
+ vanadium/android_config/proto/BUILD.gn        |  41 +++++
+ .../vanadium/config/host/ConfigGenerator.java | 140 ++++++++++++++++++
+ .../vanadium/config/host/ConfigParser.java    |  30 ++++
+ 3 files changed, 211 insertions(+)
+ create mode 100644 vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+ create mode 100644 vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigParser.java
+
+diff --git a/vanadium/android_config/proto/BUILD.gn b/vanadium/android_config/proto/BUILD.gn
+index 7ccfd430aa163..e3cf1229f8920 100644
+--- a/vanadium/android_config/proto/BUILD.gn
++++ b/vanadium/android_config/proto/BUILD.gn
+@@ -10,3 +10,44 @@ proto_java_library("config_proto_java") {
+     "$proto_path/config.proto",
+   ]
+ }
++
++java_binary("config_generator_java") {
++  sources = [
++    "java/src_host/app/vanadium/config/host/ConfigGenerator.java",
++  ]
++  deps = [
++    ":config_proto_java",
++    "//third_party/android_deps:com_google_protobuf_protobuf_javalite_java",
++  ]
++  # Needed to be able to compile this as a java binary with python script wrapper, for pb2 generation
++  bypass_platform_checks = true
++  main_class = "app.vanadium.config.host.ConfigGenerator"
++  wrapper_script_name = "android_config_apk/config_apk_generator.py"
++}
++
++java_binary("config_parser_java") {
++  sources = [
++    "java/src_host/app/vanadium/config/host/ConfigParser.java",
++  ]
++  deps = [
++    ":config_proto_java",
++    "//third_party/android_deps:com_google_protobuf_protobuf_javalite_java",
++  ]
++  # Needed to be able to compile this as a java binary with python script wrapper, for pb2 generation
++  bypass_platform_checks = true
++  main_class = "app.vanadium.config.host.ConfigParser"
++  wrapper_script_name = "android_config_apk/config_apk_parser.py"
++}
++
++action("config_generation") {
++  script = "$root_out_dir/bin/android_config_apk/config_apk_generator.py"
++  args = [
++    "--out_file=" + rebase_path("$root_out_dir/proto_config.pb2", root_build_dir)
++  ]
++  outputs = [
++    "$root_out_dir/proto_config.pb2",
++  ]
++  deps = [
++    ":config_generator_java",
++  ]
++}
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+new file mode 100644
+index 0000000000000..0be4d68b43001
+--- /dev/null
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -0,0 +1,140 @@
++package app.vanadium.config.host;
++
++import com.google.protobuf.ByteString;
++import com.google.protobuf.Internal.EnumLite;
++
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.List;
++import java.util.function.UnaryOperator;
++import java.util.stream.Collectors;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Component;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType;
++import app.vanadium.config.proto.VanadiumConfigProto.Config;
++import app.vanadium.config.proto.VanadiumConfigProto.Configs;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType;
++
++public class ConfigGenerator {
++
++    private static final Configs getConfigs() {
++        List<Config> configList = new ArrayList<>();
++        return sortConfigs(configList);
++    }
++
++    public static void main(String[] args) throws IOException {
++        String outFile = null;
++        for (int i = 0; i < args.length; i++) {
++            String arg = args[i];
++            if ("-o".equals(arg) || "--out_file".equals(arg)) {
++                if (outFile != null) {
++                    throw new IllegalArgumentException("Output file arguments can only be declared once");
++                }
++                outFile = args[i + 1];
++                i++;
++                continue;
++            } else if (arg.startsWith("--out_file=")) {
++                if (outFile != null) {
++                    throw new IllegalArgumentException("Output file arguments can only be declared once");
++                }
++                outFile = arg.split("=")[1];
++                i++;
++                continue;
++            }
++
++            throw new IllegalArgumentException("Only arguments accepted are -o, --out_file");
++        }
++
++        if (outFile == null || outFile.isBlank() || outFile.isEmpty()) {
++            throw new IllegalArgumentException("No output file supplied");
++        }
++        try (var outputStream = new FileOutputStream(outFile)) {
++            getConfigs().writeTo(outputStream);
++        }
++    }
++
++    private static Configs sortConfigs(List<Config> configList) {
++        configList.sort((config, otherConfig) -> {
++            Spec spec = config.getSpec();
++            Spec otherSpec = otherConfig.getSpec();
++            int specTypeCmp = Long.compare(spec.getSpecTypes(), otherSpec.getSpecTypes());
++            if (specTypeCmp != 0) {
++                return specTypeCmp;
++            }
++
++            int minVerCmp = Long.compare(spec.getMinVersion(), otherSpec.getMinVersion());
++            if (minVerCmp != 0) {
++                return minVerCmp;
++            }
++
++            int maxVerCmp = Long.compare(spec.getMaxVersion(), otherSpec.getMaxVersion());
++            if (maxVerCmp != 0) {
++                return maxVerCmp;
++            }
++
++            return 0;
++        });
++        return Configs.newBuilder().addAllConfigs(configList).build();
++    }
++
++    private static Config config(UnaryOperator<Config.Builder> configParams) {
++        return configParams.apply(Config.newBuilder()).build();
++    }
++
++    private static Spec spec(UnaryOperator<Spec.Builder> specParams) {
++        return specParams.apply(Spec.newBuilder()).build();
++    }
++
++    private static List<Flag> flags(Flag... flags) {
++        return Arrays.asList(flags);
++    }
++
++    private static Flag flag(UnaryOperator<Flag.Builder> flagParams) {
++        return flagParams.apply(Flag.newBuilder()).build();
++    }
++
++    private static List<Component> components(Component... components) {
++        return Arrays.asList(components);
++    }
++
++    private static Component component(UnaryOperator<Component.Builder> componentParams) {
++        return componentParams.apply(Component.newBuilder()).build();
++    }
++
++    private static List<AdditionalComponent> additionalComponents(AdditionalComponent... additionalComponents) {
++        return Arrays.asList(additionalComponents);
++    }
++
++    private static AdditionalComponent additionalComponent(
++            UnaryOperator<AdditionalComponent.Builder> additionalComponentParams) {
++        return additionalComponentParams.apply(AdditionalComponent.newBuilder()).build();
++    }
++
++    private static ComponentCondition componentCondition(
++            UnaryOperator<ComponentCondition.Builder> componentConditionParams) {
++        return componentConditionParams.apply(ComponentCondition.newBuilder()).build();
++    }
++
++    private static List<ComponentCondition> componentConditions(ComponentCondition... componentConditions) {
++        return Arrays.asList(componentConditions);
++    }
++
++    private static long getSpecTypes(SpecType... specTypes) {
++        return enumBitsLong(specTypes);
++    }
++
++    private static long enumBitsLong(EnumLite... enumBits) {
++        long bits = 0L;
++        for (var enumBit : enumBits) {
++            bits |= 1L << enumBit.getNumber();
++        }
++        return bits;
++    }
++}
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigParser.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigParser.java
+new file mode 100644
+index 0000000000000..17412b05215b9
+--- /dev/null
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigParser.java
+@@ -0,0 +1,30 @@
++package app.vanadium.config.host;
++
++import java.io.ByteArrayOutputStream;
++import java.io.FileInputStream;
++import java.io.IOException;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Configs;
++
++public class ConfigParser {
++    public static void main(String[] args) throws IOException {
++        String inFile = null;
++        for (int i = 0; i < args.length; i++) {
++            String arg = args[i];
++            if ("-i".equals(arg) || "--in_file".equals(arg)) {
++                inFile = args[i + 1];
++                break;
++            } else if (arg.startsWith("--in_file=")) {
++                inFile = arg.split("=")[1];
++                break;
++            }
++        }
++        if (inFile == null || inFile.isBlank() || inFile.isEmpty()) {
++            throw new IllegalArgumentException("No input file supplied, exiting");
++        }
++        try (var inputStream = new FileInputStream(inFile)) {
++            var configs = Configs.parseFrom(inputStream);
++            System.out.println(configs.toString());
++        }
++    }
++}

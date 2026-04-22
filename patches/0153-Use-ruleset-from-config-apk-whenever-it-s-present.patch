@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 7 Dec 2023 08:29:57 +0000
+Subject: [PATCH] Use ruleset from config apk whenever it's present
+
+---
+ .../android/subresource_filter_android.gni            |  3 +++
+ .../content/browser/ruleset_service.cc                | 11 +++++++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/components/subresource_filter/android/subresource_filter_android.gni b/components/subresource_filter/android/subresource_filter_android.gni
+index b0e9583bf84af..b3a33697d2a89 100644
+--- a/components/subresource_filter/android/subresource_filter_android.gni
++++ b/components/subresource_filter/android/subresource_filter_android.gni
+@@ -6,12 +6,15 @@ subresource_filter_android_cc_sources = [
+ ]
+ 
+ subresource_filter_android_cc_deps = [
++  "//components/subresource_filter/android_config:android",
++  "//components/subresource_filter/android_config:subresource_filter_fetching_jni_headers",
+ ]
+ 
+ subresource_filter_android_java_sources = [
+ ]
+ 
+ subresource_filter_android_java_deps = [
++  "//components/subresource_filter/android_config:java",
+ ]
+ 
+ subresource_filter_android_java_srcjar_deps = [
+diff --git a/components/subresource_filter/content/browser/ruleset_service.cc b/components/subresource_filter/content/browser/ruleset_service.cc
+index 2a0b24cf57cd8..b504b6f87e7b3 100644
+--- a/components/subresource_filter/content/browser/ruleset_service.cc
++++ b/components/subresource_filter/content/browser/ruleset_service.cc
+@@ -27,6 +27,9 @@
+ #include "base/trace_event/traced_value.h"
+ #include "components/prefs/pref_registry_simple.h"
+ #include "components/prefs/pref_service.h"
++#if BUILDFLAG(IS_ANDROID)
++#include "components/subresource_filter/android_config/subresource_filter_fetching.h"
++#endif // BUILDFLAG(IS_ANDROID)
+ #include "components/subresource_filter/content/browser/ruleset_publisher.h"
+ #include "components/subresource_filter/content/browser/unindexed_ruleset_stream_generator.h"
+ #include "components/subresource_filter/core/browser/subresource_filter_constants.h"
+@@ -251,7 +254,12 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
+   if (most_recently_indexed_version.IsCurrentFormatVersion() &&
+       most_recently_indexed_version.content_version ==
+           unindexed_ruleset_info.content_version) {
++#if BUILDFLAG(IS_ANDROID)
++    if (!subresource_filter::IsInitializedFromConfig())
++      return;
++#else
+     return;
++#endif // BUILDFLAG(IS_ANDROID)
+   }
+ 
+   // Before initialization, retain information about the most recently supplied
+@@ -477,6 +485,9 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
+   }
+   version.SaveToPrefs(local_state_);
+   std::move(result_callback).Run(version);
++#if BUILDFLAG(IS_ANDROID)
++  subresource_filter::DeleteUnindexedFile();
++#endif // BUILDFLAG(IS_ANDROID)
+ }
+ 
+ void RulesetService::OpenAndPublishRuleset(
