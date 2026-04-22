@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 22 Mar 2026 13:17:52 +0000
+Subject: [PATCH] add files for including java sources and dependencies in site
+ settings UI
+
+---
+ components/browser_ui/site_settings/android/BUILD.gn       | 7 +++++++
+ .../android/site_settings_android_java_ext_deps.gni        | 6 ++++++
+ .../android/site_settings_android_java_ext_sources.gni     | 6 ++++++
+ .../android/site_settings_android_java_ext_srcjar_deps.gni | 6 ++++++
+ 4 files changed, 25 insertions(+)
+ create mode 100644 components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+ create mode 100644 components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+ create mode 100644 components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni
+
+diff --git a/components/browser_ui/site_settings/android/BUILD.gn b/components/browser_ui/site_settings/android/BUILD.gn
+index 4a51b4fe54da0..513c8a9a7be8e 100644
+--- a/components/browser_ui/site_settings/android/BUILD.gn
++++ b/components/browser_ui/site_settings/android/BUILD.gn
+@@ -157,6 +157,13 @@ android_library("java") {
+     ":site_settings_jni_headers",
+     "//components/content_settings/android:java_pref_names_srcjar",
+   ]
++
++  import("site_settings_android_java_ext_sources.gni")
++  sources += site_settings_android_java_ext_sources
++  import("site_settings_android_java_ext_deps.gni")
++  deps += site_settings_android_java_ext_deps
++  import("site_settings_android_java_ext_srcjar_deps.gni")
++  srcjar_deps += site_settings_android_java_ext_srcjar_deps
+ }
+ 
+ android_library("javatests") {
+diff --git a/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni b/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..826e124b4301f
+--- /dev/null
++++ b/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2020 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++site_settings_android_java_ext_deps = [
++]
+diff --git a/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni b/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..cefd08e1de29c
+--- /dev/null
++++ b/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2020 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++site_settings_android_java_ext_sources = [
++]
+diff --git a/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni b/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..af2f26de202aa
+--- /dev/null
++++ b/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2020 The Chromium Authors
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++site_settings_android_java_ext_srcjar_deps = [
++]

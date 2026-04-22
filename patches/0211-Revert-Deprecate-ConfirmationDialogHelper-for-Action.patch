@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Tue, 20 Jan 2026 05:43:47 +0000
+Subject: [PATCH] Revert "Deprecate ConfirmationDialogHelper for
+ ActionConfirmationDialog"
+
+This reverts commit 6a9954819a35877a43c0eea15d7abfa168debec0.
+---
+ .../ConfirmationDialogHelper.java             | 36 +++++++++++++++----
+ 1 file changed, 30 insertions(+), 6 deletions(-)
+
+diff --git a/chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/ConfirmationDialogHelper.java b/chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/ConfirmationDialogHelper.java
+index 58dbb9fb99fb7..f62b15c4e62aa 100644
+--- a/chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/ConfirmationDialogHelper.java
++++ b/chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/ConfirmationDialogHelper.java
+@@ -7,7 +7,9 @@ package org.chromium.chrome.browser.password_manager;
+ import static org.chromium.build.NullUtil.assumeNonNull;
+ 
+ import android.content.Context;
++import android.content.res.Resources;
+ 
++import org.chromium.base.CallbackUtils;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
+ import org.chromium.components.browser_ui.modaldialog.AppModalPresenter;
+@@ -21,12 +23,7 @@ import org.chromium.ui.modelutil.PropertyModel;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-/**
+- * Helps to show a confirmation.
+- *
+- * @deprecated use {@link ActionConfirmationDialog} instead - see crbug.com/440257087.
+- */
+-@Deprecated
++/** Helps to show a confirmation. */
+ @NullMarked
+ public class ConfirmationDialogHelper {
+     private final Context mContext;
+@@ -49,6 +46,33 @@ public class ConfirmationDialogHelper {
+         mDialogModel = null;
+     }
+ 
++    /** Returns the resources associated with the context used to launch the dialog. */
++    public Resources getResources() {
++        return mContext.getResources();
++    }
++
++    /**
++     * Shows an dialog to confirm the deletion.
++     *
++     * @param title A {@link String} used as title.
++     * @param message A {@link CharSequence} used message body.
++     * @param confirmButtonText A {@link String} for confirmation button label.
++     * @param confirmedCallback A callback to run when the dialog is accepted.
++     * @param declinedCallback A callback to run when the dialog is declined.
++     */
++    public void showConfirmation(
++            String title,
++            CharSequence message,
++            String confirmButtonText,
++            Runnable confirmedCallback) {
++        showConfirmation(
++                title,
++                message,
++                confirmButtonText,
++                confirmedCallback,
++                CallbackUtils.emptyRunnable());
++    }
++
+     /**
+      * Shows an dialog to confirm the deletion.
+      *

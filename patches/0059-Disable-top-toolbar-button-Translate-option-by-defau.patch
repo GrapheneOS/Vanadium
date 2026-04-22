@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 18 Jun 2024 18:50:35 +0000
+Subject: [PATCH] Disable top toolbar button Translate option by default
+
+---
+ .../settings/RadioButtonGroupAdaptiveToolbarPreference.java  | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
+index 811c09f761283..0a430504c78fd 100644
+--- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
++++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/settings/RadioButtonGroupAdaptiveToolbarPreference.java
+@@ -179,9 +179,14 @@ public class RadioButtonGroupAdaptiveToolbarPreference extends ContainedRadioBut
+         updateReadAloudButtonVisibility();
+         updatePageSummaryButtonVisibility();
+ 
++        updateRemoveUnneededButtons();
+         if (mOnComponentUpdated != null) mOnComponentUpdated.run();
+     }
+ 
++    private void updateRemoveUnneededButtons() {
++        updateButtonVisibility(mTranslateButton, false);
++    }
++
+     @Override
+     public void onCheckedChanged(@Nullable RadioGroup group, int checkedId) {
+         if (!isBound()) return;

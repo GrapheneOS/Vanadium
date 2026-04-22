@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 4 Feb 2025 15:12:00 +0000
+Subject: [PATCH] prepare for adding/modifying site settings downstream
+
+---
+ .../core/browser/content_settings_registry.cc            | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
+index 8adb55497b971..22c06c3a0825f 100644
+--- a/components/content_settings/core/browser/content_settings_registry.cc
++++ b/components/content_settings/core/browser/content_settings_registry.cc
+@@ -842,6 +842,15 @@ void ContentSettingsRegistry::Init() {
+            WebsiteSettingsRegistry::PLATFORM_CHROMEOS,
+            ContentSettingsInfo::INHERIT_IN_INCOGNITO,
+            PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
++  // START extension of added content settings initialization
++  // Always copy the three lines comment below when adding changes,
++  // above the actual changes or additions on settings registration.
++  // Three lines of code for minimizing conflicts in rebasing changes
++  // Three lines of code for minimizing conflicts in rebasing changes
++  // Three lines of code for minimizing conflicts in rebasing changes
++  // END extension of added content settings initialization
++  // Always copy the three lines comment above when adding changes,
++  // above the actual changes or additions on settings registration.
+ }
+ 
+ void ContentSettingsRegistry::Register(
