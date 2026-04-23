@@ -11,10 +11,10 @@ to avoid the need to update the histogram map.
  2 files changed, 29 insertions(+), 2 deletions(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_uma_util.cc b/components/content_settings/core/browser/content_settings_uma_util.cc
-index 1bd6673a666ed..85dc6613fb027 100644
+index 0ee32ccebe15e..36e026169ddc6 100644
 --- a/components/content_settings/core/browser/content_settings_uma_util.cc
 +++ b/components/content_settings/core/browser/content_settings_uma_util.cc
-@@ -222,16 +222,26 @@ namespace content_settings_uma_util {
+@@ -224,16 +224,26 @@ namespace content_settings_uma_util {
  
  void RecordContentSettingsHistogram(const std::string& name,
                                      ContentSettingsType content_setting) {
@@ -43,7 +43,7 @@ index 1bd6673a666ed..85dc6613fb027 100644
        "Update content settings histogram lookup");
  
    auto found = kHistogramValue.find(content_setting);
-@@ -245,6 +255,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
+@@ -247,6 +257,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
  
  void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
                               ContentSettingsType content_setting_type) {
@@ -55,7 +55,7 @@ index 1bd6673a666ed..85dc6613fb027 100644
    content_settings_uma_util::RecordContentSettingsHistogram(
        base::StrCat({"ContentSettings.ActiveExpiry.",
                      GetProviderNameForHistograms(provider_type),
-@@ -254,6 +269,11 @@ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
+@@ -256,6 +271,11 @@ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
  
  void RecordContentSettingChange(ContentSetting content_setting_value,
                                  ContentSettingsType content_setting_type) {
@@ -68,7 +68,7 @@ index 1bd6673a666ed..85dc6613fb027 100644
      case CONTENT_SETTING_ALLOW:
        content_settings_uma_util::RecordContentSettingsHistogram(
 diff --git a/components/content_settings/core/common/content_settings_types.mojom b/components/content_settings/core/common/content_settings_types.mojom
-index 830504a4b9bbc..38e53ec022fd1 100644
+index 946fcb04e7bae..2ba33e451143e 100644
 --- a/components/content_settings/core/common/content_settings_types.mojom
 +++ b/components/content_settings/core/common/content_settings_types.mojom
 @@ -487,5 +487,12 @@ enum ContentSettingsType {

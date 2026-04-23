@@ -40,7 +40,7 @@ index 9634fc6f2edc4..d3b10b68a1db8 100644
      map->Add<payments::mojom::PaymentRequest>(
          &ForwardToJavaFrame<payments::mojom::PaymentRequest>);
 diff --git a/android_webview/common/aw_feature_map.cc b/android_webview/common/aw_feature_map.cc
-index 34df9410a6c4a..c95c8875fe103 100644
+index 37d3f33e71c06..cbd3808dd264b 100644
 --- a/android_webview/common/aw_feature_map.cc
 +++ b/android_webview/common/aw_feature_map.cc
 @@ -55,6 +55,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
@@ -52,10 +52,10 @@ index 34df9410a6c4a..c95c8875fe103 100644
      &features::kWebViewMoveWorkToProviderInit,
      &features::kWebViewOptInToGmsBindServiceOptimization,
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index aedd695042f5e..77899adcf1e8a 100644
+index 9d5c4502fb119..63e1b4a5d1ca6 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -54,6 +54,11 @@ BASE_FEATURE(kWebViewIgnoreDuplicateNavs, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -49,6 +49,11 @@ BASE_FEATURE(kWebViewFileSystemAccess, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kWebViewLazyFetchHandWritingIcon,
               base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -68,10 +68,10 @@ index aedd695042f5e..77899adcf1e8a 100644
  // creation time and used throughout its lifetime. This enables shared memory
  // cookie versioning to reduce IPC overhead.
 diff --git a/android_webview/common/aw_features.h b/android_webview/common/aw_features.h
-index 947c9d2aa7a4d..79190f9e8ebc4 100644
+index 01774923a17bc..41a596b9624a2 100644
 --- a/android_webview/common/aw_features.h
 +++ b/android_webview/common/aw_features.h
-@@ -30,6 +30,7 @@ BASE_DECLARE_FEATURE(kWebViewIgnoreDuplicateNavs);
+@@ -29,6 +29,7 @@ BASE_DECLARE_FEATURE(kWebViewFileSystemAccess);
  BASE_DECLARE_FEATURE(kWebViewInvokeZoomPickerOnGSU);
  BASE_DECLARE_FEATURE(kWebViewLazyFetchHandWritingIcon);
  BASE_DECLARE_FEATURE(kWebViewLatchedCookiePolicy);
@@ -80,13 +80,13 @@ index 947c9d2aa7a4d..79190f9e8ebc4 100644
  BASE_DECLARE_FEATURE(kWebViewNonBlockingCookieStoreHandoff);
  BASE_DECLARE_FEATURE(kWebViewRenderDocument);
 diff --git a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-index 9cbf4a91238be..51c7eb4107410 100644
+index 41181055a8dc9..3e7f9e8781720 100644
 --- a/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
 +++ b/android_webview/java/src/org/chromium/android_webview/common/ProductionSupportedFlagList.java
-@@ -699,6 +699,10 @@ public final class ProductionSupportedFlagList {
+@@ -701,6 +701,10 @@ public final class ProductionSupportedFlagList {
+         Flag.baseFeature("V8PreconfigureOldGen"),
          Flag.baseFeature("V8ScavengerHigherCapacity"),
          Flag.baseFeature("V8IncrementalMarkingStartUserVisible"),
-         Flag.baseFeature("V8ExternalMemoryAccountedInGlobalLimit"),
 +        Flag.baseFeature(
 +                AwFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION,
 +                "Enable the WebView Media Integrity API as a Blink extension. Only works if"
@@ -384,10 +384,10 @@ index 492b3c7a409fa..3a7cfab121ebf 100644
          MockTokenProvider mockTokenProvider = new MockTokenProvider();
          mPlatformBridge.addProviderResponse(
 diff --git a/android_webview/renderer/aw_content_renderer_client.cc b/android_webview/renderer/aw_content_renderer_client.cc
-index 0681a1fca1b03..694f323744026 100644
+index 135d1482ea3f4..48615794a4e40 100644
 --- a/android_webview/renderer/aw_content_renderer_client.cc
 +++ b/android_webview/renderer/aw_content_renderer_client.cc
-@@ -232,10 +232,13 @@ void AwContentRendererClient::
+@@ -231,10 +231,13 @@ void AwContentRendererClient::
      blink::WebRuntimeFeatures::EnableManualText(true);
    }
  
