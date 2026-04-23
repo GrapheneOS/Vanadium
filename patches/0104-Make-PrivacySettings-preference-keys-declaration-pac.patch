@@ -15,10 +15,10 @@ sed -ri 's/private static final String PREF_/static final String PREF_/g' $CHROM
  1 file changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 6dcb0bbb2ed30..a2a1acd590c79 100644
+index dddbdfb93f09a..f10b3f4981573 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -88,23 +88,23 @@ import java.util.function.Consumer;
+@@ -90,23 +90,23 @@ import java.util.function.Consumer;
  @NullMarked
  public class PrivacySettings extends ChromeBaseSettingsFragment
          implements Preference.OnPreferenceChangeListener {
@@ -53,6 +53,6 @@ index 6dcb0bbb2ed30..a2a1acd590c79 100644
      @VisibleForTesting static final String PREF_THIRD_PARTY_COOKIES = "third_party_cookies";
 -    private static final String PREF_ADVANCED_PROTECTION_INFO = "advanced_protection_info";
 +    static final String PREF_ADVANCED_PROTECTION_INFO = "advanced_protection_info";
- 
-     private IncognitoLockSettings mIncognitoLockSettings;
-     private final SettableMonotonicObservableSupplier<String> mPageTitle =
+     private static final int SECURE_CONNECTIONS_MESSAGE_ID =
+             R.string.settings_privacy_and_security_advanced_protection_secure_connections_bullet;
+     private static final int JAVASCRIPT_OPTIMIZER_MESSAGE_ID =

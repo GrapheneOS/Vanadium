@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 1 Dec 2025 16:48:41 +0000
+Subject: [PATCH] remove unused separate autofill status
+
+---
+ .../browser/autofill/AutofillClientProviderUtils.java     | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
+index b1fa2855a400f..f67abe2e7c971 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
+@@ -39,8 +39,6 @@ public class AutofillClientProviderUtils {
+             "autofill_options_deep_link_shared_prefs_file";
+     public static final String AUTOFILL_OPTIONS_DEEP_LINK_FEATURE_KEY =
+             "AUTOFILL_OPTIONS_DEEP_LINK_FEATURE_KEY";
+-    private static final String AWG_COMPONENT_NAME =
+-            "com.google.android.gms/com.google.android.gms.autofill.service.AutofillService";
+     private static @Nullable Integer sAndroidAutofillFrameworkAvailabilityForTesting;
+     private static @Nullable String sAndroidAutofillServicePackageNameForTesting;
+ 
+@@ -111,9 +109,6 @@ public class AutofillClientProviderUtils {
+         if (autofillServicePackage == null) {
+             return AndroidAutofillAvailabilityStatus.UNKNOWN_ANDROID_AUTOFILL_SERVICE;
+         }
+-        if (AWG_COMPONENT_NAME.equals(autofillServicePackage)) {
+-            return AndroidAutofillAvailabilityStatus.ANDROID_AUTOFILL_SERVICE_IS_GOOGLE;
+-        }
+         // If the user explicitly chose the current Autofill Service before, use it again. The
+         // browser may default to built-in Autofill while the preferred provider is unavailable.
+         if (autofillServicePackage.equals(
+@@ -176,9 +171,6 @@ public class AutofillClientProviderUtils {
+         if (autofillServicePackage == null) {
+             return; // No update possible.
+         }
+-        if (AWG_COMPONENT_NAME.equals(autofillServicePackage)) {
+-            return; // AWG can never be the preferred Autofill service.
+-        }
+         prefs.setString(
+                 Pref.AUTOFILL_THIRD_PARTY_PACKAGE_USED_FOR_PLATFORM_AUTOFILL,
+                 autofillServicePackage);

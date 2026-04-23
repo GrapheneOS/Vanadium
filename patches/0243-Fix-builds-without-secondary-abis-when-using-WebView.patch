@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 20 Feb 2026 06:45:11 +0000
+Subject: [PATCH] Fix builds without secondary abis when using WebView PGO
+ profiles
+
+---
+ build/timestamp.gni | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/build/timestamp.gni b/build/timestamp.gni
+index 5bb7ccc743e96..247ae6a33d6be 100644
+--- a/build/timestamp.gni
++++ b/build/timestamp.gni
+@@ -12,7 +12,10 @@ if (is_android) {
+   # Ensure the exec_script() runs only once in default debug configs to
+   # minimize "gn gen" overhead.
+   if (!enable_android_secondary_abi) {
++    import("//android_webview/variables.gni")
+     assert(
++        (use_webview_pgo_profile_default_toolchain &&
++        "$current_toolchain" == "${default_toolchain}_webview") ||
+         current_toolchain == default_toolchain,
+         "Trying to run compute_build_timestamp.py in toolchain: $current_toolchain")
+   }

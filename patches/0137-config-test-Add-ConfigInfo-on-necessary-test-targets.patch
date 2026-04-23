@@ -11,10 +11,10 @@ Subject: [PATCH] config: test: Add ConfigInfo on necessary test targets
  4 files changed, 33 insertions(+)
 
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 336d555e97825..40e30ffaf4421 100644
+index d4c61fe4b021d..3e80c9ba0ff70 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -713,5 +713,11 @@ template("chrome_public_test_apk_tmpl") {
+@@ -710,5 +710,11 @@ template("chrome_public_test_apk_tmpl") {
      target_type = "instrumentation_test_apk"
      forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
      forward_variables_from(invoker, "*", TESTONLY_AND_VISIBILITY)
@@ -45,10 +45,10 @@ index bf6235e4beb1d..ed5eab96fe11e 100644
    }
  }
 diff --git a/net/android/BUILD.gn b/net/android/BUILD.gn
-index a6640aa6aaf81..2bc5a180d1b5d 100644
+index a6ab1b81b421a..0f65a437757f3 100644
 --- a/net/android/BUILD.gn
 +++ b/net/android/BUILD.gn
-@@ -194,6 +194,10 @@ android_apk("net_test_support_apk") {
+@@ -195,6 +195,10 @@ android_apk("net_test_support_apk") {
    apk_name = "ChromiumNetTestSupport"
    shared_libraries = [ ":net_java_test_native_support" ]
    srcjar_deps = [ ":net_java_test_native_support__jni_registration" ]

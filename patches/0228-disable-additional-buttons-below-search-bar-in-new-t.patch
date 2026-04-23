@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Sun, 23 Nov 2025 04:08:57 +0000
+Subject: [PATCH] disable additional buttons below search bar in new tabs
+
+---
+ .../chrome/browser/composeplate/ComposeplateUtils.java        | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/chrome/browser/composeplate/android/java/src/org/chromium/chrome/browser/composeplate/ComposeplateUtils.java b/chrome/browser/composeplate/android/java/src/org/chromium/chrome/browser/composeplate/ComposeplateUtils.java
+index 915822ed225a3..f2d23ff0f0633 100644
+--- a/chrome/browser/composeplate/android/java/src/org/chromium/chrome/browser/composeplate/ComposeplateUtils.java
++++ b/chrome/browser/composeplate/android/java/src/org/chromium/chrome/browser/composeplate/ComposeplateUtils.java
+@@ -37,9 +37,7 @@ public class ComposeplateUtils {
+      * @param profile The current profile.
+      */
+     public static boolean isComposeplateEnabled(Profile profile) {
+-        if (sIsEnabledForTesting) return true;
+-
+-        return ComposeplateUtilsJni.get().isAimEntrypointEligible(profile);
++        return false;
+     }
+ 
+     /**

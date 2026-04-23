@@ -14,10 +14,10 @@ settings.
  2 files changed, 12 insertions(+)
 
 diff --git a/components/content_settings/core/browser/content_settings_default_provider.cc b/components/content_settings/core/browser/content_settings_default_provider.cc
-index 8a82bc5d452d9..8ed7502e238a5 100644
+index 06cb7371d3f04..401a32cb248cf 100644
 --- a/components/content_settings/core/browser/content_settings_default_provider.cc
 +++ b/components/content_settings/core/browser/content_settings_default_provider.cc
-@@ -91,8 +91,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialDefaultPref[] =
+@@ -92,8 +92,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialDefaultPref[] =
  // except via enterprise policy, so it is temporarily cleaned up here to revert
  // it to its default value.
  // TODO(https://crbug.com/367181093): clean this up.
@@ -28,7 +28,7 @@ index 8a82bc5d452d9..8ed7502e238a5 100644
  constexpr char kLocalNetworkAccessMigrateDefaultValuePref[] =
      "profile.default_content_setting_values.has_migrated_local_network_access";
  constexpr char kObsoleteTrackingProtectionDefaultPref[] =
-@@ -169,8 +171,10 @@ void DefaultProvider::RegisterProfilePrefs(
+@@ -170,8 +172,10 @@ void DefaultProvider::RegisterProfilePrefs(
    registry->RegisterIntegerPref(kObsoletePrivateNetworkGuardDefaultPref, 0);
  
  #if !BUILDFLAG(IS_IOS)
@@ -39,7 +39,7 @@ index 8a82bc5d452d9..8ed7502e238a5 100644
  #endif  // !BUILDFLAG(IS_IOS)
  }
  
-@@ -429,8 +433,10 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
+@@ -430,8 +434,10 @@ void DefaultProvider::DiscardOrMigrateObsoletePreferences() {
    prefs_->ClearPref(kObsoletePrivateNetworkGuardDefaultPref);
  
  #if !BUILDFLAG(IS_IOS)
@@ -51,7 +51,7 @@ index 8a82bc5d452d9..8ed7502e238a5 100644
  }
  
 diff --git a/components/content_settings/core/browser/content_settings_pref_provider.cc b/components/content_settings/core/browser/content_settings_pref_provider.cc
-index 74500441b3e9b..a3e2310994721 100644
+index 877816633ad12..71e9fa122cb06 100644
 --- a/components/content_settings/core/browser/content_settings_pref_provider.cc
 +++ b/components/content_settings/core/browser/content_settings_pref_provider.cc
 @@ -76,8 +76,10 @@ constexpr char kObsoleteTopLevelTpcdOriginTrialExceptionsPref[] =
@@ -75,7 +75,7 @@ index 74500441b3e9b..a3e2310994721 100644
    registry->RegisterBooleanPref(kLocalNetworkAccessMigrateExceptionsPref,
                                  false);
  #endif  // !BUILDFLAG(IS_IOS)
-@@ -463,7 +467,9 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
+@@ -459,7 +463,9 @@ void PrefProvider::DiscardOrMigrateObsoletePreferences() {
    prefs_->ClearPref(kObsoleteTopLevelTpcdOriginTrialExceptionsPref);
    prefs_->ClearPref(kObsoleteTrackingProtectionExceptionsPref);
    // TODO(https://crbug.com/367181093): clean this up.
