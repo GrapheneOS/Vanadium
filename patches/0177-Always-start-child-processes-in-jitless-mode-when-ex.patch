@@ -10,7 +10,7 @@ Subject: [PATCH] Always start child processes in jitless mode when execmem is
  2 files changed, 32 insertions(+)
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
-index b1a621f62770a..43c4fa9301949 100644
+index b1a621f62770a..03f7281ac6887 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 @@ -2,8 +2,15 @@ package org.chromium.base.library_loader;
@@ -22,7 +22,7 @@ index b1a621f62770a..43c4fa9301949 100644
  import org.chromium.base.config.VanadiumConfigBridge;
  
 +import java.util.ArrayList;
-+import java.util.HashSet;
++import java.util.LinkedHashSet;
 +
 +import app.vanadium.ext.CustomOSApis;
 +
@@ -43,10 +43,10 @@ index b1a621f62770a..43c4fa9301949 100644
 +                if (CommandLine.getInstance() != null) {
 +                    boolean checkForOSConfigForJitless =
 +                            !VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(
-+                                    "disable-features").contains("check-os-config-for-jitless");
++                                    "disabled-features").contains("CheckOsConfigsForIsolatedProcessV1");
 +                    if (checkForOSConfigForJitless && CustomOSApis.isExecmemBlocked()) {
 +                        String jsFlagsName = "js-flags";
-+                        HashSet<String> jsFlags = new HashSet<>(
++                        LinkedHashSet<String> jsFlags = new LinkedHashSet<>(
 +                                VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(jsFlagsName));
 +                        jsFlags.add("--jitless");
 +                        VanadiumCommandLineUtils.setCommaDelimitedSwitchValue(

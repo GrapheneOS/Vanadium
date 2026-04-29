@@ -9,7 +9,7 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index a3cce33221b43..cfb532a13ada9 100644
+index 659379c7d74a1..6dc57b5ebb621 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
 @@ -5379,16 +5379,6 @@ const FeatureEntry kFeatureEntries[] = {
@@ -30,10 +30,10 @@ index a3cce33221b43..cfb532a13ada9 100644
  #if !BUILDFLAG(IS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS)
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 3018e4cb7d74b..5923b276bb15c 100644
+index fe665980e7e2e..8eb94d8494970 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -1450,11 +1450,7 @@ const base::FeatureParam<base::TimeDelta> kSCTLogMaxIngestionRandomDelay{
+@@ -1438,11 +1438,7 @@ const base::FeatureParam<base::TimeDelta> kSCTLogMaxIngestionRandomDelay{
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  BASE_FEATURE(kSitePerProcess,

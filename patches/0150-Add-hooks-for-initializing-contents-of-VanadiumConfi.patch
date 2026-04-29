@@ -13,7 +13,7 @@ Subject: [PATCH] Add hooks for initializing contents of VanadiumConfig app
 
 diff --git a/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
 new file mode 100644
-index 0000000000000..3807e0a138e80
+index 0000000000000..f214548ae9e57
 --- /dev/null
 +++ b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
 @@ -0,0 +1,102 @@
@@ -32,7 +32,7 @@ index 0000000000000..3807e0a138e80
 +import org.chromium.base.library_loader.LibraryProcessType;
 +
 +import java.util.ArrayList;
-+import java.util.HashSet;
++import java.util.LinkedHashSet;
 +import java.util.Map;
 +import java.util.Set;
 +
@@ -67,8 +67,8 @@ index 0000000000000..3807e0a138e80
 +            return;
 +        }
 +
-+        Set<String> enabledFeatures = new HashSet<>(getCommaDelimitedSwitchValue("enable-features"));
-+        Set<String> disabledFeatures = new HashSet<>(getCommaDelimitedSwitchValue("disable-features"));
++        Set<String> enabledFeatures = new LinkedHashSet<>(getCommaDelimitedSwitchValue("enable-features"));
++        Set<String> disabledFeatures = new LinkedHashSet<>(getCommaDelimitedSwitchValue("disable-features"));
 +
 +        for (FlagType flagType : FlagType.values()) {
 +            if (flagType == FlagType.UNRECOGNIZED) {
@@ -95,7 +95,7 @@ index 0000000000000..3807e0a138e80
 +                        if (flagValues.isEmpty()) {
 +                            CommandLine.getInstance().appendSwitch(flagName);
 +                        } else {
-+                            Set<String> switchValue = new HashSet<>(getCommaDelimitedSwitchValue(flagName));
++                            Set<String> switchValue = new LinkedHashSet<>(getCommaDelimitedSwitchValue(flagName));
 +                            switchValue.addAll(flagValues);
 +                            setCommaDelimitedSwitchValue(flagName, new ArrayList<>(switchValue));
 +                        }
@@ -104,7 +104,7 @@ index 0000000000000..3807e0a138e80
 +                        if (flagValues.isEmpty()) {
 +                            CommandLine.getInstance().removeSwitch(flagName);
 +                        } else {
-+                            Set<String> switchValue = new HashSet<>(getCommaDelimitedSwitchValue(flagName));
++                            Set<String> switchValue = new LinkedHashSet<>(getCommaDelimitedSwitchValue(flagName));
 +                            switchValue.removeAll(flagValues);
 +                            setCommaDelimitedSwitchValue(flagName, new ArrayList<>(switchValue));
 +                        }

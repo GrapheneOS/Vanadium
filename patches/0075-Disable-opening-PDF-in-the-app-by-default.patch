@@ -67,7 +67,7 @@ index d7fcb6f8c9a2c..b51c5fd96ea89 100644
      @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
      @Mock private Tab mTab;
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index f8a0647145ab2..93a7309b03e63 100644
+index d4406ce939cb8..0d4b62f9810c2 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
 @@ -235,6 +235,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
@@ -78,7 +78,7 @@ index f8a0647145ab2..93a7309b03e63 100644
      &kAndroidPageInfoAsAppMenuItem,
      &kAndroidProgressBarVisualUpdate,
      &kAndroidSaveCardNonBlockingDialog,
-@@ -584,6 +585,7 @@ BASE_FEATURE(kAndroidHistoryClustering, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -583,6 +584,7 @@ BASE_FEATURE(kAndroidHistoryClustering, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidNewMediaPicker, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidNoVisibleHintForDifferentTLD, base::FEATURE_ENABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidOmniboxFocusedNewTabPage, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -87,7 +87,7 @@ index f8a0647145ab2..93a7309b03e63 100644
  BASE_FEATURE(kAndroidProgressBarVisualUpdate, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidSaveCardNonBlockingDialog, base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/chrome/browser/flags/android/chrome_feature_list.h b/chrome/browser/flags/android/chrome_feature_list.h
-index ed38689c76429..dff54d0bda711 100644
+index 074acc62f4aa8..78a492404047a 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.h
 +++ b/chrome/browser/flags/android/chrome_feature_list.h
 @@ -46,6 +46,7 @@ BASE_DECLARE_FEATURE(kAndroidHistoryClustering);
@@ -99,7 +99,7 @@ index ed38689c76429..dff54d0bda711 100644
  BASE_DECLARE_FEATURE(kAndroidProgressBarVisualUpdate);
  BASE_DECLARE_FEATURE(kAndroidSaveCardNonBlockingDialog);
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 1407dc403f505..90320fddd27ac 100644
+index 3c53b5b101595..5b56edfe67557 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 @@ -198,6 +198,7 @@ public abstract class ChromeFeatureList {
@@ -192,10 +192,10 @@ index fc4255c1803d8..98f6871cec4be 100644
  
      public static final String ANDROID_SPELLCHECK_FULL_API_BLINK = "AndroidSpellcheckFullApiBlink";
 diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
-index 14a96d71afd1b..fbe3f09b79cea 100644
+index 4cab8c0a058f8..1a2cdc34fd052 100644
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -1342,6 +1342,9 @@ const base::FeatureParam<int> kAndroidDesktopZoomScalingFactor{
+@@ -1345,6 +1345,9 @@ const base::FeatureParam<int> kAndroidDesktopZoomScalingFactor{
  const base::FeatureParam<int> kAndroidMonitorZoomScalingFactor{
      &kAndroidDesktopZoomScaling, "monitor-zoom-scaling-factor", 100};
  
@@ -206,10 +206,10 @@ index 14a96d71afd1b..fbe3f09b79cea 100644
  // Android.
  BASE_FEATURE(kAndroidDisplayCursor,
 diff --git a/content/public/common/content_features.h b/content/public/common/content_features.h
-index 67728dcca87d5..5e0c25440ed32 100644
+index 68ae2f6d225c4..336545ee1291a 100644
 --- a/content/public/common/content_features.h
 +++ b/content/public/common/content_features.h
-@@ -371,6 +371,7 @@ CONTENT_EXPORT extern const base::FeatureParam<int>
+@@ -372,6 +372,7 @@ CONTENT_EXPORT extern const base::FeatureParam<int>
  CONTENT_EXPORT BASE_DECLARE_FEATURE(kAndroidDisplayCursor);
  CONTENT_EXPORT extern const base::FeatureParam<int>
      kAndroidMonitorZoomScalingFactor;
