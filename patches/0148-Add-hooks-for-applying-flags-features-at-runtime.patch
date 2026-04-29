@@ -14,7 +14,7 @@ directly referenced, as its only available for WebView code.
 
 diff --git a/base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java b/base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
 new file mode 100644
-index 0000000000000..c2a9e9bcd57a3
+index 0000000000000..9b273d624ce25
 --- /dev/null
 +++ b/base/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
 @@ -0,0 +1,58 @@
@@ -28,7 +28,7 @@ index 0000000000000..c2a9e9bcd57a3
 +
 +import java.util.ArrayList;
 +import java.util.Arrays;
-+import java.util.HashSet;
++import java.util.LinkedHashSet;
 +import java.util.List;
 +
 +public class VanadiumCommandLineUtils {
@@ -65,8 +65,8 @@ index 0000000000000..c2a9e9bcd57a3
 +
 +    private static void addOrRemoveValuesOnSwitch(String name, @NonNull List<String> values, boolean add) {
 +        if (CommandLine.getInstance() != null) {
-+            var newValues = new HashSet<>(getCommaDelimitedSwitchValue(name));
-+            var valuesSet = new HashSet<>(values);
++            var newValues = new LinkedHashSet<>(getCommaDelimitedSwitchValue(name));
++            var valuesSet = new LinkedHashSet<>(values);
 +            if (add) {
 +                newValues.addAll(valuesSet);
 +            } else {

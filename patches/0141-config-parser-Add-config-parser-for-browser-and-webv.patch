@@ -88,7 +88,7 @@ index 0000000000000..39d8de8b26056
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..f3be6b5f9fdcd
+index 0000000000000..bf72c17a87bbc
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 @@ -0,0 +1,487 @@
@@ -107,7 +107,7 @@ index 0000000000000..f3be6b5f9fdcd
 +
 +import java.io.IOException;
 +import java.io.InputStream;
-+import java.util.HashSet;
++import java.util.LinkedHashSet;
 +import java.util.List;
 +import java.util.Map;
 +import java.util.Set;
@@ -502,7 +502,7 @@ index 0000000000000..f3be6b5f9fdcd
 +                Consumer<List<Flag>> appendFlagsToTypes = flagList -> {
 +                    for (Flag flag : flagList) {
 +                        final String flagName = flag.getFlagName();
-+                        final Set<String> flagValues = new HashSet<>(flag.getFlagValueList());
++                        final Set<String> flagValues = new LinkedHashSet<>(flag.getFlagValueList());
 +                        final FlagType flagType = flag.getFlagType();
 +                        if (flagType == FlagType.ENABLED_FEATURE) {
 +                            enabledFeatureFlags.put(flagName, flagValues);
