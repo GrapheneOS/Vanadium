@@ -1,0 +1,91 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 29 Apr 2026 08:43:16 +0000
+Subject: [PATCH] fixup! Implement UI for JIT site settings
+
+---
+ .../JavascriptJitSettingsHooks.java           | 42 ++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 2 deletions(-)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
+index 6e7c250268f65..46f5e1dae2f2f 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
+@@ -1,7 +1,11 @@
+ package org.chromium.components.browser_ui.site_settings;
+ 
++import android.content.Context;
++
+ import androidx.preference.Preference;
+ 
++import org.chromium.base.ContextUtils;
++import org.chromium.base.config.ConfigsFromSandboxedService;
+ import org.chromium.build.annotations.AlwaysInline;
+ import org.chromium.build.annotations.NonNull;
+ import org.chromium.build.annotations.NullMarked;
+@@ -20,6 +24,14 @@ public final class JavascriptJitSettingsHooks {
+         return "javascript_jit";
+     }
+ 
++    private static boolean isExecmemBlocked() {
++        if (!ConfigsFromSandboxedService.isServiceConnected()) {
++            return false;
++        }
++
++        return ConfigsFromSandboxedService.isExecmemBlocked();
++    }
++
+     static final class ResourcesHooksImpl extends SiteSettingsResourcesHooks {
+ 
+         @Override
+@@ -95,7 +107,29 @@ public final class JavascriptJitSettingsHooks {
+         @Override
+         @NonNull
+         protected SiteSettingsCategory getSiteSettingsCategory(@NonNull BrowserContextHandle bch) {
+-            return new SiteSettingsCategory(bch, SiteSettingsCategory.Type.JAVASCRIPT_JIT, "");
++            return new JavascriptJitSiteSettingsCategory(bch);
++        }
++    }
++
++    static final class JavascriptJitSiteSettingsCategory extends SiteSettingsCategory {
++
++        JavascriptJitSiteSettingsCategory(@NonNull BrowserContextHandle bch) {
++            super(bch, SiteSettingsCategory.Type.JAVASCRIPT_JIT, "");
++        }
++
++        @Override
++        protected boolean enabledForChrome(Context context) {
++            return !isExecmemBlocked();
++        }
++
++        @Override
++        protected boolean shouldDisableToggle() {
++            return isExecmemBlocked();
++        }
++
++        @Override
++        protected String getMessageForEnablingOsPerAppPermission(Context context, String appName) {
++            return super.getMessageForEnablingOsPerAppPermission(context, appName);
+         }
+     }
+ 
+@@ -139,7 +173,7 @@ public final class JavascriptJitSettingsHooks {
+ 
+         @Override
+         protected @Nullable Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
+-            return true;
++            return !isExecmemBlocked();
+         }
+ 
+         @Override
+@@ -160,6 +194,10 @@ public final class JavascriptJitSettingsHooks {
+                 @NonNull BrowserContextHandle browserContextHandle,
+                 @NonNull Website website,
+                 @ContentSettingsType.EnumType int contentType) {
++            if (isExecmemBlocked()) {
++                return ContentSetting.BLOCK;
++            }
++
+             Integer curValue = website.getContentSetting(browserContextHandle, contentType);
+             if (curValue == null) {
+                 boolean isEnabled = WebsitePreferenceBridge.isContentSettingEnabled(browserContextHandle, contentType);

@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 29 Apr 2026 08:43:24 +0000
+Subject: [PATCH] fixup! Implement UI for JIT site settings
+
+---
+ .../site_settings/JavascriptJitSettingsHooks.java      | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
+index 46f5e1dae2f2f..b7b8e841f2389 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
+@@ -205,5 +205,15 @@ public final class JavascriptJitSettingsHooks {
+             }
+             return curValue;
+         }
++
++        @Override
++        protected void setupOrModifyPreference(
++                @NonNull SingleWebsiteSettings siteSettingsFragment,
++                @NonNull BrowserContextHandle browserContextHandle,
++                @NonNull Preference preference) {
++            if (isExecmemBlocked()) {
++                preference.setEnabled(false);
++            }
++        }
+     }
+ }

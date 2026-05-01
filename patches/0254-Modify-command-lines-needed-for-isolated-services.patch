@@ -1,0 +1,152 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 27 Apr 2026 16:16:14 +0000
+Subject: [PATCH] Modify command lines needed for isolated services
+
+This commit applies the needed configs, specifically command line
+arguments, based from the isolated service bound in early application
+init of parent process. This applies the needed JavaScript and
+WebAssembly flags based on OS configs, such as SELinux flags to deny
+execmem.
+---
+ content/public/android/BUILD.gn               |  5 ++
+ .../android/content_full_java_ext_deps.gni    |  3 +
+ .../android/content_full_java_ext_sources.gni |  3 +
+ .../ChildProcessLauncherHelperImpl.java       |  6 ++
+ .../ChildProcessLauncherHelperImplHooks.java  | 72 +++++++++++++++++++
+ 5 files changed, 89 insertions(+)
+ create mode 100644 content/public/android/content_full_java_ext_deps.gni
+ create mode 100644 content/public/android/content_full_java_ext_sources.gni
+ create mode 100644 content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
+
+diff --git a/content/public/android/BUILD.gn b/content/public/android/BUILD.gn
+index 20dcf02151fee..da5b0ecf7a368 100644
+--- a/content/public/android/BUILD.gn
++++ b/content/public/android/BUILD.gn
+@@ -449,6 +449,11 @@ android_library("content_full_java") {
+   }
+ 
+   public_deps = [ "//ui/base/mojom:ui_base_types_java" ]
++
++  import("content_full_java_ext_sources.gni")
++  sources += content_full_java_ext_sources
++  import("content_full_java_ext_deps.gni")
++  deps += content_full_java_ext_deps
+ }
+ 
+ android_library("content_util_java") {
+diff --git a/content/public/android/content_full_java_ext_deps.gni b/content/public/android/content_full_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..467d64a001be3
+--- /dev/null
++++ b/content/public/android/content_full_java_ext_deps.gni
+@@ -0,0 +1,3 @@
++content_full_java_ext_deps = [
++  "//base:library_loader_java",
++]
+\ No newline at end of file
+diff --git a/content/public/android/content_full_java_ext_sources.gni b/content/public/android/content_full_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..91af33e868fac
+--- /dev/null
++++ b/content/public/android/content_full_java_ext_sources.gni
+@@ -0,0 +1,3 @@
++content_full_java_ext_sources = [
++  "java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java",
++]
+\ No newline at end of file
+diff --git a/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java b/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java
+index 29bf415192f65..975d7ae703208 100644
+--- a/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java
+@@ -429,6 +429,12 @@ public final class ChildProcessLauncherHelperImpl {
+             }
+         }
+ 
++        String[] newCommandLine = ChildProcessLauncherHelperImplHooks.maybeModifyCommandLine(
++                commandLine, sandboxed);
++        if (newCommandLine != null) {
++            commandLine = newCommandLine;
++        }
++
+         IBinder binderCallback =
+                 ContentSwitches.SWITCH_GPU_PROCESS.equals(processType)
+                         ? new GpuProcessCallback()
+diff --git a/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java b/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
+new file mode 100644
+index 0000000000000..2848ad83182c1
+--- /dev/null
++++ b/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
+@@ -0,0 +1,72 @@
++package org.chromium.content.browser;
++
++import android.content.Context;
++import android.text.TextUtils;
++
++import org.chromium.base.ContextUtils;
++import org.chromium.base.config.ConfigsFromSandboxedService;
++import org.chromium.build.annotations.NonNull;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++import java.util.Arrays;
++import java.util.LinkedHashSet;
++import java.util.Set;
++
++@NullMarked
++final class ChildProcessLauncherHelperImplHooks {
++
++    private ChildProcessLauncherHelperImplHooks() {
++    }
++
++    @Nullable
++    static String[] maybeModifyCommandLine(
++            @NonNull final String[] commandLine, final boolean sandboxed) {
++        if (!sandboxed) {
++            return null;
++        }
++
++        if (!ConfigsFromSandboxedService.isServiceConnected()) {
++            return null;
++        }
++
++        if (!ConfigsFromSandboxedService.isExecmemBlocked()) {
++            return null;
++        }
++
++        String[] newCommandLine = commandLine;
++        boolean alreadySet = false;
++        String jsFlagsPrefix = "--js-flags=";
++        Set<String> jsFlagValuesToRemove =
++                new LinkedHashSet<>(Arrays.asList("--no-jitless", "--no_jitless",
++                        "--no-wasm-jitless", "--no-wasm_jitless",
++                        "--no_wasm_jitless", "--no_wasm_jitless"));
++        Set<String> jsFlagValuesToAppend =
++                new LinkedHashSet<>(Arrays.asList("--jitless", "--wasm_jitless"));
++        String delimiter = ",";
++        for (int i = newCommandLine.length - 1; i >= 0; --i) {
++            final String command = newCommandLine[i];
++            if (command == null) {
++                continue;
++            }
++
++            if (command.startsWith(jsFlagsPrefix)) {
++                String values = command.substring(jsFlagsPrefix.length());
++                Set<String> valueSet = new LinkedHashSet<>(Arrays.asList(values.split(delimiter)));
++                valueSet.removeAll(jsFlagValuesToRemove);
++                valueSet.addAll(jsFlagValuesToAppend);
++                newCommandLine[i] = jsFlagsPrefix + TextUtils.join(delimiter, valueSet);
++                alreadySet = true;
++                break;
++            }
++        }
++
++        if (!alreadySet) {
++            newCommandLine = Arrays.copyOf(newCommandLine, newCommandLine.length + 1);
++            newCommandLine[newCommandLine.length - 1] =
++                    jsFlagsPrefix + TextUtils.join(delimiter, jsFlagValuesToAppend);
++        }
++
++        return newCommandLine;
++    }
++}
