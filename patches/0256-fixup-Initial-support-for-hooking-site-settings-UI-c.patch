@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 29 Apr 2026 08:42:57 +0000
+Subject: [PATCH] fixup! Initial support for hooking site settings UI changes
+
+---
+ .../site_settings/SingleWebsiteSettings.java  |  1 +
+ .../SingleWebsiteSettingsHooks.java           | 21 +++++++------------
+ 2 files changed, 8 insertions(+), 14 deletions(-)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+index 28c80d0de0437..a7e6200634a5f 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
+@@ -676,6 +676,7 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+                         hooks.getContentSettingForSetup(getBrowserContextHandle(), mSite, type),
+                         mSite.isEmbargoed(type),
+                         isOneTime(type));
++                hooks.setupOrModifyPreference(this, getBrowserContextHandle(), preference);
+             }
+ 
+             if (type == ContentSettingsType.ADS) {
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
+index 5737bb2acebdd..01d8582a63027 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
+@@ -2,11 +2,10 @@ package org.chromium.components.browser_ui.site_settings;
+ 
+ import androidx.preference.Preference;
+ 
+-import org.chromium.build.annotations.AlwaysInline;
+ import org.chromium.build.annotations.NonNull;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
+-import org.chromium.components.browser_ui.settings.ChromeBasePreference;
++import org.chromium.components.content_settings.ContentSetting;
+ import org.chromium.components.content_settings.ContentSettingsType;
+ import org.chromium.content_public.browser.BrowserContextHandle;
+ 
+@@ -37,6 +36,7 @@ public class SingleWebsiteSettingsHooks {
+     }
+ 
+     @Nullable
++    @ContentSetting
+     protected Integer getContentSettingForSetup(
+             @NonNull BrowserContextHandle browserContextHandle,
+             @NonNull Website website,
+@@ -44,17 +44,10 @@ public class SingleWebsiteSettingsHooks {
+         return null;
+     }
+ 
+-    /**
+-     * Has to be of following types for now:
+-     * org.chromium.components.browser_ui.settings.ChromeImageViewPreference
+-     * org.chromium.components.browser_ui.settings.ChromeSwitchPreference
+-     * currently disabled until further notice
+-    @Nullable
+-    protected Preference getOverridenPreference(
+-            @NonNull SiteSettings siteSettingsFragment,
+-            @NonNull SiteSettingsDelegate siteSettingsDelegate,
+-            @ContentSettingsType.EnumType int contentType) {
+-        return null;
++    // Return true if preference set is overridden in subclass.
++    protected void setupOrModifyPreference(
++            @NonNull SingleWebsiteSettings siteSettingsFragment,
++            @NonNull BrowserContextHandle browserContextHandle,
++            @NonNull Preference preference) {
+     }
+-     */
+ }

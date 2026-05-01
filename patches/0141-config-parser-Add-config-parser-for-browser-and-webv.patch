@@ -14,8 +14,8 @@ Changes since:
 ---
  vanadium/android_config/proto/BUILD.gn        |  11 +
  .../config/VanadiumConfConditionals.java      |  42 ++
- .../vanadium/config/VanadiumConfParser.java   | 487 ++++++++++++++++++
- 3 files changed, 540 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 486 ++++++++++++++++++
+ 3 files changed, 539 insertions(+)
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfConditionals.java
  create mode 100644 vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 
@@ -88,10 +88,10 @@ index 0000000000000..39d8de8b26056
 +}
 diff --git a/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..bf72c17a87bbc
+index 0000000000000..91897eb883c71
 --- /dev/null
 +++ b/vanadium/android_config/proto/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,487 @@
+@@ -0,0 +1,486 @@
 +package app.vanadium.config;
 +
 +import android.content.Context;
@@ -473,7 +473,6 @@ index 0000000000000..bf72c17a87bbc
 +        }
 +
 +        {
-+            boolean hasOtherComponentApks = false;
 +            final SparseArray<ParsedFlagSet> pendingFlags = new SparseArray<>();
 +            final SparseArray<ParsedComponent> pendingComponents = new SparseArray<>();
 +

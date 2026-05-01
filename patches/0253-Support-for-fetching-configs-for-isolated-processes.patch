@@ -1,0 +1,227 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 27 Apr 2026 15:59:21 +0000
+Subject: [PATCH] Support for fetching configs for isolated processes
+
+This will replace a previous approach of checking if execmem is denied.
+Previously, the check is done upon initialization of isolated services,
+as prior to Android 17, isolated service always use Android Runtime,
+which determines if Javascript should always run in JITless mode, along
+with WebAssembly.
+
+This new approach binds an isolated service early on the main process
+initialization for browser, and the embedding app for webview, as a
+single source of truth whether execmem is denied for isolated process.
+This now also provides a way for the main process to check if execmem is
+blocked to disable toggles as needed.
+---
+ .../android_webview/AwBrowserProcess.java     |   1 +
+ .../config/ConfigsFromSandboxedService.java   | 144 ++++++++++++++++++
+ .../library_loader/LibraryLoaderHooks.java    |   2 +
+ base/base_library_loader_java_ext_deps.gni    |   1 +
+ base/base_library_loader_java_ext_sources.gni |   1 +
+ 5 files changed, 149 insertions(+)
+ create mode 100644 base/android/java/src/org/chromium/base/config/ConfigsFromSandboxedService.java
+
+diff --git a/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java b/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
+index 56bf728ed3548..15de01bb4d50b 100644
+--- a/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
++++ b/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
+@@ -360,6 +360,7 @@ public final class AwBrowserProcess {
+     public static void setWebViewPackageName(String webViewPackageName) {
+         assert sWebViewPackageName == null || sWebViewPackageName.equals(webViewPackageName);
+         sWebViewPackageName = webViewPackageName;
++        org.chromium.base.config.ConfigsFromSandboxedService.setServicePackageName(webViewPackageName);
+     }
+ 
+     public static String getWebViewPackageName() {
+diff --git a/base/android/java/src/org/chromium/base/config/ConfigsFromSandboxedService.java b/base/android/java/src/org/chromium/base/config/ConfigsFromSandboxedService.java
+new file mode 100644
+index 0000000000000..900727a7124a7
+--- /dev/null
++++ b/base/android/java/src/org/chromium/base/config/ConfigsFromSandboxedService.java
+@@ -0,0 +1,144 @@
++package org.chromium.base.config;
++
++import android.content.Context;
++import android.os.IBinder;
++import android.os.RemoteException;
++import android.util.Log;
++
++import org.chromium.base.command_line.VanadiumCommandLineUtils;
++import org.chromium.base.library_loader.LibraryProcessType;
++import org.chromium.build.annotations.NonNull;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.content.app.ConfigChildProcessLauncher;
++import app.vanadium.content.app.ConfigChildProcessParams;
++import app.vanadium.content.app.IConfigSandboxedProcessService;
++
++import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
++
++public class ConfigsFromSandboxedService {
++
++    private static final String TAG = "ConfigsFromSandboxedService";
++
++    private static boolean isDisabled() {
++        String featureKey = "CheckOsConfigsForIsolatedProcessV2";
++        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE).containsKey(featureKey)) {
++            return true;
++        }
++
++        return false;
++    }
++
++    public static void init(@NonNull Context appContext, @LibraryProcessType int type) {
++        switch (type) {
++            case LibraryProcessType.PROCESS_BROWSER,
++                 LibraryProcessType.PROCESS_WEBVIEW,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED -> {
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                return;
++            }
++            default -> throw new IllegalArgumentException("Invalid library process type");
++        }
++
++        if (isDisabled()) {
++            Log.i(TAG, "Not initializing configs fetching from sandboxed service");
++            return;
++        }
++
++        ConfigChildProcessParams params = getConfigChildProcessParams(appContext, type);
++        ConfigChildProcessLauncher launcher =
++                ConfigChildProcessLauncher.create(params, getDelegateInstance());
++        launcher.bind(appContext);
++    }
++
++    @NonNull
++    private static ConfigChildProcessParams getConfigChildProcessParams(
++            @NonNull Context appContext, @LibraryProcessType int type) {
++        final boolean bindAsExternalService = type == LibraryProcessType.PROCESS_WEBVIEW;
++        if (bindAsExternalService) {
++            if (!sServicePkgNameSet) {
++                throw new IllegalStateException("Need to set service package name");
++            }
++        }
++
++        final String servicePkgName = sServicePkgName != null ? sServicePkgName
++                                                              : appContext.getPackageName();
++        return new ConfigChildProcessParams(
++                servicePkgName, bindAsExternalService);
++    }
++
++    private static String sServicePkgName;
++    private static volatile boolean sServicePkgNameSet;
++
++    public static void setServicePackageName(@NonNull String servicePackageName) {
++        if (isDisabled()) {
++            Log.i(TAG, "Not setting package name for sandboxed service fetching configs");
++            return;
++        }
++
++        sServicePkgName = servicePackageName;
++        sServicePkgNameSet = true;
++    }
++
++    private static final class LauncherDelegateInner implements ConfigChildProcessLauncher.Delegate {
++
++        private static final LauncherDelegateInner INSTANCE =
++                new LauncherDelegateInner();
++
++        private IConfigSandboxedProcessService mService;
++        private volatile boolean mServiceConnected;
++
++        @Override
++        public void onServiceConnected(IBinder service) {
++            mService = IConfigSandboxedProcessService.Stub.asInterface(service);
++            mServiceConnected = true;
++        }
++
++        @Override
++        public void onServiceDisconnected() {
++            mService = null;
++            mServiceConnected = false;
++        }
++
++        private boolean isServiceConnected() {
++            return mServiceConnected;
++        }
++
++        private boolean isExecmemBlocked() {
++            try {
++                return mService.isExecmemBlocked();
++            } catch (RemoteException e) {
++                Log.e(TAG, "", e);
++                return false;
++            }
++        }
++    }
++
++    private static ConfigChildProcessLauncher.Delegate getDelegateInstance() {
++        return LauncherDelegateInner.INSTANCE;
++    }
++
++    private static LauncherDelegateInner getDelegateInner() {
++        return LauncherDelegateInner.INSTANCE;
++    }
++
++    public static boolean isServiceConnected() {
++        if (isDisabled()) {
++            Log.i(TAG, "Disabled fetching configs from sandboxed service");
++            return false;
++        }
++
++        return getDelegateInner().isServiceConnected();
++    }
++
++    public static boolean isExecmemBlocked() {
++        if (isDisabled()) {
++            Log.i(TAG, "Disabled fetching config for execmem if blocked from sandboxed service");
++            return false;
++        }
++
++        return getDelegateInner().isExecmemBlocked();
++    }
++}
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+index 9db1e190d8ba2..b147b9d56babe 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -4,6 +4,7 @@ import android.content.Context;
+ 
+ import org.chromium.base.CommandLine;
+ import org.chromium.base.command_line.VanadiumCommandLineUtils;
++import org.chromium.base.config.ConfigsFromSandboxedService;
+ import org.chromium.base.config.VanadiumConfigBridge;
+ 
+ import java.util.ArrayList;
+@@ -15,6 +16,7 @@ class LibraryLoaderHooks {
+ 
+     static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
+         VanadiumConfigBridge.initConfigs(appContext, type);
++        ConfigsFromSandboxedService.init(appContext, type);
+     }
+ 
+     static void onBeforeCommandLineSwitchLocked(Context appContext, @LibraryProcessType int type) {
+diff --git a/base/base_library_loader_java_ext_deps.gni b/base/base_library_loader_java_ext_deps.gni
+index db540a25dde69..d4041108d08eb 100644
+--- a/base/base_library_loader_java_ext_deps.gni
++++ b/base/base_library_loader_java_ext_deps.gni
+@@ -5,4 +5,5 @@
+ base_library_loader_java_ext_deps = [
+   "//vanadium/android_config/proto:browser_config_parser_java",
+   "//vanadium/ext/custom_os:custom_os_apis_java",
++  "//vanadium/content/app/android:config_child_process_service_java",
+ ]
+diff --git a/base/base_library_loader_java_ext_sources.gni b/base/base_library_loader_java_ext_sources.gni
+index ca9a236160b5c..04ca9eb7b14ff 100644
+--- a/base/base_library_loader_java_ext_sources.gni
++++ b/base/base_library_loader_java_ext_sources.gni
+@@ -6,4 +6,5 @@ base_library_loader_java_ext_sources = [
+   "android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
+   "android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java",
+   "android/java/src/org/chromium/base/config/VanadiumConfigBridge.java",
++  "android/java/src/org/chromium/base/config/ConfigsFromSandboxedService.java",
+ ]
