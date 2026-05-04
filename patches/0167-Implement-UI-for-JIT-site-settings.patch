@@ -4,30 +4,34 @@ Date: Thu, 9 Apr 2026 13:24:44 +0000
 Subject: [PATCH] Implement UI for JIT site settings
 
 ---
- .../JavascriptJitSettingsHooks.java           | 171 ++++++++++++++++++
+ .../JavascriptJitSettingsHooks.java           | 222 ++++++++++++++++++
  .../site_settings/SiteSettingsCategory.java   |  15 +-
  .../SiteSettingsHooksRegistry.java            |   7 +
  ...site_settings_android_java_ext_sources.gni |   1 +
  .../android/website_preference_bridge.cc      |   1 +
- .../strings/android/site_settings_ext.grdp    |  22 +++
+ .../strings/android/site_settings_ext.grdp    |  22 ++
  .../core/browser/content_settings_registry.cc |   2 +-
  .../android/page_info_controller_android.cc   |   3 +
  components/page_info/page_info.cc             |   6 +
  components/page_info/page_info_ui.cc          |   2 +
  components/site_settings_strings_ext.grdp     |   6 +
- 11 files changed, 234 insertions(+), 2 deletions(-)
+ 11 files changed, 285 insertions(+), 2 deletions(-)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
 new file mode 100644
-index 0000000000000..6e7c250268f65
+index 0000000000000..86472b3ce1105
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
-@@ -0,0 +1,171 @@
+@@ -0,0 +1,222 @@
 +package org.chromium.components.browser_ui.site_settings;
++
++import android.content.Context;
 +
 +import androidx.preference.Preference;
 +
++import org.chromium.base.ContextUtils;
++import org.chromium.base.config.ConfigsFromSandboxedService;
 +import org.chromium.build.annotations.AlwaysInline;
 +import org.chromium.build.annotations.NonNull;
 +import org.chromium.build.annotations.NullMarked;
@@ -44,6 +48,14 @@ index 0000000000000..6e7c250268f65
 +    @AlwaysInline
 +    private static String commonPrefKey() {
 +        return "javascript_jit";
++    }
++
++    private static boolean isExecmemBlocked() {
++        if (!ConfigsFromSandboxedService.isServiceConnected()) {
++            return false;
++        }
++
++        return ConfigsFromSandboxedService.isExecmemBlocked();
 +    }
 +
 +    static final class ResourcesHooksImpl extends SiteSettingsResourcesHooks {
@@ -121,7 +133,29 @@ index 0000000000000..6e7c250268f65
 +        @Override
 +        @NonNull
 +        protected SiteSettingsCategory getSiteSettingsCategory(@NonNull BrowserContextHandle bch) {
-+            return new SiteSettingsCategory(bch, SiteSettingsCategory.Type.JAVASCRIPT_JIT, "");
++            return new JavascriptJitSiteSettingsCategory(bch);
++        }
++    }
++
++    static final class JavascriptJitSiteSettingsCategory extends SiteSettingsCategory {
++
++        JavascriptJitSiteSettingsCategory(@NonNull BrowserContextHandle bch) {
++            super(bch, SiteSettingsCategory.Type.JAVASCRIPT_JIT, "");
++        }
++
++        @Override
++        protected boolean enabledForChrome(Context context) {
++            return !isExecmemBlocked();
++        }
++
++        @Override
++        protected boolean shouldDisableToggle() {
++            return isExecmemBlocked();
++        }
++
++        @Override
++        protected String getMessageForEnablingOsPerAppPermission(Context context, String appName) {
++            return super.getMessageForEnablingOsPerAppPermission(context, appName);
 +        }
 +    }
 +
@@ -165,7 +199,7 @@ index 0000000000000..6e7c250268f65
 +
 +        @Override
 +        protected @Nullable Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
-+            return true;
++            return !isExecmemBlocked();
 +        }
 +
 +        @Override
@@ -186,12 +220,29 @@ index 0000000000000..6e7c250268f65
 +                @NonNull BrowserContextHandle browserContextHandle,
 +                @NonNull Website website,
 +                @ContentSettingsType.EnumType int contentType) {
++            if (isExecmemBlocked()) {
++                return ContentSetting.BLOCK;
++            }
++
 +            Integer curValue = website.getContentSetting(browserContextHandle, contentType);
 +            if (curValue == null) {
 +                boolean isEnabled = WebsitePreferenceBridge.isContentSettingEnabled(browserContextHandle, contentType);
 +                curValue = isEnabled ? ContentSetting.ALLOW : ContentSetting.BLOCK;
 +            }
 +            return curValue;
++        }
++
++        @Override
++        protected void setupOrModifyPreference(
++                @NonNull SingleWebsiteSettings siteSettingsFragment,
++                @NonNull BrowserContextHandle browserContextHandle,
++                @NonNull Preference preference) {
++            if (isExecmemBlocked()) {
++                Context prefCtx = siteSettingsFragment.getContext(); 
++                preference.setSummary(
++                        prefCtx.getString(R.string.automatically_blocked));
++                preference.setEnabled(false);
++            }
 +        }
 +    }
 +}
@@ -356,7 +407,7 @@ index 4f00e4661d3cf..3a51bad2da3a7 100644
 +  </message>
  </grit-part>
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index 22c06c3a0825f..73701662ea02a 100644
+index d0b10fda002da..625d38d8eee31 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
 @@ -579,7 +579,7 @@ void ContentSettingsRegistry::Init() {
@@ -414,7 +465,7 @@ index b947af03690c6..83d2ad6746a92 100644
        web_contents_->GetBrowserContext()->IsOffTheRecord();
  #if BUILDFLAG(IS_ANDROID)
 diff --git a/components/page_info/page_info_ui.cc b/components/page_info/page_info_ui.cc
-index 13c37937855ae..eaeb03508f552 100644
+index edc03d8fcd360..a22cce01bff9e 100644
 --- a/components/page_info/page_info_ui.cc
 +++ b/components/page_info/page_info_ui.cc
 @@ -65,6 +65,8 @@ base::span<const PageInfoUI::PermissionUIInfo> GetContentSettingsUIInfo() {

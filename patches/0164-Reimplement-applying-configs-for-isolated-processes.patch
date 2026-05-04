@@ -1,0 +1,242 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 26 Apr 2026 17:38:39 +0000
+Subject: [PATCH] Reimplement applying configs for isolated processes
+
+This commit adds an isolated service to bind, for fetching configs
+needed to apply on browser or webview, as a single source of truth.
+---
+ chrome/android/java/AndroidManifest.xml       |  6 ++
+ vanadium/content/app/android/BUILD.gn         | 29 ++++++++++
+ .../app/ConfigChildProcessConnection.java     | 24 ++++++++
+ .../app/ConfigChildProcessLauncher.java       | 58 +++++++++++++++++++
+ .../content/app/ConfigChildProcessParams.java | 25 ++++++++
+ .../app/ConfigSandboxedProcessService.java    | 23 ++++++++
+ .../app/IConfigSandboxedProcessService.aidl   |  5 ++
+ 7 files changed, 170 insertions(+)
+ create mode 100644 vanadium/content/app/android/BUILD.gn
+ create mode 100644 vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessConnection.java
+ create mode 100644 vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessLauncher.java
+ create mode 100644 vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessParams.java
+ create mode 100644 vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigSandboxedProcessService.java
+ create mode 100644 vanadium/content/app/android/java/src/app/vanadium/content/app/IConfigSandboxedProcessService.aidl
+
+diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+index 69922ad3b1a82..31b34074ee390 100644
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -1269,6 +1269,12 @@ by a child template that "extends" this file.
+       {{ application_definitions() }}
+       {% endif %}
+ 
++      <service android:name="app.vanadium.content.app.ConfigSandboxedProcessService"
++          android:process=":config_sandboxed_process"
++          android:permission="{{ manifest_package }}.permission.CHILD_SERVICE"
++          android:isolatedProcess="true"
++          android:exported="false" />
++
+       <!-- The following service entries exist in order to allow us to
+            start more than one sandboxed process. -->
+ 
+diff --git a/vanadium/content/app/android/BUILD.gn b/vanadium/content/app/android/BUILD.gn
+new file mode 100644
+index 0000000000000..192c2ec1c38f9
+--- /dev/null
++++ b/vanadium/content/app/android/BUILD.gn
+@@ -0,0 +1,29 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_aidl("config_child_process_service_aidl") {
++  import_include = [
++    "java/src"
++  ]
++  sources = [
++    "java/src/app/vanadium/content/app/IConfigSandboxedProcessService.aidl"
++  ]
++}
++
++android_library("config_child_process_service_java") {
++  sources = [
++    "java/src/app/vanadium/content/app/ConfigSandboxedProcessService.java",
++    "java/src/app/vanadium/content/app/ConfigChildProcessConnection.java",
++    "java/src/app/vanadium/content/app/ConfigChildProcessLauncher.java",
++    "java/src/app/vanadium/content/app/ConfigChildProcessParams.java",
++  ]
++  deps = [
++    "//vanadium/ext/custom_os:custom_os_apis_java",
++  ]
++  srcjar_deps = [
++    ":config_child_process_service_aidl",
++  ]
++}
+\ No newline at end of file
+diff --git a/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessConnection.java b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessConnection.java
+new file mode 100644
+index 0000000000000..3fbc1a2658dba
+--- /dev/null
++++ b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessConnection.java
+@@ -0,0 +1,24 @@
++package app.vanadium.content.app;
++
++import android.content.ComponentName;
++import android.content.ServiceConnection;
++import android.os.IBinder;
++
++final class ConfigChildProcessConnection implements ServiceConnection {
++
++    private final ConfigChildProcessLauncher.Delegate mDelegate;
++
++    ConfigChildProcessConnection(ConfigChildProcessLauncher.Delegate delegate) {
++        mDelegate = delegate;
++    }
++
++    @Override
++    public void onServiceConnected(ComponentName name, IBinder service) {
++        mDelegate.onServiceConnected(service);
++    }
++
++    @Override
++    public void onServiceDisconnected(ComponentName name) {
++        mDelegate.onServiceDisconnected();
++    }
++}
+diff --git a/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessLauncher.java b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessLauncher.java
+new file mode 100644
+index 0000000000000..0e83c9b8a246f
+--- /dev/null
++++ b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessLauncher.java
+@@ -0,0 +1,58 @@
++package app.vanadium.content.app;
++
++import android.content.Context;
++import android.content.Intent;
++import android.os.IBinder;
++
++import java.util.concurrent.ExecutorService;
++import java.util.concurrent.Executors;
++
++public final class ConfigChildProcessLauncher {
++
++    public interface Delegate {
++        void onServiceConnected(IBinder service);
++        void onServiceDisconnected();
++    }
++
++    private final ExecutorService mLauncherExecutor;
++    private final ConfigChildProcessConnection mServiceConnection;
++    private final ConfigChildProcessParams mParams;
++
++    public static ConfigChildProcessLauncher create(
++            ConfigChildProcessParams params, Delegate delegate) {
++        return new ConfigChildProcessLauncher(params, delegate);
++    }
++
++    private ConfigChildProcessLauncher(
++            ConfigChildProcessParams params, Delegate delegate) {
++        mLauncherExecutor = Executors.newSingleThreadExecutor();
++        mServiceConnection = new ConfigChildProcessConnection(new Delegate() {
++            @Override
++            public void onServiceConnected(IBinder service) {
++                mLauncherExecutor.execute(() -> delegate.onServiceConnected(service));
++            }
++
++            @Override
++            public void onServiceDisconnected() {
++                mLauncherExecutor.execute(() -> delegate.onServiceDisconnected());
++            }
++        });
++        mParams = params;
++    }
++
++    public void bind(Context appCtx) {
++        Intent intent = new Intent();
++        intent.setPackage(mParams.getServicePkgName());
++        intent.setClassName(mParams.getServicePkgName(), mParams.getServiceClassName());
++        int bindFlags = Context.BIND_AUTO_CREATE;
++        if (mParams.bindExternalService()) {
++            bindFlags |= Context.BIND_EXTERNAL_SERVICE;
++        }
++        appCtx.bindIsolatedService(intent, bindFlags, "0",
++                mLauncherExecutor, mServiceConnection);
++    }
++
++    public void unbind(Context appCtx) {
++        appCtx.unbindService(mServiceConnection);
++    }
++}
+diff --git a/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessParams.java b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessParams.java
+new file mode 100644
+index 0000000000000..9837d79e22ea0
+--- /dev/null
++++ b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigChildProcessParams.java
+@@ -0,0 +1,25 @@
++package app.vanadium.content.app;
++
++public class ConfigChildProcessParams {
++
++    private final String mPackageName;
++    private final boolean mBindAsExternalService;
++
++    public ConfigChildProcessParams(
++            String packageName, boolean bindAsExternalService) {
++        this.mPackageName = packageName;
++        this.mBindAsExternalService = bindAsExternalService;
++    }
++
++    String getServicePkgName() {
++        return mPackageName;
++    }
++
++    String getServiceClassName() {
++        return "app.vanadium.content.app.ConfigSandboxedProcessService";
++    }
++
++    boolean bindExternalService() {
++        return mBindAsExternalService;
++    }
++}
+diff --git a/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigSandboxedProcessService.java b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigSandboxedProcessService.java
+new file mode 100644
+index 0000000000000..1f16ada508db2
+--- /dev/null
++++ b/vanadium/content/app/android/java/src/app/vanadium/content/app/ConfigSandboxedProcessService.java
+@@ -0,0 +1,23 @@
++package app.vanadium.content.app;
++
++import android.app.Service;
++import android.content.Intent;
++import android.os.IBinder;
++
++import app.vanadium.ext.CustomOSApis;
++
++public final class ConfigSandboxedProcessService extends Service {
++
++    private final IConfigSandboxedProcessService.Stub mBinder =
++            new IConfigSandboxedProcessService.Stub() {
++                @Override
++                public boolean isExecmemBlocked() {
++                    return CustomOSApis.isExecmemBlocked();
++                }
++    };
++
++    @Override
++    public IBinder onBind(Intent intent) {
++        return mBinder;
++    }
++}
+diff --git a/vanadium/content/app/android/java/src/app/vanadium/content/app/IConfigSandboxedProcessService.aidl b/vanadium/content/app/android/java/src/app/vanadium/content/app/IConfigSandboxedProcessService.aidl
+new file mode 100644
+index 0000000000000..3b9c411f59bb4
+--- /dev/null
++++ b/vanadium/content/app/android/java/src/app/vanadium/content/app/IConfigSandboxedProcessService.aidl
+@@ -0,0 +1,5 @@
++package app.vanadium.content.app;
++
++interface IConfigSandboxedProcessService {
++  boolean isExecmemBlocked();
++}
+\ No newline at end of file

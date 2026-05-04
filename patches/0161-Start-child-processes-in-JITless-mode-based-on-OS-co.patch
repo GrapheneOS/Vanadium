@@ -1,16 +1,22 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Tue, 20 Feb 2024 04:05:46 +0000
-Subject: [PATCH] Always start child processes in jitless mode when execmem is
- blocked
+Subject: [PATCH] Start child processes in JITless mode based on OS
+ configurations
 
+This is the current approach prior to Android 17 for starting isolated
+processes in JITless mode, specifically when dynamic code loading in
+memory is restricted, that is, when execmem is blocked in SELinux. This
+implementation is kept behind a config-specfic feature flags that's
+parsed and appended into per-process command line flags, where jitless
+mode flags is set upon each isolated process initialized with ART.
 ---
- .../library_loader/LibraryLoaderHooks.java    | 31 +++++++++++++++++++
+ .../library_loader/LibraryLoaderHooks.java    | 32 +++++++++++++++++++
  base/base_library_loader_java_ext_deps.gni    |  1 +
- 2 files changed, 32 insertions(+)
+ 2 files changed, 33 insertions(+)
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
-index b1a621f62770a..03f7281ac6887 100644
+index b1a621f62770a..9db1e190d8ba2 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
 @@ -2,8 +2,15 @@ package org.chromium.base.library_loader;
@@ -29,7 +35,7 @@ index b1a621f62770a..03f7281ac6887 100644
  class LibraryLoaderHooks {
  
      static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
-@@ -12,6 +19,30 @@ class LibraryLoaderHooks {
+@@ -12,6 +19,31 @@ class LibraryLoaderHooks {
  
      static void onBeforeCommandLineSwitchLocked(Context appContext, @LibraryProcessType int type) {
          VanadiumConfigBridge.applyFlagFromConfigs(appContext, type);
@@ -43,12 +49,13 @@ index b1a621f62770a..03f7281ac6887 100644
 +                if (CommandLine.getInstance() != null) {
 +                    boolean checkForOSConfigForJitless =
 +                            !VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(
-+                                    "disabled-features").contains("CheckOsConfigsForIsolatedProcessV1");
++                                    "disable-features").contains("CheckOsConfigsForIsolatedProcessV1");
 +                    if (checkForOSConfigForJitless && CustomOSApis.isExecmemBlocked()) {
 +                        String jsFlagsName = "js-flags";
 +                        LinkedHashSet<String> jsFlags = new LinkedHashSet<>(
 +                                VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(jsFlagsName));
 +                        jsFlags.add("--jitless");
++                        jsFlags.add("--wasm_jitless");
 +                        VanadiumCommandLineUtils.setCommaDelimitedSwitchValue(
 +                                jsFlagsName, new ArrayList<>(jsFlags));
 +                    }
