@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 5 May 2026 13:43:18 +0000
+Subject: [PATCH] Utility class for caching methods to invoke via reflection
+
+---
+ vanadium/ext/utils/BUILD.gn                   |  8 ++++
+ .../ext/utils/reflect/MethodCache.java        | 41 +++++++++++++++++++
+ 2 files changed, 49 insertions(+)
+ create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MethodCache.java
+
+diff --git a/vanadium/ext/utils/BUILD.gn b/vanadium/ext/utils/BUILD.gn
+index bc05f3660d5b3..12b99ebd82a23 100644
+--- a/vanadium/ext/utils/BUILD.gn
++++ b/vanadium/ext/utils/BUILD.gn
+@@ -11,4 +11,12 @@ android_library("file_utils_java") {
+   ]
+   deps = [
+   ]
++}
++
++android_library("method_cache_utils_java") {
++  sources = [
++    "java/src/app/vanadium/ext/utils/reflect/MethodCache.java",
++  ]
++  deps = [
++  ]
+ }
+\ No newline at end of file
+diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MethodCache.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MethodCache.java
+new file mode 100644
+index 0000000000000..f4b93e08ec189
+--- /dev/null
++++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MethodCache.java
+@@ -0,0 +1,41 @@
++package app.vanadium.ext.utils.reflect;
++
++import java.lang.reflect.Method;
++
++public final class MethodCache {
++
++    public static MethodCache of(Fetcher Fetcher) {
++        return new MethodCache(Fetcher);
++    }
++
++    public interface Fetcher {
++        Method getMethod() throws ClassNotFoundException, NoSuchMethodException;
++        void logOrThrowMethodFetching(Throwable e);
++    }
++
++    private final Fetcher mFetcher;
++
++    private Method mMethod;
++    private volatile boolean mMethodCached;
++
++    private MethodCache(Fetcher Fetcher) {
++        mFetcher = Fetcher;
++    }
++
++    public Method getMethod() {
++        if (mMethodCached) {
++            return mMethod;
++        }
++
++        try {
++            mMethod = mFetcher.getMethod();
++            return mMethod;
++        } catch (ClassNotFoundException | NoSuchMethodException e) {
++            mFetcher.logOrThrowMethodFetching(e);
++        } finally {
++            mMethodCached = true;
++        }
++
++        return null;
++    }
++}

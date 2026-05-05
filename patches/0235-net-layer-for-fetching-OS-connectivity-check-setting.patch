@@ -4,15 +4,15 @@ Date: Fri, 23 Jan 2026 15:20:18 +0000
 Subject: [PATCH] net layer for fetching OS connectivity check settings
 
 ---
- net/downstream/conn_checks/android/BUILD.gn   | 114 ++++++++++++++++++
+ net/downstream/conn_checks/android/BUILD.gn   | 115 ++++++++++++++++++
  .../conn_checks/android/conn_checks_util.cc   |  18 +++
  .../conn_checks/android/conn_checks_util.h    |  26 ++++
  .../conn_checks/android/features.cc           |  36 ++++++
  net/downstream/conn_checks/android/features.h |  16 +++
  .../conn_checks/ConnChecksFeatureList.java    |  16 +++
  .../net/conn_checks/ConnChecksFeatureMap.java |  40 ++++++
- .../net/conn_checks/ConnChecksUtil.java       |  73 +++++++++++
- 8 files changed, 339 insertions(+)
+ .../net/conn_checks/ConnChecksUtil.java       |  71 +++++++++++
+ 8 files changed, 338 insertions(+)
  create mode 100644 net/downstream/conn_checks/android/BUILD.gn
  create mode 100644 net/downstream/conn_checks/android/conn_checks_util.cc
  create mode 100644 net/downstream/conn_checks/android/conn_checks_util.h
@@ -24,10 +24,10 @@ Subject: [PATCH] net layer for fetching OS connectivity check settings
 
 diff --git a/net/downstream/conn_checks/android/BUILD.gn b/net/downstream/conn_checks/android/BUILD.gn
 new file mode 100644
-index 0000000000000..5ad9a89fa5040
+index 0000000000000..04baec0fc59d0
 --- /dev/null
 +++ b/net/downstream/conn_checks/android/BUILD.gn
-@@ -0,0 +1,114 @@
+@@ -0,0 +1,115 @@
 +import("//build/config/android/config.gni")
 +import("//build/config/android/rules.gni")
 +import("//third_party/jni_zero/jni_zero.gni")
@@ -113,6 +113,7 @@ index 0000000000000..5ad9a89fa5040
 +    "//base:base_java",
 +    "//build/android:build_java",
 +    "//third_party/jni_zero:jni_zero_java",
++    "//vanadium/ext/utils:method_cache_utils_java",
 +  ]
 +
 +  srcjar_deps = [
@@ -332,21 +333,23 @@ index 0000000000000..3f8931e264159
 +
 diff --git a/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
 new file mode 100644
-index 0000000000000..a88a868275cc2
+index 0000000000000..179766c6d6e51
 --- /dev/null
 +++ b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,71 @@
 +package org.chromium.net.conn_checks;
 +
++import org.chromium.build.annotations.NonNull;
 +import org.jni_zero.CalledByNative;
 +import org.jni_zero.JNINamespace;
 +
 +import org.chromium.base.Log;
 +import org.chromium.build.annotations.NullMarked;
-+import org.chromium.build.annotations.Nullable;
 +
-+import java.lang.reflect.Method;
 +import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++
++import app.vanadium.ext.utils.reflect.MethodCache;
 +
 +/** Class to access DNS server configuration. */
 +@JNINamespace("net::android")
@@ -370,40 +373,36 @@ index 0000000000000..a88a868275cc2
 +        return switch (connChecksSettingVal) {
 +            case ConnChecksOsSetting.GRAPHENEOS,
 +                 ConnChecksOsSetting.STANDARD,
-+                 ConnChecksOsSetting.DISABLED -> {
-+                yield connChecksSettingVal;
-+            }
-+            default -> {
-+                yield ConnChecksOsSetting.DEFAULT;
-+            }
++                 ConnChecksOsSetting.DISABLED -> connChecksSettingVal;
++            default -> ConnChecksOsSetting.DEFAULT;
 +        };
 +    }
 +
-+    private static volatile boolean sConnChecksSettingGetMethodInited;
-+    private static @Nullable Method sConnChecksSettingGetMethod;
++    @NonNull
++    private static final MethodCache sConnChecksSettingGetMethodCache =
++            MethodCache.of(new MethodCache.Fetcher() {
++                @Override
++                public Method getMethod() throws ClassNotFoundException, NoSuchMethodException {
++                    Class<?> clazz = Class.forName("android.ext.settings.ConnChecksSetting");
++                    return clazz.getDeclaredMethod("get");
++                }
++
++                @Override
++                public void logOrThrowMethodFetching(Throwable e) {
++                    Log.e(TAG, "", e);
++                }
++            });
 +
 +    private static int getInner() {
-+        if (!sConnChecksSettingGetMethodInited) {
-+            try {
-+                Class<?> connChecksSettingClass =
-+                        Class.forName("android.ext.settings.ConnChecksSetting");
-+                sConnChecksSettingGetMethod =
-+                        connChecksSettingClass.getDeclaredMethod("get");
-+            } catch (ClassNotFoundException | NoSuchMethodException e) {
-+                Log.e(TAG, "", e);
-+            }
-+
-+            sConnChecksSettingGetMethodInited = true;
-+        }
-+
-+        Method method = sConnChecksSettingGetMethod;
++        Method method = sConnChecksSettingGetMethodCache.getMethod();
 +        if (method == null) {
 +            return ConnChecksOsSetting.DEFAULT;
 +        }
 +
 +        try {
-+            return (int) method.invoke(null);
-+        } catch (InvocationTargetException | IllegalAccessException e) {
++            Integer res = (Integer) method.invoke(null);
++            return res != null ? res : ConnChecksOsSetting.DEFAULT;
++        } catch (IllegalAccessException | InvocationTargetException e) {
 +            Log.e(TAG, "", e);
 +            return ConnChecksOsSetting.DEFAULT;
 +        }
