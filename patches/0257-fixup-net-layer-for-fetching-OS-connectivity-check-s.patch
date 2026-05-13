@@ -1,0 +1,106 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 13 May 2026 11:22:53 +0000
+Subject: [PATCH] fixup! net layer for fetching OS connectivity check settings
+
+---
+ net/downstream/conn_checks/android/BUILD.gn   |  1 +
+ .../net/conn_checks/ConnChecksUtil.java       | 50 +++++++++----------
+ 2 files changed, 25 insertions(+), 26 deletions(-)
+
+diff --git a/net/downstream/conn_checks/android/BUILD.gn b/net/downstream/conn_checks/android/BUILD.gn
+index 5ad9a89fa5040..2ede53a383695 100644
+--- a/net/downstream/conn_checks/android/BUILD.gn
++++ b/net/downstream/conn_checks/android/BUILD.gn
+@@ -83,6 +83,7 @@ android_library("conn_checks_util_java") {
+     "//base:base_java",
+     "//build/android:build_java",
+     "//third_party/jni_zero:jni_zero_java",
++    "//vanadium/ext/utils:member_cache_utils_java",
+   ]
+ 
+   srcjar_deps = [
+diff --git a/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
+index a88a868275cc2..9458ba699b5e1 100644
+--- a/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
++++ b/net/downstream/conn_checks/android/java/src/org/chromium/net/conn_checks/ConnChecksUtil.java
+@@ -1,14 +1,16 @@
+ package org.chromium.net.conn_checks;
+ 
++import org.chromium.build.annotations.NonNull;
+ import org.jni_zero.CalledByNative;
+ import org.jni_zero.JNINamespace;
+ 
+ import org.chromium.base.Log;
+ import org.chromium.build.annotations.NullMarked;
+-import org.chromium.build.annotations.Nullable;
+ 
+-import java.lang.reflect.Method;
+ import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++
++import app.vanadium.ext.utils.reflect.MemberCache;
+ 
+ /** Class to access DNS server configuration. */
+ @JNINamespace("net::android")
+@@ -32,40 +34,36 @@ public final class ConnChecksUtil {
+         return switch (connChecksSettingVal) {
+             case ConnChecksOsSetting.GRAPHENEOS,
+                  ConnChecksOsSetting.STANDARD,
+-                 ConnChecksOsSetting.DISABLED -> {
+-                yield connChecksSettingVal;
+-            }
+-            default -> {
+-                yield ConnChecksOsSetting.DEFAULT;
+-            }
++                 ConnChecksOsSetting.DISABLED -> connChecksSettingVal;
++            default -> ConnChecksOsSetting.DEFAULT;
+         };
+     }
+ 
+-    private static volatile boolean sConnChecksSettingGetMethodInited;
+-    private static @Nullable Method sConnChecksSettingGetMethod;
++    @NonNull
++    private static final MemberCache<Method> sConnChecksSettingGetMethodCache =
++            MemberCache.of(new MemberCache.Fetcher<>() {
++                @Override
++                public Method getMember() throws ClassNotFoundException, NoSuchMethodException {
++                    Class<?> clazz = Class.forName("android.ext.settings.ConnChecksSetting");
++                    return clazz.getDeclaredMethod("get");
++                }
+ 
+-    private static int getInner() {
+-        if (!sConnChecksSettingGetMethodInited) {
+-            try {
+-                Class<?> connChecksSettingClass =
+-                        Class.forName("android.ext.settings.ConnChecksSetting");
+-                sConnChecksSettingGetMethod =
+-                        connChecksSettingClass.getDeclaredMethod("get");
+-            } catch (ClassNotFoundException | NoSuchMethodException e) {
+-                Log.e(TAG, "", e);
+-            }
++                @Override
++                public void logOrThrow(ReflectiveOperationException e) {
++                    Log.e(TAG, "", e);
++                }
++            });
+ 
+-            sConnChecksSettingGetMethodInited = true;
+-        }
+-
+-        Method method = sConnChecksSettingGetMethod;
++    private static int getInner() {
++        Method method = sConnChecksSettingGetMethodCache.getMember();
+         if (method == null) {
+             return ConnChecksOsSetting.DEFAULT;
+         }
+ 
+         try {
+-            return (int) method.invoke(null);
+-        } catch (InvocationTargetException | IllegalAccessException e) {
++            Integer res = (Integer) method.invoke(null);
++            return res != null ? res : ConnChecksOsSetting.DEFAULT;
++        } catch (IllegalAccessException | InvocationTargetException e) {
+             Log.e(TAG, "", e);
+             return ConnChecksOsSetting.DEFAULT;
+         }
