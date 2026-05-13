@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 13 May 2026 09:16:11 +0000
+Subject: [PATCH] fixup! Always start child processes in jitless mode when
+ execmem is blocked
+
+---
+ .../base/library_loader/LibraryLoaderHooks.java   | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+index 68a4829fdcb17..c941419bdb6cf 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoaderHooks.java
+@@ -9,8 +9,11 @@ import org.chromium.base.config.VanadiumConfigBridge;
+ import java.util.ArrayList;
+ import java.util.LinkedHashSet;
+ 
++import app.vanadium.config.VanadiumConfParser;
+ import app.vanadium.ext.CustomOSApis;
+ 
++import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
++
+ class LibraryLoaderHooks {
+ 
+     static void onSetLibraryProcessType(Context appContext, @LibraryProcessType int type) {
+@@ -27,10 +30,14 @@ class LibraryLoaderHooks {
+             case LibraryProcessType.PROCESS_CHILD:
+             case LibraryProcessType.PROCESS_WEBVIEW_CHILD:
+                 if (CommandLine.getInstance() != null) {
+-                    boolean checkForOSConfigForJitless =
+-                            !VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(
+-                                    "disabled-features").contains("CheckOsConfigsForIsolatedProcessV1");
+-                    if (checkForOSConfigForJitless && CustomOSApis.isExecmemBlocked()) {
++                    if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE)
++                            .containsKey("CheckOsConfigsForIsolatedProcessV1")) {
++                        return;
++                    }
++                    // Only use this approach if new checks from OS configs for DCL
++                    // has regressions, using the needed config flags.
++                    Boolean isExecmemBlocked = CustomOSApis.isExecmemBlocked();
++                    if (isExecmemBlocked != null && isExecmemBlocked) {
+                         String jsFlagsName = "js-flags";
+                         LinkedHashSet<String> jsFlags = new LinkedHashSet<>(
+                                 VanadiumCommandLineUtils.getCommaDelimitedSwitchValue(jsFlagsName));
