@@ -1,0 +1,207 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 13 May 2026 11:46:12 +0000
+Subject: [PATCH] fixup! Implement UI for JIT site settings
+
+---
+ .../JavascriptJitSettingsHooks.java           | 100 ++++++++++++++++--
+ .../site_settings_android_java_ext_deps.gni   |   1 +
+ .../strings/android/site_settings_ext.grdp    |   6 ++
+ 3 files changed, 100 insertions(+), 7 deletions(-)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
+index 6e7c250268f65..5183cb0d9cbf1 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
+@@ -2,18 +2,41 @@ package org.chromium.components.browser_ui.site_settings;
+ 
+ import androidx.preference.Preference;
+ 
++import org.chromium.base.ApiCompatibilityUtils;
+ import org.chromium.build.annotations.AlwaysInline;
+ import org.chromium.build.annotations.NonNull;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
+ import org.chromium.components.browser_ui.settings.ChromeBasePreference;
++import org.chromium.components.browser_ui.styles.SemanticColorUtils;
+ import org.chromium.components.content_settings.ContentSetting;
+ import org.chromium.components.content_settings.ContentSettingsType;
+ import org.chromium.content_public.browser.BrowserContextHandle;
+ 
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.ext.CustomOSApis;
++
++import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
++
++import android.content.Context;
++import android.graphics.ColorFilter;
++import android.graphics.PorterDuff;
++import android.graphics.PorterDuffColorFilter;
++import android.graphics.drawable.Drawable;
++
+ @NullMarked
+ public final class JavascriptJitSettingsHooks {
+ 
++    public static boolean isSettingsDisabled() {
++        String featureKey = "CheckOsConfigsForJavascriptJitSiteSettings";
++        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE).containsKey(featureKey)) {
++            return false;
++        }
++
++        Boolean isMemoryDclRestricted = CustomOSApis.isMemoryDclRestricted();
++        return isMemoryDclRestricted != null && isMemoryDclRestricted;
++    }
++
+     @NonNull
+     @AlwaysInline
+     private static String commonPrefKey() {
+@@ -73,11 +96,6 @@ public final class JavascriptJitSettingsHooks {
+         public int getDisabledPrimaryTextRes() {
+             return R.string.website_settings_javascript_jit_block;
+         }
+-
+-        @Override
+-        public int getDisabledDescriptionTextRes() {
+-            return super.getDisabledDescriptionTextRes();
+-        }
+     }
+ 
+     static final class CategoryHooksImpl extends SiteSettingsCategoryHooks {
+@@ -95,7 +113,46 @@ public final class JavascriptJitSettingsHooks {
+         @Override
+         @NonNull
+         protected SiteSettingsCategory getSiteSettingsCategory(@NonNull BrowserContextHandle bch) {
+-            return new SiteSettingsCategory(bch, SiteSettingsCategory.Type.JAVASCRIPT_JIT, "");
++            return new JavascriptJitSiteSettingsCategory(bch);
++        }
++    }
++
++    static final class JavascriptJitSiteSettingsCategory extends SiteSettingsCategory {
++
++        JavascriptJitSiteSettingsCategory(@NonNull BrowserContextHandle bch) {
++            super(bch, SiteSettingsCategory.Type.JAVASCRIPT_JIT, "");
++        }
++
++        @Override
++        protected boolean enabledForChrome(Context context) {
++            return !isSettingsDisabled();
++        }
++
++        @Override
++        protected boolean shouldDisableToggle() {
++            return isSettingsDisabled();
++        }
++
++        @Override
++        protected String getMessageForEnablingOsPerAppPermission(Context context, String appName) {
++            return context.getString(R.string.browser_dcl_memory_restricted_with_link, appName);
++        }
++
++        @Override
++        protected @Nullable String getMessageWhyToggleIsDisabled(Context context) {
++            return context.getString(R.string.browser_dcl_memory_restricted);
++        }
++
++        @Override
++        Drawable getDisabledInAndroidIcon(Context context) {
++            Drawable icon = ApiCompatibilityUtils.getDrawable(
++                    context.getResources(), R.drawable.secured_by_brand_shield_24);
++            icon.mutate();
++            int disabledColor = SemanticColorUtils.getDefaultControlColorActive(context);
++            ColorFilter colorFilter =
++                    new PorterDuffColorFilter(disabledColor, PorterDuff.Mode.SRC_IN);
++            icon.setColorFilter(colorFilter);
++            return icon;
+         }
+     }
+ 
+@@ -115,6 +172,17 @@ public final class JavascriptJitSettingsHooks {
+             ChromeBasePreference pref = defaultCreatePreference(siteSettingsFragment, commonPrefKey());
+             addPreference(siteSettingsFragment, siteSettingsDelegate, categoryType, pref);
+         }
++
++        @Override
++        protected void updateSiteSettingsPreference(
++                @NonNull SiteSettings siteSettingsFragment,
++                @NonNull SiteSettingsDelegate siteSettingsDelegate,
++                @NonNull Preference existingPreference) {
++            if (isSettingsDisabled()) {
++                existingPreference.setSummary(ContentSettingsResources.getCategorySummary(
++                        ContentSetting.BLOCK, /* isOneTime= */ false));
++            }
++        }
+     }
+ 
+     static final class WebsitePermissionsFetcherHooksImpl extends WebsitePermissionsFetcherHooks {
+@@ -139,7 +207,7 @@ public final class JavascriptJitSettingsHooks {
+ 
+         @Override
+         protected @Nullable Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
+-            return true;
++            return !isSettingsDisabled();
+         }
+ 
+         @Override
+@@ -147,6 +215,11 @@ public final class JavascriptJitSettingsHooks {
+             return isCategoryEnabled ? R.string.website_settings_add_site_description_javascript_jit_block
+                                      : R.string.website_settings_add_site_description_javascript_jit_allow;
+         }
++
++        @Override
++        protected boolean shouldAlwaysShowOsWarning() {
++            return isSettingsDisabled();
++        }
+     }
+ 
+     static final class SingleWebsiteSettingsHooksImpl extends SingleWebsiteSettingsHooks {
+@@ -160,6 +233,9 @@ public final class JavascriptJitSettingsHooks {
+                 @NonNull BrowserContextHandle browserContextHandle,
+                 @NonNull Website website,
+                 @ContentSettingsType.EnumType int contentType) {
++            if (isSettingsDisabled()) {
++                return ContentSetting.BLOCK;
++            }
+             Integer curValue = website.getContentSetting(browserContextHandle, contentType);
+             if (curValue == null) {
+                 boolean isEnabled = WebsitePreferenceBridge.isContentSettingEnabled(browserContextHandle, contentType);
+@@ -167,5 +243,15 @@ public final class JavascriptJitSettingsHooks {
+             }
+             return curValue;
+         }
++
++        @Override
++        protected void setupOrModifyPreference(
++                @NonNull SingleWebsiteSettings siteSettingsFragment,
++                @NonNull BrowserContextHandle browserContextHandle,
++                @NonNull Preference preference) {
++            if (isSettingsDisabled()) {
++                preference.setEnabled(false);
++            }
++        }
+     }
+ }
+diff --git a/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni b/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+index 826e124b4301f..8018c83f418e3 100644
+--- a/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
++++ b/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+@@ -3,4 +3,5 @@
+ # found in the LICENSE file.
+ 
+ site_settings_android_java_ext_deps = [
++  "//vanadium/ext/custom_os:custom_os_apis_java",
+ ]
+diff --git a/components/browser_ui/strings/android/site_settings_ext.grdp b/components/browser_ui/strings/android/site_settings_ext.grdp
+index ad779ee9eeaa2..900acd447c7b1 100644
+--- a/components/browser_ui/strings/android/site_settings_ext.grdp
++++ b/components/browser_ui/strings/android/site_settings_ext.grdp
+@@ -28,4 +28,10 @@
+   <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_MOTION_SENSORS_BLOCK" desc="The description for the block motion sensors for website dialog.">
+     Block motion sensors for a specific site.
+   </message>
++  <message name="IDS_BROWSER_DCL_MEMORY_RESTRICTED" desc="Text that explains to the user that dynamic code loading via memory restricted.">
++    Dynamic code loading via memory is restricted.
++  </message>
++  <message name="IDS_BROWSER_DCL_MEMORY_RESTRICTED_WITH_LINK" desc="Text at the top of the Website list, explaining to the user that dynamic code loading via memory restricted. Contains a link to the settings menu to change it.">
++    Dynamic code loading via memory for <ph name="APP_NAME">%1$s<ex>Vanadium</ex></ph> is currently restricted, which can be allowed at <ph name="BEGIN_LINK">&lt;link&gt;</ph>Android Settings<ph name="END_LINK">&lt;/link&gt;</ph>.
++  </message>
+ </grit-part>
