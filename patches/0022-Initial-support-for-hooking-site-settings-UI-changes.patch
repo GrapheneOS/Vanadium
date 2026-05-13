@@ -4,23 +4,23 @@ Date: Tue, 7 Apr 2026 09:10:53 +0000
 Subject: [PATCH] Initial support for hooking site settings UI changes
 
 ---
- .../ContentSettingsResources.java             |  83 ++++++++++++
- .../site_settings/SingleCategorySettings.java |  35 +++++
- .../SingleCategorySettingsHooks.java          |  61 +++++++++
- .../site_settings/SingleWebsiteSettings.java  |  18 +++
- .../SingleWebsiteSettingsHooks.java           |  60 +++++++++
+ .../ContentSettingsResources.java             |  83 +++++++++++++
+ .../site_settings/SingleCategorySettings.java |  35 ++++++
+ .../SingleCategorySettingsHooks.java          |  61 ++++++++++
+ .../site_settings/SingleWebsiteSettings.java  |  20 ++++
+ .../SingleWebsiteSettingsHooks.java           |  53 ++++++++
  .../site_settings/SiteSettings.java           |  13 ++
- .../site_settings/SiteSettingsCategory.java   |  60 ++++++++-
- .../SiteSettingsCategoryHooks.java            |  48 +++++++
- .../SiteSettingsHooksRegistry.java            | 125 ++++++++++++++++++
- .../SiteSettingsResourcesHooks.java           |  75 +++++++++++
- .../SiteSettingsScreenHooks.java              | 111 ++++++++++++++++
+ .../site_settings/SiteSettingsCategory.java   |  51 +++++++-
+ .../SiteSettingsCategoryHooks.java            |  48 ++++++++
+ .../SiteSettingsHooksRegistry.java            | 113 ++++++++++++++++++
+ .../SiteSettingsResourcesHooks.java           |  75 ++++++++++++
+ .../SiteSettingsScreenHooks.java              | 111 +++++++++++++++++
  .../site_settings/SiteSettingsUtil.java       |   4 +-
- .../browser_ui/site_settings/Website.java     |  36 +++++
+ .../browser_ui/site_settings/Website.java     |  36 ++++++
  .../WebsitePermissionsFetcher.java            |  19 +++
- .../WebsitePermissionsFetcherHooks.java       |  55 ++++++++
- ...site_settings_android_java_ext_sources.gni |   7 +
- 16 files changed, 806 insertions(+), 4 deletions(-)
+ .../WebsitePermissionsFetcherHooks.java       |  55 +++++++++
+ ...site_settings_android_java_ext_sources.gni |   7 ++
+ 16 files changed, 780 insertions(+), 4 deletions(-)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategoryHooks.java
@@ -251,7 +251,7 @@ index 0000000000000..e681344f6243a
 +    }
 +}
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 0fd4b9c345d93..76a8468578198 100644
+index 0fd4b9c345d93..8278042cfa409 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 @@ -143,6 +143,15 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
@@ -270,7 +270,7 @@ index 0fd4b9c345d93..76a8468578198 100644
          switch (type) {
              case ContentSettingsType.ADS:
                  return "ads_permission_list";
-@@ -659,6 +668,15 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -659,6 +668,17 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
          for (@ContentSettingsType.EnumType int type : SiteSettingsUtil.SETTINGS_ORDER) {
              Preference preference = getPermissionPreference(type);
              preference.setKey(getPreferenceKey(type));
@@ -282,25 +282,26 @@ index 0fd4b9c345d93..76a8468578198 100644
 +                        hooks.getContentSettingForSetup(getBrowserContextHandle(), mSite, type),
 +                        mSite.isEmbargoed(type),
 +                        isOneTime(type));
++                hooks.setupOrModifyPreference(this, getBrowserContextHandle(), preference);
++                continue;
 +            }
  
              if (type == ContentSettingsType.ADS) {
                  setUpAdsPreference(preference);
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
 new file mode 100644
-index 0000000000000..5737bb2acebdd
+index 0000000000000..01d8582a63027
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,53 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import androidx.preference.Preference;
 +
-+import org.chromium.build.annotations.AlwaysInline;
 +import org.chromium.build.annotations.NonNull;
 +import org.chromium.build.annotations.NullMarked;
 +import org.chromium.build.annotations.Nullable;
-+import org.chromium.components.browser_ui.settings.ChromeBasePreference;
++import org.chromium.components.content_settings.ContentSetting;
 +import org.chromium.components.content_settings.ContentSettingsType;
 +import org.chromium.content_public.browser.BrowserContextHandle;
 +
@@ -331,6 +332,7 @@ index 0000000000000..5737bb2acebdd
 +    }
 +
 +    @Nullable
++    @ContentSetting
 +    protected Integer getContentSettingForSetup(
 +            @NonNull BrowserContextHandle browserContextHandle,
 +            @NonNull Website website,
@@ -338,19 +340,12 @@ index 0000000000000..5737bb2acebdd
 +        return null;
 +    }
 +
-+    /**
-+     * Has to be of following types for now:
-+     * org.chromium.components.browser_ui.settings.ChromeImageViewPreference
-+     * org.chromium.components.browser_ui.settings.ChromeSwitchPreference
-+     * currently disabled until further notice
-+    @Nullable
-+    protected Preference getOverridenPreference(
-+            @NonNull SiteSettings siteSettingsFragment,
-+            @NonNull SiteSettingsDelegate siteSettingsDelegate,
-+            @ContentSettingsType.EnumType int contentType) {
-+        return null;
++    // Return true if preference set is overridden in subclass.
++    protected void setupOrModifyPreference(
++            @NonNull SingleWebsiteSettings siteSettingsFragment,
++            @NonNull BrowserContextHandle browserContextHandle,
++            @NonNull Preference preference) {
 +    }
-+     */
 +}
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
 index fc9f116ff6544..6843ee392312a 100644
@@ -384,7 +379,7 @@ index fc9f116ff6544..6843ee392312a 100644
  
          // For AllSiteSettings options.
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
-index d335c6e2ea9ed..b51d43d085ab4 100644
+index d335c6e2ea9ed..c5c26f7c7049c 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 @@ -83,7 +83,13 @@ public class SiteSettingsCategory {
@@ -402,7 +397,7 @@ index d335c6e2ea9ed..b51d43d085ab4 100644
      })
      @Retention(RetentionPolicy.SOURCE)
      public @interface Type {
-@@ -130,7 +136,28 @@ public class SiteSettingsCategory {
+@@ -130,7 +136,19 @@ public class SiteSettingsCategory {
          int LOOPBACK_NETWORK = 38;
  
          /** Number of handled categories used for calculating array sizes. */
@@ -412,27 +407,18 @@ index d335c6e2ea9ed..b51d43d085ab4 100644
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
-+        int NUM_ENTRIES = NUM_ENTRIES_CHROMIUM + ExtType.NUM_ENTRIES;
++        int NUM_ENTRIES_EXT = 0;
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
-+    }
-+
-+    @IntDef({
-+        ExtType.NUM_ENTRIES,
-+    })
-+    @interface ExtType {
-+        // Three lines of placeholder comment to minimize cascading conflicts.
-+        // Three lines of placeholder comment to minimize cascading conflicts.
-+        // Three lines of placeholder comment to minimize cascading conflicts.
-+        int NUM_ENTRIES = 0;
++        int NUM_ENTRIES = NUM_ENTRIES_CHROMIUM + NUM_ENTRIES_EXT;
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
      }
  
      private final BrowserContextHandle mBrowserContextHandle;
-@@ -167,6 +194,16 @@ public class SiteSettingsCategory {
+@@ -167,6 +185,16 @@ public class SiteSettingsCategory {
      /** Construct a SiteSettingsCategory from a type. */
      public static SiteSettingsCategory createFromType(
              BrowserContextHandle browserContextHandle, @Type int type) {
@@ -449,7 +435,7 @@ index d335c6e2ea9ed..b51d43d085ab4 100644
          if (type == Type.DEVICE_LOCATION) {
              return new LocationCategory(browserContextHandle, /* forPreciseLocation= */ true);
          }
-@@ -218,6 +255,16 @@ public class SiteSettingsCategory {
+@@ -218,6 +246,16 @@ public class SiteSettingsCategory {
  
      /** Convert Type into {@link ContentSettingsType}. */
      public static @ContentSettingsType.EnumType int contentSettingsType(@Type int type) {
@@ -466,7 +452,7 @@ index d335c6e2ea9ed..b51d43d085ab4 100644
          // This switch statement is ordered by types alphabetically.
          switch (type) {
              case Type.ADS:
-@@ -319,6 +366,15 @@ public class SiteSettingsCategory {
+@@ -319,6 +357,15 @@ public class SiteSettingsCategory {
  
      /** Convert Type into preference String */
      public static String preferenceKey(@Type int type) {
@@ -538,10 +524,10 @@ index 0000000000000..d4f611ebaeefa
 +}
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
 new file mode 100644
-index 0000000000000..e35725146caeb
+index 0000000000000..113bdb933cd4b
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,113 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import org.chromium.build.annotations.NonNull;
@@ -549,24 +535,15 @@ index 0000000000000..e35725146caeb
 +import org.chromium.components.content_settings.ContentSettingsType;
 +
 +import java.util.LinkedHashMap;
++import java.util.Map;
 +
 +@NullMarked
 +public final class SiteSettingsHooksRegistry {
 +
-+    @SiteSettingsCategory.ExtType
-+    public static int getExtTypeFromCategoryType(
-+            @SiteSettingsCategory.Type int categoryType) {
-+        return switch (categoryType) {
-+            default -> SiteSettingsCategory.ExtType.NUM_ENTRIES;
-+        };
-+    }
-+
 +    @NonNull
 +    public static SingleCategorySettingsHooks getSingleCategorySettingsHooks(
 +            @SiteSettingsCategory.Type int categoryType) {
-+        @SiteSettingsCategory.ExtType
-+        int extType = getExtTypeFromCategoryType(categoryType);
-+        return switch (extType) {
++        return switch (categoryType) {
 +            default -> SingleCategorySettingsHooks.getDefaultInstance();
 +        };
 +    }
@@ -582,9 +559,7 @@ index 0000000000000..e35725146caeb
 +    @NonNull
 +    public static SiteSettingsCategoryHooks getCategoryHooks(
 +            @SiteSettingsCategory.Type int categoryType) {
-+        @SiteSettingsCategory.ExtType
-+        int extType = getExtTypeFromCategoryType(categoryType);
-+        return switch (extType) {
++        return switch (categoryType) {
 +            default -> SiteSettingsCategoryHooks.getDefaultInstance();
 +        };
 +    }
@@ -600,9 +575,7 @@ index 0000000000000..e35725146caeb
 +    @NonNull
 +    public static SiteSettingsScreenHooks getSiteSettingsScreenHooks(
 +            @SiteSettingsCategory.Type int categoryType) {
-+        @SiteSettingsCategory.ExtType
-+        int extType = getExtTypeFromCategoryType(categoryType);
-+        return switch (extType) {
++        return switch (categoryType) {
 +            default -> SiteSettingsScreenHooks.getDefaultInstance();
 +        };
 +    }
@@ -621,23 +594,28 @@ index 0000000000000..e35725146caeb
 +            @NonNull @ContentSettingsType.EnumType int[] existingOrder) {
 +        LinkedHashMap<Integer, LinkedHashMap<Integer, Boolean>>
 +                prevToNextContentTypeMap = new LinkedHashMap<>();
-+        for (int i = SiteSettingsCategory.Type.NUM_ENTRIES_CHROMIUM;
-+                i < SiteSettingsCategory.Type.NUM_ENTRIES; ++i) {
-+            SiteSettingsScreenHooks hooks = getSiteSettingsScreenHooks(i);
++        for (int typeExt = SiteSettingsCategory.Type.NUM_ENTRIES_CHROMIUM;
++                typeExt < SiteSettingsCategory.Type.NUM_ENTRIES; ++typeExt) {
++            SiteSettingsScreenHooks hooks = getSiteSettingsScreenHooks(typeExt);
 +            if (!hooks.isDefaultInstance()) {
-+                int contentSettingsType = SiteSettingsCategory.contentSettingsType(i);
++                int contentSettingsType = SiteSettingsCategory.contentSettingsType(typeExt);
 +                if (contentSettingsType == ContentSettingsType.DEFAULT) {
 +                    continue;
 +                }
 +                int prevContentType = hooks.getPreviousContentSettings();
 +                LinkedHashMap<Integer, Boolean> nextContentTypes =
-+                        prevToNextContentTypeMap.getOrDefault(prevContentType, new LinkedHashMap<>());
++                        prevToNextContentTypeMap.getOrDefault(
++                                prevContentType, new LinkedHashMap<>());
 +                nextContentTypes.put(contentSettingsType, true);
 +                prevToNextContentTypeMap.put(prevContentType, nextContentTypes);
 +            }
 +        }
 +
-+        var newOrder = new LinkedHashMap<Integer, Boolean>();
++        LinkedHashMap<Integer, Boolean> newOrder = new LinkedHashMap<>();
++        LinkedHashMap<Integer, Boolean> firstEntries =
++                prevToNextContentTypeMap.getOrDefault(
++                        ContentSettingsType.MIN_VALUE, new LinkedHashMap<>());
++        newOrder.putAll(firstEntries);
 +        for (int contentType: existingOrder) {
 +            newOrder.put(contentType, true);
 +            LinkedHashMap<Integer, Boolean> nextContentTypes =
@@ -645,23 +623,19 @@ index 0000000000000..e35725146caeb
 +                            new LinkedHashMap<>());
 +            newOrder.putAll(nextContentTypes);
 +        }
++        LinkedHashMap<Integer, Boolean> lastEntries =
++                prevToNextContentTypeMap.getOrDefault(
++                        ContentSettingsType.MAX_VALUE, new LinkedHashMap<>());
++        newOrder.putAll(lastEntries);
 +
 +        int newOrderSize = newOrder.size();
 +        @ContentSettingsType.EnumType
-+        int[] newOrderArr = new int[newOrder.size()];
-+        {
-+            int[] index = new int[1];
-+            index[0] = 0;
-+            newOrder.forEach((contentType, unused) -> {
-+                int i = index[0];
-+                if (i >= newOrderSize) {
-+                    return;
-+                }
-+                newOrderArr[i] = contentType;
-+                i++;
-+                index[0] = i;
-+            });
-+            index[0] = 0;
++        int[] newOrderArr = new int[newOrderSize];
++        int i = 0;
++        for (Map.Entry<Integer, Boolean> entry: newOrder.entrySet()) {
++            int contentType = entry.getKey();
++            newOrderArr[i] = contentType;
++            i++;
 +        }
 +
 +        return newOrderArr;

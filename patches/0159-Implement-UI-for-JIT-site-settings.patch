@@ -5,8 +5,8 @@ Subject: [PATCH] Implement UI for JIT site settings
 
 ---
  .../JavascriptJitSettingsHooks.java           | 171 ++++++++++++++++++
- .../site_settings/SiteSettingsCategory.java   |  15 +-
- .../SiteSettingsHooksRegistry.java            |   7 +
+ .../site_settings/SiteSettingsCategory.java   |  10 +-
+ .../SiteSettingsHooksRegistry.java            |   6 +
  ...site_settings_android_java_ext_sources.gni |   1 +
  .../android/website_preference_bridge.cc      |   1 +
  .../strings/android/site_settings_ext.grdp    |  22 +++
@@ -15,7 +15,7 @@ Subject: [PATCH] Implement UI for JIT site settings
  components/page_info/page_info.cc             |   6 +
  components/page_info/page_info_ui.cc          |   2 +
  components/site_settings_strings_ext.grdp     |   6 +
- 11 files changed, 234 insertions(+), 2 deletions(-)
+ 11 files changed, 228 insertions(+), 2 deletions(-)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
@@ -196,7 +196,7 @@ index 0000000000000..6e7c250268f65
 +    }
 +}
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
-index b51d43d085ab4..05b8ef43302e4 100644
+index c5c26f7c7049c..ddfea3fd63f61 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 @@ -86,6 +86,10 @@ public class SiteSettingsCategory {
@@ -210,58 +210,32 @@ index b51d43d085ab4..05b8ef43302e4 100644
          Type.NUM_ENTRIES,
          // Three lines of placeholder comment to minimize cascading conflicts.
          // Three lines of placeholder comment to minimize cascading conflicts.
-@@ -138,6 +142,10 @@ public class SiteSettingsCategory {
-         /** Number of handled categories used for calculating array sizes. */
-         int NUM_ENTRIES_CHROMIUM = 39;
- 
-+        // Three lines of placeholder comment to minimize cascading conflicts.
-+        // Three lines of placeholder comment to minimize cascading conflicts.
-+        // Three lines of placeholder comment to minimize cascading conflicts.
-+        int JAVASCRIPT_JIT = SiteSettingsCategory.Type.NUM_ENTRIES_CHROMIUM + SiteSettingsCategory.ExtType.JAVASCRIPT_JIT;
+@@ -141,7 +145,11 @@ public class SiteSettingsCategory {
          // Three lines of placeholder comment to minimize cascading conflicts.
          // Three lines of placeholder comment to minimize cascading conflicts.
          // Three lines of placeholder comment to minimize cascading conflicts.
-@@ -148,13 +156,18 @@ public class SiteSettingsCategory {
-     }
- 
-     @IntDef({
-+        ExtType.JAVASCRIPT_JIT,
-         ExtType.NUM_ENTRIES,
-     })
-     @interface ExtType {
-         // Three lines of placeholder comment to minimize cascading conflicts.
-         // Three lines of placeholder comment to minimize cascading conflicts.
-         // Three lines of placeholder comment to minimize cascading conflicts.
--        int NUM_ENTRIES = 0;
-+        int JAVASCRIPT_JIT = 0;
+-        int NUM_ENTRIES_EXT = 0;
++        int JAVASCRIPT_JIT = NUM_ENTRIES_CHROMIUM + 0;
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
 +        // Three lines of placeholder comment to minimize cascading conflicts.
-+        int NUM_ENTRIES = 1;
++        int NUM_ENTRIES_EXT = 1;
          // Three lines of placeholder comment to minimize cascading conflicts.
          // Three lines of placeholder comment to minimize cascading conflicts.
          // Three lines of placeholder comment to minimize cascading conflicts.
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
-index e35725146caeb..9639018faf7ca 100644
+index 113bdb933cd4b..b5b24f05ef0be 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
-@@ -13,6 +13,7 @@ public final class SiteSettingsHooksRegistry {
-     public static int getExtTypeFromCategoryType(
+@@ -14,6 +14,7 @@ public final class SiteSettingsHooksRegistry {
+     public static SingleCategorySettingsHooks getSingleCategorySettingsHooks(
              @SiteSettingsCategory.Type int categoryType) {
          return switch (categoryType) {
-+            case SiteSettingsCategory.Type.JAVASCRIPT_JIT -> SiteSettingsCategory.ExtType.JAVASCRIPT_JIT;
-             default -> SiteSettingsCategory.ExtType.NUM_ENTRIES;
-         };
-     }
-@@ -23,6 +24,7 @@ public final class SiteSettingsHooksRegistry {
-         @SiteSettingsCategory.ExtType
-         int extType = getExtTypeFromCategoryType(categoryType);
-         return switch (extType) {
-+            case SiteSettingsCategory.ExtType.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.SingleCategorySettingsHooksImpl();
++            case SiteSettingsCategory.Type.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.SingleCategorySettingsHooksImpl();
              default -> SingleCategorySettingsHooks.getDefaultInstance();
          };
      }
-@@ -31,6 +33,7 @@ public final class SiteSettingsHooksRegistry {
+@@ -22,6 +23,7 @@ public final class SiteSettingsHooksRegistry {
      public static SingleWebsiteSettingsHooks getSingleWebsiteSettingsHooks(
              @ContentSettingsType.EnumType int contentType) {
          return switch (contentType) {
@@ -269,15 +243,15 @@ index e35725146caeb..9639018faf7ca 100644
              default -> SingleWebsiteSettingsHooks.getDefaultInstance();
          };
      }
-@@ -41,6 +44,7 @@ public final class SiteSettingsHooksRegistry {
-         @SiteSettingsCategory.ExtType
-         int extType = getExtTypeFromCategoryType(categoryType);
-         return switch (extType) {
-+            case SiteSettingsCategory.ExtType.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.CategoryHooksImpl();
+@@ -30,6 +32,7 @@ public final class SiteSettingsHooksRegistry {
+     public static SiteSettingsCategoryHooks getCategoryHooks(
+             @SiteSettingsCategory.Type int categoryType) {
+         return switch (categoryType) {
++            case SiteSettingsCategory.Type.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.CategoryHooksImpl();
              default -> SiteSettingsCategoryHooks.getDefaultInstance();
          };
      }
-@@ -49,6 +53,7 @@ public final class SiteSettingsHooksRegistry {
+@@ -38,6 +41,7 @@ public final class SiteSettingsHooksRegistry {
      public static SiteSettingsResourcesHooks getResourcesHooks(
              @ContentSettingsType.EnumType int contentType) {
          return switch (contentType) {
@@ -285,15 +259,15 @@ index e35725146caeb..9639018faf7ca 100644
              default -> SiteSettingsResourcesHooks.getDefaultInstance();
          };
      }
-@@ -59,6 +64,7 @@ public final class SiteSettingsHooksRegistry {
-         @SiteSettingsCategory.ExtType
-         int extType = getExtTypeFromCategoryType(categoryType);
-         return switch (extType) {
-+            case SiteSettingsCategory.ExtType.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.SiteSettingsScreenHooksImpl();
+@@ -46,6 +50,7 @@ public final class SiteSettingsHooksRegistry {
+     public static SiteSettingsScreenHooks getSiteSettingsScreenHooks(
+             @SiteSettingsCategory.Type int categoryType) {
+         return switch (categoryType) {
++            case SiteSettingsCategory.Type.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.SiteSettingsScreenHooksImpl();
              default -> SiteSettingsScreenHooks.getDefaultInstance();
          };
      }
-@@ -67,6 +73,7 @@ public final class SiteSettingsHooksRegistry {
+@@ -54,6 +59,7 @@ public final class SiteSettingsHooksRegistry {
      public static WebsitePermissionsFetcherHooks getWebsitePermissionsFetcherHooks(
              @ContentSettingsType.EnumType int contentType) {
          return switch (contentType) {
@@ -356,7 +330,7 @@ index 4f00e4661d3cf..3a51bad2da3a7 100644
 +  </message>
  </grit-part>
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index 22c06c3a0825f..73701662ea02a 100644
+index d0b10fda002da..625d38d8eee31 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
 @@ -579,7 +579,7 @@ void ContentSettingsRegistry::Init() {
