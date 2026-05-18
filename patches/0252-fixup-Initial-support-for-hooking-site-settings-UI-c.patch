@@ -1,0 +1,91 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 18 May 2026 14:07:02 +0000
+Subject: [PATCH] fixup! Initial support for hooking site settings UI changes
+
+---
+ .../site_settings/SingleCategorySettings.java       | 13 +++++++++++++
+ .../site_settings/SingleCategorySettingsHooks.java  |  4 ++++
+ .../browser_ui/site_settings/SiteSettings.java      | 12 ++++++++++++
+ .../site_settings/SiteSettingsScreenHooks.java      |  4 ++++
+ 4 files changed, 33 insertions(+)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+index b7027b24366d6..e544b58df93ec 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+@@ -1475,10 +1475,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+     }
+ 
+     private void maybeShowOsWarning(PreferenceScreen screen) {
++        SingleCategorySettingsHooks hooks =
++                SiteSettingsHooksRegistry.getSingleCategorySettingsHooks(mCategory.getType());
++        if (!hooks.isDefaultInstance()) {
++            if (hooks.shouldAlwaysShowOsWarning()) {
++                showOsWarningInner(screen);
++                return;
++            }
++        }
++
+         if (isBlocked()) {
+             return;
+         }
+ 
++        showOsWarningInner(screen);
++    }
++
++    private void showOsWarningInner(PreferenceScreen screen) {
+         // Show the link to system settings since permission is disabled.
+         ChromeBasePreference osWarning = new ChromeBasePreference(getStyledContext(), null);
+         ChromeBasePreference osWarningExtra = new ChromeBasePreference(getStyledContext(), null);
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
+index e681344f6243a..05993d7066ad4 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
+@@ -58,4 +58,8 @@ public class SingleCategorySettingsHooks {
+     protected int getAddExceptionDialogMessageResourceId(boolean isCategoryEnabled) {
+         return SiteSettingsResourcesHooks.NO_RES_OVERRIDE;
+     }
++
++    protected boolean shouldAlwaysShowOsWarning() {
++        return false;
++    }
+ }
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
+index a6d9838d520ac..1594e8b1e3849 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
+@@ -298,6 +298,18 @@ public class SiteSettings extends BaseSiteSettingsFragment
+                 continue;
+             }
+             int titleId = ContentSettingsResources.getTitleForCategory(prefCategory);
++            SiteSettingsScreenHooks hooks =
++                    SiteSettingsHooksRegistry.getSiteSettingsScreenHooks(prefCategory);
++            if (!hooks.isDefaultInstance()) {
++                if (!hooks.isIndexable()) {
++                    continue;
++                }
++
++                if (indexData.getEntryForKey(prefFragment, key) == null) {
++                    indexData.addEntryForKey(prefFragment, key, titleId);
++                    continue;
++                }
++            }
+             indexData.updateEntryForKey(prefFragment, key, titleId);
+         }
+     }
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java
+index b2baf6e628cf9..7519442a5893c 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java
+@@ -40,6 +40,10 @@ public class SiteSettingsScreenHooks {
+         return ContentSettingsType.MAX_VALUE;
+     }
+ 
++    protected boolean isIndexable() {
++        return true;
++    }
++
+     protected void configureSiteSettingsPreference(
+             @NonNull SiteSettings siteSettingsFragment,
+             @NonNull SiteSettingsDelegate siteSettingsDelegate,
