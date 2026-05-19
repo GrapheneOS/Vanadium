@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 13 May 2026 16:23:37 +0000
+Subject: [PATCH] Reflect Javascript JIT state also dependent on OS configs
+
+---
+ .../components/page_info/PageInfoPermissionsController.java   | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java b/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
+index 50e641f74d54f..84e33182f3334 100644
+--- a/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
++++ b/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
+@@ -58,6 +58,10 @@ public class PageInfoPermissionsController extends PageInfoPreferenceSubpageCont
+                 boolean allowed,
+                 int warningTextResource,
+                 boolean requested) {
++            if (type == ContentSettingsType.JAVASCRIPT_JIT
++                    && org.chromium.components.browser_ui.site_settings.JavascriptJitSettingsHooks.isSettingsDisabled()) {
++                allowed = false;
++            }
+             this.type = type;
+             this.name = name;
+             this.nameMidSentence = nameMidSentence;

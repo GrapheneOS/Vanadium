@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 17 Feb 2026 11:18:01 +0000
+Subject: [PATCH] support redirecting text detection to downstream impl
+
+Currently, text detection is disabled, as this depends on Play services
+dynamite feature.
+
+TODO: Find a good quality replacement for text detection implementation.
+---
+ .../org/chromium/shape_detection/TextDetectionImpl.java  | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
+index fa03d6737d08f..458f10afd0316 100644
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
+@@ -88,6 +88,15 @@ public class TextDetectionImpl implements TextDetection {
+     }
+ 
+     public static @Nullable TextDetection create() {
++        if (DownstreamImpls.shouldUseTextDetectionImpl()) {
++            Log.i(TAG, "Redirecting to downstream implementation");
++            TextDetection impl = DownstreamImpls.getTextDetection();
++            if (impl == null) {
++                Log.i(TAG, "Disabling text detection, no implementation found");
++                return null;
++            }
++            return impl;
++        }
+         if (!ChromiumPlayServicesAvailability.isGooglePlayServicesAvailable(
+                 ContextUtils.getApplicationContext())) {
+             Log.e(TAG, "Google Play Services not available");

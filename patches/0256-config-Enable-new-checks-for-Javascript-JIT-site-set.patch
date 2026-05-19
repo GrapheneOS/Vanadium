@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 1 May 2026 16:50:54 +0000
+Subject: [PATCH] [config] Enable new checks for Javascript JIT site settings
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java     | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 3abfc6893b9db..53c1944a36a16 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -231,6 +231,17 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(
++                                getSpecTypes(SpecType.BROWSER))
++                                .setMinVersion(7778_168_00L)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("CheckOsConfigsForJavascriptJitSiteSettings")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 29 Apr 2026 08:43:51 +0000
+Subject: [PATCH] [config] Disable initial checks from OS to apply on browser
+
+This disables the old approach of applying needed configurations,
+including JITless mode if execmem is blocked upon each initialization of
+isolated processes.
+---
+ .../app/vanadium/config/host/ConfigGenerator.java     | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 970f812f89598..6b51a0f034ad8 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -209,6 +209,17 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(
++                                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW))
++                                .setMinVersion(7778_168_00L)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("CheckOsConfigsForIsolatedProcessV1")
++                                .setFlagType(FlagType.DISABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

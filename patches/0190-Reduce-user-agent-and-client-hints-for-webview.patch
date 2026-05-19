@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 12 Dec 2024 07:09:40 +0000
+Subject: [PATCH] Reduce user agent and client hints for webview
+
+---
+ android_webview/browser/aw_field_trials.cc    |  4 ----
+ android_webview/common/aw_features.cc         |  2 +-
+ .../WebViewChromiumFactoryProvider.java       | 22 -------------------
+ 3 files changed, 1 insertion(+), 27 deletions(-)
+
+diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
+index 36c9dbc508030..6a989fc845662 100644
+--- a/android_webview/browser/aw_field_trials.cc
++++ b/android_webview/browser/aw_field_trials.cc
+@@ -85,10 +85,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+   // Disable launch_handler on WebView.
+   aw_feature_overrides.DisableFeature(blink::features::kWebAppLaunchQueue);
+ 
+-  // Disable Reducing User Agent minor version on WebView.
+-  aw_feature_overrides.DisableFeature(
+-      blink::features::kReduceUserAgentMinorVersion);
+-
+   // Disable fenced frames on WebView.
+   aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
+ 
+diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
+index 63e1b4a5d1ca6..5d6231fa24f4c 100644
+--- a/android_webview/common/aw_features.cc
++++ b/android_webview/common/aw_features.cc
+@@ -117,7 +117,7 @@ BASE_FEATURE(kWebViewUseInitialNetworkStateAtStartup,
+ 
+ // This enables reducing webview user-agent android version and device model.
+ BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ // This enables WebView crashes.
+ BASE_FEATURE(kWebViewEnableCrash, base::FEATURE_DISABLED_BY_DEFAULT);
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index 4d54515b2b1de..b90b8668f4546 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -693,28 +693,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             helper.applyFlagOverrides(
+                     Map.of(AwFeatures.WEBVIEW_FILE_SYSTEM_ACCESS, shouldEnableFileSystemAccess()));
+ 
+-            // Set user-agent reduction command-line switches and feature flags for WebView.
+-            // We set command line switches as well because we want to read the configuration before
+-            // feature flags are set for enabling `getDefaultUserAgent` to not wait for browser
+-            // startup.
+-            // These features are intended to be enabled only for Android B+.
+-            // 1) ReduceUserAgentMinorVersion: Enables reduction of the user-agent minor version.
+-            // 2) WebViewReduceUAAndroidVersionDeviceModel: Enables reduction of the user-agent
+-            //    Android version and device model.
+-            boolean shouldEnableUserAgentReduction = shouldEnableUserAgentReduction();
+-            helper.applyFlagOverrides(
+-                    Map.of(
+-                            AwFeatures.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL,
+-                            shouldEnableUserAgentReduction,
+-                            BlinkFeatures.REDUCE_USER_AGENT_MINOR_VERSION,
+-                            shouldEnableUserAgentReduction));
+-            if (shouldEnableUserAgentReduction) {
+-                CommandLine.getInstance()
+-                        .appendSwitch(AwSwitches.WEBVIEW_REDUCE_USER_AGENT_MINOR_VERSION);
+-                CommandLine.getInstance()
+-                        .appendSwitch(AwSwitches.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL);
+-            }
+-
+             setSingleton(this);
+         }
+ 

@@ -1,0 +1,139 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 19 Feb 2024 22:25:23 +0000
+Subject: [PATCH] Add support for calling added APIs from custom OS
+
+---
+ vanadium/ext/custom_os/BUILD.gn               | 14 +++
+ .../src/app/vanadium/ext/CustomOSApis.java    | 99 +++++++++++++++++++
+ 2 files changed, 113 insertions(+)
+ create mode 100644 vanadium/ext/custom_os/BUILD.gn
+ create mode 100644 vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+
+diff --git a/vanadium/ext/custom_os/BUILD.gn b/vanadium/ext/custom_os/BUILD.gn
+new file mode 100644
+index 0000000000000..65cbd2b060f33
+--- /dev/null
++++ b/vanadium/ext/custom_os/BUILD.gn
+@@ -0,0 +1,14 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("custom_os_apis_java") {
++  sources = [
++    "java/src/app/vanadium/ext/CustomOSApis.java",
++  ]
++  deps = [
++    "//vanadium/ext/utils:member_cache_utils_java",
++  ]
++}
+\ No newline at end of file
+diff --git a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+new file mode 100644
+index 0000000000000..1baf8e8a9a6a1
+--- /dev/null
++++ b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+@@ -0,0 +1,99 @@
++package app.vanadium.ext;
++
++import android.os.Environment;
++import android.util.Log;
++
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++
++import app.vanadium.ext.utils.reflect.MemberCache;
++
++public class CustomOSApis {
++
++    private static final String TAG = "cr_CustomOSApis";
++
++    private static final class EnvBoolMethodCacheWrapper {
++        private final String methodName;
++        private final MemberCache<Method> methodCache;
++
++        private EnvBoolMethodCacheWrapper(String methodName) {
++            this.methodName = methodName;
++            this.methodCache = MemberCache.of(new MemberCache.Fetcher<>() {
++
++                @Override
++                public Method getMember() throws NoSuchMethodException {
++                    return Environment.class.getDeclaredMethod(methodName);
++                }
++
++                @Override
++                public void logOrThrow(ReflectiveOperationException e) {
++                    Log.e(TAG, "", e);
++                }
++            });
++        }
++
++        private Boolean invoke(Object obj, Object... args) {
++            Method method = methodCache.getMember();
++            if (method == null) {
++                Log.e(TAG, String.format("Methood %s not found", methodName));
++                return null;
++            }
++
++            if (method.getReturnType() != Boolean.TYPE) {
++                Log.e(TAG, String.format("Method %s must return boolean", methodName));
++                return null;
++            }
++
++            try {
++                return (Boolean) method.invoke(obj, args);
++            } catch (InvocationTargetException | IllegalAccessException e) {
++                Log.e(TAG, "", e);
++                return null;
++            }
++        }
++    }
++
++    private static final EnvBoolMethodCacheWrapper sIsExecmemBlockedMethodCacheWrapper =
++            new EnvBoolMethodCacheWrapper("isExecmemBlocked");
++
++    /**
++     * Checks if execmem is blocked in current process. Use the DCL methods instead whenever possible.
++     * @return true or false if method exists and returns boolean type, null otherwise.
++     */
++    public static Boolean isExecmemBlocked() {
++        return sIsExecmemBlockedMethodCacheWrapper.invoke(null);
++    }
++
++    private static final EnvBoolMethodCacheWrapper sIsMemoryDclRestrictedMethodCacheWrapper =
++            new EnvBoolMethodCacheWrapper("isMemoryDclRestricted");
++
++    /**
++     * Checks if memory DCL is restricted. Method added since 2026050400 release.
++     * @return true or false if method exists and returns boolean type, null otherwise.
++     */
++    public static Boolean isMemoryDclRestricted() {
++        return sIsMemoryDclRestrictedMethodCacheWrapper.invoke(null);
++    }
++
++    private static final EnvBoolMethodCacheWrapper sIsStorageDclRestrictedMethodCacheWrapper =
++            new EnvBoolMethodCacheWrapper("isStorageDclRestricted");
++
++    /**
++     * Checks if storage DCL is restricted. Method added since 2026050400 release.
++     * @return true or false if method exists and returns boolean type, null otherwise.
++     */
++    public static Boolean isStorageDclRestricted() {
++        return sIsStorageDclRestrictedMethodCacheWrapper.invoke(null);
++    }
++
++    private static final EnvBoolMethodCacheWrapper sIsWebViewDclRestrictedMethodCacheWrapper =
++            new EnvBoolMethodCacheWrapper("isWebViewDclRestricted");
++
++    /**
++     * Checks if WebView DCL is restricted. Method added since 2026050400 release.
++     * @return true or false if method exists and returns boolean type, null otherwise.
++     */
++    public static Boolean isWebViewDclRestricted() {
++        return sIsWebViewDclRestrictedMethodCacheWrapper.invoke(null);
++    }
++}
+\ No newline at end of file

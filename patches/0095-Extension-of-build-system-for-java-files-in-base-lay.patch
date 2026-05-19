@@ -1,0 +1,165 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 9 Jan 2024 05:58:19 +0000
+Subject: [PATCH] Extension of build system for java files in base layer
+
+---
+ base/BUILD.gn                                 | 19 +++++++++++++++++++
+ base/base_java_ext_deps.gni                   |  6 ++++++
+ base/base_java_ext_sources.gni                |  6 ++++++
+ base/base_java_ext_srcjar_deps.gni            |  6 ++++++
+ base/base_library_loader_java_ext_deps.gni    |  6 ++++++
+ base/base_library_loader_java_ext_sources.gni |  6 ++++++
+ ...se_library_loader_java_ext_srcjar_deps.gni |  6 ++++++
+ .../base_shared_preferences_java_ext_deps.gni |  6 ++++++
+ ...se_shared_preferences_java_ext_sources.gni |  6 ++++++
+ 9 files changed, 67 insertions(+)
+ create mode 100644 base/base_java_ext_deps.gni
+ create mode 100644 base/base_java_ext_sources.gni
+ create mode 100644 base/base_java_ext_srcjar_deps.gni
+ create mode 100644 base/base_library_loader_java_ext_deps.gni
+ create mode 100644 base/base_library_loader_java_ext_sources.gni
+ create mode 100644 base/base_library_loader_java_ext_srcjar_deps.gni
+ create mode 100644 base/base_shared_preferences_java_ext_deps.gni
+ create mode 100644 base/base_shared_preferences_java_ext_sources.gni
+
+diff --git a/base/BUILD.gn b/base/BUILD.gn
+index aad39d792791f..a1caf54ae590e 100644
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -4980,6 +4980,13 @@ if (is_android) {
+       ":wrapped_class_loader_java",
+     ]
+ 
++    import("base_java_ext_sources.gni")
++    sources += base_java_ext_sources
++    import("base_java_ext_deps.gni")
++    deps += base_java_ext_deps
++    import("base_java_ext_srcjar_deps.gni")
++    srcjar_deps += base_java_ext_srcjar_deps
++
+     if (!is_cronet_build) {
+       proguard_configs += [
+         "android/proguard/chromium_apk.flags",
+@@ -5575,6 +5582,13 @@ if (is_android) {
+       "//third_party/androidx:androidx_annotation_annotation_java",
+       "//third_party/jni_zero:jni_zero_java",
+     ]
++
++    import("base_library_loader_java_ext_sources.gni")
++    sources += base_library_loader_java_ext_sources
++    import("base_library_loader_java_ext_deps.gni")
++    deps += base_library_loader_java_ext_deps
++    import("base_library_loader_java_ext_srcjar_deps.gni")
++    srcjar_deps += base_library_loader_java_ext_srcjar_deps
+   }
+ 
+   generate_jni("base_shared_preferences_jni") {
+@@ -5598,6 +5612,11 @@ if (is_android) {
+       "android/java/src/org/chromium/base/shared_preferences/SharedPreferencesManager.java",
+       "android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java",
+     ]
++
++    import("base_shared_preferences_java_ext_sources.gni")
++    sources += base_shared_preferences_java_ext_sources
++    import("base_shared_preferences_java_ext_deps.gni")
++    deps += base_shared_preferences_java_ext_deps
+   }
+ 
+   android_library("flagged_apis_java") {
+diff --git a/base/base_java_ext_deps.gni b/base/base_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..714dfbdc473ea
+--- /dev/null
++++ b/base/base_java_ext_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_java_ext_deps = [
++]
+diff --git a/base/base_java_ext_sources.gni b/base/base_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..acc20f55d03de
+--- /dev/null
++++ b/base/base_java_ext_sources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_java_ext_sources = [
++]
+diff --git a/base/base_java_ext_srcjar_deps.gni b/base/base_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..c2078c89d69c5
+--- /dev/null
++++ b/base/base_java_ext_srcjar_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_java_ext_srcjar_deps = [
++]
+diff --git a/base/base_library_loader_java_ext_deps.gni b/base/base_library_loader_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..f87469ca3a061
+--- /dev/null
++++ b/base/base_library_loader_java_ext_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_library_loader_java_ext_deps = [
++]
+diff --git a/base/base_library_loader_java_ext_sources.gni b/base/base_library_loader_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..03df50a823169
+--- /dev/null
++++ b/base/base_library_loader_java_ext_sources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_library_loader_java_ext_sources = [
++]
+diff --git a/base/base_library_loader_java_ext_srcjar_deps.gni b/base/base_library_loader_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..172a2addb7a9d
+--- /dev/null
++++ b/base/base_library_loader_java_ext_srcjar_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_library_loader_java_ext_srcjar_deps = [
++]
+diff --git a/base/base_shared_preferences_java_ext_deps.gni b/base/base_shared_preferences_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..05beca22722c2
+--- /dev/null
++++ b/base/base_shared_preferences_java_ext_deps.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_shared_preferences_java_ext_deps = [
++]
+diff --git a/base/base_shared_preferences_java_ext_sources.gni b/base/base_shared_preferences_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..051e1ccc251ea
+--- /dev/null
++++ b/base/base_shared_preferences_java_ext_sources.gni
+@@ -0,0 +1,6 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPLv2 only-style license that can be
++# found in the LICENSE file.
++
++base_shared_preferences_java_ext_sources = [
++]

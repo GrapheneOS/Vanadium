@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 5 Jan 2024 13:49:26 +0000
+Subject: [PATCH] Extension of build system at android-specific subresource
+ filter sources
+
+---
+ .../subresource_filter/android/BUILD.gn       |  7 +++++++
+ .../android/subresource_filter_android.gni    | 21 +++++++++++++++++++
+ 2 files changed, 28 insertions(+)
+ create mode 100644 components/subresource_filter/android/subresource_filter_android.gni
+
+diff --git a/components/subresource_filter/android/BUILD.gn b/components/subresource_filter/android/BUILD.gn
+index c95da21b166c6..a8da885d72c07 100644
+--- a/components/subresource_filter/android/BUILD.gn
++++ b/components/subresource_filter/android/BUILD.gn
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
+ 
+ import("//build/config/android/rules.gni")
++import("//components/subresource_filter/android/subresource_filter_android.gni")
+ import("//third_party/jni_zero/jni_zero.gni")
+ 
+ generate_jni("subresource_filter_jni_headers") {
+@@ -30,6 +31,10 @@ android_library("java") {
+     "//ui/android:ui_no_recycler_view_java",
+   ]
+ 
++  sources += subresource_filter_android_java_sources
++  deps += subresource_filter_android_java_deps
++  srcjar_deps += subresource_filter_android_java_srcjar_deps
++
+   resources_package = "org.chromium.components.subresource_filter"
+ }
+ 
+@@ -63,6 +68,8 @@ source_set("android") {
+     "//content/public/browser",
+     "//ui/android",
+   ]
++  sources += subresource_filter_android_cc_sources
++  deps += subresource_filter_android_cc_deps
+ }
+ 
+ android_resources("java_resources") {
+diff --git a/components/subresource_filter/android/subresource_filter_android.gni b/components/subresource_filter/android/subresource_filter_android.gni
+new file mode 100644
+index 0000000000000..b0e9583bf84af
+--- /dev/null
++++ b/components/subresource_filter/android/subresource_filter_android.gni
+@@ -0,0 +1,21 @@
++# Copyright 2023 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++subresource_filter_android_cc_sources = [
++]
++
++subresource_filter_android_cc_deps = [
++]
++
++subresource_filter_android_java_sources = [
++]
++
++subresource_filter_android_java_deps = [
++]
++
++subresource_filter_android_java_srcjar_deps = [
++]
++
++subresource_filter_android_java_resources_deps = [
++]

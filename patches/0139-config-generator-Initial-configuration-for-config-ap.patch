@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 23 Dec 2023 05:16:50 +0000
+Subject: [PATCH] config-generator: Initial configuration for config apk
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java        | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index 0be4d68b43001..e73b03897d1e2 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -26,6 +26,15 @@ public class ConfigGenerator {
+ 
+     private static final Configs getConfigs() {
+         List<Config> configList = new ArrayList<>();
++        configList.add(config(configParams -> configParams.setSpec(
++                spec(specParams -> specParams.setSpecTypes(getSpecTypes(SpecType.BROWSER))
++                ))
++                .addAllComponents(components(
++                        component(componentParams -> componentParams.setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
++                                .setComponentFileName("unindexed_ruleset")
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 
