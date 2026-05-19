@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 28 Jun 2019 16:56:37 -0400
+Subject: [PATCH] stop ignoring download location prompt setting
+
+---
+ .../DownloadLocationDialogCoordinator.java      | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+diff --git a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+index 1686828ea03c8..21f719fd795b3 100644
+--- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
++++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
+@@ -160,23 +160,6 @@ public class DownloadLocationDialogCoordinator implements ModalDialogProperties.
+         assertNonNull(mSuggestedPath);
+         assertNonNull(mProfile);
+ 
+-        // If there is only one directory available, don't show the default dialog, and set the
+-        // download directory to default. Dialog will still show for other types of dialogs, like
+-        // name conflict or disk error or if Incognito download warning is needed.
+-        if (dirs.size() == 1
+-                && !mLocationDialogManaged
+-                && mDialogType == DownloadLocationDialogType.DEFAULT
+-                && !mProfile.isOffTheRecord()) {
+-            final DirectoryOption dir = dirs.get(0);
+-            if (dir.type == DirectoryOption.DownloadLocationDirectoryType.DEFAULT) {
+-                assert !TextUtils.isEmpty(dir.location);
+-                DownloadDialogBridge.setDownloadAndSaveFileDefaultDirectory(mProfile, dir.location);
+-                mController.onDownloadLocationDialogComplete(
+-                        mSuggestedPath, /* didUserConfirm= */ false);
+-            }
+-            return;
+-        }
+-
+         // Already showing the dialog.
+         if (mDialogModel != null) return;
+ 

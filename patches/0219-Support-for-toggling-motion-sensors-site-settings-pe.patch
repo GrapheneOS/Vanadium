@@ -1,0 +1,128 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 19 Jan 2026 14:36:41 +0000
+Subject: [PATCH] Support for toggling motion sensors site settings per-site
+
+---
+ .../site_settings/SensorsSettingsHooks.java   | 54 +++++++++++++++++++
+ .../SiteSettingsHooksRegistry.java            |  3 ++
+ ...site_settings_android_java_ext_sources.gni |  1 +
+ .../strings/android/site_settings_ext.grdp    |  6 +++
+ 4 files changed, 64 insertions(+)
+ create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
+new file mode 100644
+index 0000000000000..a3ce6a91b3134
+--- /dev/null
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
+@@ -0,0 +1,54 @@
++package org.chromium.components.browser_ui.site_settings;
++
++import org.chromium.build.annotations.NonNull;
++import org.chromium.build.annotations.Nullable;
++import org.chromium.components.content_settings.ContentSetting;
++import org.chromium.components.content_settings.ContentSettingsType;
++import org.chromium.content_public.browser.BrowserContextHandle;
++
++public final class SensorsSettingsHooks {
++
++    static final class WebsitePermissionsFetcherHooksImpl extends WebsitePermissionsFetcherHooks {
++
++        @Override
++        protected int getPermissionTypeOverride() {
++            return PERMISSION_INFO;
++        }
++
++        @Override
++        protected boolean shouldCreateExceptionIfNull() {
++            return true;
++        }
++    }
++
++    static final class SingleCategorySettingsHooksImpl extends SingleCategorySettingsHooks {
++
++        @Override
++        protected Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
++            return true;
++        }
++
++        @Override
++        protected int getAddExceptionDialogMessageResourceId(boolean isCategoryEnabled) {
++            return isCategoryEnabled ? R.string.website_settings_add_site_description_motion_sensors_block
++                                     : R.string.website_settings_add_site_description_motion_sensors_allow;
++        }
++    }
++
++    static final class SingleWebsiteSettingsHooksImpl extends SingleWebsiteSettingsHooks {
++
++        @Override
++        protected @Nullable Integer getContentSettingForSetup(
++                @NonNull BrowserContextHandle browserContextHandle,
++                @NonNull Website website,
++                @ContentSettingsType.EnumType int contentType) {
++            Integer curValue = website.getContentSetting(browserContextHandle, contentType);
++            if (curValue == null) {
++                boolean isEnabled = WebsitePreferenceBridge.isContentSettingEnabled(browserContextHandle, contentType);
++                curValue = isEnabled ? ContentSetting.ALLOW : ContentSetting.BLOCK;
++            }
++            return curValue;
++        }
++
++    }
++}
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
+index b5b24f05ef0be..e752cd8df5343 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
+@@ -15,6 +15,7 @@ public final class SiteSettingsHooksRegistry {
+             @SiteSettingsCategory.Type int categoryType) {
+         return switch (categoryType) {
+             case SiteSettingsCategory.Type.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.SingleCategorySettingsHooksImpl();
++            case SiteSettingsCategory.Type.SENSORS -> new SensorsSettingsHooks.SingleCategorySettingsHooksImpl();
+             default -> SingleCategorySettingsHooks.getDefaultInstance();
+         };
+     }
+@@ -24,6 +25,7 @@ public final class SiteSettingsHooksRegistry {
+             @ContentSettingsType.EnumType int contentType) {
+         return switch (contentType) {
+             case ContentSettingsType.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.SingleWebsiteSettingsHooksImpl();
++            case ContentSettingsType.SENSORS -> new SensorsSettingsHooks.SingleWebsiteSettingsHooksImpl();
+             default -> SingleWebsiteSettingsHooks.getDefaultInstance();
+         };
+     }
+@@ -60,6 +62,7 @@ public final class SiteSettingsHooksRegistry {
+             @ContentSettingsType.EnumType int contentType) {
+         return switch (contentType) {
+             case ContentSettingsType.JAVASCRIPT_JIT -> new JavascriptJitSettingsHooks.WebsitePermissionsFetcherHooksImpl();
++            case ContentSettingsType.SENSORS -> new SensorsSettingsHooks.WebsitePermissionsFetcherHooksImpl();
+             default -> WebsitePermissionsFetcherHooks.getDefaultInstance();
+         };
+     }
+diff --git a/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni b/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+index 3b6555a695933..8027d179c412e 100644
+--- a/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
++++ b/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+@@ -4,6 +4,7 @@
+ 
+ site_settings_android_java_ext_sources = [
+   "java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java",
++  "java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java",
+   "java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java",
+   "java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java",
+   "java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategoryHooks.java",
+diff --git a/components/browser_ui/strings/android/site_settings_ext.grdp b/components/browser_ui/strings/android/site_settings_ext.grdp
+index 7c3351c352052..e73d129390f05 100644
+--- a/components/browser_ui/strings/android/site_settings_ext.grdp
++++ b/components/browser_ui/strings/android/site_settings_ext.grdp
+@@ -28,4 +28,10 @@
+   <message name="IDS_BROWSER_DCL_MEMORY_RESTRICTED_WITH_LINK" desc="Text at the top of the Website list, explaining to the user that dynamic code loading via memory restricted. Contains a link to the settings menu to change it.">
+     Dynamic code loading via memory for <ph name="APP_NAME">%1$s<ex>Vanadium</ex></ph> is currently restricted, which can be allowed at <ph name="BEGIN_LINK">&lt;link&gt;</ph>Android Settings<ph name="END_LINK">&lt;/link&gt;</ph>.
+   </message>
++  <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_MOTION_SENSORS_ALLOW" desc="The description for the allow motion sensors for website dialog.">
++    Allow motion sensors for a specific site.
++  </message>
++  <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_MOTION_SENSORS_BLOCK" desc="The description for the block motion sensors for website dialog.">
++    Block motion sensors for a specific site.
++  </message>
+ </grit-part>

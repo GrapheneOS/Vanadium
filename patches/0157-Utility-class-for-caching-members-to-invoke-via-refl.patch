@@ -1,0 +1,83 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 5 May 2026 13:43:18 +0000
+Subject: [PATCH] Utility class for caching members to invoke via reflection
+
+---
+ vanadium/ext/utils/BUILD.gn                   |  8 ++++
+ .../ext/utils/reflect/MemberCache.java        | 48 +++++++++++++++++++
+ 2 files changed, 56 insertions(+)
+ create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
+
+diff --git a/vanadium/ext/utils/BUILD.gn b/vanadium/ext/utils/BUILD.gn
+index bc05f3660d5b3..a21fd64d19c92 100644
+--- a/vanadium/ext/utils/BUILD.gn
++++ b/vanadium/ext/utils/BUILD.gn
+@@ -11,4 +11,12 @@ android_library("file_utils_java") {
+   ]
+   deps = [
+   ]
++}
++
++android_library("member_cache_utils_java") {
++  sources = [
++    "java/src/app/vanadium/ext/utils/reflect/MemberCache.java",
++  ]
++  deps = [
++  ]
+ }
+\ No newline at end of file
+diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
+new file mode 100644
+index 0000000000000..69646e130eb72
+--- /dev/null
++++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
+@@ -0,0 +1,48 @@
++package app.vanadium.ext.utils.reflect;
++
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++import java.lang.reflect.Member;
++
++@NullMarked
++public final class MemberCache<MemberType extends Member> {
++
++    public static <MemberType extends Member> MemberCache<MemberType> of(
++            Fetcher<MemberType> Fetcher) {
++        return new MemberCache<>(Fetcher);
++    }
++
++    public interface Fetcher<MemberType extends Member> {
++        MemberType getMember() throws ReflectiveOperationException;
++        void logOrThrow(ReflectiveOperationException e);
++    }
++
++    private final Fetcher<MemberType> mFetcher;
++
++    @Nullable
++    private MemberType mMember;
++    private volatile boolean mMemberCached;
++
++    private MemberCache(Fetcher<MemberType> Fetcher) {
++        mFetcher = Fetcher;
++    }
++
++    @Nullable
++    public MemberType getMember() {
++        if (mMemberCached) {
++            return mMember;
++        }
++
++        try {
++            mMember = mFetcher.getMember();
++            return mMember;
++        } catch (ReflectiveOperationException e) {
++            mFetcher.logOrThrow(e);
++        } finally {
++            mMemberCached = true;
++        }
++
++        return null;
++    }
++}

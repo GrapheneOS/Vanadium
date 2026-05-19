@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 8 Aug 2023 09:10:36 +0000
+Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
+ default
+
+---
+ .../browser/identity_disc/IdentityDiscController.java     | 5 +++++
+ .../chromium/chrome/browser/ui/signin/SigninUtils.java    | 8 ++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+index 1a614dfd8983e..1dd9850a40185 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+@@ -196,6 +196,11 @@ public class IdentityDiscController
+             return;
+         }
+ 
++        if (!SigninUtils.allowNtpAvatar()) {
++            mButtonData.setCanShow(false);
++            return;
++        }
++
+         ensureProfileDataCache(mProfile);
+         final @Nullable CoreAccountId accountId =
+                 CoreAccountInfo.getIdFrom(getSignedInAccountInfo());
+diff --git a/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java b/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java
+index e2bef1a89d302..bd6b1a9d38b57 100644
+--- a/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java
++++ b/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninUtils.java
+@@ -121,10 +121,18 @@ public final class SigninUtils {
+                 && !DialogWhenLargeContentLayout.shouldShowAsDialog(context);
+     }
+ 
++    public static boolean allowNtpAvatar() {
++        return false;
++    }
++
+     public static String getContentDescriptionForIdentityDisc(
+             Context context,
+             @Nullable DisplayableProfileData profileData,
+             @UserActionableError int identityError) {
++        if (!allowNtpAvatar()) {
++            return "";
++        }
++
+         if (profileData == null) {
+             return context.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
+         }

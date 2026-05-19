@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 11 Apr 2023 07:14:45 +0000
+Subject: [PATCH] Helper class for modifying preferences
+
+---
+ base/downstream/android/BUILD.gn              | 17 +++++
+ .../base/settings/SettingsExtUtils.java       | 70 +++++++++++++++++++
+ 2 files changed, 87 insertions(+)
+ create mode 100644 base/downstream/android/BUILD.gn
+ create mode 100644 base/downstream/android/java/src/org/chromium/base/settings/SettingsExtUtils.java
+
+diff --git a/base/downstream/android/BUILD.gn b/base/downstream/android/BUILD.gn
+new file mode 100644
+index 0000000000000..c4cf55ea91bb9
+--- /dev/null
++++ b/base/downstream/android/BUILD.gn
+@@ -0,0 +1,17 @@
++import("//build/config/android/rules.gni")
++import("//third_party/jni_zero/jni_zero.gni")
++
++assert(is_android)
++
++android_library("base_settings_java") {
++  sources = [
++    "java/src/org/chromium/base/settings/SettingsExtUtils.java",
++  ]
++
++  deps= [
++    "//base:tasks_java",
++    "//third_party/androidx:androidx_annotation_annotation_java",
++    "//third_party/androidx:androidx_preference_preference_java",
++    "//third_party/jni_zero:jni_zero_java",
++  ]
++}
+diff --git a/base/downstream/android/java/src/org/chromium/base/settings/SettingsExtUtils.java b/base/downstream/android/java/src/org/chromium/base/settings/SettingsExtUtils.java
+new file mode 100644
+index 0000000000000..96539f2bc8058
+--- /dev/null
++++ b/base/downstream/android/java/src/org/chromium/base/settings/SettingsExtUtils.java
+@@ -0,0 +1,70 @@
++// Copyright 2023 GrapheneOS
++// Use of this source code is governed by a GPLv2-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.base.settings;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.preference.Preference;
++import androidx.preference.PreferenceFragmentCompat;
++import androidx.preference.SwitchPreferenceCompat;
++
++import org.chromium.base.ThreadUtils;
++
++public class SettingsExtUtils {
++
++    public static void safelyUpdatePreference(
++        @Nullable Preference preference,
++        @Nullable String newSummary
++    ) {
++        if (preference == null) return;
++        safelyUpdatePreferenceCommon(preference, newSummary);
++    }
++
++
++    public static void safelyUpdateSwitchPreference(
++        @Nullable SwitchPreferenceCompat switchPref,
++        @Nullable String newSummary,
++        boolean newValue
++    ) {
++        if (switchPref == null) return;
++        safelyUpdatePreferenceCommon(switchPref, newSummary);
++        safelyUpdatePreferenceChecked(switchPref, newValue);
++    }
++
++    private static void safelyUpdatePreferenceCommon(
++        @NonNull Preference preference,
++        @Nullable String newSummary
++    ) {
++        ThreadUtils.checkUiThread();
++        if (newSummary != null) {
++            preference.setSummary(newSummary);
++        }
++    }
++
++    private static void safelyUpdatePreferenceChecked(
++        @NonNull SwitchPreferenceCompat switchPref,
++        boolean checked
++    ) {
++        switchPref.setChecked(checked);
++    }
++
++    public static void safelyRemovePreference(
++        @NonNull PreferenceFragmentCompat prefFragment,
++        @NonNull String key
++    ) {
++        Preference preference = prefFragment.findPreference(key);
++        safelyRemovePreference(prefFragment, preference);
++    }
++
++    public static void safelyRemovePreference(
++        @NonNull PreferenceFragmentCompat prefFragment,
++        @Nullable Preference preference
++    ) {
++        ThreadUtils.checkUiThread();
++        if (preference != null) {
++            prefFragment.getPreferenceScreen().removePreference(preference);
++        }
++    }
++}
