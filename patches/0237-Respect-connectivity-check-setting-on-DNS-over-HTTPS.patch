@@ -9,10 +9,10 @@ Subject: [PATCH] Respect connectivity check setting on DNS-over-HTTPS
  2 files changed, 55 insertions(+), 1 deletion(-)
 
 diff --git a/net/dns/BUILD.gn b/net/dns/BUILD.gn
-index fe250ad7f81a5..e5369cb0fbebe 100644
+index 9fc0b476389ad..836b51cba3ac8 100644
 --- a/net/dns/BUILD.gn
 +++ b/net/dns/BUILD.gn
-@@ -223,6 +223,13 @@ source_set("dns") {
+@@ -222,6 +222,13 @@ source_set("dns") {
      ":host_resolver_manager",
      ":mdns_client",
    ]
@@ -27,10 +27,10 @@ index fe250ad7f81a5..e5369cb0fbebe 100644
  
  # The standard API of net/dns.
 diff --git a/net/dns/dns_transaction.cc b/net/dns/dns_transaction.cc
-index 8641909eacc4e..902e0b1702b6e 100644
+index 44f225c24ac44..fedf0fd5d8f77 100644
 --- a/net/dns/dns_transaction.cc
 +++ b/net/dns/dns_transaction.cc
-@@ -91,6 +91,14 @@
+@@ -92,6 +92,14 @@
  #include "net/url_request/url_request_context_builder.h"
  #include "url/url_constants.h"
  
@@ -45,7 +45,7 @@ index 8641909eacc4e..902e0b1702b6e 100644
  namespace net {
  
  namespace {
-@@ -183,6 +191,13 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+@@ -184,6 +192,13 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
      DCHECK(!session_->config().doh_config.servers().empty());
      DCHECK(context_);
  
@@ -59,7 +59,7 @@ index 8641909eacc4e..902e0b1702b6e 100644
      std::optional<std::vector<uint8_t>> qname =
          dns_names_util::DottedNameToNetwork(kDohProbeHostname);
      DCHECK(qname.has_value());
-@@ -286,10 +301,39 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+@@ -291,10 +306,39 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
                         probe_stats, network_change, sequence_start_time),
          probe_stats->backoff_entry->GetTimeUntilRelease());
  
@@ -100,7 +100,7 @@ index 8641909eacc4e..902e0b1702b6e 100644
          &probe_stats->probe_attempts, context_->url_request_context(),
          RequestPriority::DEFAULT_PRIORITY, /*is_probe=*/true);
  
-@@ -370,6 +414,9 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
+@@ -375,6 +419,9 @@ class DnsOverHttpsProbeRunner : public DnsProbeRunner {
  
    base::WeakPtr<DnsSession> session_;
    base::WeakPtr<ResolveContext> context_;

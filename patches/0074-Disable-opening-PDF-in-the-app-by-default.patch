@@ -67,10 +67,10 @@ index d7fcb6f8c9a2c..b51c5fd96ea89 100644
      @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
      @Mock private Tab mTab;
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index d4406ce939cb8..0d4b62f9810c2 100644
+index 6c34f99ac03b1..d6467b2cd5378 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -235,6 +235,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -230,6 +230,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kAndroidNewMediaPicker,
      &kAndroidNoVisibleHintForDifferentTLD,
      &kAndroidOmniboxFocusedNewTabPage,
@@ -87,7 +87,7 @@ index d4406ce939cb8..0d4b62f9810c2 100644
  BASE_FEATURE(kAndroidProgressBarVisualUpdate, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidSaveCardNonBlockingDialog, base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/chrome/browser/flags/android/chrome_feature_list.h b/chrome/browser/flags/android/chrome_feature_list.h
-index 074acc62f4aa8..78a492404047a 100644
+index cb88bb78c0738..6f77cd60620df 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.h
 +++ b/chrome/browser/flags/android/chrome_feature_list.h
 @@ -46,6 +46,7 @@ BASE_DECLARE_FEATURE(kAndroidHistoryClustering);
@@ -99,10 +99,10 @@ index 074acc62f4aa8..78a492404047a 100644
  BASE_DECLARE_FEATURE(kAndroidProgressBarVisualUpdate);
  BASE_DECLARE_FEATURE(kAndroidSaveCardNonBlockingDialog);
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index 3c53b5b101595..5b56edfe67557 100644
+index fbcc6ead4f4aa..e555e248791a7 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -198,6 +198,7 @@ public abstract class ChromeFeatureList {
+@@ -195,6 +195,7 @@ public abstract class ChromeFeatureList {
      public static final String ANDROID_OMNIBOX_FOCUSED_NEW_TAB_PAGE =
              "AndroidOmniboxFocusedNewTabPage";
      public static final String ANDROID_OPEN_INCOGNITO_AS_WINDOW = "AndroidOpenIncognitoAsWindow";
@@ -111,7 +111,7 @@ index 3c53b5b101595..5b56edfe67557 100644
      public static final String ANDROID_PROGRESS_BAR_VISUAL_UPDATE =
              "AndroidProgressBarVisualUpdate";
 diff --git a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
-index cdac3ff8e09d3..9a0bb3ccc7e87 100644
+index ba6d890b81dd8..e44735d2b49ca 100644
 --- a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
 +++ b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
 @@ -24,6 +24,8 @@ import org.chromium.chrome.browser.flags.ChromeFeatureList;
@@ -123,7 +123,7 @@ index cdac3ff8e09d3..9a0bb3ccc7e87 100644
  import org.chromium.content_public.browser.LoadUrlParams;
  import org.chromium.ui.base.MimeTypeUtils;
  import org.chromium.url.GURL;
-@@ -69,6 +71,10 @@ public class PdfUtils {
+@@ -70,6 +72,10 @@ public class PdfUtils {
      }
  
      private static final String TAG = "PdfUtils";
@@ -134,7 +134,7 @@ index cdac3ff8e09d3..9a0bb3ccc7e87 100644
      private static final Set<String> TRANSIENT_PDF_SCHEMES =
              Set.of(
                      UrlConstants.HTTP_SCHEME,
-@@ -135,14 +141,29 @@ public class PdfUtils {
+@@ -136,14 +142,29 @@ public class PdfUtils {
      public static boolean shouldOpenPdfInline(boolean isIncognito) {
          if (sShouldOpenPdfInlineForTesting) return true;
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -167,22 +167,22 @@ index cdac3ff8e09d3..9a0bb3ccc7e87 100644
              }
              return true;
 diff --git a/content/browser/android/content_feature_map.cc b/content/browser/android/content_feature_map.cc
-index b2085b0e9f63a..5e39d224dd1ce 100644
+index 40463d02e8f23..37c0aaf49044a 100644
 --- a/content/browser/android/content_feature_map.cc
 +++ b/content/browser/android/content_feature_map.cc
-@@ -55,6 +55,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -54,6 +54,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &features::kAndroidDesktopZoomScaling,
      &features::kAndroidFallbackToNextSlot,
      &features::kAndroidMediaInsertion,
 +    &features::kAndroidOpenPdfInline,
      &features::kAndroidPkAutocorrectUnderline,
+     &features::kAndroidPkAutocorrectUnderlineV2,
      &features::kAndroidBlockMisspellingSuggestionSpanInCompositionMode,
-     &features::kStrictHighRankProcessLRU,
 diff --git a/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java b/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java
-index fc4255c1803d8..98f6871cec4be 100644
+index 3d32299f15fde..60e26fb9a4307 100644
 --- a/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java
 +++ b/content/public/android/java/src/org/chromium/content_public/browser/ContentFeatureList.java
-@@ -63,6 +63,8 @@ public class ContentFeatureList {
+@@ -68,6 +68,8 @@ public class ContentFeatureList {
  
      public static final String ANDROID_MEDIA_INSERTION = "AndroidMediaInsertion";
  
@@ -190,12 +190,12 @@ index fc4255c1803d8..98f6871cec4be 100644
 +
      public static final String ANDROID_PK_AUTOCORRECT_UNDERLINE = "AndroidPkAutocorrectUnderline";
  
-     public static final String ANDROID_SPELLCHECK_FULL_API_BLINK = "AndroidSpellcheckFullApiBlink";
+     public static final String ANDROID_PK_AUTOCORRECT_UNDERLINE_V2 =
 diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
-index ff3f11daa3f0a..f25cfa54c2003 100644
+index 77590043c56f4..9cf8985943dc5 100644
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -1352,6 +1352,9 @@ const base::FeatureParam<int> kAndroidDesktopZoomScalingFactor{
+@@ -1378,6 +1378,9 @@ const base::FeatureParam<int> kAndroidDesktopZoomScalingFactor{
  const base::FeatureParam<int> kAndroidMonitorZoomScalingFactor{
      &kAndroidDesktopZoomScaling, "monitor-zoom-scaling-factor", 100};
  
@@ -206,10 +206,10 @@ index ff3f11daa3f0a..f25cfa54c2003 100644
  // Android.
  BASE_FEATURE(kAndroidDisplayCursor,
 diff --git a/content/public/common/content_features.h b/content/public/common/content_features.h
-index ef6260d7a5b04..6d72aa784a6b4 100644
+index 57584d98d182d..56022172deab8 100644
 --- a/content/public/common/content_features.h
 +++ b/content/public/common/content_features.h
-@@ -373,6 +373,7 @@ CONTENT_EXPORT extern const base::FeatureParam<int>
+@@ -379,6 +379,7 @@ CONTENT_EXPORT extern const base::FeatureParam<int>
  CONTENT_EXPORT BASE_DECLARE_FEATURE(kAndroidDisplayCursor);
  CONTENT_EXPORT extern const base::FeatureParam<int>
      kAndroidMonitorZoomScalingFactor;

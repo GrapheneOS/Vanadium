@@ -11,10 +11,10 @@ Subject: [PATCH] config: test: Add ConfigInfo on necessary test targets
  4 files changed, 33 insertions(+)
 
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index d4c61fe4b021d..3e80c9ba0ff70 100644
+index 786d883c5e7ca..3efd54f485c29 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -710,5 +710,11 @@ template("chrome_public_test_apk_tmpl") {
+@@ -700,5 +700,11 @@ template("chrome_public_test_apk_tmpl") {
      target_type = "instrumentation_test_apk"
      forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
      forward_variables_from(invoker, "*", TESTONLY_AND_VISIBILITY)
@@ -27,7 +27,7 @@ index d4c61fe4b021d..3e80c9ba0ff70 100644
    }
  }
 diff --git a/content/shell/android/BUILD.gn b/content/shell/android/BUILD.gn
-index bf6235e4beb1d..ed5eab96fe11e 100644
+index a3bedcddfa313..03f35aaae8d94 100644
 --- a/content/shell/android/BUILD.gn
 +++ b/content/shell/android/BUILD.gn
 @@ -221,6 +221,13 @@ template("content_shell_apk_tmpl") {
@@ -60,10 +60,10 @@ index a6ab1b81b421a..0f65a437757f3 100644
  
  android_resources("net_unittests_apk_resources") {
 diff --git a/testing/test.gni b/testing/test.gni
-index 288236a7b1585..40d0417297fe4 100644
+index 2f83964394a92..0bf5cc4616cd7 100644
 --- a/testing/test.gni
 +++ b/testing/test.gni
-@@ -621,6 +621,14 @@ template("test") {
+@@ -625,6 +625,14 @@ template("test") {
                  ] + _apk_specific_vars + _wrapper_script_vars +
                  TESTONLY_AND_VISIBILITY)
  
@@ -78,7 +78,7 @@ index 288236a7b1585..40d0417297fe4 100644
          # Use a crate name that avoids creating a warning due to double
          # underscore (ie. `__`).
          crate_name = _library_crate_name
-@@ -656,6 +664,14 @@ template("test") {
+@@ -660,6 +668,14 @@ template("test") {
            srcjar_deps = [ "${shared_library}__jni_registration" ]
          }
  

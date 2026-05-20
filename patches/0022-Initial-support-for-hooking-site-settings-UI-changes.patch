@@ -7,8 +7,8 @@ Subject: [PATCH] Initial support for hooking site settings UI changes
  .../ContentSettingsResources.java             |  83 +++++++++++++
  .../site_settings/SingleCategorySettings.java |  48 ++++++++
  .../SingleCategorySettingsHooks.java          |  65 ++++++++++
- .../site_settings/SingleWebsiteSettings.java  |  20 +++
- .../SingleWebsiteSettingsHooks.java           |  53 ++++++++
+ .../site_settings/SingleWebsiteSettings.java  |  19 +++
+ .../SingleWebsiteSettingsHooks.java           |  50 ++++++++
  .../site_settings/SiteSettings.java           |  25 ++++
  .../site_settings/SiteSettingsCategory.java   |  51 +++++++-
  .../SiteSettingsCategoryHooks.java            |  48 ++++++++
@@ -16,11 +16,11 @@ Subject: [PATCH] Initial support for hooking site settings UI changes
  .../SiteSettingsResourcesHooks.java           |  75 ++++++++++++
  .../SiteSettingsScreenHooks.java              | 115 ++++++++++++++++++
  .../site_settings/SiteSettingsUtil.java       |   4 +-
- .../browser_ui/site_settings/Website.java     |  36 ++++++
+ .../browser_ui/site_settings/Website.java     |  35 ++++++
  .../WebsitePermissionsFetcher.java            |  19 +++
  .../WebsitePermissionsFetcherHooks.java       |  55 +++++++++
  ...site_settings_android_java_ext_sources.gni |   7 ++
- 16 files changed, 813 insertions(+), 4 deletions(-)
+ 16 files changed, 808 insertions(+), 4 deletions(-)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategoryHooks.java
@@ -124,7 +124,7 @@ index 9e2f2fed5cf43..7558180af3f65 100644
              case ContentSettingsType.ADS:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index d640b69afaff7..e544b58df93ec 100644
+index 968ec2148fca0..cb3a5e569aed5 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 @@ -484,6 +484,22 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
@@ -150,7 +150,7 @@ index d640b69afaff7..e544b58df93ec 100644
          ViewGroup view = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
  
          mListView = getListView();
-@@ -793,6 +809,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -794,6 +810,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
      }
  
      private int getAddExceptionDialogMessageResourceId() {
@@ -166,7 +166,7 @@ index d640b69afaff7..e544b58df93ec 100644
          switch (mCategory.getType()) {
              case SiteSettingsCategory.Type.AUTOMATIC_DOWNLOADS:
                  return isCategoryEnabled()
-@@ -952,6 +977,16 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -953,6 +978,16 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                  break;
          }
  
@@ -183,7 +183,7 @@ index d640b69afaff7..e544b58df93ec 100644
          int exceptionDialogMessageResourceId = getAddExceptionDialogMessageResourceId();
          assert shouldAddExceptionButton == (exceptionDialogMessageResourceId != 0);
  
-@@ -1440,10 +1475,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -1441,10 +1476,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
      }
  
      private void maybeShowOsWarning(PreferenceScreen screen) {
@@ -279,10 +279,10 @@ index 0000000000000..05993d7066ad4
 +    }
 +}
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 0fd4b9c345d93..8278042cfa409 100644
+index 19a49297b087d..fdea21729b08d 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-@@ -143,6 +143,15 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+@@ -142,6 +142,15 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
       */
      @VisibleForTesting
      public static @Nullable String getPreferenceKey(@ContentSettingsType.EnumType int type) {
@@ -290,7 +290,7 @@ index 0fd4b9c345d93..8278042cfa409 100644
 +                SiteSettingsHooksRegistry.getSingleWebsiteSettingsHooks(type);
 +        if (!hooks.isDefaultInstance()) {
 +            String prefKey = hooks.getPreferenceKey();
-+            if (prefKey != null && !"".equals(prefKey)) {
++            if (prefKey != null && !prefKey.isEmpty()) {
 +                return prefKey;
 +            }
 +        }
@@ -298,30 +298,29 @@ index 0fd4b9c345d93..8278042cfa409 100644
          switch (type) {
              case ContentSettingsType.ADS:
                  return "ads_permission_list";
-@@ -659,6 +668,17 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
-         for (@ContentSettingsType.EnumType int type : SiteSettingsUtil.SETTINGS_ORDER) {
-             Preference preference = getPermissionPreference(type);
+@@ -660,6 +669,16 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
+             Preference preference =
+                     getPermissionPreference(type, setting == null ? false : setting.isOneTime());
              preference.setKey(getPreferenceKey(type));
 +            SingleWebsiteSettingsHooks hooks =
 +                    SiteSettingsHooksRegistry.getSingleWebsiteSettingsHooks(type);
 +            if (!hooks.isDefaultInstance()) {
 +                setupContentSettingsPreference(
 +                        preference,
-+                        hooks.getContentSettingForSetup(getBrowserContextHandle(), mSite, type),
-+                        mSite.isEmbargoed(type),
-+                        isOneTime(type));
++                        hooks.getPermissionSettingForSetup(getBrowserContextHandle(), setting, type),
++                        mSite.isEmbargoed(type));
 +                hooks.setupOrModifyPreference(this, getBrowserContextHandle(), preference);
 +                continue;
 +            }
  
              if (type == ContentSettingsType.ADS) {
-                 setUpAdsPreference(preference);
+                 setUpAdsPreference(preference, setting);
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
 new file mode 100644
-index 0000000000000..01d8582a63027
+index 0000000000000..f7b2fdb1967dc
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,50 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import androidx.preference.Preference;
@@ -329,7 +328,6 @@ index 0000000000000..01d8582a63027
 +import org.chromium.build.annotations.NonNull;
 +import org.chromium.build.annotations.NullMarked;
 +import org.chromium.build.annotations.Nullable;
-+import org.chromium.components.content_settings.ContentSetting;
 +import org.chromium.components.content_settings.ContentSettingsType;
 +import org.chromium.content_public.browser.BrowserContextHandle;
 +
@@ -360,15 +358,13 @@ index 0000000000000..01d8582a63027
 +    }
 +
 +    @Nullable
-+    @ContentSetting
-+    protected Integer getContentSettingForSetup(
++    protected PermissionSetting getPermissionSettingForSetup(
 +            @NonNull BrowserContextHandle browserContextHandle,
-+            @NonNull Website website,
++            @Nullable PermissionSetting originalSetting,
 +            @ContentSettingsType.EnumType int contentType) {
 +        return null;
 +    }
 +
-+    // Return true if preference set is overridden in subclass.
 +    protected void setupOrModifyPreference(
 +            @NonNull SingleWebsiteSettings siteSettingsFragment,
 +            @NonNull BrowserContextHandle browserContextHandle,
@@ -571,7 +567,7 @@ index 0000000000000..d4f611ebaeefa
 +}
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
 new file mode 100644
-index 0000000000000..113bdb933cd4b
+index 0000000000000..ea0be01b4fdc7
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
 @@ -0,0 +1,113 @@
@@ -581,8 +577,8 @@ index 0000000000000..113bdb933cd4b
 +import org.chromium.build.annotations.NullMarked;
 +import org.chromium.components.content_settings.ContentSettingsType;
 +
-+import java.util.LinkedHashMap;
 +import java.util.Map;
++import java.util.LinkedHashMap;
 +
 +@NullMarked
 +public final class SiteSettingsHooksRegistry {
@@ -913,10 +909,10 @@ index c68709a418086..615e27440294e 100644
      static final int[] CHOOSER_PERMISSIONS = {
          ContentSettingsType.USB_CHOOSER_DATA,
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-index 6f59a2fb151fa..5ae70b46ce927 100644
+index 318f54493a67e..879cf1401edd4 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/Website.java
-@@ -278,6 +278,22 @@ public final class Website implements WebsiteEntry {
+@@ -291,6 +291,22 @@ public final class Website implements WebsiteEntry {
      @VisibleForTesting
      @Nullable ContentSettingException createContentSettingException(
              @ContentSettingsType.EnumType int type, @ContentSetting int value) {
@@ -939,7 +935,7 @@ index 6f59a2fb151fa..5ae70b46ce927 100644
          if (type == ContentSettingsType.ADS) {
              // It is possible to set the permission without having an existing exception,
              // because we can show the BLOCK state even when this permission is set to the
-@@ -318,6 +334,26 @@ public final class Website implements WebsiteEntry {
+@@ -331,6 +347,25 @@ public final class Website implements WebsiteEntry {
              @ContentSettingsType.EnumType int type,
              @ContentSetting int value) {
          PermissionInfo permissionInfo = getPermissionInfo(type);
@@ -955,8 +951,7 @@ index 6f59a2fb151fa..5ae70b46ce927 100644
 +                                        type,
 +                                        mOrigin.getOrigin(),
 +                                        /* embedder= */ null,
-+                                        /* isEmbargoed= */ false,
-+                                        SessionModel.DURABLE);
++                                        /* isEmbargoed= */ false);
 +                        setPermissionInfo(permissionInfo);
 +                    }
 +                }
@@ -967,10 +962,10 @@ index 6f59a2fb151fa..5ae70b46ce927 100644
              // The Auto Picture-in-Picture permission is defaulted to allowed/denied based on the
              // incognito status. When the user explicitly sets the permission for the first time, no
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
-index baf718033f8bb..e9c628990fd09 100644
+index ed063a66a0514..e87280424aaa2 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
-@@ -77,6 +77,25 @@ public class WebsitePermissionsFetcher {
+@@ -76,6 +76,25 @@ public class WebsitePermissionsFetcher {
       */
      public static @Nullable WebsitePermissionsType getPermissionsType(
              @ContentSettingsType.EnumType int contentSettingsType) {
