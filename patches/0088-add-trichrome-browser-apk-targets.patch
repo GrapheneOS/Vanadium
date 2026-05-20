@@ -9,10 +9,10 @@ Subject: [PATCH] add trichrome browser apk targets
  2 files changed, 44 insertions(+)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 09ba1a8a94fa0..34105974aedf4 100644
+index 12f4b4c9bc616..b017f22cd273c 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -1920,6 +1920,10 @@ if (_is_default_toolchain) {
+@@ -1944,6 +1944,10 @@ if (_is_default_toolchain) {
      is_trichrome = true
      is_bundle_module = true
    }
@@ -23,7 +23,7 @@ index 09ba1a8a94fa0..34105974aedf4 100644
  
    # Exists separately from chrome_public_base_module_java_for_test to allow
    # downstream to depend on test support packages without needing to depend on
-@@ -2283,6 +2287,44 @@ if (_is_default_toolchain) {
+@@ -2308,6 +2312,44 @@ if (_is_default_toolchain) {
        }
      }
    }
@@ -69,10 +69,10 @@ index 09ba1a8a94fa0..34105974aedf4 100644
    # As compared to chrome_public_test_apk, this target contains only unit tests
    # that require on device capabilities. These tests are smaller, more tightly
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index db09b8848350a..fe2f922a3db30 100644
+index b811b29897979..781675358ccef 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -436,6 +436,8 @@ template("chrome_common_apk_or_module_tmpl") {
+@@ -441,6 +441,8 @@ template("chrome_common_apk_or_module_tmpl") {
            [ "//chrome/android:trichrome_chrome_bundle_module_pak_assets" ]
      } else if (_is_bundle) {
        asset_deps += [ "//chrome/android:chrome_bundle_module_pak_assets" ]

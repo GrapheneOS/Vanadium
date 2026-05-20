@@ -5,19 +5,19 @@ Subject: [PATCH] Use local list of supported languages for Language settings
 
 Disable requests or connections to fetch language list from server
 ---
- components/translate/core/browser/translate_language_list.cc | 2 +-
+ components/translate/core/browser/translate_url_fetcher.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/components/translate/core/browser/translate_language_list.cc b/components/translate/core/browser/translate_language_list.cc
-index 296e7cd2a66e4..d7270810b00b8 100644
---- a/components/translate/core/browser/translate_language_list.cc
-+++ b/components/translate/core/browser/translate_language_list.cc
-@@ -311,7 +311,7 @@ constexpr std::string_view kLanguageListFetchPath =
-     "translate_a/l?client=chrome";
- 
- // Represent if the language list updater is disabled.
--bool update_is_disabled = false;
-+bool update_is_disabled = true;
+diff --git a/components/translate/core/browser/translate_url_fetcher.cc b/components/translate/core/browser/translate_url_fetcher.cc
+index 3660fa7cab6c7..cb3fe075fe2f4 100644
+--- a/components/translate/core/browser/translate_url_fetcher.cc
++++ b/components/translate/core/browser/translate_url_fetcher.cc
+@@ -23,7 +23,7 @@ namespace translate {
+ namespace {
  
  // Retry parameter for fetching.
- constexpr int kMaxRetryOn5xx = 5;
+-const int kMaxRetry = 16;
++const int kMaxRetry = 0;
+ 
+ }  // namespace
+ 

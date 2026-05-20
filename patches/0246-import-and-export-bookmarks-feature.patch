@@ -105,10 +105,10 @@ index 2f639edef6b08..9c3dc45fa1b54 100644
    <if expr="not use_titlecase">
      <message name="IDS_BOOKMARK_BAR_SHOW_APPS_SHORTCUT" desc="Name shown in the context menu to hide/show the apps shortcut in the bookmark bar">
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index bce2e83d51fa7..cfe7981bfd247 100644
+index 7ad84ceeb5372..e42a90fdcbf8d 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -5168,11 +5168,11 @@ are declared in tools/grit/grit_args.gni.
+@@ -5160,11 +5160,11 @@ are declared in tools/grit/grit_args.gni.
        <message name="IDS_UTILITY_PROCESS_FILE_UTILITY_NAME" desc="The name of the utility process used for various Vanadium specific file operations.">
            Vanadium File Utilities
        </message>
@@ -122,7 +122,7 @@ index bce2e83d51fa7..cfe7981bfd247 100644
        <message name="IDS_UTILITY_PROCESS_QRCODE_GENERATOR_SERVICE_NAME" desc="The name of the utility process used for encoding QR Codes.">
          QR Code Generator
        </message>
-@@ -11573,7 +11573,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11647,7 +11647,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
        </if>
  
        <!-- Android uses custom UI for Bookmark importing -->
@@ -131,7 +131,7 @@ index bce2e83d51fa7..cfe7981bfd247 100644
          <!-- Import Settings Dialog -->
          <if expr="is_win">
            <message name="IDS_IMPORT_FROM_IE" desc="browser combo box: Microsoft Internet Explorer">
-@@ -11606,7 +11606,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11680,7 +11680,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
              Import Bookmarks and Settings...
            </message>
          </if> <!-- is_macosx -->
@@ -141,7 +141,7 @@ index bce2e83d51fa7..cfe7981bfd247 100644
        <if expr="is_macosx">
          <!-- Confirm to quit panel -->
 diff --git a/chrome/browser/bookmarks/android/BUILD.gn b/chrome/browser/bookmarks/android/BUILD.gn
-index 925a592205d14..f020d714c821d 100644
+index d24b0644c2767..820ec2b835734 100644
 --- a/chrome/browser/bookmarks/android/BUILD.gn
 +++ b/chrome/browser/bookmarks/android/BUILD.gn
 @@ -6,7 +6,10 @@ import("//build/config/android/rules.gni")
@@ -169,10 +169,10 @@ index 925a592205d14..f020d714c821d 100644
    deps = [
      ":android",
 diff --git a/chrome/browser/bookmarks/android/bookmark_bridge.cc b/chrome/browser/bookmarks/android/bookmark_bridge.cc
-index 1042ad53634d8..9f4187e202d17 100644
+index fa78cab1139ce..89dec39ff85b1 100644
 --- a/chrome/browser/bookmarks/android/bookmark_bridge.cc
 +++ b/chrome/browser/bookmarks/android/bookmark_bridge.cc
-@@ -33,6 +33,7 @@
+@@ -34,6 +34,7 @@
  #include "base/strings/strcat.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/uuid.h"
@@ -180,7 +180,7 @@ index 1042ad53634d8..9f4187e202d17 100644
  #include "chrome/browser/bookmarks/bookmark_model_factory.h"
  #include "chrome/browser/bookmarks/managed_bookmark_service_factory.h"
  #include "chrome/browser/commerce/shopping_service_factory.h"
-@@ -246,6 +247,8 @@ BookmarkBridge::BookmarkBridge(
+@@ -247,6 +248,8 @@ BookmarkBridge::BookmarkBridge(
    CHECK(dual_reading_list_model);
    CHECK(identity_manager_);
  
@@ -189,7 +189,7 @@ index 1042ad53634d8..9f4187e202d17 100644
    load_start_time_ = base::TimeTicks::Now();
    RecordLoadedStateEnum(LoadedState::kLoadStarted);
  
-@@ -1325,6 +1328,30 @@ bool BookmarkBridge::IsBookmarked(JNIEnv* env, const GURL& url) {
+@@ -1335,6 +1338,30 @@ bool BookmarkBridge::IsBookmarked(JNIEnv* env, const GURL& url) {
    return !GetMostRecentlyAddedUserBookmarkIdForUrl(env, url).is_null();
  }
  
@@ -542,7 +542,7 @@ index d783f43cafa76..a87819a832232 100644
      }
  }
 diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
-index f8a7a30044cfd..18d395e081da5 100644
+index faa9f41249696..c5eab748a2c20 100644
 --- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
 +++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
 @@ -248,7 +248,8 @@ public class BookmarkManagerCoordinator
@@ -588,7 +588,7 @@ index 7413e5a82663a..7fb6b9399f162 100644
          PropertyModelChangeProcessor.create(mModel, mToolbar, BookmarkToolbarViewBinder::bind);
      }
 diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
-index 28041ebace2e5..085c94621170c 100644
+index 6330c044076e4..566e380aca5d4 100644
 --- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
 +++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
 @@ -34,6 +34,7 @@ import org.chromium.components.browser_ui.widget.dragreorder.DragTouchHandler.Dr
@@ -635,7 +635,7 @@ index 28041ebace2e5..085c94621170c 100644
  
          assert false : "Unhandled menu click.";
 diff --git a/chrome/browser/importer/BUILD.gn b/chrome/browser/importer/BUILD.gn
-index 32fc9a91254aa..821f35ff91e45 100644
+index dd2bc68e39d91..b2a2619b513b8 100644
 --- a/chrome/browser/importer/BUILD.gn
 +++ b/chrome/browser/importer/BUILD.gn
 @@ -2,7 +2,7 @@
@@ -647,7 +647,7 @@ index 32fc9a91254aa..821f35ff91e45 100644
  
  source_set("importer") {
    sources = [
-@@ -71,6 +71,36 @@ source_set("impl") {
+@@ -72,6 +72,36 @@ source_set("impl") {
    }
  }
  
@@ -714,10 +714,10 @@ index cf53287c06866..72129f2b1d25f 100644
    "//components/subresource_filter/android_config:android",
    "//net/downstream/conn_checks/android:conn_checks_util",
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 685db4d5bde4a..3b6dafb4c36ce 100644
+index 380ff293226d2..b26d4c99a5d9e 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -4918,6 +4918,12 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
+@@ -4692,6 +4692,12 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
        <message name="IDS_SORT_BY_LAST_OPENED"  desc="Option in the bookmarks manager to sort by last opened. [CHAR_LIMIT=24]">
          Sort by last opened
        </message>
@@ -748,7 +748,7 @@ index c719a21360bfb..9e1197322d7b9 100644
      sources += [ "firefox_importer_utils_linux.cc" ]
    } else if (is_mac) {
 diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
-index fd1fac51fe132..0629580c516e3 100644
+index 41a02f8a8a207..192f0018a0856 100644
 --- a/chrome/utility/BUILD.gn
 +++ b/chrome/utility/BUILD.gn
 @@ -89,7 +89,7 @@ static_library("utility") {

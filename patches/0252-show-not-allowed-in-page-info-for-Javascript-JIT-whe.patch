@@ -1,0 +1,90 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 15:14:50 +0000
+Subject: [PATCH] show "not allowed" in page info for Javascript JIT when
+ memory DCL is restricted
+
+---
+ .../page_info/android/downstream/BUILD.gn     |  2 ++
+ .../page_info/JavascriptJitPageInfoHooks.java | 36 +++++++++++++++++++
+ .../page_info/PageInfoHooksRegistry.java      |  2 ++
+ 3 files changed, 40 insertions(+)
+ create mode 100644 components/page_info/android/downstream/java/src/org/chromium/components/page_info/JavascriptJitPageInfoHooks.java
+
+diff --git a/components/page_info/android/downstream/BUILD.gn b/components/page_info/android/downstream/BUILD.gn
+index 7c031f6b454b9..a161a97ba2eb2 100644
+--- a/components/page_info/android/downstream/BUILD.gn
++++ b/components/page_info/android/downstream/BUILD.gn
+@@ -3,12 +3,14 @@ import("//third_party/jni_zero/jni_zero.gni")
+ 
+ android_library("page_info_deps_java") {
+   sources = [
++    "java/src/org/chromium/components/page_info/JavascriptJitPageInfoHooks.java",
+     "java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java",
+     "java/src/org/chromium/components/page_info/PageInfoPermissionControllerHooks.java",
+   ]
+ 
+   deps = [
+     "//components/content_settings/core/common:content_settings_types_java",
++    "//vanadium/android_config/proto:browser_config_parser_java",
+   ]
+ 
+   srcjar_deps = [
+diff --git a/components/page_info/android/downstream/java/src/org/chromium/components/page_info/JavascriptJitPageInfoHooks.java b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/JavascriptJitPageInfoHooks.java
+new file mode 100644
+index 0000000000000..da5004e4398a3
+--- /dev/null
++++ b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/JavascriptJitPageInfoHooks.java
+@@ -0,0 +1,36 @@
++package org.chromium.components.page_info;
++
++import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
++
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.ext.CustomOSApis;
++
++@NullMarked
++final class JavascriptJitPageInfoHooks {
++
++    private static boolean isMemoryDclRestricted() {
++        String featureKey = "CheckOsConfigsForJavascriptJitSiteSettingsForPageInfo";
++        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE).containsKey(featureKey)) {
++            return false;
++        }
++
++        Boolean isMemoryDclRestricted = CustomOSApis.isMemoryDclRestricted();
++        return isMemoryDclRestricted != null && isMemoryDclRestricted;
++    }
++
++    static final class PageInfoPermissionControllerHooksImpl extends PageInfoPermissionControllerHooks {
++
++        @Override
++        @Nullable
++        Boolean treatAsAllowedOverride() {
++            if (isMemoryDclRestricted()) {
++                return false;
++            }
++
++            return null;
++        }
++    }
++}
+diff --git a/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java
+index 69486b5bd74bc..7e8c15f4bea7c 100644
+--- a/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java
++++ b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java
+@@ -3,9 +3,11 @@ package org.chromium.components.page_info;
+ import org.chromium.components.content_settings.ContentSettingsType;
+ 
+ public final class PageInfoHooksRegistry {
++
+     static PageInfoPermissionControllerHooks getPermissionControllerHooks(
+             @ContentSettingsType.EnumType int contentSettingsType) {
+         return switch (contentSettingsType) {
++            case ContentSettingsType.JAVASCRIPT_JIT -> new JavascriptJitPageInfoHooks.PageInfoPermissionControllerHooksImpl();
+             default -> PageInfoPermissionControllerHooks.getDefaultInstance();
+         };
+     }

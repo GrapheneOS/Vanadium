@@ -15,10 +15,10 @@ Android.
  4 files changed, 53 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
-index 2501b590a5318..a30eabb6c8f7e 100644
+index 8e4378ab8251e..fa6d2dbc35d07 100644
 --- a/components/embedder_support/user_agent_utils.cc
 +++ b/components/embedder_support/user_agent_utils.cc
-@@ -658,6 +658,34 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
+@@ -665,6 +665,34 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
                 : metadata;
    }
  
@@ -79,10 +79,10 @@ index b1778eb659172..746c38a05f370 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 24ac495a7ee6d..fb092973bd451 100644
+index d2b8ce02c2a20..822726de2718a 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -389,6 +389,14 @@ BASE_FEATURE(kCapStringBuilderLengthTo1GiB, base::FEATURE_ENABLED_BY_DEFAULT);
+@@ -397,6 +397,14 @@ BASE_FEATURE(kCapStringBuilderLengthTo1GiB, base::FEATURE_ENABLED_BY_DEFAULT);
  // of the renderer eviction reasons for Back/Forward Cache.
  BASE_FEATURE(kCaptureJSExecutionLocation, base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -98,10 +98,10 @@ index 24ac495a7ee6d..fb092973bd451 100644
               base::FEATURE_ENABLED_BY_DEFAULT);
  
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 0345abb5a0cf1..410cfebcb4ca1 100644
+index 048811af91bd5..a98a78efef107 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
-@@ -240,6 +240,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCapStringBuilderLengthTo1GiB);
+@@ -244,6 +244,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCapStringBuilderLengthTo1GiB);
  
  BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCaptureJSExecutionLocation);
  

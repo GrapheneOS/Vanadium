@@ -9,10 +9,10 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=1150817
  1 file changed, 2 insertions(+)
 
 diff --git a/google_apis/gaia/gaia_auth_fetcher.cc b/google_apis/gaia/gaia_auth_fetcher.cc
-index cf58904d0f7f6..d8a5d26bf649d 100644
+index 13d03f0d73faa..91ff0f7c8ff48 100644
 --- a/google_apis/gaia/gaia_auth_fetcher.cc
 +++ b/google_apis/gaia/gaia_auth_fetcher.cc
-@@ -241,6 +241,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -247,6 +247,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
      const net::NetworkTrafficAnnotationTag& traffic_annotation) {
    DCHECK(!fetch_pending_) << "Tried to fetch two things at once!";
  
@@ -20,7 +20,7 @@ index cf58904d0f7f6..d8a5d26bf649d 100644
    auto resource_request = std::make_unique<network::ResourceRequest>();
    resource_request->url = gaia_gurl;
    original_url_ = gaia_gurl;
-@@ -295,6 +296,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -305,6 +306,7 @@ void GaiaAuthFetcher::CreateAndStartGaiaFetcher(
                       base::Unretained(this)),
        // Limit to 1 MiB.
        1024 * 1024);

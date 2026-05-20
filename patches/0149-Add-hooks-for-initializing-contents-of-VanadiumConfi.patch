@@ -4,19 +4,19 @@ Date: Thu, 14 Dec 2023 16:54:04 +0000
 Subject: [PATCH] Add hooks for initializing contents of VanadiumConfig app
 
 ---
- .../base/config/VanadiumConfigBridge.java     | 114 ++++++++++++++++++
+ .../base/config/VanadiumConfigBridge.java     | 102 ++++++++++++++++++
  .../library_loader/LibraryLoaderHooks.java    |   5 +
  base/base_library_loader_java_ext_deps.gni    |   1 +
  base/base_library_loader_java_ext_sources.gni |   1 +
- 4 files changed, 121 insertions(+)
+ 4 files changed, 109 insertions(+)
  create mode 100644 base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
 
 diff --git a/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
 new file mode 100644
-index 0000000000000..8043d64761a01
+index 0000000000000..f214548ae9e57
 --- /dev/null
 +++ b/base/android/java/src/org/chromium/base/config/VanadiumConfigBridge.java
-@@ -0,0 +1,114 @@
+@@ -0,0 +1,102 @@
 +package org.chromium.base.config;
 +
 +import static org.chromium.base.command_line.VanadiumCommandLineUtils.getCommaDelimitedSwitchValue;
@@ -57,18 +57,6 @@ index 0000000000000..8043d64761a01
 +    }
 +
 +    public static void applyFlagFromConfigs(Context appCtx, @LibraryProcessType int libraryProcessType) {
-+        switch (libraryProcessType) {
-+            case LibraryProcessType.PROCESS_BROWSER:
-+            case LibraryProcessType.PROCESS_WEBVIEW:
-+                break;
-+            case LibraryProcessType.PROCESS_CHILD:
-+            case LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED:
-+            case LibraryProcessType.PROCESS_WEBVIEW_CHILD:
-+                return;
-+            default:
-+                throw new IllegalStateException();
-+        }
-+
 +        if (!VanadiumConfParser.isInitialized()) {
 +            Log.e(TAG, "Config app not parsed nor initialized, returning early");
 +            return;

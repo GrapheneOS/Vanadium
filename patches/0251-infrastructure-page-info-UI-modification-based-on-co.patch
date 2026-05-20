@@ -1,0 +1,104 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 15:03:48 +0000
+Subject: [PATCH] infrastructure page info UI modification based on content
+ settings type
+
+---
+ .../page_info/android/downstream/BUILD.gn     |  3 ++
+ .../page_info/PageInfoHooksRegistry.java      | 12 ++++++++
+ .../PageInfoPermissionControllerHooks.java    | 29 +++++++++++++++++++
+ .../PageInfoPermissionsController.java        |  8 +++++
+ 4 files changed, 52 insertions(+)
+ create mode 100644 components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java
+ create mode 100644 components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoPermissionControllerHooks.java
+
+diff --git a/components/page_info/android/downstream/BUILD.gn b/components/page_info/android/downstream/BUILD.gn
+index 020e0de8e1f6e..7c031f6b454b9 100644
+--- a/components/page_info/android/downstream/BUILD.gn
++++ b/components/page_info/android/downstream/BUILD.gn
+@@ -3,9 +3,12 @@ import("//third_party/jni_zero/jni_zero.gni")
+ 
+ android_library("page_info_deps_java") {
+   sources = [
++    "java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java",
++    "java/src/org/chromium/components/page_info/PageInfoPermissionControllerHooks.java",
+   ]
+ 
+   deps = [
++    "//components/content_settings/core/common:content_settings_types_java",
+   ]
+ 
+   srcjar_deps = [
+diff --git a/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java
+new file mode 100644
+index 0000000000000..69486b5bd74bc
+--- /dev/null
++++ b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoHooksRegistry.java
+@@ -0,0 +1,12 @@
++package org.chromium.components.page_info;
++
++import org.chromium.components.content_settings.ContentSettingsType;
++
++public final class PageInfoHooksRegistry {
++    static PageInfoPermissionControllerHooks getPermissionControllerHooks(
++            @ContentSettingsType.EnumType int contentSettingsType) {
++        return switch (contentSettingsType) {
++            default -> PageInfoPermissionControllerHooks.getDefaultInstance();
++        };
++    }
++}
+diff --git a/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoPermissionControllerHooks.java b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoPermissionControllerHooks.java
+new file mode 100644
+index 0000000000000..cbc9f1ef26464
+--- /dev/null
++++ b/components/page_info/android/downstream/java/src/org/chromium/components/page_info/PageInfoPermissionControllerHooks.java
+@@ -0,0 +1,29 @@
++package org.chromium.components.page_info;
++
++import org.chromium.build.annotations.NonNull;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++@NullMarked
++class PageInfoPermissionControllerHooks {
++
++    private static final class LazyHolder {
++        @NonNull
++        private static final PageInfoPermissionControllerHooks INSTANCE =
++                new PageInfoPermissionControllerHooks();
++    }
++
++    @NonNull
++    static PageInfoPermissionControllerHooks getDefaultInstance() {
++        return LazyHolder.INSTANCE;
++    }
++
++    final boolean isDefaultInstance() {
++        return getDefaultInstance() == this;
++    }
++
++    @Nullable
++    Boolean treatAsAllowedOverride() {
++        return null;
++    }
++}
+diff --git a/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java b/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
+index 3f9a0087427f7..5718120809e70 100644
+--- a/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
++++ b/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
+@@ -57,6 +57,14 @@ public class PageInfoPermissionsController extends PageInfoPreferenceSubpageCont
+                 boolean allowed,
+                 int warningTextResource,
+                 boolean requested) {
++            PageInfoPermissionControllerHooks hooks =
++                    PageInfoHooksRegistry.getPermissionControllerHooks(type);
++            if (!hooks.isDefaultInstance()) {
++                Boolean allowedOverride = hooks.treatAsAllowedOverride();
++                if (allowedOverride != null) {
++                    allowed = allowedOverride;
++                }
++            }
+             this.type = type;
+             this.name = name;
+             this.nameMidSentence = nameMidSentence;
