@@ -12,16 +12,16 @@ diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_p
 index 781675358ccef..786d883c5e7ca 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -683,6 +683,12 @@ template("chrome_common_apk_or_module_tmpl") {
- template("chrome_public_apk_or_module_tmpl") {
-   chrome_common_apk_or_module_tmpl(target_name) {
+@@ -685,6 +685,12 @@ template("chrome_public_apk_or_module_tmpl") {
      add_upstream_only_deps = true
+     forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
+     forward_variables_from(invoker, "*", TESTONLY_AND_VISIBILITY)
 +    if (!defined(srcjar_deps)) {
 +      srcjar_deps = []
 +    }
 +    srcjar_deps += [
 +      "//vanadium/android_config:configinfo_srcjar_apk",
 +    ]
-     forward_variables_from(invoker, TESTONLY_AND_VISIBILITY)
-     forward_variables_from(invoker, "*", TESTONLY_AND_VISIBILITY)
    }
+ }
+
