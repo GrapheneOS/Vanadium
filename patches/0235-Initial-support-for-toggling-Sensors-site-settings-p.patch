@@ -5,15 +5,16 @@ Subject: [PATCH] Initial support for toggling Sensors site settings per-site
 
 ---
  .../site_settings/SensorsSettingsHooks.java   | 55 +++++++++++++++++++
+ .../site_settings/SingleCategorySettings.java |  9 +++
  .../SiteSettingsHooksRegistry.java            |  3 +
  ...site_settings_android_java_ext_sources.gni |  1 +
  .../strings/android/site_settings_ext.grdp    |  6 ++
- 4 files changed, 65 insertions(+)
+ 5 files changed, 74 insertions(+)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 new file mode 100644
-index 0000000000000..0645b8b58165e
+index 0000000000000..817c2976b1e26
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 @@ -0,0 +1,55 @@
@@ -46,7 +47,7 @@ index 0000000000000..0645b8b58165e
 +
 +        @Override
 +        protected Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
-+            return true;
++            return false; // TODO: support with improved exception handling
 +        }
 +
 +        @Override
@@ -72,6 +73,26 @@ index 0000000000000..0645b8b58165e
 +        }
 +    }
 +}
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+index cb3a5e569aed5..8e55f43831c9a 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
+@@ -313,6 +313,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+                 }
+                 return filtered;
+             }
++            if (type == SiteSettingsCategory.Type.SENSORS) {
++                Collection<Website> filtered = new ArrayList<>();
++                for (Website site : sites) {
++                    if (site.getAddress().getOrigin().startsWith("https://")) {
++                        filtered.add(site);
++                    }
++                }
++                return filtered;
++            }
+             return sites;
+         }
+     }
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
 index b989d00cbcec8..91bcb464100f6 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsHooksRegistry.java
