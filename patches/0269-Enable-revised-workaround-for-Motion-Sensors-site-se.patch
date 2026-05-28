@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 20 May 2026 15:28:33 +0000
+Subject: [PATCH] Enable revised workaround for Motion Sensors site settings
+ exception
+
+---
+ .../app/vanadium/config/host/ConfigGenerator.java     | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+index c98cd2a675a6d..170f7bd18ebd5 100644
+--- a/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/java/src_host/app/vanadium/config/host/ConfigGenerator.java
+@@ -265,6 +265,17 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(
++                                getSpecTypes(SpecType.BROWSER))
++                                .setMinVersion(7827_048_00L)
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("MotionSensorsRevisedSiteSettingsException")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

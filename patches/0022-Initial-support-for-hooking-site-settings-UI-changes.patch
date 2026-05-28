@@ -5,8 +5,8 @@ Subject: [PATCH] Initial support for hooking site settings UI changes
 
 ---
  .../ContentSettingsResources.java             |  83 +++++++++++++
- .../site_settings/SingleCategorySettings.java |  48 ++++++++
- .../SingleCategorySettingsHooks.java          |  65 ++++++++++
+ .../site_settings/SingleCategorySettings.java |  67 ++++++++++
+ .../SingleCategorySettingsHooks.java          |  78 ++++++++++++
  .../site_settings/SingleWebsiteSettings.java  |  19 +++
  .../SingleWebsiteSettingsHooks.java           |  50 ++++++++
  .../site_settings/SiteSettings.java           |  25 ++++
@@ -20,7 +20,7 @@ Subject: [PATCH] Initial support for hooking site settings UI changes
  .../WebsitePermissionsFetcher.java            |  19 +++
  .../WebsitePermissionsFetcherHooks.java       |  55 +++++++++
  ...site_settings_android_java_ext_sources.gni |   7 ++
- 16 files changed, 808 insertions(+), 4 deletions(-)
+ 16 files changed, 840 insertions(+), 4 deletions(-)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategoryHooks.java
@@ -124,10 +124,25 @@ index 9e2f2fed5cf43..7558180af3f65 100644
              case ContentSettingsType.ADS:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index 968ec2148fca0..cb3a5e569aed5 100644
+index 968ec2148fca0..bb6fe7ea83450 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-@@ -484,6 +484,22 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -313,6 +313,14 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+                 }
+                 return filtered;
+             }
++            SingleCategorySettingsHooks hooks =
++                    SiteSettingsHooksRegistry.getSingleCategorySettingsHooks(mCategory.getType());
++            if (!hooks.isDefaultInstance()) {
++                Collection<Website> filtered = hooks.applyFilters(sites);
++                if (filtered != null) {
++                    return filtered;
++                }
++            }
+             return sites;
+         }
+     }
+@@ -484,6 +492,22 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
              mGlobalToggleLayout = GlobalToggleLayout.BINARY_RADIO_BUTTON;
          }
  
@@ -150,7 +165,7 @@ index 968ec2148fca0..cb3a5e569aed5 100644
          ViewGroup view = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
  
          mListView = getListView();
-@@ -794,6 +810,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -794,6 +818,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
      }
  
      private int getAddExceptionDialogMessageResourceId() {
@@ -166,7 +181,25 @@ index 968ec2148fca0..cb3a5e569aed5 100644
          switch (mCategory.getType()) {
              case SiteSettingsCategory.Type.AUTOMATIC_DOWNLOADS:
                  return isCategoryEnabled()
-@@ -953,6 +978,16 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -894,6 +927,17 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+                 assert false;
+         }
+ 
++        SingleCategorySettingsHooks hooks =
++                SiteSettingsHooksRegistry.getSingleCategorySettingsHooks(mCategory.getType());
++        if (!hooks.isDefaultInstance()) {
++            if (!primaryPattern.equals(SITE_WILDCARD)) {
++                String modifiedPattern = hooks.maybeModifyPrimaryPattern(primaryPattern);
++                if (modifiedPattern != null) {
++                    primaryPattern = modifiedPattern;
++                }
++            }
++        }
++
+         WebsitePreferenceBridge.setContentSettingCustomScope(
+                 browserContextHandle,
+                 mCategory.getContentSettingsType(),
+@@ -953,6 +997,16 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                  break;
          }
  
@@ -183,7 +216,7 @@ index 968ec2148fca0..cb3a5e569aed5 100644
          int exceptionDialogMessageResourceId = getAddExceptionDialogMessageResourceId();
          assert shouldAddExceptionButton == (exceptionDialogMessageResourceId != 0);
  
-@@ -1441,10 +1476,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -1441,10 +1495,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
      }
  
      private void maybeShowOsWarning(PreferenceScreen screen) {
@@ -209,10 +242,10 @@ index 968ec2148fca0..cb3a5e569aed5 100644
          ChromeBasePreference osWarningExtra = new ChromeBasePreference(getStyledContext(), null);
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
 new file mode 100644
-index 0000000000000..05993d7066ad4
+index 0000000000000..a01dddb92d5ca
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,78 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import androidx.annotation.IntDef;
@@ -224,6 +257,9 @@ index 0000000000000..05993d7066ad4
 +import org.chromium.build.annotations.Nullable;
 +import org.chromium.components.browser_ui.settings.ChromeBasePreference;
 +import org.chromium.components.content_settings.ContentSettingsType;
++
++import java.util.ArrayList;
++import java.util.Collection;
 +
 +@NullMarked
 +public class SingleCategorySettingsHooks {
@@ -267,6 +303,16 @@ index 0000000000000..05993d7066ad4
 +
 +    @Nullable
 +    protected Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
++        return null;
++    }
++
++    @Nullable
++    protected String maybeModifyPrimaryPattern(String pattern) {
++        return null;
++    }
++
++    @Nullable
++    protected Collection<Website> applyFilters(Collection<Website> sites) {
 +        return null;
 +    }
 +
