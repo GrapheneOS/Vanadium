@@ -8,10 +8,10 @@ Subject: [PATCH] enable wasm in JITless mode when per-site JIT is disabled
  1 file changed, 2 insertions(+)
 
 diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
-index 96be9c582433e..2003eb68210d2 100644
+index 744efa3941c96..ca9632b0d1c10 100644
 --- a/content/browser/renderer_host/render_process_host_impl.cc
 +++ b/content/browser/renderer_host/render_process_host_impl.cc
-@@ -3726,6 +3726,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+@@ -3741,6 +3741,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
    if (IsJitDisabled()) {
      AppendToCommaSeparatedSwitch(
          command_line, blink::switches::kJavaScriptFlags, "--jitless");
