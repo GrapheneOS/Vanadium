@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 28 May 2026 16:05:44 +0000
+Subject: [PATCH] Guard workaround for adding site settings exception with
+ VanadiumConfig feature flag
+
+---
+ .../site_settings/SensorsSettingsHooks.java   | 20 ++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
+index c25dbcfda5408..645a0a6746e8c 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
+@@ -97,13 +97,27 @@ public final class SensorsSettingsHooks {
+ 
+     static final class SingleCategorySettingsHooksImpl extends SingleCategorySettingsHooks {
+ 
++        private static boolean shouldUseRevisedSiteSettingsException() {
++            String featureKey = "MotionSensorsRevisedSiteSettingsException";
++            if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE)
++                    .containsKey(featureKey)) {
++                return false;
++            }
++
++            return true;
++        }
++
+         @Override
+         protected Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
+-            return false; // TODO: support with improved exception handling
++            return shouldUseRevisedSiteSettingsException();
+         }
+ 
+         @Override
+         protected Collection<Website> applyFilters(Collection<Website> sites) {
++            if (!shouldUseRevisedSiteSettingsException()) {
++                return null;
++            }
++
+             String httpsScheme = ContentUrlConstants.HTTPS_SCHEME + "://";
+             Collection<Website> filtered = new ArrayList<>();
+             for (Website site : sites) {
+@@ -116,6 +130,10 @@ public final class SensorsSettingsHooks {
+ 
+         @Override
+         protected @Nullable String maybeModifyPrimaryPattern(String pattern) {
++            if (!shouldUseRevisedSiteSettingsException()) {
++                return null;
++            }
++
+             String httpsScheme = ContentUrlConstants.HTTPS_SCHEME + "://";
+             String httpsPort = ":443";
+             String patternNoScheme;

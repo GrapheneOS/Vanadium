@@ -7,12 +7,12 @@ Fixup with in future releases:
 
 fixup! Initial support for toggling Sensors site settings per-site
 ---
- .../site_settings/SensorsSettingsHooks.java   | 88 ++++++++++++++++++-
+ .../site_settings/SensorsSettingsHooks.java   | 86 +++++++++++++++++++
  .../SiteSettingsHooksRegistry.java            |  2 +
- 2 files changed, 89 insertions(+), 1 deletion(-)
+ 2 files changed, 88 insertions(+)
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
-index 0645b8b58165e..e50a1ac218fa4 100644
+index 817c2976b1e26..5ebbc140a26c2 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 @@ -1,5 +1,13 @@
@@ -97,15 +97,6 @@ index 0645b8b58165e..e50a1ac218fa4 100644
 +    }
 +
      static final class WebsitePermissionsFetcherHooksImpl extends WebsitePermissionsFetcherHooks {
- 
-         @Override
-@@ -27,7 +95,7 @@ public final class SensorsSettingsHooks {
- 
-         @Override
-         protected Boolean shouldAddExceptionButton(boolean isCategoryEnabled) {
--            return true;
-+            return !isPermissionExistingAndRevoked();
-         }
  
          @Override
 @@ -35,6 +103,11 @@ public final class SensorsSettingsHooks {
