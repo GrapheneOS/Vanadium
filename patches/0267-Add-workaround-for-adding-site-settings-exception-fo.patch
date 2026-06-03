@@ -10,7 +10,7 @@ _fixup! Initial support for toggling Sensors site settings per-site
  1 file changed, 33 insertions(+)
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
-index 5ebbc140a26c2..c25dbcfda5408 100644
+index 5ebbc140a26c2..d208aff34ab1a 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 @@ -14,12 +14,16 @@ import org.chromium.build.annotations.Nullable;
@@ -39,7 +39,7 @@ index 5ebbc140a26c2..c25dbcfda5408 100644
 +            String httpsScheme = ContentUrlConstants.HTTPS_SCHEME + "://";
 +            Collection<Website> filtered = new ArrayList<>();
 +            for (Website site : sites) {
-+                if (site.getAddress().getOrigin().startsWith("https://")) {
++                if (site.getAddress().getOrigin().startsWith(httpsScheme)) {
 +                    filtered.add(site);
 +                }
 +            }
