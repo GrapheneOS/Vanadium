@@ -67,45 +67,45 @@ index d7fcb6f8c9a2c..b51c5fd96ea89 100644
      @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
      @Mock private Tab mTab;
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index 6c34f99ac03b1..d6467b2cd5378 100644
+index e57378b218270..ca4ebce5b0e2a 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -230,6 +230,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
-     &kAndroidNewMediaPicker,
+@@ -231,6 +231,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kAndroidNoVisibleHintForDifferentTLD,
      &kAndroidOmniboxFocusedNewTabPage,
+     &kAndroidOpenIncognitoAsWindowRestrictions,
 +    &kAndroidOpenPdfInlineBackport,
      &kAndroidPageInfoAsAppMenuItem,
      &kAndroidProgressBarVisualUpdate,
      &kAndroidSaveCardNonBlockingDialog,
-@@ -583,6 +584,7 @@ BASE_FEATURE(kAndroidHistoryClustering, base::FEATURE_DISABLED_BY_DEFAULT);
- BASE_FEATURE(kAndroidNewMediaPicker, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -586,6 +587,7 @@ BASE_FEATURE(kAndroidNewMediaPicker, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidNoVisibleHintForDifferentTLD, base::FEATURE_ENABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidOmniboxFocusedNewTabPage, base::FEATURE_DISABLED_BY_DEFAULT);
+ BASE_FEATURE(kAndroidOpenIncognitoAsWindowRestrictions, base::FEATURE_ENABLED_BY_DEFAULT);
 +BASE_FEATURE(kAndroidOpenPdfInlineBackport, base::FEATURE_ENABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidPageInfoAsAppMenuItem, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidProgressBarVisualUpdate, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kAndroidSaveCardNonBlockingDialog, base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/chrome/browser/flags/android/chrome_feature_list.h b/chrome/browser/flags/android/chrome_feature_list.h
-index cb88bb78c0738..6f77cd60620df 100644
+index dc9ebc4cfc18f..3fa9cbc613ca1 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.h
 +++ b/chrome/browser/flags/android/chrome_feature_list.h
-@@ -46,6 +46,7 @@ BASE_DECLARE_FEATURE(kAndroidHistoryClustering);
- BASE_DECLARE_FEATURE(kAndroidNewMediaPicker);
+@@ -47,6 +47,7 @@ BASE_DECLARE_FEATURE(kAndroidNewMediaPicker);
  BASE_DECLARE_FEATURE(kAndroidNoVisibleHintForDifferentTLD);
  BASE_DECLARE_FEATURE(kAndroidOmniboxFocusedNewTabPage);
+ BASE_DECLARE_FEATURE(kAndroidOpenIncognitoAsWindowRestrictions);
 +BASE_DECLARE_FEATURE(kAndroidOpenPdfInlineBackport);
  BASE_DECLARE_FEATURE(kAndroidPageInfoAsAppMenuItem);
  BASE_DECLARE_FEATURE(kAndroidProgressBarVisualUpdate);
  BASE_DECLARE_FEATURE(kAndroidSaveCardNonBlockingDialog);
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-index fbcc6ead4f4aa..e555e248791a7 100644
+index ec770ca1d7082..bc6637ce7234b 100644
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -195,6 +195,7 @@ public abstract class ChromeFeatureList {
-     public static final String ANDROID_OMNIBOX_FOCUSED_NEW_TAB_PAGE =
-             "AndroidOmniboxFocusedNewTabPage";
+@@ -197,6 +197,7 @@ public abstract class ChromeFeatureList {
      public static final String ANDROID_OPEN_INCOGNITO_AS_WINDOW = "AndroidOpenIncognitoAsWindow";
+     public static final String ANDROID_OPEN_INCOGNITO_AS_WINDOW_RESTRICTIONS =
+             "AndroidOpenIncognitoAsWindowRestrictions";
 +    public static final String ANDROID_OPEN_PDF_INLINE_BACKPORT = "AndroidOpenPdfInlineBackport";
      public static final String ANDROID_PAGE_INFO_AS_APP_MENU_ITEM = "AndroidPageInfoAsAppMenuItem";
      public static final String ANDROID_PROGRESS_BAR_VISUAL_UPDATE =

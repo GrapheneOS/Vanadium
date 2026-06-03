@@ -124,7 +124,7 @@ index 9e2f2fed5cf43..7558180af3f65 100644
              case ContentSettingsType.ADS:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index 968ec2148fca0..bb6fe7ea83450 100644
+index 968ec2148fca0..1343a912d2ec5 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 @@ -313,6 +313,14 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
@@ -132,7 +132,7 @@ index 968ec2148fca0..bb6fe7ea83450 100644
                  return filtered;
              }
 +            SingleCategorySettingsHooks hooks =
-+                    SiteSettingsHooksRegistry.getSingleCategorySettingsHooks(mCategory.getType());
++                    SiteSettingsHooksRegistry.getSingleCategorySettingsHooks(type);
 +            if (!hooks.isDefaultInstance()) {
 +                Collection<Website> filtered = hooks.applyFilters(sites);
 +                if (filtered != null) {
