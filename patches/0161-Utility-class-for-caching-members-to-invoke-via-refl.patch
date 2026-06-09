@@ -29,7 +29,7 @@ index bc05f3660d5b3..a21fd64d19c92 100644
 \ No newline at end of file
 diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
 new file mode 100644
-index 0000000000000..69646e130eb72
+index 0000000000000..8fdbcf8c97247
 --- /dev/null
 +++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
 @@ -0,0 +1,48 @@
@@ -44,8 +44,8 @@ index 0000000000000..69646e130eb72
 +public final class MemberCache<MemberType extends Member> {
 +
 +    public static <MemberType extends Member> MemberCache<MemberType> of(
-+            Fetcher<MemberType> Fetcher) {
-+        return new MemberCache<>(Fetcher);
++            Fetcher<MemberType> fetcher) {
++        return new MemberCache<>(fetcher);
 +    }
 +
 +    public interface Fetcher<MemberType extends Member> {
@@ -59,8 +59,8 @@ index 0000000000000..69646e130eb72
 +    private MemberType mMember;
 +    private volatile boolean mMemberCached;
 +
-+    private MemberCache(Fetcher<MemberType> Fetcher) {
-+        mFetcher = Fetcher;
++    private MemberCache(Fetcher<MemberType> fetcher) {
++        mFetcher = fetcher;
 +    }
 +
 +    @Nullable
