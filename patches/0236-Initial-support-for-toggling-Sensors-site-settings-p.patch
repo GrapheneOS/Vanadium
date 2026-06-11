@@ -4,19 +4,19 @@ Date: Mon, 19 Jan 2026 14:36:41 +0000
 Subject: [PATCH] Initial support for toggling Sensors site settings per-site
 
 ---
- .../site_settings/SensorsSettingsHooks.java   | 218 ++++++++++++++++++
+ .../site_settings/SensorsSettingsHooks.java   | 224 ++++++++++++++++++
  .../SiteSettingsHooksRegistry.java            |   5 +
  ...site_settings_android_java_ext_sources.gni |   1 +
  .../strings/android/site_settings_ext.grdp    |   6 +
- 4 files changed, 230 insertions(+)
+ 4 files changed, 236 insertions(+)
  create mode 100644 components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 new file mode 100644
-index 0000000000000..398ff0770a852
+index 0000000000000..8ffb685cd4a10
 --- /dev/null
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
-@@ -0,0 +1,218 @@
+@@ -0,0 +1,224 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import android.content.Context;
@@ -181,14 +181,20 @@ index 0000000000000..398ff0770a852
 +                return null;
 +            }
 +
-+            Origin originFromPattern = Origin.create(pattern);
++            String originString = pattern.contains("://")
++                    ? pattern
++                    : UrlConstants.HTTPS_URL_PREFIX + pattern;
++            Origin originFromPattern = Origin.create(originString);
 +            if (originFromPattern == null) {
 +                return null;
 +            }
 +
 +            Uri originUri = originFromPattern.uri();
 +            String hostStr = originUri.getHost();
-+            int port = originUri.getPort();
++            if (hostStr == null) {
++                return null;
++            }
++
 +            int httpsPort = 443;
 +            return UrlConstants.HTTPS_URL_PREFIX + hostStr + ":" + httpsPort;
 +        }
