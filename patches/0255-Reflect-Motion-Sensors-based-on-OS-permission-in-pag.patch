@@ -6,8 +6,8 @@ Subject: [PATCH] Reflect Motion Sensors based on OS permission in page info
 ---
  .../permissions/android/downstream/BUILD.gn   |  2 +
  .../permissions/PermissionsHooksRegistry.java |  1 +
- .../permissions/SensorsPermissionsHooks.java  | 59 +++++++++++++++++++
- 3 files changed, 62 insertions(+)
+ .../permissions/SensorsPermissionsHooks.java  | 75 +++++++++++++++++++
+ 3 files changed, 78 insertions(+)
  create mode 100644 components/permissions/android/downstream/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java
 
 diff --git a/components/permissions/android/downstream/BUILD.gn b/components/permissions/android/downstream/BUILD.gn
@@ -42,19 +42,24 @@ index 755aeb0a682d4..c66258750640b 100644
      }
 diff --git a/components/permissions/android/downstream/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java b/components/permissions/android/downstream/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java
 new file mode 100644
-index 0000000000000..691c2003c15d8
+index 0000000000000..ec14cbfad48b3
 --- /dev/null
 +++ b/components/permissions/android/downstream/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,75 @@
 +package org.chromium.components.permissions;
 +
++import android.content.Context;
++import android.content.pm.PackageInfo;
 +import android.content.pm.PackageManager;
 +import android.os.Process;
 +
 +import org.chromium.base.ApiCompatibilityUtils;
 +import org.chromium.base.ContextUtils;
++import org.chromium.base.PackageUtils;
 +import org.chromium.build.annotations.NullMarked;
 +import org.chromium.build.annotations.Nullable;
++
++import java.util.Arrays;
 +
 +import app.vanadium.config.VanadiumConfParser;
 +import app.vanadium.ext.CustomOSPermissions;
@@ -80,9 +85,21 @@ index 0000000000000..691c2003c15d8
 +            return false;
 +        }
 +
-+        return ApiCompatibilityUtils.checkPermission(
-+                ContextUtils.getApplicationContext(), permission,
-+                Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED;
++        Context appCtx = ContextUtils.getApplicationContext();
++        PackageInfo selfPkgInfo = PackageUtils.getPackageInfo(
++              appCtx.getPackageName(), PackageManager.GET_PERMISSIONS);
++        if (selfPkgInfo == null) {
++            return false;
++        }
++
++        String[] requestedPermissions = selfPkgInfo.requestedPermissions;
++        if (requestedPermissions == null
++                || !Arrays.asList(requestedPermissions).contains(permission)) {
++            return false;
++        }
++
++        return ApiCompatibilityUtils.checkPermission(appCtx, permission,
++              Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED;
 +    }
 +
 +    static final class PermissionsControllerHooksImpl extends PermissionsControllerHooks {
@@ -98,8 +115,7 @@ index 0000000000000..691c2003c15d8
 +        }
 +
 +        @Override
-+        @Nullable
-+        public String[] getRequiredPermissions() {
++        public String @Nullable [] getRequiredPermissions() {
 +            String permission = getPermissionName();
 +            return permission != null ? new String[] { permission } : null;
 +        }
