@@ -4,10 +4,10 @@ Date: Thu, 12 Dec 2024 07:09:40 +0000
 Subject: [PATCH] Reduce user agent and client hints for webview
 
 ---
- android_webview/browser/aw_field_trials.cc    |  4 ----
- android_webview/common/aw_features.cc         |  2 +-
- .../WebViewChromiumFactoryProvider.java       | 22 -------------------
- 3 files changed, 1 insertion(+), 27 deletions(-)
+ android_webview/browser/aw_field_trials.cc                    | 4 ----
+ android_webview/common/aw_features.cc                         | 2 +-
+ .../webview/chromium/WebViewChromiumFactoryProvider.java      | 2 +-
+ 3 files changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
 index 93793bf68fd11..b030f172ff03c 100644
@@ -38,35 +38,15 @@ index ddddd906c5bf3..336acb2ce6844 100644
  // This enables WebView crashes.
  BASE_FEATURE(kWebViewEnableCrash, base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 22d12ddf3bcf6..5a259c6b71e8f 100644
+index 22d12ddf3bcf6..c68aa779a2b6b 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -696,28 +696,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
-             helper.applyFlagOverrides(
-                     Map.of(AwFeatures.WEBVIEW_FILE_SYSTEM_ACCESS, shouldEnableFileSystemAccess()));
+@@ -319,7 +319,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
  
--            // Set user-agent reduction command-line switches and feature flags for WebView.
--            // We set command line switches as well because we want to read the configuration before
--            // feature flags are set for enabling `getDefaultUserAgent` to not wait for browser
--            // startup.
--            // These features are intended to be enabled only for Android B+.
--            // 1) ReduceUserAgentMinorVersion: Enables reduction of the user-agent minor version.
--            // 2) WebViewReduceUAAndroidVersionDeviceModel: Enables reduction of the user-agent
--            //    Android version and device model.
--            boolean shouldEnableUserAgentReduction = shouldEnableUserAgentReduction();
--            helper.applyFlagOverrides(
--                    Map.of(
--                            AwFeatures.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL,
--                            shouldEnableUserAgentReduction,
--                            BlinkFeatures.REDUCE_USER_AGENT_MINOR_VERSION,
--                            shouldEnableUserAgentReduction));
--            if (shouldEnableUserAgentReduction) {
--                CommandLine.getInstance()
--                        .appendSwitch(AwSwitches.WEBVIEW_REDUCE_USER_AGENT_MINOR_VERSION);
--                CommandLine.getInstance()
--                        .appendSwitch(AwSwitches.WEBVIEW_REDUCE_UA_ANDROID_VERSION_DEVICE_MODEL);
--            }
--
-             setSingleton(this);
-         }
+     // Overridden in downstream subclass when building using the unreleased Android SDK.
+     boolean shouldEnableUserAgentReduction() {
+-        return false;
++        return true;
+     }
  
+     // Overridden in downstream subclass when building using the unreleased Android SDK.
