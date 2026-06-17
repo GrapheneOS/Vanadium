@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 7 Aug 2024 04:55:08 +0000
+Subject: [PATCH] drumbrake: Include Android in supported platform for wasm
+ interpreter
+
+---
+ gni/v8.gni | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/gni/v8.gni b/gni/v8.gni
+index 3a031e9ddfb..667469904bb 100644
+--- a/gni/v8.gni
++++ b/gni/v8.gni
+@@ -350,6 +350,7 @@ is_drumbrake_supported =
+     (v8_current_cpu == "x64" || v8_current_cpu == "arm64" ||
+      v8_current_cpu == "riscv64") &&
+     (target_os == "win" || target_os == "linux" || target_os == "mac" ||
++     target_os == "android" ||
+      target_os == "ios")
+ 
+ # Turbofan is enabled by default, except in lite mode.
