@@ -223,5 +223,15 @@ hooks = [
               '--urls',
               'https://easylist-downloads.adblockplus.org/easylistchina.txt']
   },
+  {
+    'name': 'apply_subprojects_patches',
+    'condition': 'checkout_android',
+    'action': ['python3',
+              'tools/common/apply_subprojects_patches.py',
+              '--base_patch_dir',
+              'subprojects_patches',
+              '--src_dir',
+              'src']
+  },
 ]
 target_os = ['android']
