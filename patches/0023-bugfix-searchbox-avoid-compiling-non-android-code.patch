@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 9 May 2026 16:23:57 +0000
+Subject: [PATCH] [bugfix] searchbox: avoid compiling non-android code
+
+---
+ .../ui/webui/cr_components/searchbox/searchbox_handler.cc   | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
+index 388c82166d32f..d4a20a6ac26d8 100644
+--- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
++++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
+@@ -273,6 +273,7 @@ static void DefineChromeRefreshRealboxIcons() {
+ #endif
+ }
+ 
++#if !BUILDFLAG(IS_ANDROID)
+ std::u16string GetAdditionalA11yMessage(
+     const AutocompleteMatch& match,
+     searchbox::mojom::SelectionLineState state) {
+@@ -310,6 +311,7 @@ bool MatchHasSideTypeAndRenderType(
+          suggestion_groups_map.at(group_id).side_type() == side_type &&
+          suggestion_groups_map.at(group_id).render_type() == render_type;
+ }
++#endif // !BUILDFLAG(IS_ANDROID)
+ 
+ std::string GetBase64UrlVariations(Profile* profile) {
+   variations::VariationsClient* provider = profile->GetVariationsClient();
+@@ -879,6 +881,9 @@ SearchboxHandler::CreateAutocompleteMatch(
+     bookmarks::BookmarkModel* bookmark_model,
+     const omnibox::GroupConfigMap& suggestion_groups_map,
+     const TemplateURLService* turl_service) const {
++#if BUILDFLAG(IS_ANDROID)
++  return std::nullopt;
++#else // BUILDFLAG(IS_ANDROID)
+   // Skip the primary column horizontal matches. This check guards against
+   // this unexpected scenario as the UI expects the primary column matches to
+   // be vertical ones.
+@@ -1032,6 +1037,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+   mojom_match->is_contextual_suggestion = match.IsContextualSearchSuggestion();
+ 
+   return mojom_match;
++#endif // BUILDFLAG(IS_ANDROID)
+ }
+ 
+ SearchboxHandler::SearchboxHandler(

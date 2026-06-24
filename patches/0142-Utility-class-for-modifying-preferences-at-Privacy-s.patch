@@ -1,0 +1,165 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 11 Apr 2023 07:55:52 +0000
+Subject: [PATCH] Utility class for modifying preferences at Privacy section
+
+---
+ .../privacy/settings/PrivacySettings.java     |  6 ++
+ .../chrome_app_java_resources_ext_sources.gni |  1 +
+ .../chrome/android/chrome_java_ext_deps.gni   |  1 +
+ .../android/chrome_java_ext_sources.gni       |  1 +
+ .../java/res/xml/privacy_preferences_ext.xml  |  8 +++
+ .../privacy/settings/PrivacySettingsExt.java  | 62 +++++++++++++++++++
+ 6 files changed, 79 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml
+ create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+index ae6a44bb51bb3..713b95ca89454 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
+@@ -145,6 +145,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+ 
+         SettingsUtils.addPreferencesFromResource(this, R.xml.privacy_preferences);
+ 
++        PrivacySettingsExt.initializePreferences(this, getProfile());
++
+         Preference sandboxPreference = findPreference(PREF_PRIVACY_SANDBOX);
+         // Overwrite the click listener to pass a correct referrer to the fragment.
+         sandboxPreference.setOnPreferenceClickListener(
+@@ -298,6 +300,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+             scrollToPreference(PREF_ADVANCED_PROTECTION_INFO);
+         }
+ 
++        PrivacySettingsExt.removePreferences(this);
++
+         updatePreferences();
+     }
+ 
+@@ -501,6 +505,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+                             ? R.string.website_settings_category_javascript_optimizer_allowed_list
+                             : R.string.website_settings_category_javascript_optimizer_blocked_list);
+         }
++
++        PrivacySettingsExt.updatePreferences(this, getProfile());
+     }
+ 
+     /** Shows the advanced-protection-section if needed. */
+diff --git a/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+index ebaed0c1b17be..77db9242631bb 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+@@ -11,6 +11,7 @@ chrome_app_java_resources_ext_full_path_sources = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_app_java_resources_ext_rel_path_sources = [
++  "java/res/xml/privacy_preferences_ext.xml",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+index 4b4784cc454f7..2950175d083ef 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/base/settings/android:base_settings_java",
+   "//vanadium/chromium_src/chrome/browser/flags/ext/android:feature_map_java",
+   "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+index a982de654d483..0403ce88e0a5b 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+@@ -11,6 +11,7 @@ chrome_java_ext_full_path_sources = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_java_ext_rel_path_sources = [
++  "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml b/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml
+new file mode 100644
+index 0000000000000..5aab3aa33d96b
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml
+@@ -0,0 +1,8 @@
++<!--
++Copyright 2023-2026 GrapheneOS
++Use of this source code is governed by a GPL-2.0-only style license
++that can be found in the LICENSE file.
++-->
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto">
++</PreferenceScreen>
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+new file mode 100644
+index 0000000000000..9d293edd42194
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -0,0 +1,62 @@
++// Copyright 2023-2026 GrapheneOS
++// Use of this source code is governed by a GPL-2.0-only style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.privacy.settings;
++
++import android.annotation.SuppressLint;
++import android.content.Context;
++
++import androidx.preference.Preference;
++import androidx.preference.PreferenceFragmentCompat;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.chrome.R;
++import org.chromium.chrome.browser.profiles.Profile;
++import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
++import org.chromium.components.browser_ui.settings.SettingsUtils;
++import org.chromium.components.prefs.PrefService;
++import org.chromium.components.user_prefs.UserPrefs;
++
++@SuppressLint("UnusedVariable")
++@NullMarked
++final class PrivacySettingsExt {
++
++    private static final Preference.OnPreferenceChangeListener getListener(Profile profile) {
++        return (pref, val) -> {
++            PrefService prefService = UserPrefs.get(profile);
++            String key = pref.getKey();
++            return true;
++        };
++    }
++
++    private static final ChromeManagedPreferenceDelegate getDelegate(Profile profile) {
++        return new ChromeManagedPreferenceDelegate(profile) {
++            @Override
++            public boolean isPreferenceControlledByPolicy(Preference pref) {
++                PrefService prefService = UserPrefs.get(profile);
++                String key = pref.getKey();
++                return false;
++            }
++        };
++    }
++
++    static void removePreferences(PreferenceFragmentCompat prefFragment) {
++        ThreadUtils.checkUiThread();
++    }
++
++    static void initializePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {
++        ThreadUtils.checkUiThread();
++        // Provide a set order where the added settings are clustered.
++        int PRIVACY_PREFERENCES_ORDER = 6;
++        int SECURITY_PREFERENCES_ORDER = 9999;
++        SettingsUtils.addPreferencesFromResource(prefFragment, R.xml.privacy_preferences_ext);
++    }
++
++    static void updatePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {
++        ThreadUtils.checkUiThread();
++        Context ctx = prefFragment.getContext();
++        PrefService prefService = UserPrefs.get(profile);
++    }
++}

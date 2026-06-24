@@ -1,0 +1,96 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 11 Apr 2024 15:55:39 +0000
+Subject: [PATCH] Add hooks for applying flags, features at runtime
+
+The methods used to apply flags or features via CommandLine are based on
+org.chromium.android_webview.common.FlagOverrideHelper, which cannot be
+directly referenced, as its only available for WebView code.
+---
+ .../base/command_line/android/BUILD.gn        | 13 +++++
+ .../VanadiumCommandLineUtils.java             | 56 +++++++++++++++++++
+ 2 files changed, 69 insertions(+)
+ create mode 100644 vanadium/chromium_src/base/command_line/android/BUILD.gn
+ create mode 100644 vanadium/chromium_src/base/command_line/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
+
+diff --git a/vanadium/chromium_src/base/command_line/android/BUILD.gn b/vanadium/chromium_src/base/command_line/android/BUILD.gn
+new file mode 100644
+index 0000000000000..6585edfca3c38
+--- /dev/null
++++ b/vanadium/chromium_src/base/command_line/android/BUILD.gn
+@@ -0,0 +1,13 @@
++import("//build/config/android/rules.gni")
++
++assert(is_android)
++
++android_library("command_line_utils_java") {
++  sources = [
++    "java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java",
++  ]
++
++  deps = [
++    "//base:command_line_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/base/command_line/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java b/vanadium/chromium_src/base/command_line/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
+new file mode 100644
+index 0000000000000..b6d633c410d4e
+--- /dev/null
++++ b/vanadium/chromium_src/base/command_line/android/java/src/org/chromium/base/command_line/VanadiumCommandLineUtils.java
+@@ -0,0 +1,56 @@
++package org.chromium.base.command_line;
++
++import android.text.TextUtils;
++
++import org.chromium.base.CommandLine;
++import org.chromium.build.annotations.NullMarked;
++
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.LinkedHashSet;
++import java.util.List;
++
++@NullMarked
++public class VanadiumCommandLineUtils {
++
++    public static List<String>  getCommaDelimitedSwitchValue(String name) {
++        String value = CommandLine.getInstance().getSwitchValue(name);
++        return value != null ? Arrays.asList(value.split(",")) : new ArrayList<>();
++    }
++
++    public static void setCommaDelimitedSwitchValue(String name, List<String> value) {
++        if (value.isEmpty()) {
++            CommandLine.getInstance().appendSwitch(name);
++        } else {
++            CommandLine.getInstance().appendSwitchWithValue(name, TextUtils.join(",", value));
++        }
++    }
++
++    public static void removeValueOnSwitch(String name, String value) {
++        removeValuesOnSwitch(name, List.of(value));
++    }
++
++    public static void removeValuesOnSwitch(String name, List<String> values) {
++        addOrRemoveValuesOnSwitch(name, values, false);
++    }
++
++    public static void appendValueOnSwitch(String name, String value) {
++        appendValuesOnSwitch(name, List.of(value));
++    }
++
++    public static void appendValuesOnSwitch(String name, List<String> values) {
++        addOrRemoveValuesOnSwitch(name, values, true);
++    }
++
++    private static void addOrRemoveValuesOnSwitch(
++            String name, List<String> values, boolean add) {
++        var newValues = new LinkedHashSet<>(getCommaDelimitedSwitchValue(name));
++        var valuesSet = new LinkedHashSet<>(values);
++        if (add) {
++            newValues.addAll(valuesSet);
++        } else {
++            newValues.removeAll(valuesSet);
++        }
++        setCommaDelimitedSwitchValue(name, new ArrayList<>(newValues));
++    }
++}

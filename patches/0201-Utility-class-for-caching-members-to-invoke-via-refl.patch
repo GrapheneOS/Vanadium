@@ -1,0 +1,87 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 5 May 2026 13:43:18 +0000
+Subject: [PATCH] Utility class for caching members to invoke via reflection
+
+---
+ vanadium/ext/utils/BUILD.gn                   | 13 +++++
+ .../ext/utils/reflect/MemberCache.java        | 49 +++++++++++++++++++
+ 2 files changed, 62 insertions(+)
+ create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
+
+diff --git a/vanadium/ext/utils/BUILD.gn b/vanadium/ext/utils/BUILD.gn
+index 536387ab356cc..405094aa4ed85 100644
+--- a/vanadium/ext/utils/BUILD.gn
++++ b/vanadium/ext/utils/BUILD.gn
+@@ -17,3 +17,16 @@ android_library("file_utils_java") {
+   chromium_code = false
+   enable_errorprone = true
+ }
++
++android_library("member_cache_utils_java") {
++  sources = [
++    "java/src/app/vanadium/ext/utils/reflect/MemberCache.java",
++  ]
++  deps = [
++    "//third_party/android_deps:org_jspecify_jspecify_java",
++  ]
++
++  # See //styleguide/java/nullaway.md
++  chromium_code = false
++  enable_errorprone = true
++}
+diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
+new file mode 100644
+index 0000000000000..a363e78187549
+--- /dev/null
++++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/reflect/MemberCache.java
+@@ -0,0 +1,49 @@
++package app.vanadium.ext.utils.reflect;
++
++import org.jspecify.annotations.NullMarked;
++import org.jspecify.annotations.Nullable;
++
++import java.lang.reflect.Member;
++
++// Meant to be standalone, and avoids chromium source code dependency as much as possible.
++@NullMarked
++public final class MemberCache<MemberType extends Member> {
++
++    public static <MemberType extends Member> MemberCache<MemberType> of(
++            Fetcher<MemberType> fetcher) {
++        return new MemberCache<>(fetcher);
++    }
++
++    public interface Fetcher<MemberType extends Member> {
++        MemberType getMember() throws ReflectiveOperationException;
++        void logOrThrow(ReflectiveOperationException e);
++    }
++
++    private final Fetcher<MemberType> mFetcher;
++
++    @Nullable
++    private MemberType mMember;
++    private volatile boolean mMemberCached;
++
++    private MemberCache(Fetcher<MemberType> fetcher) {
++        mFetcher = fetcher;
++    }
++
++    @Nullable
++    public MemberType getMember() {
++        if (mMemberCached) {
++            return mMember;
++        }
++
++        try {
++            mMember = mFetcher.getMember();
++            return mMember;
++        } catch (ReflectiveOperationException e) {
++            mFetcher.logOrThrow(e);
++        } finally {
++            mMemberCached = true;
++        }
++
++        return null;
++    }
++}

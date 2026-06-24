@@ -1,0 +1,173 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 27 May 2026 09:41:57 +0000
+Subject: [PATCH] Extend //chrome/browser/net cc target sources and deps
+
+---
+ chrome/browser/net/BUILD.gn                   | 10 +++++++
+ .../chrome/browser/net/net_cc_ext_public.gni  | 26 +++++++++++++++++++
+ .../browser/net/net_cc_ext_public_deps.gni    | 26 +++++++++++++++++++
+ .../browser/net/net_impl_cc_ext_deps.gni      | 26 +++++++++++++++++++
+ .../browser/net/net_impl_cc_ext_sources.gni   | 26 +++++++++++++++++++
+ 5 files changed, 114 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/browser/net/net_cc_ext_public.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/net/net_cc_ext_public_deps.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_sources.gni
+
+diff --git a/chrome/browser/net/BUILD.gn b/chrome/browser/net/BUILD.gn
+index 7b5024cedfb87..74c77852b1bd9 100644
+--- a/chrome/browser/net/BUILD.gn
++++ b/chrome/browser/net/BUILD.gn
+@@ -116,6 +116,11 @@ source_set("net") {
+     public += [ "server_certificate_database_service_factory.h" ]
+     public_deps += [ "//components/server_certificate_database" ]
+   }
++
++  import("//vanadium/chromium_src/chrome/browser/net/net_cc_ext_public.gni")
++  public += net_cc_ext_public
++  import("//vanadium/chromium_src/chrome/browser/net/net_cc_ext_public_deps.gni")
++  public_deps += net_cc_ext_public_deps
+ }
+ 
+ source_set("impl") {
+@@ -297,6 +302,11 @@ source_set("impl") {
+     }
+     configs += [ "//build/config/linux/nss" ]
+   }
++
++  import("//vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_sources.gni")
++  sources += net_impl_cc_ext_sources
++  import("//vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_deps.gni")
++  deps += net_impl_cc_ext_deps
+ }
+ 
+ if (is_android) {
+diff --git a/vanadium/chromium_src/chrome/browser/net/net_cc_ext_public.gni b/vanadium/chromium_src/chrome/browser/net/net_cc_ext_public.gni
+new file mode 100644
+index 0000000000000..4269540c969ca
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/net/net_cc_ext_public.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_full_path_public = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_rel_path_public = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_public = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_public += net_cc_ext_full_path_public
++foreach(rel_path, net_cc_ext_rel_path_public) {
++  net_cc_ext_public += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/net/net_cc_ext_public_deps.gni b/vanadium/chromium_src/chrome/browser/net/net_cc_ext_public_deps.gni
+new file mode 100644
+index 0000000000000..fd7d4ad8d9602
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/net/net_cc_ext_public_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_full_path_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_rel_path_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_cc_ext_public_deps += net_cc_ext_full_path_public_deps
++foreach(rel_path, net_cc_ext_rel_path_public_deps) {
++  net_cc_ext_public_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_deps.gni b/vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_deps.gni
+new file mode 100644
+index 0000000000000..4ebb9cfa67b47
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_deps += net_impl_cc_ext_full_path_deps
++foreach(rel_path, net_impl_cc_ext_rel_path_deps) {
++  net_impl_cc_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_sources.gni b/vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_sources.gni
+new file mode 100644
+index 0000000000000..8ffe0c0a0ff2b
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/net/net_impl_cc_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++net_impl_cc_ext_sources += net_impl_cc_ext_full_path_sources
++foreach(rel_path, net_impl_cc_ext_rel_path_sources) {
++  net_impl_cc_ext_sources += [ rebase_path(rel_path) ]
++}

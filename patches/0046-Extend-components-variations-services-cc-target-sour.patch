@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 4 Jun 2026 03:20:21 +0000
+Subject: [PATCH] Extend //components/variations/services cc target sources and
+ deps
+
+---
+ components/variations/BUILD.gn                |  5 ++++
+ .../variations/variations_cc_ext_deps.gni     | 26 +++++++++++++++++++
+ .../variations/variations_cc_ext_sources.gni  | 26 +++++++++++++++++++
+ 3 files changed, 57 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/variations/variations_cc_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/components/variations/variations_cc_ext_sources.gni
+
+diff --git a/components/variations/BUILD.gn b/components/variations/BUILD.gn
+index 7b655c2213b2e..1da29d4343ff3 100644
+--- a/components/variations/BUILD.gn
++++ b/components/variations/BUILD.gn
+@@ -165,6 +165,11 @@ component("variations") {
+       "//components/variations/android:variations_seed_jni",
+     ]
+   }
++
++  import("//vanadium/chromium_src/components/variations/variations_cc_ext_sources.gni")
++  sources += variations_cc_ext_sources
++  import("//vanadium/chromium_src/components/variations/variations_cc_ext_deps.gni")
++  deps += variations_cc_ext_deps
+ }
+ 
+ if (is_android) {
+diff --git a/vanadium/chromium_src/components/variations/variations_cc_ext_deps.gni b/vanadium/chromium_src/components/variations/variations_cc_ext_deps.gni
+new file mode 100644
+index 0000000000000..4a8d9f1dc8e76
+--- /dev/null
++++ b/vanadium/chromium_src/components/variations/variations_cc_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_deps += variations_cc_ext_full_path_deps
++foreach(rel_path, variations_cc_ext_rel_path_deps) {
++  variations_cc_ext_deps += [ rebase_path(rel_dir) ]
++}
+diff --git a/vanadium/chromium_src/components/variations/variations_cc_ext_sources.gni b/vanadium/chromium_src/components/variations/variations_cc_ext_sources.gni
+new file mode 100644
+index 0000000000000..749703b1f0c75
+--- /dev/null
++++ b/vanadium/chromium_src/components/variations/variations_cc_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++variations_cc_ext_sources += variations_cc_ext_rel_path_sources
++foreach(rel_path, variations_cc_ext_rel_path_sources) {
++  variations_cc_ext_sources += [ rebase_path(rel_dir) ]
++}

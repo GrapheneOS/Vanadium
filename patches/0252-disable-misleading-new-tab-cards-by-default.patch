@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 7 Nov 2025 06:29:43 +0000
+Subject: [PATCH] disable misleading new tab cards by default
+
+---
+ .../chrome/browser/magic_stack/HomeModulesConfigManager.java  | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java b/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
+index 0d80babfbdfb8..887d4fd43352e 100644
+--- a/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
++++ b/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
+@@ -86,7 +86,7 @@ public class HomeModulesConfigManager {
+      * @param moduleType {@link ModuleType} needed to be notified to the listeners.
+      */
+     public boolean getPrefModuleTypeEnabled(@ModuleType int moduleType) {
+-        return mSharedPreferencesManager.readBoolean(getSettingsPreferenceKey(moduleType), true);
++        return mSharedPreferencesManager.readBoolean(getSettingsPreferenceKey(moduleType), false);
+     }
+ 
+     /**
+@@ -103,7 +103,7 @@ public class HomeModulesConfigManager {
+     /** Returns the user preference for whether all cards in the magic stack are enabled. */
+     public boolean getPrefAllCardsEnabled() {
+         return mSharedPreferencesManager.readBoolean(
+-                ChromePreferenceKeys.HOME_MODULE_CARDS_ENABLED, true);
++                ChromePreferenceKeys.HOME_MODULE_CARDS_ENABLED, false);
+     }
+ 
+     /**

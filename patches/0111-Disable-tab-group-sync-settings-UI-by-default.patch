@@ -1,0 +1,120 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 29 Apr 2025 16:16:10 +0000
+Subject: [PATCH] Disable tab group sync settings UI by default
+
+---
+ .../chrome/browser/tasks/tab_management/TabsSettings.java  | 5 +++++
+ .../chromium_src/chrome/browser/flags/ext/android/BUILD.gn | 6 +++++-
+ .../chrome/browser/flags/ext/android/features.cc           | 3 +++
+ .../chrome/browser/flags/ChromeExtFeatureList.java         | 7 +++++++
+ .../saved_tab_groups/public/ext/android/features.cc        | 7 +++++++
+ .../saved_tab_groups/public/ext/android/features.h         | 2 ++
+ 6 files changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
+index 9b95b8e5e60c3..5cd71391e36f9 100644
+--- a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
++++ b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabsSettings.java
+@@ -179,6 +179,11 @@ public class TabsSettings extends ChromeBaseSettingsFragment {
+     }
+ 
+     private static boolean isTabGroupSyncAutoOpenConfigurable(Profile profile) {
++        if (org.chromium.chrome.browser.flags.ChromeExtFeatureList
++                .sTabGroupSyncAutoOpenKillSwitch.isEnabled()) {
++            return false;
++        }
++
+         return TabGroupSyncFeatures.isTabGroupSyncEnabled(profile);
+     }
+ 
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/BUILD.gn b/vanadium/chromium_src/chrome/browser/flags/ext/android/BUILD.gn
+index 5531e5cb9bba4..e92accf8dfb46 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/BUILD.gn
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/BUILD.gn
+@@ -10,6 +10,7 @@ source_set("features") {
+   deps = [
+     ":feature_map_jni_headers",
+     "//base",
++    "//vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android:features",
+   ]
+ 
+   public_deps = [
+@@ -19,7 +20,10 @@ source_set("features") {
+ java_cpp_features("features_srcjar") {
+   # External code should depend on ":features_java" instead.
+   visibility = [ ":*" ]
+-  sources = [ "features.cc" ]
++  sources = [
++    "features.cc",
++    "//vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc",
++  ]
+   class_name = "org.chromium.chrome.browser.flags.ChromeExtFeatures"
+ }
+ 
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc b/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc
+index 490c12d805a45..a75df4f9d09c8 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc
+@@ -6,6 +6,8 @@
+ #include "base/metrics/field_trial_params.h"
+ #include "base/no_destructor.h"
+ 
++#include "vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h"
++
+ #include "vanadium/chromium_src/chrome/browser/flags/ext/android/feature_map_jni_headers/ChromeExtFeatureMap_jni.h"
+ 
+ namespace chrome::android {
+@@ -13,6 +15,7 @@ namespace chrome::android {
+ namespace {
+ 
+ const base::Feature* const kFeaturesExposedToJava[] = {
++  &tab_groups::kTabGroupSyncAutoOpenKillSwitch,
+ };
+ 
+ // static
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java b/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java
+index ed52b5011b98b..d647549b07752 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java
+@@ -13,4 +13,11 @@ public final class ChromeExtFeatureList {
+ 
+     private ChromeExtFeatureList() {
+     }
++
++    public static final MutableFlagWithSafeDefault sTabGroupSyncAutoOpenKillSwitch =
++            new MutableFlagWithSafeDefault(
++                    ChromeExtFeatureMap.getInstance(),
++                    ChromeExtFeatures.TAB_GROUP_SYNC_AUTO_OPEN_KILL_SWITCH,
++                    true
++            );
+ }
+diff --git a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc
+index af174d33306fa..d805b936c2224 100644
+--- a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc
++++ b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc
+@@ -5,4 +5,11 @@
+ 
+ namespace tab_groups {
+ 
++// Feature flag to disable auto-open of saved tab groups. Note that the
++// settings page for auto open will still be visible, and when user is allowed
++// to change. However the written pref from the user selection will not be
++// honored. This feature flag should be used only in case of an emergency.
++BASE_FEATURE(kTabGroupSyncAutoOpenKillSwitch,
++             base::FEATURE_ENABLED_BY_DEFAULT);
++
+ } // namespace tab_groups
+diff --git a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h
+index c5009ff42da7c..1d67411750152 100644
+--- a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h
++++ b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h
+@@ -6,6 +6,8 @@
+ 
+ namespace tab_groups {
+ 
++BASE_DECLARE_FEATURE(kTabGroupSyncAutoOpenKillSwitch);
++
+ } // namespace tab_groups
+ 
+ #endif // COMPONENTS_BROWSER_UI_SAVED_TAB_GROUPS_PUBLIC_EXT_ANDROID_FEATURES_H_

@@ -1,0 +1,127 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 20 May 2026 14:56:45 +0000
+Subject: [PATCH] Reflect Motion Sensors based on OS permission in page info
+
+---
+ .../permissions/android/ext/BUILD.gn          |  4 +
+ .../permissions/PermissionsHooksRegistry.java |  1 +
+ .../permissions/SensorsPermissionsHooks.java  | 75 +++++++++++++++++++
+ 3 files changed, 80 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java
+
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+index 4f7480b239e59..2be1e4481db4e 100644
+--- a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
++++ b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+@@ -6,13 +6,17 @@ android_library("permissions_deps_java") {
+     "java/src/org/chromium/components/permissions/JavascriptJitPermissionsHooks.java",
+     "java/src/org/chromium/components/permissions/PermissionsControllerHooks.java",
+     "java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java",
++    "java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java",
+   ]
+ 
+   deps = [
++    "//base:build_info_java",
++    "//base:tasks_java",
+     "//components/content_settings/core/common:content_settings_types_java",
+     "//vanadium/android_config/parser:config_app_parser_java",
+     "//vanadium/android_config/proto:config_proto_java",
+     "//vanadium/ext/custom_os:custom_os_apis_java",
++    "//vanadium/ext/custom_os:custom_os_permissions_java",
+   ]
+ 
+   srcjar_deps = [
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java
+index 170419b1821cf..9274e84ceb944 100644
+--- a/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java
++++ b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java
+@@ -10,6 +10,7 @@ public final class PermissionsHooksRegistry {
+             @ContentSettingsType.EnumType int contentSettingsType) {
+         return switch (contentSettingsType) {
+             case ContentSettingsType.JAVASCRIPT_JIT -> new JavascriptJitPermissionsHooks.PermissionsControllerHooksImpl();
++            case ContentSettingsType.SENSORS -> new SensorsPermissionsHooks.PermissionsControllerHooksImpl();
+             default -> PermissionsControllerHooks.getDefaultInstance();
+         };
+     }
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java
+new file mode 100644
+index 0000000000000..81a8e81b1d674
+--- /dev/null
++++ b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/SensorsPermissionsHooks.java
+@@ -0,0 +1,75 @@
++package org.chromium.components.permissions;
++
++import android.content.Context;
++import android.content.pm.PackageInfo;
++import android.content.pm.PackageManager;
++import android.os.Process;
++
++import org.chromium.base.ApiCompatibilityUtils;
++import org.chromium.base.ContextUtils;
++import org.chromium.base.PackageUtils;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.ext.CustomOSPermissions;
++
++import java.util.Arrays;
++
++import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
++
++@NullMarked
++public class SensorsPermissionsHooks {
++
++    @Nullable
++    private static String getPermissionName() {
++        String featureKey = "CheckOSPermissionForSensorsSiteSettingsPermission";
++        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE).containsKey(featureKey)) {
++            return null;
++        }
++
++        return CustomOSPermissions.getSensorsPermissionName();
++    }
++
++    private static boolean isPermissionExistingAndRevoked() {
++        String permission = getPermissionName();
++        if (permission == null) {
++            return false;
++        }
++
++        Context appCtx = ContextUtils.getApplicationContext();
++        PackageInfo selfPkgInfo = PackageUtils.getPackageInfo(
++                appCtx.getPackageName(), PackageManager.GET_PERMISSIONS);
++        if (selfPkgInfo == null) {
++            return false;
++        }
++
++        String[] requestedPermissions = selfPkgInfo.requestedPermissions;
++        if (requestedPermissions == null
++                || !Arrays.asList(requestedPermissions).contains(permission)) {
++            return false;
++        }
++
++        return ApiCompatibilityUtils.checkPermission(
++                ContextUtils.getApplicationContext(), permission,
++                Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED;
++    }
++
++    static final class PermissionsControllerHooksImpl extends PermissionsControllerHooks {
++
++        @Override
++        public @Nullable Boolean treatAsAllowedPageInfoOverride() {
++            if (isPermissionExistingAndRevoked()) {
++                return false;
++            }
++
++            return null;
++        }
++
++        @Override
++        public String @Nullable[] getRequiredPermissions() {
++            String permission = getPermissionName();
++            return permission != null ? new String[] { permission } : null;
++        }
++    }
++}

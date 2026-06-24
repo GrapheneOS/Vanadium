@@ -1,0 +1,364 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 9 Jan 2024 05:58:19 +0000
+Subject: [PATCH] Extend //base java targets sources and deps
+
+---
+ base/BUILD.gn                                 | 24 +++++++++++++++++
+ .../chromium_src/base/base_java_ext_deps.gni  | 26 +++++++++++++++++++
+ .../base/base_java_ext_sources.gni            | 26 +++++++++++++++++++
+ .../base/base_java_ext_srcjar_deps.gni        | 26 +++++++++++++++++++
+ .../base_library_loader_java_ext_deps.gni     | 26 +++++++++++++++++++
+ ...se_library_loader_java_ext_public_deps.gni | 26 +++++++++++++++++++
+ .../base_library_loader_java_ext_sources.gni  | 26 +++++++++++++++++++
+ ...se_library_loader_java_ext_srcjar_deps.gni | 26 +++++++++++++++++++
+ .../base_shared_preferences_java_ext_deps.gni | 26 +++++++++++++++++++
+ ...se_shared_preferences_java_ext_sources.gni | 26 +++++++++++++++++++
+ 10 files changed, 258 insertions(+)
+ create mode 100644 vanadium/chromium_src/base/base_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/base/base_java_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/base/base_java_ext_srcjar_deps.gni
+ create mode 100644 vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni
+ create mode 100644 vanadium/chromium_src/base/base_library_loader_java_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/base/base_library_loader_java_ext_srcjar_deps.gni
+ create mode 100644 vanadium/chromium_src/base/base_shared_preferences_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/base/base_shared_preferences_java_ext_sources.gni
+
+diff --git a/base/BUILD.gn b/base/BUILD.gn
+index 4dae6c29c574c..0243876e7a0eb 100644
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -5064,6 +5064,13 @@ if (is_android) {
+       ":wrapped_class_loader_java",
+     ]
+ 
++    import("//vanadium/chromium_src/base/base_java_ext_sources.gni")
++    sources += base_java_ext_sources
++    import("//vanadium/chromium_src/base/base_java_ext_deps.gni")
++    deps += base_java_ext_deps
++    import("//vanadium/chromium_src/base/base_java_ext_srcjar_deps.gni")
++    srcjar_deps += base_java_ext_srcjar_deps
++
+     if (!is_cronet_build) {
+       proguard_configs += [
+         "android/proguard/chromium_apk.flags",
+@@ -5666,6 +5673,18 @@ if (is_android) {
+       "//third_party/androidx:androidx_annotation_annotation_java",
+       "//third_party/jni_zero:jni_zero_java",
+     ]
++
++    import("//vanadium/chromium_src/base/base_library_loader_java_ext_sources.gni")
++    sources += base_library_loader_java_ext_sources
++    import("//vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni")
++    deps += base_library_loader_java_ext_deps
++    import("//vanadium/chromium_src/base/base_library_loader_java_ext_srcjar_deps.gni")
++    srcjar_deps += base_library_loader_java_ext_srcjar_deps
++    if (!defined(public_deps)) {
++      public_deps = []
++    }
++    import("//vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni")
++    public_deps += base_library_loader_java_ext_public_deps
+   }
+ 
+   generate_jni("base_shared_preferences_jni") {
+@@ -5689,6 +5708,11 @@ if (is_android) {
+       "android/java/src/org/chromium/base/shared_preferences/SharedPreferencesManager.java",
+       "android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java",
+     ]
++
++    import("//vanadium/chromium_src/base/base_shared_preferences_java_ext_sources.gni")
++    sources += base_shared_preferences_java_ext_sources
++    import("//vanadium/chromium_src/base/base_shared_preferences_java_ext_deps.gni")
++    deps += base_shared_preferences_java_ext_deps
+   }
+ 
+   android_library("flagged_apis_java") {
+diff --git a/vanadium/chromium_src/base/base_java_ext_deps.gni b/vanadium/chromium_src/base/base_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..3c28281f557ca
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_deps += base_java_ext_full_path_deps
++foreach(rel_path, base_java_ext_rel_path_deps) {
++  base_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_java_ext_sources.gni b/vanadium/chromium_src/base/base_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..d5d8243b30f73
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_sources += base_java_ext_full_path_sources
++foreach(rel_path, base_java_ext_rel_path_sources) {
++  base_java_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_java_ext_srcjar_deps.gni b/vanadium/chromium_src/base/base_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..0744aa6fe54a7
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_java_ext_srcjar_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_full_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_rel_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_java_ext_srcjar_deps += base_java_ext_full_path_srcjar_deps
++foreach(rel_path, base_java_ext_rel_path_srcjar_deps) {
++  base_java_ext_srcjar_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni b/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..17cb56424b685
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_deps += base_library_loader_java_ext_full_path_deps
++foreach(rel_path, base_library_loader_java_ext_rel_path_deps) {
++  base_library_loader_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni b/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni
+new file mode 100644
+index 0000000000000..4be53b2932d38
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_full_path_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_rel_path_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_public_deps += base_library_loader_java_ext_full_path_public_deps
++foreach(rel_path, base_library_loader_java_ext_rel_path_public_deps) {
++  base_library_loader_java_ext_public_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_ext_sources.gni b/vanadium/chromium_src/base/base_library_loader_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..bfe76b3007a35
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_library_loader_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_sources += base_library_loader_java_ext_full_path_sources
++foreach(rel_path, base_library_loader_java_ext_rel_path_sources) {
++  base_library_loader_java_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_ext_srcjar_deps.gni b/vanadium/chromium_src/base/base_library_loader_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..cb0cc7666677d
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_library_loader_java_ext_srcjar_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_full_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_rel_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_library_loader_java_ext_srcjar_deps += base_library_loader_java_ext_full_path_srcjar_deps
++foreach(rel_path, base_library_loader_java_ext_rel_path_srcjar_deps) {
++  base_library_loader_java_ext_srcjar_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_shared_preferences_java_ext_deps.gni b/vanadium/chromium_src/base/base_shared_preferences_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..ca1242c9e3958
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_shared_preferences_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_deps += base_shared_preferences_java_ext_full_path_deps
++foreach(rel_path, base_shared_preferences_java_ext_rel_path_deps) {
++  base_shared_preferences_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/base/base_shared_preferences_java_ext_sources.gni b/vanadium/chromium_src/base/base_shared_preferences_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..b849a5876a020
+--- /dev/null
++++ b/vanadium/chromium_src/base/base_shared_preferences_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++base_shared_preferences_java_ext_sources += base_shared_preferences_java_ext_full_path_sources
++foreach(rel_path, base_shared_preferences_java_ext_rel_path_sources) {
++  base_shared_preferences_java_ext_sources += [ rebase_path(rel_path) ]
++}

@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 13 Mar 2023 08:41:43 +0000
+Subject: [PATCH] Extend //chrome/android java group target deps
+
+---
+ chrome/android/BUILD.gn                       |  3 +++
+ .../chrome_all_java_group_ext_deps.gni        | 26 +++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 360fdc77274c7..1f44f11e6bf18 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -1020,6 +1020,9 @@ if (_is_default_toolchain) {
+       "//components/visited_url_ranking/internal:internal_java",
+     ]
+ 
++    import("//vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni")
++    deps += chrome_all_java_group_ext_deps
++
+     if (is_desktop_android) {
+       deps +=
+           [ "//chrome/browser/ui/android/extensions/windowing/internal:java" ]
+diff --git a/vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni
+new file mode 100644
+index 0000000000000..780cfc0bcfda9
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only-style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_all_java_group_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_all_java_group_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_all_java_group_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_all_java_group_ext_deps += chrome_all_java_group_ext_full_path_deps
++foreach(rel_path, chrome_all_java_group_ext_rel_path_deps) {
++  chrome_all_java_group_ext_deps += [ rebase_path(rel_path) ]
++}

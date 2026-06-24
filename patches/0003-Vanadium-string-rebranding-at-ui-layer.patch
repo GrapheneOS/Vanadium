@@ -1,0 +1,1266 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Mon, 17 Sep 2001 00:00:00 +0000
+Subject: [PATCH] Vanadium string rebranding at ui layer
+
+Shell commands used to facilitate the string replacement:
+
+        ```
+        grdp_files=(
+            chrome/android/features/tab_ui/java/strings/android_chrome_tab_ui_strings.grd
+            chrome/android/webapk/strings/android_webapk_strings.grd
+            chrome/app/access_code_cast_strings.grdp
+            chrome/app/app_management_strings.grdp
+            chrome/app/bookmarks_strings.grdp
+            chrome/app/certificate_manager.grdp
+            chrome/app/chromium_strings.grd
+            chrome/app/extensions_strings.grdp
+            chrome/app/generated_resources.grd
+            chrome/app/glic_strings.grdp
+            chrome/app/google_chrome_strings.grd
+            chrome/app/media_router_strings.grdp
+            chrome/app/os_settings_search_tag_strings.grdp
+            chrome/app/os_settings_strings.grdp
+            chrome/app/password_manager_ui_strings.grdp
+            chrome/app/printing_strings.grdp
+            chrome/app/profiles_strings.grdp
+            chrome/app/settings_chromium_strings.grdp
+            chrome/app/settings_google_chrome_strings.grdp
+            chrome/app/settings_strings.grdp
+            chrome/app/shared_settings_strings.grdp
+            chrome/app/support_tool_strings.grdp
+            chrome/browser/browser_resources.grd
+            chrome/browser/keyboard_accessory/android/internal/java/strings/android_keyboard_accessory_strings.grd
+            chrome/browser/readaloud/android/resources/android_readaloud_strings.grd
+            chrome/browser/resources/component_extension_resources.grd
+            chrome/browser/tab_ui/android/java/strings/android_tab_ui_strings.grd
+            chrome/browser/ui/android/strings/android_chrome_strings.grd
+            chrome/credential_provider/gaiacp/gaia_resources.grd
+            components/arc_strings.grdp
+            components/autofill_payments_strings.grdp
+            components/autofill_strings.grdp
+            components/browser_ui/strings/android/browser_ui_strings.grd
+            components/browser_ui/strings/android/site_settings.grdp
+            components/browsing_data_strings.grdp
+            components/collaboration_strings.grdp
+            components/commerce_strings.grdp
+            components/components_chromium_strings.grd
+            components/components_google_chrome_strings.grd
+            components/contextual_tasks_strings.grdp
+            components/error_page_strings.grdp
+            components/facilitated_payments_strings.grdp
+            components/heavy_ad_intervention_strings.grdp
+            components/history_clusters_strings.grdp
+            components/history_strings.grdp
+            components/management_strings.grdp
+            components/media_router/browser/android/java/strings/android_chrome_media_router_strings.grd
+            components/metrics/server_urls.grd
+            components/new_or_sad_tab_strings.grdp
+            components/omnibox/resources/omnibox_pedal_synonyms.grd
+            components/omnibox_pedal_ui_strings.grdp
+            components/omnibox_strings.grdp
+            components/page_info_strings.grdp
+            components/password_manager_strings.grdp
+            components/payments_strings.grdp
+            components/pdf_strings.grdp
+            components/permissions/android/permissions_android_strings.grd
+            components/permissions_strings.grdp
+            components/plus_addresses/core/browser/resources/strings/plus_addresses_strings.grd
+            components/policy_strings.grdp
+            components/privacy_sandbox_chrome_strings.grdp
+            components/privacy_sandbox_strings.grd
+            components/reset_password_strings.grdp
+            components/resources/dev_ui_components_resources.grd
+            components/search_engine_choice_strings.grdp
+            components/security_interstitials_strings.grdp
+            components/site_settings_strings.grdp
+            components/ssl_errors_strings.grdp
+            components/subresource_filter_strings.grdp
+            components/supervised_user_strings.grdp
+            components/sync_ui_strings.grdp
+            components/translate_strings.grdp
+            components/webapps/browser/android/android_webapps_strings.grd
+            ui/android/java/strings/android_ui_strings.grd
+            ui/strings/ui_strings.grd
+        )
+        sed -ri 's/\b(Google )?Chrom(e|ium)\b/Vanadium/g' "${grdp_files[@]}"
+        xtb_dirs=(
+            chrome/android/features/tab_ui/java/strings/translations
+            chrome/app/resources
+            chrome/browser/keyboard_accessory/android/internal/java/strings/translations
+            chrome/browser/ui/android/strings/translations
+            chrome/credential_provider/gaiacp/strings
+            components/browser_ui/strings/android/translations
+            components/omnibox/resources/translations
+            components/permissions/android/translations
+            components/policy/resources
+            components/strings
+            components/webapps/browser/android/translations
+            ui/android/java/strings/translations
+        )
+        find "${xtb_dirs[@]}" -name '*.xtb' -exec sed -ri 's/\b(Google )?Chrom(e|ium)\b/Vanadium/g' {} +
+        ```
+---
+ ui/android/java/strings/android_ui_strings.grd            | 2 +-
+ .../java/strings/translations/android_ui_strings_af.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_am.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ar.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_as.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_az.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_be.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_bg.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_bn.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_bs.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ca.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_cs.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_cy.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_da.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_de.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_el.xtb   | 2 +-
+ .../strings/translations/android_ui_strings_en-GB.xtb     | 2 +-
+ .../strings/translations/android_ui_strings_es-419.xtb    | 2 +-
+ .../java/strings/translations/android_ui_strings_es.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_et.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_eu.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_fa.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_fil.xtb  | 2 +-
+ .../strings/translations/android_ui_strings_fr-CA.xtb     | 2 +-
+ .../java/strings/translations/android_ui_strings_fr.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_gl.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_gu.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_hi.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_hr.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_hu.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_hy.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_id.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_is.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_it.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_iw.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ja.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ka.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_kk.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_km.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_kn.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ko.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ky.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_lo.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_lt.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_lv.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_mk.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ml.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_mn.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_mr.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ms.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_my.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ne.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_nl.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_no.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_or.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_pa.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_pl.xtb   | 2 +-
+ .../strings/translations/android_ui_strings_pt-BR.xtb     | 2 +-
+ .../strings/translations/android_ui_strings_pt-PT.xtb     | 2 +-
+ .../java/strings/translations/android_ui_strings_ro.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ru.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_si.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_sk.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_sq.xtb   | 2 +-
+ .../strings/translations/android_ui_strings_sr-Latn.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_sr.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_sv.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_sw.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ta.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_te.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_th.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_tr.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_uk.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_ur.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_uz.xtb   | 2 +-
+ .../java/strings/translations/android_ui_strings_vi.xtb   | 2 +-
+ .../strings/translations/android_ui_strings_zh-CN.xtb     | 2 +-
+ .../strings/translations/android_ui_strings_zh-HK.xtb     | 2 +-
+ .../strings/translations/android_ui_strings_zh-TW.xtb     | 2 +-
+ .../java/strings/translations/android_ui_strings_zu.xtb   | 2 +-
+ ui/chromeos/ui_chromeos_strings.grd                       | 8 ++++----
+ ui/strings/ui_strings.grd                                 | 2 +-
+ 82 files changed, 85 insertions(+), 85 deletions(-)
+
+diff --git a/ui/android/java/strings/android_ui_strings.grd b/ui/android/java/strings/android_ui_strings.grd
+index e90ebd1df6900..3f20f05fbcddd 100644
+--- a/ui/android/java/strings/android_ui_strings.grd
++++ b/ui/android/java/strings/android_ui_strings.grd
+@@ -209,7 +209,7 @@
+ 
+       <!-- Button Menu -->
+       <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_MENU" desc="Content description for the settings menu button.">
+-        Customize and control Google Chrome
++        Customize and control Vanadium
+       </message>
+       <message name="IDS_ACCESSIBILITY_LIST_MENU_BUTTON" desc="Content description for the button that shows option menu for a list item.">
+         <ph name="NAME_OF_LIST_ITEM">%1$s<ex>Movie Title</ex></ph> Options
+diff --git a/ui/android/java/strings/translations/android_ui_strings_af.xtb b/ui/android/java/strings/translations/android_ui_strings_af.xtb
+index 96c23d81b54c9..b19d94549bd2a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_af.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_af.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Gekopieer</translation>
+ <translation id="3240426699337459095">Skakel gekopieer</translation>
+ <translation id="385051799172605136">Terug</translation>
+-<translation id="4053720452172726777">Pasmaak en beheer Google Chrome</translation>
++<translation id="4053720452172726777">Pasmaak en beheer Vanadium</translation>
+ <translation id="4177314441326667883">URL is afgekap</translation>
+ <translation id="4918844574251943176">Prent is gekopieer</translation>
+ <translation id="6142675540468977324">URL is uitgevou</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_am.xtb b/ui/android/java/strings/translations/android_ui_strings_am.xtb
+index 3fd3d99260b7f..e428779f3b05b 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_am.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_am.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">ተቀድቷል</translation>
+ <translation id="3240426699337459095">አገናኝ ተቀድቷል</translation>
+ <translation id="385051799172605136">ተመለስ</translation>
+-<translation id="4053720452172726777">Google Chromeን ያብጁ እና ይቆጣጠሩ</translation>
++<translation id="4053720452172726777">Vanadiumን ያብጁ እና ይቆጣጠሩ</translation>
+ <translation id="4177314441326667883">ዩአርኤል ተቆርጧል</translation>
+ <translation id="4918844574251943176">ምስል ተቀድቷል</translation>
+ <translation id="6142675540468977324">ዩአርኤል ተዘርግቷል</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ar.xtb b/ui/android/java/strings/translations/android_ui_strings_ar.xtb
+index 4b0506ac9b2c9..af48e8d18873e 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ar.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ar.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">تم النسخ</translation>
+ <translation id="3240426699337459095">تم نسخ الرابط</translation>
+ <translation id="385051799172605136">رجوع</translation>
+-<translation id="4053720452172726777">‏تخصيص Google Chrome والتحكم فيه</translation>
++<translation id="4053720452172726777">‏تخصيص Vanadium والتحكم فيه</translation>
+ <translation id="4177314441326667883">‏تم اقتطاع عنوان URL.</translation>
+ <translation id="4918844574251943176">تم نسخ الصورة.</translation>
+ <translation id="6142675540468977324">‏تم توسيع عنوان URL.</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_as.xtb b/ui/android/java/strings/translations/android_ui_strings_as.xtb
+index 70b742ed18101..075b6e23c06fa 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_as.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_as.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">প্ৰতিলিপি কৰা হ'ল</translation>
+ <translation id="3240426699337459095">লিংকটোৰ প্ৰতিলিপি কৰা হ’ল</translation>
+ <translation id="385051799172605136">উভতি যাওক</translation>
+-<translation id="4053720452172726777">Google Chrome কাষ্টমাইজ আৰু নিয়ন্ত্ৰণ কৰক</translation>
++<translation id="4053720452172726777">Vanadium কাষ্টমাইজ আৰু নিয়ন্ত্ৰণ কৰক</translation>
+ <translation id="4177314441326667883">URL চুটি কৰা হৈছে</translation>
+ <translation id="4918844574251943176">প্ৰতিচ্ছবি প্ৰতিলিপি কৰা হ’ল</translation>
+ <translation id="6142675540468977324">URL বিস্তাৰ কৰা হৈছে</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_az.xtb b/ui/android/java/strings/translations/android_ui_strings_az.xtb
+index 01d56ff8202f0..a3c2b9a5fa0fa 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_az.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_az.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopyalandı</translation>
+ <translation id="3240426699337459095">Link kopyalandı</translation>
+ <translation id="385051799172605136">Geri</translation>
+-<translation id="4053720452172726777">Google Chrome'u fərdiləşdirin və nəzarət edin</translation>
++<translation id="4053720452172726777">Vanadium'u fərdiləşdirin və nəzarət edin</translation>
+ <translation id="4177314441326667883">Url kəsilib</translation>
+ <translation id="4918844574251943176">Şəkil kopyalandı</translation>
+ <translation id="6142675540468977324">Url genişləndirilib</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_be.xtb b/ui/android/java/strings/translations/android_ui_strings_be.xtb
+index 5a4c68231a983..f5d9ba406e185 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_be.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_be.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Скапіравана</translation>
+ <translation id="3240426699337459095">Спасылка скапіравана</translation>
+ <translation id="385051799172605136">Назад</translation>
+-<translation id="4053720452172726777">Наладжвайце Google Chrome і кіруйце ім</translation>
++<translation id="4053720452172726777">Наладжвайце Vanadium і кіруйце ім</translation>
+ <translation id="4177314441326667883">URL-адрас скарочаны</translation>
+ <translation id="4918844574251943176">Відарыс скапіраваны</translation>
+ <translation id="6142675540468977324">URL-адрас разгорнуты</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_bg.xtb b/ui/android/java/strings/translations/android_ui_strings_bg.xtb
+index 223717263be7c..918413ed4c215 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_bg.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_bg.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Копирано</translation>
+ <translation id="3240426699337459095">Връзката е копирана</translation>
+ <translation id="385051799172605136">Назад</translation>
+-<translation id="4053720452172726777">Персонализиране и контролиране на Google Chrome</translation>
++<translation id="4053720452172726777">Персонализиране и контролиране на Vanadium</translation>
+ <translation id="4177314441326667883">URL адресът е съкратен</translation>
+ <translation id="4918844574251943176">Изображението е копирано</translation>
+ <translation id="6142675540468977324">URL адресът е разгънат</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_bn.xtb b/ui/android/java/strings/translations/android_ui_strings_bn.xtb
+index a9ba58af99e02..7f6b7c3316682 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_bn.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_bn.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">প্রতিলিপি করা হয়েছে</translation>
+ <translation id="3240426699337459095">লিঙ্ক কপি করা হয়েছে</translation>
+ <translation id="385051799172605136">ফিরুন</translation>
+-<translation id="4053720452172726777">Google Chrome কাস্টমাইজ ও নিয়ন্ত্রণ করুন</translation>
++<translation id="4053720452172726777">Vanadium কাস্টমাইজ ও নিয়ন্ত্রণ করুন</translation>
+ <translation id="4177314441326667883">URL ছোট করা হয়েছে</translation>
+ <translation id="4918844574251943176">ছবি কপি করা হয়েছে</translation>
+ <translation id="6142675540468977324">URL বড় করা হয়েছে</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_bs.xtb b/ui/android/java/strings/translations/android_ui_strings_bs.xtb
+index 04ad0d81d3858..d7fb371c1ccc7 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_bs.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_bs.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopirano</translation>
+ <translation id="3240426699337459095">Link je kopiran</translation>
+ <translation id="385051799172605136">Nazad</translation>
+-<translation id="4053720452172726777">Prilagodite i kontrolirajte Google Chrome</translation>
++<translation id="4053720452172726777">Prilagodite i kontrolirajte Vanadium</translation>
+ <translation id="4177314441326667883">URL je skraćen</translation>
+ <translation id="4918844574251943176">Slika je kopirana</translation>
+ <translation id="6142675540468977324">URL je proširen</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ca.xtb b/ui/android/java/strings/translations/android_ui_strings_ca.xtb
+index d12611b5ff748..49bd916d7780f 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ca.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ca.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiada</translation>
+ <translation id="3240426699337459095">S'ha copiat l'enllaç.</translation>
+ <translation id="385051799172605136">Enrere</translation>
+-<translation id="4053720452172726777">Personalitza i controla Google Chrome</translation>
++<translation id="4053720452172726777">Personalitza i controla Vanadium</translation>
+ <translation id="4177314441326667883">L'URL s'ha truncat</translation>
+ <translation id="4918844574251943176">La imatge s'ha copiat</translation>
+ <translation id="6142675540468977324">L'URL s'ha ampliat</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_cs.xtb b/ui/android/java/strings/translations/android_ui_strings_cs.xtb
+index 3ca12b0e90d98..4f350e63fbd5c 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_cs.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_cs.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Zkopírováno</translation>
+ <translation id="3240426699337459095">Odkaz byl zkopírován</translation>
+ <translation id="385051799172605136">Zpět</translation>
+-<translation id="4053720452172726777">Přizpůsobit a ovládat Google Chrome</translation>
++<translation id="4053720452172726777">Přizpůsobit a ovládat Vanadium</translation>
+ <translation id="4177314441326667883">Zkrácená adresa URL</translation>
+ <translation id="4918844574251943176">Obrázek byl zkopírován</translation>
+ <translation id="6142675540468977324">Rozbalená adresa URL</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_cy.xtb b/ui/android/java/strings/translations/android_ui_strings_cy.xtb
+index 981bf92cf6ea8..cf9c5c30fab0d 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_cy.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_cy.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copïwyd</translation>
+ <translation id="3240426699337459095">Cafodd y ddolen ei chopïo</translation>
+ <translation id="385051799172605136">Nôl</translation>
+-<translation id="4053720452172726777">Personoleiddio a rheoli Google Chrome</translation>
++<translation id="4053720452172726777">Personoleiddio a rheoli Vanadium</translation>
+ <translation id="4177314441326667883">Url wedi'i gwtogi</translation>
+ <translation id="4918844574251943176">Llun wedi'i gopïo</translation>
+ <translation id="6142675540468977324">Url wedi'i ehangu</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_da.xtb b/ui/android/java/strings/translations/android_ui_strings_da.xtb
+index 53d527aa899be..8ef6fc672e66d 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_da.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_da.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopieret</translation>
+ <translation id="3240426699337459095">Linket er kopieret</translation>
+ <translation id="385051799172605136">Tilbage</translation>
+-<translation id="4053720452172726777">Tilpas Google Chrome</translation>
++<translation id="4053720452172726777">Tilpas Vanadium</translation>
+ <translation id="4177314441326667883">Webadressen er forkortet</translation>
+ <translation id="4918844574251943176">Billedet er kopieret</translation>
+ <translation id="6142675540468977324">Webadressen er udvidet</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_de.xtb b/ui/android/java/strings/translations/android_ui_strings_de.xtb
+index cadae72769fcf..bf97b15ae8afc 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_de.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_de.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopiert</translation>
+ <translation id="3240426699337459095">Link kopiert</translation>
+ <translation id="385051799172605136">Zurück</translation>
+-<translation id="4053720452172726777">Google Chrome anpassen und verwalten</translation>
++<translation id="4053720452172726777">Vanadium anpassen und verwalten</translation>
+ <translation id="4177314441326667883">URL abgeschnitten</translation>
+ <translation id="4918844574251943176">Bild kopiert</translation>
+ <translation id="6142675540468977324">URL maximiert</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_el.xtb b/ui/android/java/strings/translations/android_ui_strings_el.xtb
+index 8b5ed5f826004..709172bfb236f 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_el.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_el.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Αντιγράφ.</translation>
+ <translation id="3240426699337459095">Ο σύνδεσμος αντιγράφηκε</translation>
+ <translation id="385051799172605136">Πίσω</translation>
+-<translation id="4053720452172726777">Προσαρμογή και έλεγχος του Google Chrome</translation>
++<translation id="4053720452172726777">Προσαρμογή και έλεγχος του Vanadium</translation>
+ <translation id="4177314441326667883">Το URL περικόπηκε</translation>
+ <translation id="4918844574251943176">Η εικόνα αντιγράφηκε</translation>
+ <translation id="6142675540468977324">Το URL επεκτάθηκε</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_en-GB.xtb b/ui/android/java/strings/translations/android_ui_strings_en-GB.xtb
+index 0bd19610a5403..07484d0b1bd39 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_en-GB.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_en-GB.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copied</translation>
+ <translation id="3240426699337459095">Link copied</translation>
+ <translation id="385051799172605136">Back</translation>
+-<translation id="4053720452172726777">Customise and control Google Chrome</translation>
++<translation id="4053720452172726777">Customise and control Vanadium</translation>
+ <translation id="4177314441326667883">URL truncated</translation>
+ <translation id="4918844574251943176">Image copied</translation>
+ <translation id="6142675540468977324">URL expanded</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_es-419.xtb b/ui/android/java/strings/translations/android_ui_strings_es-419.xtb
+index b34a5e58a6eca..6eb2b4fcba3c8 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_es-419.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_es-419.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiado</translation>
+ <translation id="3240426699337459095">Se copió el vínculo</translation>
+ <translation id="385051799172605136">Atrás</translation>
+-<translation id="4053720452172726777">Personalizar y controlar Google Chrome</translation>
++<translation id="4053720452172726777">Personalizar y controlar Google Vanadium</translation>
+ <translation id="4177314441326667883">URL truncada</translation>
+ <translation id="4918844574251943176">Se copió la imagen</translation>
+ <translation id="6142675540468977324">URL expandida</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_es.xtb b/ui/android/java/strings/translations/android_ui_strings_es.xtb
+index 5adaf514dd529..974af6aff9a5d 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_es.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_es.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiado</translation>
+ <translation id="3240426699337459095">Enlace copiado</translation>
+ <translation id="385051799172605136">Volver</translation>
+-<translation id="4053720452172726777">Personaliza y controla Google Chrome</translation>
++<translation id="4053720452172726777">Personaliza y controla Vanadium</translation>
+ <translation id="4177314441326667883">URL truncada</translation>
+ <translation id="4918844574251943176">Imagen copiada</translation>
+ <translation id="6142675540468977324">URL ampliada</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_et.xtb b/ui/android/java/strings/translations/android_ui_strings_et.xtb
+index 68afaa8ad64c9..4a29f8dd3dae1 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_et.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_et.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopeeritud</translation>
+ <translation id="3240426699337459095">Link on kopeeritud</translation>
+ <translation id="385051799172605136">Tagasi</translation>
+-<translation id="4053720452172726777">Google Chrome'i kohandamine ja juhtimine</translation>
++<translation id="4053720452172726777">Vanadium'i kohandamine ja juhtimine</translation>
+ <translation id="4177314441326667883">Lühendatud URL</translation>
+ <translation id="4918844574251943176">Pilt kopeeriti</translation>
+ <translation id="6142675540468977324">Laiendatud URL</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_eu.xtb b/ui/android/java/strings/translations/android_ui_strings_eu.xtb
+index ca7b7d01052ec..584eed5d3cbd7 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_eu.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_eu.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopiatuta</translation>
+ <translation id="3240426699337459095">Esteka kopiatu da</translation>
+ <translation id="385051799172605136">Atzera</translation>
+-<translation id="4053720452172726777">Pertsonalizatu eta kontrolatu Google Chrome</translation>
++<translation id="4053720452172726777">Pertsonalizatu eta kontrolatu Vanadium</translation>
+ <translation id="4177314441326667883">URLa trunkatu da</translation>
+ <translation id="4918844574251943176">Kopiatu da irudia</translation>
+ <translation id="6142675540468977324">URLa zabaldu da</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_fa.xtb b/ui/android/java/strings/translations/android_ui_strings_fa.xtb
+index 08509a0c70a6b..174a80831c7e2 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_fa.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_fa.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">کپی شد</translation>
+ <translation id="3240426699337459095">پیوند کپی شد</translation>
+ <translation id="385051799172605136">برگشتن</translation>
+-<translation id="4053720452172726777">‏‫سفارشی کردن و کنترل Google Chrome</translation>
++<translation id="4053720452172726777">‏‫سفارشی کردن و کنترل Vanadium</translation>
+ <translation id="4177314441326667883">نشانی وب کوتاه شد</translation>
+ <translation id="4918844574251943176">تصویر کپی شد</translation>
+ <translation id="6142675540468977324">نشانی وب ازهم باز شد</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_fil.xtb b/ui/android/java/strings/translations/android_ui_strings_fil.xtb
+index 284567d7b6e5b..083e1c031f17e 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_fil.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_fil.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kinopya</translation>
+ <translation id="3240426699337459095">Nakopya ang link</translation>
+ <translation id="385051799172605136">Bumalik</translation>
+-<translation id="4053720452172726777">I-customize at kontrolin ang Google Chrome</translation>
++<translation id="4053720452172726777">I-customize at kontrolin ang Vanadium</translation>
+ <translation id="4177314441326667883">Na-truncate ang url</translation>
+ <translation id="4918844574251943176">Nakopya na ang larawan</translation>
+ <translation id="6142675540468977324">Pinalawak ang url</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_fr-CA.xtb b/ui/android/java/strings/translations/android_ui_strings_fr-CA.xtb
+index d4d20c590b4ff..c1586bd6bb817 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_fr-CA.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_fr-CA.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copié</translation>
+ <translation id="3240426699337459095">Lien copié</translation>
+ <translation id="385051799172605136">Retour</translation>
+-<translation id="4053720452172726777">Personnaliser et gérer Google Chrome</translation>
++<translation id="4053720452172726777">Personnaliser et gérer Vanadium</translation>
+ <translation id="4177314441326667883">URL tronquée</translation>
+ <translation id="4918844574251943176">Image copiée</translation>
+ <translation id="6142675540468977324">URL développée</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_fr.xtb b/ui/android/java/strings/translations/android_ui_strings_fr.xtb
+index 3819f59d989fb..d94762625e7a8 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_fr.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_fr.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copié</translation>
+ <translation id="3240426699337459095">Lien copié</translation>
+ <translation id="385051799172605136">Retour</translation>
+-<translation id="4053720452172726777">Personnaliser et contrôler Google Chrome</translation>
++<translation id="4053720452172726777">Personnaliser et contrôler Vanadium</translation>
+ <translation id="4177314441326667883">URL tronquée</translation>
+ <translation id="4918844574251943176">Image copiée</translation>
+ <translation id="6142675540468977324">URL étendue</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_gl.xtb b/ui/android/java/strings/translations/android_ui_strings_gl.xtb
+index 414c0050e3756..2c95dd729535d 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_gl.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_gl.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiada</translation>
+ <translation id="3240426699337459095">Copiouse a ligazón</translation>
+ <translation id="385051799172605136">Atrás</translation>
+-<translation id="4053720452172726777">Personaliza e controla Google Chrome</translation>
++<translation id="4053720452172726777">Personaliza e controla Vanadium</translation>
+ <translation id="4177314441326667883">Truncouse o URL</translation>
+ <translation id="4918844574251943176">Copiouse a imaxe</translation>
+ <translation id="6142675540468977324">Despregouse o URL</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_gu.xtb b/ui/android/java/strings/translations/android_ui_strings_gu.xtb
+index 898fe90546052..a1a303a294abe 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_gu.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_gu.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">કૉપિ કર્યું</translation>
+ <translation id="3240426699337459095">લિંક કૉપિ કરી</translation>
+ <translation id="385051799172605136">પાછળ</translation>
+-<translation id="4053720452172726777">Google Chrome ને કસ્ટમાઇઝ કરો અને તેનું નિયંત્રણ કરો</translation>
++<translation id="4053720452172726777">Vanadium ને કસ્ટમાઇઝ કરો અને તેનું નિયંત્રણ કરો</translation>
+ <translation id="4177314441326667883">URL ટૂંકાવીને બતાવ્યું</translation>
+ <translation id="4918844574251943176">છબી કૉપિ કરી</translation>
+ <translation id="6142675540468977324">URL મોટું કરીને બતાવ્યું</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_hi.xtb b/ui/android/java/strings/translations/android_ui_strings_hi.xtb
+index dc89a3cd4e059..c0c7b1d093a8c 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_hi.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_hi.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">कॉपी किया गया</translation>
+ <translation id="3240426699337459095">लिंक कॉपी किया गया</translation>
+ <translation id="385051799172605136">वापस जाएं</translation>
+-<translation id="4053720452172726777">Google Chrome को पसंद के मुताबिक बनाएं और कंट्रोल करें</translation>
++<translation id="4053720452172726777">Vanadium को पसंद के मुताबिक बनाएं और कंट्रोल करें</translation>
+ <translation id="4177314441326667883">यूआरएल छोटा हो गया</translation>
+ <translation id="4918844574251943176">इमेज को कॉपी किया गया</translation>
+ <translation id="6142675540468977324">यूआरएल बड़ा हो गया</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_hr.xtb b/ui/android/java/strings/translations/android_ui_strings_hr.xtb
+index 06fe4198b1077..a6c4c38b4a72a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_hr.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_hr.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopirano</translation>
+ <translation id="3240426699337459095">Veza je kopirana</translation>
+ <translation id="385051799172605136">Natrag</translation>
+-<translation id="4053720452172726777">Prilagodite Google Chrome i upravljajte njime</translation>
++<translation id="4053720452172726777">Prilagodite Vanadium i upravljajte njime</translation>
+ <translation id="4177314441326667883">URL je skraćen</translation>
+ <translation id="4918844574251943176">Slika je kopirana</translation>
+ <translation id="6142675540468977324">URL je proširen</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_hu.xtb b/ui/android/java/strings/translations/android_ui_strings_hu.xtb
+index 7da7276a51a07..ed1252b91d58c 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_hu.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_hu.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Másolt</translation>
+ <translation id="3240426699337459095">Link másolva</translation>
+ <translation id="385051799172605136">Vissza</translation>
+-<translation id="4053720452172726777">A Google Chrome személyre szabása és beállításai</translation>
++<translation id="4053720452172726777">A Vanadium személyre szabása és beállításai</translation>
+ <translation id="4177314441326667883">URL csonkolva</translation>
+ <translation id="4918844574251943176">Kép másolva</translation>
+ <translation id="6142675540468977324">URL kibontva</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_hy.xtb b/ui/android/java/strings/translations/android_ui_strings_hy.xtb
+index 04087f260a43e..a544e605c8608 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_hy.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_hy.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Պատճենվեց</translation>
+ <translation id="3240426699337459095">Հղումը պատճենվեց</translation>
+ <translation id="385051799172605136">Հետ</translation>
+-<translation id="4053720452172726777">Հարմարեցնել և վերահսկել Google Chrome-ը</translation>
++<translation id="4053720452172726777">Հարմարեցնել և վերահսկել Vanadium-ը</translation>
+ <translation id="4177314441326667883">URL-ը կրճատվեց</translation>
+ <translation id="4918844574251943176">Պատկերը պատճենվեց</translation>
+ <translation id="6142675540468977324">URL-ը ծավալվեց</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_id.xtb b/ui/android/java/strings/translations/android_ui_strings_id.xtb
+index 0369a90a7c83e..0c01cf26217b9 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_id.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_id.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Disalin</translation>
+ <translation id="3240426699337459095">Tautan disalin</translation>
+ <translation id="385051799172605136">Kembali</translation>
+-<translation id="4053720452172726777">Sesuaikan dan kontrol Google Chrome</translation>
++<translation id="4053720452172726777">Sesuaikan dan kontrol Vanadium</translation>
+ <translation id="4177314441326667883">URL dipotong</translation>
+ <translation id="4918844574251943176">Gambar disalin</translation>
+ <translation id="6142675540468977324">URL diluaskan</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_is.xtb b/ui/android/java/strings/translations/android_ui_strings_is.xtb
+index ea50aea4b30f9..525a69d75d8db 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_is.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_is.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Afritað</translation>
+ <translation id="3240426699337459095">Tengill afritaður</translation>
+ <translation id="385051799172605136">Til baka</translation>
+-<translation id="4053720452172726777">Sérsníða og stjórna Google Chrome</translation>
++<translation id="4053720452172726777">Sérsníða og stjórna Vanadium</translation>
+ <translation id="4177314441326667883">Stytt vefslóð</translation>
+ <translation id="4918844574251943176">Mynd afrituð</translation>
+ <translation id="6142675540468977324">Öll vefslóðin</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_it.xtb b/ui/android/java/strings/translations/android_ui_strings_it.xtb
+index 9a302d0b3aaa8..286309b80481f 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_it.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_it.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiata</translation>
+ <translation id="3240426699337459095">Link copiato</translation>
+ <translation id="385051799172605136">Indietro</translation>
+-<translation id="4053720452172726777">Personalizza e controlla Google Chrome</translation>
++<translation id="4053720452172726777">Personalizza e controlla Vanadium</translation>
+ <translation id="4177314441326667883">URL troncato</translation>
+ <translation id="4918844574251943176">Immagine copiata</translation>
+ <translation id="6142675540468977324">URL espanso</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_iw.xtb b/ui/android/java/strings/translations/android_ui_strings_iw.xtb
+index 0c2d403984df4..e5f0bd7fc8e94 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_iw.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_iw.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">הועתק</translation>
+ <translation id="3240426699337459095">הקישור הועתק</translation>
+ <translation id="385051799172605136">חזרה</translation>
+-<translation id="4053720452172726777">‏פעולות נוספות ב-Google Chrome</translation>
++<translation id="4053720452172726777">‏פעולות נוספות ב-Vanadium</translation>
+ <translation id="4177314441326667883">‏כתובת ה-URL נחתכה</translation>
+ <translation id="4918844574251943176">התמונה הועתקה</translation>
+ <translation id="6142675540468977324">‏כתובת ה-URL הורחבה</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ja.xtb b/ui/android/java/strings/translations/android_ui_strings_ja.xtb
+index 678bb2f3b0367..25e30524a7c26 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ja.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ja.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">コピーしました</translation>
+ <translation id="3240426699337459095">リンクをコピーしました</translation>
+ <translation id="385051799172605136">戻る</translation>
+-<translation id="4053720452172726777">Google Chrome の設定</translation>
++<translation id="4053720452172726777">Vanadium の設定</translation>
+ <translation id="4177314441326667883">URL の短縮バージョンです</translation>
+ <translation id="4918844574251943176">画像をコピーしました</translation>
+ <translation id="6142675540468977324">URL のフルバージョンです</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ka.xtb b/ui/android/java/strings/translations/android_ui_strings_ka.xtb
+index 5170407d5c4b3..1c3e5bdec9516 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ka.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ka.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">დაკოპირდა</translation>
+ <translation id="3240426699337459095">ბმული დაკოპირდა</translation>
+ <translation id="385051799172605136">უკან</translation>
+-<translation id="4053720452172726777">Google Chrome-ის მორგება და კონტროლი</translation>
++<translation id="4053720452172726777">Vanadium-ის მორგება და კონტროლი</translation>
+ <translation id="4177314441326667883">URL შემოკლებულია</translation>
+ <translation id="4918844574251943176">სურათი დაკოპირდა</translation>
+ <translation id="6142675540468977324">URL გაშლილია</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_kk.xtb b/ui/android/java/strings/translations/android_ui_strings_kk.xtb
+index 89d3d8766f4b5..7e7e1f7a890fc 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_kk.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_kk.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Көшірілген</translation>
+ <translation id="3240426699337459095">Сілтеме көшірілді</translation>
+ <translation id="385051799172605136">Артқа</translation>
+-<translation id="4053720452172726777">Google Chrome-ды бейімдеу және басқару</translation>
++<translation id="4053720452172726777">Vanadium-ды бейімдеу және басқару</translation>
+ <translation id="4177314441326667883">URL қысқартылды</translation>
+ <translation id="4918844574251943176">Сурет көшірілді.</translation>
+ <translation id="6142675540468977324">URL жайылды</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_km.xtb b/ui/android/java/strings/translations/android_ui_strings_km.xtb
+index 80b56bf2a642e..1f85244582d76 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_km.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_km.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">បានថតចម្លង</translation>
+ <translation id="3240426699337459095">បានចម្លងតំណ</translation>
+ <translation id="385051799172605136">ថយក្រោយ</translation>
+-<translation id="4053720452172726777">កែសម្រួល និងគ្រប់គ្រង Google Chrome</translation>
++<translation id="4053720452172726777">កែសម្រួល និងគ្រប់គ្រង Vanadium</translation>
+ <translation id="4177314441326667883">បានបង្រួម Url</translation>
+ <translation id="4918844574251943176">បានចម្លង​រូបភាព</translation>
+ <translation id="6142675540468977324">បានពង្រីក Url</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_kn.xtb b/ui/android/java/strings/translations/android_ui_strings_kn.xtb
+index b99911c23d331..89766fbf2060a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_kn.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_kn.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">ಕಾಪಿ ಮಾಡಲಾಗಿದೆ</translation>
+ <translation id="3240426699337459095">ಲಿಂಕ್ ಕಾಪಿ ಮಾಡಲಾಗಿದೆ</translation>
+ <translation id="385051799172605136">ಹಿಂದೆ</translation>
+-<translation id="4053720452172726777">Google Chrome ಅನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ ಮತ್ತು ನಿಯಂತ್ರಿಸಿ</translation>
++<translation id="4053720452172726777">Vanadium ಅನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ ಮತ್ತು ನಿಯಂತ್ರಿಸಿ</translation>
+ <translation id="4177314441326667883">URL ಅನ್ನು ಮೊಟಕುಗೊಳಿಸಲಾಗಿದೆ</translation>
+ <translation id="4918844574251943176">ಚಿತ್ರವನ್ನು ಕಾಪಿ ಮಾಡಲಾಗಿದೆ</translation>
+ <translation id="6142675540468977324">URL ಅನ್ನು ವಿಸ್ತರಿಸಲಾಗಿದೆ</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ko.xtb b/ui/android/java/strings/translations/android_ui_strings_ko.xtb
+index 6b3d3b63094e0..21fcb3076e29b 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ko.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ko.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">복사됨</translation>
+ <translation id="3240426699337459095">링크 복사됨</translation>
+ <translation id="385051799172605136">뒤로</translation>
+-<translation id="4053720452172726777">Chrome 맞춤설정 및 제어</translation>
++<translation id="4053720452172726777">Vanadium 맞춤설정 및 제어</translation>
+ <translation id="4177314441326667883">URL 잘림</translation>
+ <translation id="4918844574251943176">이미지 복사됨</translation>
+ <translation id="6142675540468977324">URL 펼쳐짐</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ky.xtb b/ui/android/java/strings/translations/android_ui_strings_ky.xtb
+index 061d1efbb36d5..874333ee7397f 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ky.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ky.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Көчүрүлдү</translation>
+ <translation id="3240426699337459095">Шилтеме көчүрүлдү</translation>
+ <translation id="385051799172605136">Артка</translation>
+-<translation id="4053720452172726777">Google Chrome'ду өзгөчөлөштүрүү жана көзөмөлдөө</translation>
++<translation id="4053720452172726777">Vanadium'ду өзгөчөлөштүрүү жана көзөмөлдөө</translation>
+ <translation id="4177314441326667883">URL кесилди</translation>
+ <translation id="4918844574251943176">Сүрөт көчүрүлдү</translation>
+ <translation id="6142675540468977324">URL жайылып көрсөтүлдү</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_lo.xtb b/ui/android/java/strings/translations/android_ui_strings_lo.xtb
+index cffd4076ef19d..5237863732a4c 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_lo.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_lo.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">ອັດ​ສຳ​ເນົາ​ແລ້ວ</translation>
+ <translation id="3240426699337459095">ອັດ​ສຳ​ເນົາ​ລິ້ງ​ແລ້ວ</translation>
+ <translation id="385051799172605136">ກັບ​ຄືນ​</translation>
+-<translation id="4053720452172726777">ກໍານົດເອງ ແລະຄວບຄຸມ Google Chrome</translation>
++<translation id="4053720452172726777">ກໍານົດເອງ ແລະຄວບຄຸມ Vanadium</translation>
+ <translation id="4177314441326667883">ຕັດ URL ໃຫ້ສັ້ນລົງແລ້ວ</translation>
+ <translation id="4918844574251943176">ສຳເນົາຮູບແລ້ວ</translation>
+ <translation id="6142675540468977324">ຂະຫຍາຍ URL ແລ້ວ</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_lt.xtb b/ui/android/java/strings/translations/android_ui_strings_lt.xtb
+index 72dc63c7c23ea..a1ea8947cf55a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_lt.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_lt.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Nukopij.</translation>
+ <translation id="3240426699337459095">Nuoroda nukopijuota</translation>
+ <translation id="385051799172605136">Atgal</translation>
+-<translation id="4053720452172726777">Tinkinkite ir valdykite „Google Chrome“</translation>
++<translation id="4053720452172726777">Tinkinkite ir valdykite „Vanadium“</translation>
+ <translation id="4177314441326667883">URL sutrumpintas</translation>
+ <translation id="4918844574251943176">Vaizdas nukopijuotas</translation>
+ <translation id="6142675540468977324">URL išskleistas</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_lv.xtb b/ui/android/java/strings/translations/android_ui_strings_lv.xtb
+index f76716de381f0..3c4848758e840 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_lv.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_lv.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Nokopēts</translation>
+ <translation id="3240426699337459095">Saite nokopēta</translation>
+ <translation id="385051799172605136">Atpakaļ</translation>
+-<translation id="4053720452172726777">Pielāgot un kontrolēt Google Chrome</translation>
++<translation id="4053720452172726777">Pielāgot un kontrolēt Vanadium</translation>
+ <translation id="4177314441326667883">URL ir saīsināts</translation>
+ <translation id="4918844574251943176">Attēls ir nokopēts</translation>
+ <translation id="6142675540468977324">URL ir izvērsts</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_mk.xtb b/ui/android/java/strings/translations/android_ui_strings_mk.xtb
+index 0f5f4edd531da..7805e9681fcb3 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_mk.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_mk.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Копирано</translation>
+ <translation id="3240426699337459095">Врската е копирана</translation>
+ <translation id="385051799172605136">Назад</translation>
+-<translation id="4053720452172726777">Приспособи го и контролирај го Google Chrome</translation>
++<translation id="4053720452172726777">Приспособи го и контролирај го Vanadium</translation>
+ <translation id="4177314441326667883">URL-адресата е скратена</translation>
+ <translation id="4918844574251943176">Сликата е копирана</translation>
+ <translation id="6142675540468977324">URL-адресата е проширена</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ml.xtb b/ui/android/java/strings/translations/android_ui_strings_ml.xtb
+index b467e633b00ad..a2d0ae42d1bdb 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ml.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ml.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">പകർത്തി</translation>
+ <translation id="3240426699337459095">ലിങ്ക് പകർത്തി</translation>
+ <translation id="385051799172605136">പിന്നോട്ട്</translation>
+-<translation id="4053720452172726777">Google Chrome ഇഷ്‌ടാനുസൃതമാക്കുക, നിയന്ത്രിക്കുക</translation>
++<translation id="4053720452172726777">Vanadium ഇഷ്‌ടാനുസൃതമാക്കുക, നിയന്ത്രിക്കുക</translation>
+ <translation id="4177314441326667883">URL ചുരുക്കി</translation>
+ <translation id="4918844574251943176">ചിത്രം പകർത്തി</translation>
+ <translation id="6142675540468977324">URL വികസിപ്പിച്ചു</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_mn.xtb b/ui/android/java/strings/translations/android_ui_strings_mn.xtb
+index 8e738289b855c..306d44c5041d2 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_mn.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_mn.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Хуулсан</translation>
+ <translation id="3240426699337459095">Холбоосыг хуулсан</translation>
+ <translation id="385051799172605136">Буцах</translation>
+-<translation id="4053720452172726777">Google Chrome-ыг өөртөө тохируулан хянах</translation>
++<translation id="4053720452172726777">Vanadium-ыг өөртөө тохируулан хянах</translation>
+ <translation id="4177314441326667883">URL-г тасалсан</translation>
+ <translation id="4918844574251943176">Зургийг хуулсан</translation>
+ <translation id="6142675540468977324">URL-г дэлгэсэн</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_mr.xtb b/ui/android/java/strings/translations/android_ui_strings_mr.xtb
+index b2e98f0a1d4d4..4e9af86037136 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_mr.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_mr.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">कॉपी केले</translation>
+ <translation id="3240426699337459095">लिंक कॉपी केला</translation>
+ <translation id="385051799172605136">मागील</translation>
+-<translation id="4053720452172726777">Google Chrome कस्टमाइझ करा आणि नियंत्रित करा</translation>
++<translation id="4053720452172726777">Vanadium कस्टमाइझ करा आणि नियंत्रित करा</translation>
+ <translation id="4177314441326667883">URL काढून टाकली</translation>
+ <translation id="4918844574251943176">इमेज कॉपी केली</translation>
+ <translation id="6142675540468977324">URL चा विस्तार केला गेला</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ms.xtb b/ui/android/java/strings/translations/android_ui_strings_ms.xtb
+index 73bd75575f1ac..7e4aaab7dca88 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ms.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ms.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Disalin</translation>
+ <translation id="3240426699337459095">Pautan disalin</translation>
+ <translation id="385051799172605136">Kembali</translation>
+-<translation id="4053720452172726777">Sesuaikan dan kawal Google Chrome</translation>
++<translation id="4053720452172726777">Sesuaikan dan kawal Vanadium</translation>
+ <translation id="4177314441326667883">URL terpangkas</translation>
+ <translation id="4918844574251943176">Imej disalin</translation>
+ <translation id="6142675540468977324">URL dikembangkan</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_my.xtb b/ui/android/java/strings/translations/android_ui_strings_my.xtb
+index 81af6fe97aed6..b6d226ea0f119 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_my.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_my.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">ကူးယူပြီးပါပြီ</translation>
+ <translation id="3240426699337459095">လင့်ခ်ကူးယူပြီးပါပြီ</translation>
+ <translation id="385051799172605136">နောက်သို့</translation>
+-<translation id="4053720452172726777">Google Chrome ကို စိတ်ကြိုက် ပြုပြင်ရန် နှင့် ထိန်းချုပ်ရန်</translation>
++<translation id="4053720452172726777">Vanadium ကို စိတ်ကြိုက် ပြုပြင်ရန် နှင့် ထိန်းချုပ်ရန်</translation>
+ <translation id="4177314441326667883">Url ကို ဖြတ်တောက်လိုက်သည်</translation>
+ <translation id="4918844574251943176">ပုံကူးပြီးပြီ</translation>
+ <translation id="6142675540468977324">Url ကို ဖြန့်လိုက်သည်</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ne.xtb b/ui/android/java/strings/translations/android_ui_strings_ne.xtb
+index b7b0a38d33223..69a7649b17a10 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ne.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ne.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">कपी गरियो</translation>
+ <translation id="3240426699337459095">लिंक कपी गरियो</translation>
+ <translation id="385051799172605136">पछाडि जानुहोस्</translation>
+-<translation id="4053720452172726777">Google Chrome  कस्टम र नियन्त्रण गर्नुहोस्</translation>
++<translation id="4053720452172726777">Vanadium  कस्टम र नियन्त्रण गर्नुहोस्</translation>
+ <translation id="4177314441326667883">URL ट्रङ्केट गरियो</translation>
+ <translation id="4918844574251943176">फोटो कपी गरिएको छ</translation>
+ <translation id="6142675540468977324">URL एक्स्पान्ड गरियो</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_nl.xtb b/ui/android/java/strings/translations/android_ui_strings_nl.xtb
+index 05b1afc99fa26..ce868f2df706a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_nl.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_nl.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Gekopieerd</translation>
+ <translation id="3240426699337459095">Link gekopieerd</translation>
+ <translation id="385051799172605136">Terug</translation>
+-<translation id="4053720452172726777">Google Chrome aanpassen en beheren</translation>
++<translation id="4053720452172726777">Vanadium aanpassen en beheren</translation>
+ <translation id="4177314441326667883">URL afgekapt</translation>
+ <translation id="4918844574251943176">Afbeelding gekopieerd</translation>
+ <translation id="6142675540468977324">URL uitgevouwen</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_no.xtb b/ui/android/java/strings/translations/android_ui_strings_no.xtb
+index 919fd638aa4fb..ca1d7c3b81992 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_no.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_no.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopiert</translation>
+ <translation id="3240426699337459095">Linken er kopiert</translation>
+ <translation id="385051799172605136">Tilbake</translation>
+-<translation id="4053720452172726777">Tilpass og kontroller Google Chrome</translation>
++<translation id="4053720452172726777">Tilpass og kontroller Vanadium</translation>
+ <translation id="4177314441326667883">Nettadressen er avkortet</translation>
+ <translation id="4918844574251943176">Bildet er kopiert</translation>
+ <translation id="6142675540468977324">Nettadressen er utvidet</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_or.xtb b/ui/android/java/strings/translations/android_ui_strings_or.xtb
+index 542b0bada62cd..7bdabfc8686e5 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_or.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_or.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">କପି କରାଯାଇଛି</translation>
+ <translation id="3240426699337459095">ଲିଙ୍କ୍ କପି ହୋଇଛି</translation>
+ <translation id="385051799172605136">ପଛକୁ</translation>
+-<translation id="4053720452172726777">Google Chromeକୁ କଷ୍ଟମାଇଜ୍ ଓ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।</translation>
++<translation id="4053720452172726777">Vanadiumକୁ କଷ୍ଟମାଇଜ୍ ଓ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।</translation>
+ <translation id="4177314441326667883">URLକୁ ଛୋଟ କରାଯାଇଛି</translation>
+ <translation id="4918844574251943176">ଇମେଜ କପି କରାଯାଇଛି</translation>
+ <translation id="6142675540468977324">URLକୁ ବିସ୍ତାର କରାଯାଇଛି</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_pa.xtb b/ui/android/java/strings/translations/android_ui_strings_pa.xtb
+index 0a97df8549afe..a02e2f007bc0a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_pa.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_pa.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">ਕਾਪੀ ਕੀਤਾ</translation>
+ <translation id="3240426699337459095">ਲਿੰਕ ਕਾਪੀ ਕੀਤਾ</translation>
+ <translation id="385051799172605136">ਪਿੱਛੇ</translation>
+-<translation id="4053720452172726777">Google Chrome ਨੂੰ ਵਿਉਂਤਬੱਧ ਕਰਕੇ ਕੰਟਰੋਲ ਕਰੋ।</translation>
++<translation id="4053720452172726777">Vanadium ਨੂੰ ਵਿਉਂਤਬੱਧ ਕਰਕੇ ਕੰਟਰੋਲ ਕਰੋ।</translation>
+ <translation id="4177314441326667883">URL ਛੋਟਾ ਕੀਤਾ ਗਿਆ</translation>
+ <translation id="4918844574251943176">ਚਿੱਤਰ ਕਾਪੀ ਕੀਤਾ ਗਿਆ</translation>
+ <translation id="6142675540468977324">URL ਦਾ ਵਿਸਤਾਰ ਕੀਤਾ ਗਿਆ</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_pl.xtb b/ui/android/java/strings/translations/android_ui_strings_pl.xtb
+index e8c6ece4e99b4..7477f4ae1940f 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_pl.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_pl.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Skopiowano</translation>
+ <translation id="3240426699337459095">Link skopiowany</translation>
+ <translation id="385051799172605136">Wstecz</translation>
+-<translation id="4053720452172726777">Dostosowywanie i kontrolowanie Google Chrome</translation>
++<translation id="4053720452172726777">Dostosowywanie i kontrolowanie Vanadium</translation>
+ <translation id="4177314441326667883">URL obcięty</translation>
+ <translation id="4918844574251943176">Zdjęcie zostało skopiowane</translation>
+ <translation id="6142675540468977324">URL pokazany w całości</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_pt-BR.xtb b/ui/android/java/strings/translations/android_ui_strings_pt-BR.xtb
+index 7d404a1667000..5222a568ef0b1 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_pt-BR.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_pt-BR.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiado</translation>
+ <translation id="3240426699337459095">Link copiado</translation>
+ <translation id="385051799172605136">Voltar</translation>
+-<translation id="4053720452172726777">Personalizar e controlar o Google Chrome</translation>
++<translation id="4053720452172726777">Personalizar e controlar o Vanadium</translation>
+ <translation id="4177314441326667883">URL truncado</translation>
+ <translation id="4918844574251943176">Imagem copiada</translation>
+ <translation id="6142675540468977324">URL aberto</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_pt-PT.xtb b/ui/android/java/strings/translations/android_ui_strings_pt-PT.xtb
+index 71e106240cdfd..1702a574d7ffb 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_pt-PT.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_pt-PT.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiado</translation>
+ <translation id="3240426699337459095">Link copiado</translation>
+ <translation id="385051799172605136">Anterior</translation>
+-<translation id="4053720452172726777">Personalizar e controlar o Google Chrome</translation>
++<translation id="4053720452172726777">Personalizar e controlar o Vanadium</translation>
+ <translation id="4177314441326667883">URL truncado</translation>
+ <translation id="4918844574251943176">Imagem copiada</translation>
+ <translation id="6142675540468977324">URL expandido</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ro.xtb b/ui/android/java/strings/translations/android_ui_strings_ro.xtb
+index 182a63bc4db9b..2b31d70c46096 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ro.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ro.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Copiat</translation>
+ <translation id="3240426699337459095">Linkul a fost copiat</translation>
+ <translation id="385051799172605136">Înapoi</translation>
+-<translation id="4053720452172726777">Personalizați și controlați Google Chrome</translation>
++<translation id="4053720452172726777">Personalizați și controlați Vanadium</translation>
+ <translation id="4177314441326667883">Adresă URL trunchiată</translation>
+ <translation id="4918844574251943176">Imaginea a fost copiată</translation>
+ <translation id="6142675540468977324">Adresă URL extinsă</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ru.xtb b/ui/android/java/strings/translations/android_ui_strings_ru.xtb
+index 49b624fcdf01a..7110bee8a364b 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ru.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ru.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Скопировано</translation>
+ <translation id="3240426699337459095">Ссылка скопирована</translation>
+ <translation id="385051799172605136">Назад</translation>
+-<translation id="4053720452172726777">Настройка и управление Google Chrome</translation>
++<translation id="4053720452172726777">Настройка и управление Vanadium</translation>
+ <translation id="4177314441326667883">URL показан не полностью</translation>
+ <translation id="4918844574251943176">Изображение скопировано.</translation>
+ <translation id="6142675540468977324">URL показан полностью</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_si.xtb b/ui/android/java/strings/translations/android_ui_strings_si.xtb
+index ba503578fcd6a..7b5b7fbb7bf76 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_si.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_si.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">පිටපත් කරන ලදි</translation>
+ <translation id="3240426699337459095">සබැඳිය පිටපත් කරන ලදි</translation>
+ <translation id="385051799172605136">ආපසු</translation>
+-<translation id="4053720452172726777">Google Chrome ගලපා පාලනය කරන්න</translation>
++<translation id="4053720452172726777">Vanadium ගලපා පාලනය කරන්න</translation>
+ <translation id="4177314441326667883">Url කපන ලදි</translation>
+ <translation id="4918844574251943176">රූපය පිටපත් කරන ලදි</translation>
+ <translation id="6142675540468977324">Url දිග හරින ලදි</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_sk.xtb b/ui/android/java/strings/translations/android_ui_strings_sk.xtb
+index a36800602c2b0..0cc5f5ea59385 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_sk.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_sk.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Skopírované</translation>
+ <translation id="3240426699337459095">Odkaz bol skopírovaný</translation>
+ <translation id="385051799172605136">Späť</translation>
+-<translation id="4053720452172726777">Prispôsobiť a ovládať Google Chrome</translation>
++<translation id="4053720452172726777">Prispôsobiť a ovládať Vanadium</translation>
+ <translation id="4177314441326667883">Skrátená webová adresa</translation>
+ <translation id="4918844574251943176">Obrázok bol skopírovaný</translation>
+ <translation id="6142675540468977324">Rozbalená webová adresa</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_sq.xtb b/ui/android/java/strings/translations/android_ui_strings_sq.xtb
+index f96032d46305b..65a74fd7a75de 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_sq.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_sq.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopjuar</translation>
+ <translation id="3240426699337459095">Lidhja u kopjua</translation>
+ <translation id="385051799172605136">Prapa</translation>
+-<translation id="4053720452172726777">Personalizo dhe kontrollo Google Chrome</translation>
++<translation id="4053720452172726777">Personalizo dhe kontrollo Vanadium</translation>
+ <translation id="4177314441326667883">URL-ja e shkurtuar</translation>
+ <translation id="4918844574251943176">Imazhi u kopjua</translation>
+ <translation id="6142675540468977324">URL-ja e zgjeruar</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_sr-Latn.xtb b/ui/android/java/strings/translations/android_ui_strings_sr-Latn.xtb
+index f59a30c94fbb5..dad63c200cce5 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_sr-Latn.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_sr-Latn.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopirano</translation>
+ <translation id="3240426699337459095">Link je kopiran</translation>
+ <translation id="385051799172605136">Nazad</translation>
+-<translation id="4053720452172726777">Prilagodite i kontrolišite Google Chrome</translation>
++<translation id="4053720452172726777">Prilagodite i kontrolišite Vanadium</translation>
+ <translation id="4177314441326667883">URL je skraćen</translation>
+ <translation id="4918844574251943176">Slika je kopirana</translation>
+ <translation id="6142675540468977324">URL je proširen</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_sr.xtb b/ui/android/java/strings/translations/android_ui_strings_sr.xtb
+index 8771e10469631..9203aa50a0dac 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_sr.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_sr.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Копирано</translation>
+ <translation id="3240426699337459095">Линк је копиран</translation>
+ <translation id="385051799172605136">Назад</translation>
+-<translation id="4053720452172726777">Прилагодите и контролишите Google Chrome</translation>
++<translation id="4053720452172726777">Прилагодите и контролишите Vanadium</translation>
+ <translation id="4177314441326667883">URL је скраћен</translation>
+ <translation id="4918844574251943176">Слика је копирана</translation>
+ <translation id="6142675540468977324">URL је проширен</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_sv.xtb b/ui/android/java/strings/translations/android_ui_strings_sv.xtb
+index c4bcd979fd992..223a1eaa3e77a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_sv.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_sv.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopierat</translation>
+ <translation id="3240426699337459095">Länken har kopierats</translation>
+ <translation id="385051799172605136">Föregående</translation>
+-<translation id="4053720452172726777">Anpassa och kontrollera Google Chrome</translation>
++<translation id="4053720452172726777">Anpassa och kontrollera Vanadium</translation>
+ <translation id="4177314441326667883">Webbadressen har trunkerats</translation>
+ <translation id="4918844574251943176">Bilden har kopierats</translation>
+ <translation id="6142675540468977324">Webbadressen har utökats</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_sw.xtb b/ui/android/java/strings/translations/android_ui_strings_sw.xtb
+index 063b27e840f5e..28d3259410823 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_sw.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_sw.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Imenakiliwa</translation>
+ <translation id="3240426699337459095">Kiungo kimenakiliwa</translation>
+ <translation id="385051799172605136">Rudi nyuma</translation>
+-<translation id="4053720452172726777">Dhibiti  na ugeuze Google Chrome ikufae</translation>
++<translation id="4053720452172726777">Dhibiti  na ugeuze Vanadium ikufae</translation>
+ <translation id="4177314441326667883">URL imepunguzwa</translation>
+ <translation id="4918844574251943176">Picha imenakiliwa</translation>
+ <translation id="6142675540468977324">URL imepanuliwa</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ta.xtb b/ui/android/java/strings/translations/android_ui_strings_ta.xtb
+index adc90936903c6..e75b98689d526 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ta.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ta.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">நகலெடுக்கப்பட்டது</translation>
+ <translation id="3240426699337459095">இணைப்பு நகலெடுக்கப்பட்டது</translation>
+ <translation id="385051799172605136">திரும்பு</translation>
+-<translation id="4053720452172726777">Google Chromeமைப் பிரத்தியேகமாக்கிக் கட்டுப்படுத்துக</translation>
++<translation id="4053720452172726777">Vanadiumமைப் பிரத்தியேகமாக்கிக் கட்டுப்படுத்துக</translation>
+ <translation id="4177314441326667883">URL துண்டிக்கப்பட்டது</translation>
+ <translation id="4918844574251943176">படம் நகலெடுக்கப்பட்டது</translation>
+ <translation id="6142675540468977324">URL விரிவாக்கப்பட்டது</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_te.xtb b/ui/android/java/strings/translations/android_ui_strings_te.xtb
+index e2de462a64e6e..59a4018dc6a93 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_te.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_te.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">కాపీ అయింది</translation>
+ <translation id="3240426699337459095">లింక్ కాపీ చేయబడింది</translation>
+ <translation id="385051799172605136">వెనుకకు</translation>
+-<translation id="4053720452172726777">Google Chromeను అనుకూలంగా మార్చండి మరియు నియంత్రించండి</translation>
++<translation id="4053720452172726777">Vanadiumను అనుకూలంగా మార్చండి మరియు నియంత్రించండి</translation>
+ <translation id="4177314441326667883">Url కుదించబడింది</translation>
+ <translation id="4918844574251943176">ఇమేజ్ కాపీ చేయబడింది</translation>
+ <translation id="6142675540468977324">Url విస్తరించబడింది</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_th.xtb b/ui/android/java/strings/translations/android_ui_strings_th.xtb
+index cfe68832c4923..9f5fdadaace70 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_th.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_th.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">คัดลอกแล้ว</translation>
+ <translation id="3240426699337459095">คัดลอกลิงก์แล้ว</translation>
+ <translation id="385051799172605136">กลับ</translation>
+-<translation id="4053720452172726777">กำหนดค่าและควบคุม Google Chrome</translation>
++<translation id="4053720452172726777">กำหนดค่าและควบคุม Vanadium</translation>
+ <translation id="4177314441326667883">ตัด URL ให้สั้นลงแล้ว</translation>
+ <translation id="4918844574251943176">คัดลอกรูปภาพแล้ว</translation>
+ <translation id="6142675540468977324">ขยาย URL แล้ว</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_tr.xtb b/ui/android/java/strings/translations/android_ui_strings_tr.xtb
+index 4258fa6aaeb6b..4b488864d9d89 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_tr.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_tr.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kopyalandı</translation>
+ <translation id="3240426699337459095">Bağlantı kopyalandı</translation>
+ <translation id="385051799172605136">Geri</translation>
+-<translation id="4053720452172726777">Google Chrome'u özelleştirin ve kontrol edin</translation>
++<translation id="4053720452172726777">Vanadium'u özelleştirin ve kontrol edin</translation>
+ <translation id="4177314441326667883">URL kısaltıldı</translation>
+ <translation id="4918844574251943176">Resim kopyalandı</translation>
+ <translation id="6142675540468977324">URL genişletildi</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_uk.xtb b/ui/android/java/strings/translations/android_ui_strings_uk.xtb
+index ab25ea899fbd2..50e82fd093530 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_uk.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_uk.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Скопійов.</translation>
+ <translation id="3240426699337459095">Посилання скопійовано</translation>
+ <translation id="385051799172605136">Назад</translation>
+-<translation id="4053720452172726777">Налаштування й керування Google Chrome</translation>
++<translation id="4053720452172726777">Налаштування й керування Vanadium</translation>
+ <translation id="4177314441326667883">URL-адресу скорочено</translation>
+ <translation id="4918844574251943176">Зображення скопійовано</translation>
+ <translation id="6142675540468977324">URL-адресу розгорнуто</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_ur.xtb b/ui/android/java/strings/translations/android_ui_strings_ur.xtb
+index c563179976200..c6496b5e25f91 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_ur.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_ur.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">کاپی کیا</translation>
+ <translation id="3240426699337459095">لنک کاپی ہوگیا</translation>
+ <translation id="385051799172605136">پیچھے</translation>
+-<translation id="4053720452172726777">‏Google Chrome کو حسب ضرورت بنائیں اور کنٹرول کریں</translation>
++<translation id="4053720452172726777">‏Vanadium کو حسب ضرورت بنائیں اور کنٹرول کریں</translation>
+ <translation id="4177314441326667883">‏URL کو تراشا گيا</translation>
+ <translation id="4918844574251943176">تصویر کاپی ہو گئی</translation>
+ <translation id="6142675540468977324">‏URL کو پھیلا دیا گیا</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_uz.xtb b/ui/android/java/strings/translations/android_ui_strings_uz.xtb
+index 5ee34f4254542..ed13c9b12a90f 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_uz.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_uz.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Nusxa olindi</translation>
+ <translation id="3240426699337459095">Nusxalandi</translation>
+ <translation id="385051799172605136">Orqaga</translation>
+-<translation id="4053720452172726777">Google Chrome’ni sozlash va boshqarish</translation>
++<translation id="4053720452172726777">Vanadium’ni sozlash va boshqarish</translation>
+ <translation id="4177314441326667883">URL manzil qisqartirildi</translation>
+ <translation id="4918844574251943176">Rasmdan nusxa olindi</translation>
+ <translation id="6142675540468977324">URL manzil yoyildi</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_vi.xtb b/ui/android/java/strings/translations/android_ui_strings_vi.xtb
+index ec2da94ab187a..4fbf211e90f08 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_vi.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_vi.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Đã sao chép</translation>
+ <translation id="3240426699337459095">Đã sao chép đường liên kết</translation>
+ <translation id="385051799172605136">Quay lại</translation>
+-<translation id="4053720452172726777">Tùy chỉnh và kiểm soát Google Chrome</translation>
++<translation id="4053720452172726777">Tùy chỉnh và kiểm soát Vanadium</translation>
+ <translation id="4177314441326667883">Đã cắt bớt URL</translation>
+ <translation id="4918844574251943176">Đã sao chép hình ảnh</translation>
+ <translation id="6142675540468977324">Đã mở rộng URL</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_zh-CN.xtb b/ui/android/java/strings/translations/android_ui_strings_zh-CN.xtb
+index 5259e751b21cd..2a0464d6bf1a1 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_zh-CN.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_zh-CN.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">已复制</translation>
+ <translation id="3240426699337459095">已复制链接</translation>
+ <translation id="385051799172605136">返回</translation>
+-<translation id="4053720452172726777">自定义及控制 Google Chrome</translation>
++<translation id="4053720452172726777">自定义及控制 Vanadium</translation>
+ <translation id="4177314441326667883">网址已被截断</translation>
+ <translation id="4918844574251943176">已复制图片</translation>
+ <translation id="6142675540468977324">网址已展开</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_zh-HK.xtb b/ui/android/java/strings/translations/android_ui_strings_zh-HK.xtb
+index b1669dd053965..8eb310d17a010 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_zh-HK.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_zh-HK.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">已複製</translation>
+ <translation id="3240426699337459095">已複製連結</translation>
+ <translation id="385051799172605136">返回</translation>
+-<translation id="4053720452172726777">自訂及控制 Google Chrome</translation>
++<translation id="4053720452172726777">自訂及控制 Vanadium</translation>
+ <translation id="4177314441326667883">截斷咗網址</translation>
+ <translation id="4918844574251943176">已複製圖片</translation>
+ <translation id="6142675540468977324">展開咗網址</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_zh-TW.xtb b/ui/android/java/strings/translations/android_ui_strings_zh-TW.xtb
+index 92d6b2a549fc2..b98dfb5879e48 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_zh-TW.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_zh-TW.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">已複製</translation>
+ <translation id="3240426699337459095">連結已複製</translation>
+ <translation id="385051799172605136">返回</translation>
+-<translation id="4053720452172726777">自訂及管理 Google Chrome</translation>
++<translation id="4053720452172726777">自訂及管理 Vanadium</translation>
+ <translation id="4177314441326667883">已截斷網址</translation>
+ <translation id="4918844574251943176">已複製圖片</translation>
+ <translation id="6142675540468977324">已展開網址</translation>
+diff --git a/ui/android/java/strings/translations/android_ui_strings_zu.xtb b/ui/android/java/strings/translations/android_ui_strings_zu.xtb
+index bbdad1b4d2d3b..b224c3989e36a 100644
+--- a/ui/android/java/strings/translations/android_ui_strings_zu.xtb
++++ b/ui/android/java/strings/translations/android_ui_strings_zu.xtb
+@@ -5,7 +5,7 @@
+ <translation id="2704606927547763573">Kukopishiwe</translation>
+ <translation id="3240426699337459095">Isixhumanisi sikopishiwe</translation>
+ <translation id="385051799172605136">Emuva</translation>
+-<translation id="4053720452172726777">Yenza ngokwezifiso futhi lawula i-Google Chrome</translation>
++<translation id="4053720452172726777">Yenza ngokwezifiso futhi lawula i-Vanadium</translation>
+ <translation id="4177314441326667883">I-Url inciphisiwe</translation>
+ <translation id="4918844574251943176">Umfanekiso ukopishiwe</translation>
+ <translation id="6142675540468977324">I-Url inwetshiwe</translation>
+diff --git a/ui/chromeos/ui_chromeos_strings.grd b/ui/chromeos/ui_chromeos_strings.grd
+index a50956478192a..7bd205ba3c579 100644
+--- a/ui/chromeos/ui_chromeos_strings.grd
++++ b/ui/chromeos/ui_chromeos_strings.grd
+@@ -608,8 +608,8 @@
+       <message name="IDS_REVEN_DEVICE_NAME" desc="The device name for a Reven Device">
+         ChromeOS Flex device
+       </message>
+-      <message name="IDS_GENERIC_CHROMEOS_DEVICE_NAME" desc="The device name for a generic Chrome device">
+-        Chrome device
++      <message name="IDS_GENERIC_CHROMEOS_DEVICE_NAME" desc="The device name for a generic Vanadium device">
++        Vanadium device
+       </message>
+ 
+       <!-- Generic device type names (plural forms) -->
+@@ -628,8 +628,8 @@
+       <message name="IDS_REVEN_DEVICE_NAME_IN_PLURAL" desc="The device name (plural) for a Reven Device">
+         ChromeOS Flex devices
+       </message>
+-      <message name="IDS_GENERIC_CHROMEOS_DEVICE_NAME_IN_PLURAL" desc="The device name (plural) for generic Chrome device">
+-        Chrome devices
++      <message name="IDS_GENERIC_CHROMEOS_DEVICE_NAME_IN_PLURAL" desc="The device name (plural) for generic Vanadium device">
++        Vanadium devices
+       </message>
+ 
+       <!-- Input method strings. -->
+diff --git a/ui/strings/ui_strings.grd b/ui/strings/ui_strings.grd
+index d8b16cd0828b8..3031993860c62 100644
+--- a/ui/strings/ui_strings.grd
++++ b/ui/strings/ui_strings.grd
+@@ -1083,7 +1083,7 @@ need to be translated for each locale.-->
+ 
+       <if expr="is_android">
+         <!-- DevUI DFM Loader error strings -->
+-        <message name="IDS_DEV_UI_LOADER_ERROR_HEADING" desc="Heading text for error page shown when Chrome fails to dynamically install the DevUI module.">
++        <message name="IDS_DEV_UI_LOADER_ERROR_HEADING" desc="Heading text for error page shown when Vanadium fails to dynamically install the DevUI module.">
+           Page load failed because the developer UI module (dev_ui) is not installed
+         </message>
+         <message name="IDS_DEV_UI_LOADER_ERROR_SUGGEST_RELOAD" desc="Suggests to reload page to retry install of the DevUI module.">
