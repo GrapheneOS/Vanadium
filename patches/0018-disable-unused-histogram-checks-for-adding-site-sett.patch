@@ -1,0 +1,86 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fgei <fgei@gmail.com>
+Date: Tue, 4 Feb 2025 15:12:22 +0000
+Subject: [PATCH] disable unused histogram checks for adding site settings
+
+Added NUM_TYPES_CHROMIUM to indicate the content setting type boundary
+to avoid the need to update the histogram map.
+---
+ .../core/browser/content_settings_uma_util.cc | 24 +++++++++++++++++--
+ .../core/common/content_settings_types.mojom  |  7 ++++++
+ 2 files changed, 29 insertions(+), 2 deletions(-)
+
+diff --git a/components/content_settings/core/browser/content_settings_uma_util.cc b/components/content_settings/core/browser/content_settings_uma_util.cc
+index 78419a8c6fe1a..cc59ca9999585 100644
+--- a/components/content_settings/core/browser/content_settings_uma_util.cc
++++ b/components/content_settings/core/browser/content_settings_uma_util.cc
+@@ -225,16 +225,26 @@ namespace content_settings_uma_util {
+ 
+ void RecordContentSettingsHistogram(const std::string& name,
+                                     ContentSettingsType content_setting) {
++  if (content_setting >= ContentSettingsType::NUM_TYPES_CHROMIUM) {
++    // We don't store histogram values for donwstream added site settings.
++    return;
++  }
++
+   base::UmaHistogramExactLinear(
+       name, ContentSettingTypeToHistogramValue(content_setting),
+       kkHistogramValueMax + 1);
+ }
+ 
+ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
++  if (content_setting >= ContentSettingsType::NUM_TYPES_CHROMIUM) {
++    // We don't store histogram values for donwstream added site settings.
++    return -1;
++  }
++
+   static_assert(
+       kHistogramValue.size() ==
+-          // DEFAULT is not in the histogram, so we want [0, kMaxValue]
+-          1 + static_cast<size_t>(ContentSettingsType::kMaxValue),
++          // DEFAULT is not in the histogram, so we want [0, NUM_TYPES_CHROMIUM - 1]
++          static_cast<size_t>(ContentSettingsType::NUM_TYPES_CHROMIUM),
+       "Update content settings histogram lookup");
+ 
+   auto found = kHistogramValue.find(content_setting);
+@@ -248,6 +258,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
+ 
+ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
+                              ContentSettingsType content_setting_type) {
++  if (content_setting_type >= ContentSettingsType::NUM_TYPES_CHROMIUM) {
++    // We don't store histogram values for donwstream added site settings.
++    return;
++  }
++
+   content_settings_uma_util::RecordContentSettingsHistogram(
+       base::StrCat({"ContentSettings.ActiveExpiry.",
+                     GetProviderNameForHistograms(provider_type),
+@@ -257,6 +272,11 @@ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
+ 
+ void RecordContentSettingChange(ContentSetting content_setting_value,
+                                 ContentSettingsType content_setting_type) {
++  if (content_setting_type >= ContentSettingsType::NUM_TYPES_CHROMIUM) {
++    // We don't store histogram values for donwstream added site settings.
++    return;
++  }
++
+   switch (content_setting_value) {
+     case CONTENT_SETTING_ALLOW:
+       content_settings_uma_util::RecordContentSettingsHistogram(
+diff --git a/components/content_settings/core/common/content_settings_types.mojom b/components/content_settings/core/common/content_settings_types.mojom
+index c495aa32fd832..9230120959207 100644
+--- a/components/content_settings/core/common/content_settings_types.mojom
++++ b/components/content_settings/core/common/content_settings_types.mojom
+@@ -487,5 +487,12 @@ enum ContentSettingsType {
+   // - ALLOW: Skip the prompt and allow adding sub apps.
+   // - BLOCK: Skip the prompt and block adding sub apps.
+   SUB_APPS_WITHOUT_PROMPTS,
++
++  // Indicator for latest upstream content settings type.
++  // Currently, histograms are unused and planned to be stubbed in the near future.
++  NUM_TYPES_CHROMIUM,
++  // Three line placeholder comment to minimize cascading conflicts.
++  // Three line placeholder comment to minimize cascading conflicts.
++  // Three line placeholder comment to minimize cascading conflicts.
+ };
+ // LINT.ThenChange(//components/content_settings/core/browser/content_settings_uma_util.cc:kHistogramValue)

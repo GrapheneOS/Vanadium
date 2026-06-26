@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 29 Dec 2023 08:11:10 +0000
+Subject: [PATCH] config: Build target for android assets for config file
+ protobuf
+
+---
+ vanadium/android_config/proto/assets/BUILD.gn | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+ create mode 100644 vanadium/android_config/proto/assets/BUILD.gn
+
+diff --git a/vanadium/android_config/proto/assets/BUILD.gn b/vanadium/android_config/proto/assets/BUILD.gn
+new file mode 100644
+index 0000000000000..28327764f9d52
+--- /dev/null
++++ b/vanadium/android_config/proto/assets/BUILD.gn
+@@ -0,0 +1,31 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++action("proto_config_generation") {
++  script = "$root_out_dir/bin/android_config_apk/config_apk_generator.py"
++  args = [
++    "--out_file=" + rebase_path("$root_out_dir/proto_config.pb2", root_build_dir)
++  ]
++  outputs = [
++    "$root_out_dir/proto_config.pb2",
++  ]
++  deps = [
++    "../host:proto_config_generator_java",
++  ]
++}
++
++android_assets("proto_config_assets") {
++  disable_compression = true
++  renaming_sources = [
++    "$root_out_dir/proto_config.pb2",
++  ]
++  renaming_destinations = [
++    "../proto_config.pb2"
++  ]
++  deps = [
++    ":proto_config_generation"
++  ]
++}

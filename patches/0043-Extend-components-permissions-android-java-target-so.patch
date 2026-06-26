@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 14:06:45 +0000
+Subject: [PATCH] Extend //components/permissions/android java target sources
+ and deps
+
+---
+ components/permissions/android/BUILD.gn       |  5 ++++
+ .../permissions_android_java_ext_deps.gni     | 26 +++++++++++++++++++
+ .../permissions_android_java_ext_sources.gni  | 26 +++++++++++++++++++
+ 3 files changed, 57 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_sources.gni
+
+diff --git a/components/permissions/android/BUILD.gn b/components/permissions/android/BUILD.gn
+index f57bac0ecf5c1..6d25a31ae97aa 100644
+--- a/components/permissions/android/BUILD.gn
++++ b/components/permissions/android/BUILD.gn
+@@ -219,6 +219,11 @@ android_library("java") {
+     "//third_party/jni_zero:jni_zero_java",
+     "//ui/android:ui_java",
+   ]
++  import("//vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_sources.gni")
++  sources += permissions_android_java_ext_sources
++  import("//vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni")
++  deps += permissions_android_java_ext_deps
++
+   resources_package = "org.chromium.components.permissions"
+ }
+ 
+diff --git a/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni b/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..acae00d71d434
+--- /dev/null
++++ b/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_deps += permissions_android_java_ext_full_path_deps
++foreach(rel_path, permissions_android_java_ext_rel_path_deps) {
++  permissions_android_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_sources.gni b/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..408ed2d5d4117
+--- /dev/null
++++ b/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++permissions_android_java_ext_sources += permissions_android_java_ext_full_path_sources
++foreach(rel_path, permissions_android_java_ext_rel_path_sources) {
++  permissions_android_java_ext_sources += [ rebase_path(rel_path) ]
++}

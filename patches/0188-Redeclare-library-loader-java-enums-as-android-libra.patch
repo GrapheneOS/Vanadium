@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 10 Jun 2026 06:56:22 +0000
+Subject: [PATCH] Redeclare library loader java enums as android library target
+ for reuse
+
+---
+ .../base_library_loader_java_ext_public_deps.gni   |  1 +
+ .../base_library_loader_java_rm_srcjar_deps.gni    |  1 +
+ vanadium/chromium_src/base/library_loader/BUILD.gn | 14 ++++++++++++++
+ 3 files changed, 16 insertions(+)
+ create mode 100644 vanadium/chromium_src/base/library_loader/BUILD.gn
+
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni b/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni
+index 4be53b2932d38..db461aab718b9 100644
+--- a/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni
++++ b/vanadium/chromium_src/base/base_library_loader_java_ext_public_deps.gni
+@@ -11,6 +11,7 @@ base_library_loader_java_ext_full_path_public_deps = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ base_library_loader_java_ext_rel_path_public_deps = [
++  "library_loader:library_loader_java_enums_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_rm_srcjar_deps.gni b/vanadium/chromium_src/base/base_library_loader_java_rm_srcjar_deps.gni
+index d8bb073514e30..34b62b81194fd 100644
+--- a/vanadium/chromium_src/base/base_library_loader_java_rm_srcjar_deps.gni
++++ b/vanadium/chromium_src/base/base_library_loader_java_rm_srcjar_deps.gni
+@@ -16,6 +16,7 @@ base_library_loader_java_rm_rel_path_srcjar_deps = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ base_library_loader_java_rm_srcjar_deps = [
++  ":library_loader_java_enums_srcjar",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/base/library_loader/BUILD.gn b/vanadium/chromium_src/base/library_loader/BUILD.gn
+new file mode 100644
+index 0000000000000..035f74ad01af4
+--- /dev/null
++++ b/vanadium/chromium_src/base/library_loader/BUILD.gn
+@@ -0,0 +1,14 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("library_loader_java_enums_java") {
++  srcjar_deps = [
++    "//base:library_loader_java_enums_srcjar",
++  ]
++  deps = [
++    "//third_party/androidx:androidx_annotation_annotation_java",
++  ]
++}

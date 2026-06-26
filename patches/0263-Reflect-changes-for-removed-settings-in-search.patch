@@ -1,0 +1,192 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 16:12:53 +0000
+Subject: [PATCH] Reflect changes for removed settings in search
+
+---
+ .../search/SettingsSearchCoordinator.java     |   6 +
+ .../android/chrome_java_ext_sources.gni       |   1 +
+ .../search/SearchIndexProviderHooks.java      | 138 ++++++++++++++++++
+ 3 files changed, 145 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderHooks.java
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SettingsSearchCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SettingsSearchCoordinator.java
+index 7021d3e4523e7..19de7ba3e66a8 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SettingsSearchCoordinator.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SettingsSearchCoordinator.java
+@@ -699,6 +699,8 @@ public class SettingsSearchCoordinator
+             } else {
+                 provider.updateDynamicPreferences(context, indexData);
+             }
++
++            SearchIndexProviderHooks.updateDynamicPreferences(context, provider, indexData);
+         }
+ 
+         // Some exceptions whose dynamic preferences cannot be updated via SearchIndexProvider
+@@ -723,6 +725,10 @@ public class SettingsSearchCoordinator
+             List<SearchIndexProvider> providers) {
+         Map<String, SearchIndexProvider> providerMap = new HashMap<>();
+         for (SearchIndexProvider provider : providers) {
++            if (SearchIndexProviderHooks.shouldSkipProvider(provider)) {
++                continue;
++            }
++
+             providerMap.put(provider.getPrefFragmentName(), provider);
+         }
+         return providerMap;
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+index 9e82309253caa..62b91c8e5cfda 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+@@ -16,6 +16,7 @@ chrome_java_ext_rel_path_sources = [
+   "java/src/org/chromium/chrome/browser/TabPreferencesUtils.java",
+   "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
+   "java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java",
++  "java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderHooks.java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderHooks.java
+new file mode 100644
+index 0000000000000..75c7ae6684939
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderHooks.java
+@@ -0,0 +1,138 @@
++package org.chromium.chrome.browser.settings.search;
++
++import android.content.Context;
++
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.chrome.browser.autofill.settings.FinancialAccountsManagementFragment;
++import org.chromium.chrome.browser.language.settings.LanguageSettings;
++import org.chromium.chrome.browser.privacy.settings.PrivacySettings;
++import org.chromium.chrome.browser.privacy_sandbox.AdMeasurementFragment;
++import org.chromium.chrome.browser.privacy_sandbox.FledgeAllSitesFragment;
++import org.chromium.chrome.browser.privacy_sandbox.FledgeBlockedSitesFragment;
++import org.chromium.chrome.browser.privacy_sandbox.FledgeFragment;
++import org.chromium.chrome.browser.privacy_sandbox.FledgeLearnMoreFragment;
++import org.chromium.chrome.browser.privacy_sandbox.PrivacySandboxSettingsFragment;
++import org.chromium.chrome.browser.privacy_sandbox.TopicsBlockedFragment;
++import org.chromium.chrome.browser.privacy_sandbox.TopicsFragment;
++import org.chromium.chrome.browser.privacy_sandbox.TopicsManageFragment;
++import org.chromium.chrome.browser.safe_browsing.settings.StandardProtectionSettingsFragment;
++import org.chromium.chrome.browser.safety_check.SafetyCheckSettingsFragment;
++import org.chromium.chrome.browser.safety_hub.SafetyHubFragment;
++import org.chromium.chrome.browser.settings.MainSettings;
++import org.chromium.chrome.browser.sync.settings.AccountManagementFragment;
++import org.chromium.chrome.browser.sync.settings.GoogleServicesSettings;
++import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
++import org.chromium.chrome.browser.sync.settings.PersonalizeGoogleServicesSettings;
++import org.chromium.chrome.browser.sync.settings.SignInPreference;
++import org.chromium.components.browser_ui.settings.search.BaseSearchIndexProvider;
++import org.chromium.components.browser_ui.settings.search.SearchIndexProvider;
++import org.chromium.components.browser_ui.settings.search.SettingsIndexData;
++
++@NullMarked
++final class SearchIndexProviderHooks {
++
++    public static void updateDynamicPreferences(
++            Context context, SearchIndexProvider provider, SettingsIndexData indexData) {
++        if (!(provider instanceof BaseSearchIndexProvider baseProvider)) {
++            return;
++        }
++
++        if (MainSettings.SEARCH_INDEX_DATA_PROVIDER == baseProvider) {
++            String fragmentName = baseProvider.getPrefFragmentName();
++            indexData.removeEntryForKey(fragmentName, "safety_check");
++            indexData.removeEntryForKey(fragmentName, MainSettings.PREF_SAFETY_HUB);
++            indexData.removeEntryForKey(fragmentName, MainSettings.PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION);
++            indexData.removeEntryForKey(fragmentName, MainSettings.PREF_GOOGLE_SERVICES);
++        }
++
++        if (PrivacySettings.SEARCH_INDEX_DATA_PROVIDER == baseProvider) {
++            String fragmentName = baseProvider.getPrefFragmentName();
++            indexData.removeEntryForKey(fragmentName, "preload_pages");
++            indexData.removeEntryForKey(fragmentName, "privacy_guide");
++            indexData.removeEntryForKey(fragmentName, "password_leak_detection");
++            indexData.removeEntryForKey(fragmentName, "javascript_optimizer");
++            indexData.removeEntryForKey(fragmentName, "advanced_protection_info");
++        }
++
++        if (LanguageSettings.SEARCH_INDEX_DATA_PROVIDER == baseProvider) {
++            String fragmentName = baseProvider.getPrefFragmentName();
++            indexData.removeEntryForKey(fragmentName, "translate_switch");
++        }
++    }
++
++    public static boolean shouldSkipProvider(SearchIndexProvider provider) {
++        if (PersonalizeGoogleServicesSettings.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (AdMeasurementFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (FledgeAllSitesFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (FledgeFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (FledgeLearnMoreFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (FledgeBlockedSitesFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (TopicsFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (TopicsBlockedFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (TopicsManageFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (PrivacySandboxSettingsFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (StandardProtectionSettingsFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (SafetyHubFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (AccountManagementFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (FinancialAccountsManagementFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (GoogleServicesSettings.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (SafetyCheckSettingsFragment.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (ManageSyncSettings.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        if (SignInPreference.SEARCH_INDEX_DATA_PROVIDER == provider) {
++            return true;
++        }
++
++        return false;
++    }
++}

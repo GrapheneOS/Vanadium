@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 30 Jan 2025 14:04:16 +0000
+Subject: [PATCH] Remove javascript optimizer settings UI link on Privacy &
+ Security section
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java     | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index 53ea4d6653edc..60e6b110f38e7 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -61,6 +61,8 @@ final class PrivacySettingsExt {
+                 prefFragment, PrivacySettings.PREF_PRIVACY_SANDBOX);
+         SettingsExtUtils.safelyRemovePreference(
+                 prefFragment, PrivacySettings.PREF_PRIVACY_GUIDE);
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_JAVASCRIPT_OPTIMIZER);
+     }
+ 
+     static void initializePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {

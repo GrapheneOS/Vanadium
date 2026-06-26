@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 14:06:45 +0000
+Subject: [PATCH] Extend //components/page_info/android java target sources and
+ deps
+
+---
+ components/page_info/android/BUILD.gn         |  5 ++++
+ .../page_info_android_java_ext_deps.gni       | 26 +++++++++++++++++++
+ .../page_info_android_java_ext_sources.gni    | 26 +++++++++++++++++++
+ 3 files changed, 57 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_sources.gni
+
+diff --git a/components/page_info/android/BUILD.gn b/components/page_info/android/BUILD.gn
+index 7eef20f131faf..bcff20962844a 100644
+--- a/components/page_info/android/BUILD.gn
++++ b/components/page_info/android/BUILD.gn
+@@ -135,6 +135,11 @@ android_library("java") {
+     "//url:gurl_java",
+   ]
+ 
++  import("//vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_sources.gni")
++  sources += page_info_android_java_ext_sources
++  import("//vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni")
++  deps += page_info_android_java_ext_deps
++
+   resources_package = "org.chromium.components.page_info"
+ }
+ 
+diff --git a/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni b/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..60e879e6ab98a
+--- /dev/null
++++ b/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_deps += page_info_android_java_ext_full_path_deps
++foreach(rel_path, page_info_android_java_ext_rel_path_deps) {
++  page_info_android_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_sources.gni b/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..58d2695867aa7
+--- /dev/null
++++ b/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++page_info_android_java_ext_sources += page_info_android_java_ext_full_path_sources
++foreach(rel_path, page_info_android_java_ext_rel_path_sources) {
++  page_info_android_java_ext_sources += [ rebase_path(rel_path) ]
++}

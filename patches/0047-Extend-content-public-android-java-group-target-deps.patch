@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 13 Mar 2023 08:41:43 +0000
+Subject: [PATCH] Extend //content/public/android java group target deps
+
+---
+ content/public/android/BUILD.gn               |  3 +++
+ .../android/content_java_group_ext_deps.gni   | 26 +++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+ create mode 100644 vanadium/chromium_src/content/public/android/content_java_group_ext_deps.gni
+
+diff --git a/content/public/android/BUILD.gn b/content/public/android/BUILD.gn
+index de0723dd209ed..a868dcd2a15a1 100644
+--- a/content/public/android/BUILD.gn
++++ b/content/public/android/BUILD.gn
+@@ -65,6 +65,9 @@ java_group("content_java") {
+     ":content_full_java",
+     ":content_main_dex_java",
+   ]
++
++  import("//vanadium/chromium_src/content/public/android/content_java_group_ext_deps.gni")
++  deps += content_java_group_ext_deps
+ }
+ 
+ generate_jni("content_main_dex_jni") {
+diff --git a/vanadium/chromium_src/content/public/android/content_java_group_ext_deps.gni b/vanadium/chromium_src/content/public/android/content_java_group_ext_deps.gni
+new file mode 100644
+index 0000000000000..23bfba5c5ed61
+--- /dev/null
++++ b/vanadium/chromium_src/content/public/android/content_java_group_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++content_java_group_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++content_java_group_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++content_java_group_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++content_java_group_ext_deps += content_java_group_ext_full_path_deps
++foreach(rel_path, content_java_group_ext_rel_path_deps) {
++  content_java_group_ext_deps += [ rebase_path(rel_path) ]
++}

@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 30 Apr 2024 14:40:28 +0000
+Subject: [PATCH] Add support for conditional content filtering component based
+ on language settings
+
+---
+ .../chrome/android/chrome_java_ext_deps.gni   |  2 +
+ .../browser/ChromeApplicationImplHooks.java   | 71 +++++++++++++++++++
+ 2 files changed, 73 insertions(+)
+
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+index b60fcdd75998b..ed9820c13f80c 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+@@ -6,6 +6,8 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_java_ext_full_path_deps = [
++  "//vanadium/android_config/parser:config_app_parser_java",
++  "//vanadium/android_config/proto:config_proto_java",
+   "//vanadium/chromium_src/base/settings/android:base_settings_java",
+   "//vanadium/chromium_src/chrome/browser/flags/ext/android:feature_map_java",
+   "//vanadium/chromium_src/chrome/browser/referrer/android:cross_origin_referrer_settings_java",
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
+index a445c2b87e4fe..172af1ba94137 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
+@@ -2,16 +2,87 @@ package org.chromium.chrome.browser;
+ 
+ import android.content.res.Configuration;
+ 
++import org.chromium.base.LocaleUtils;
++import org.chromium.base.Log;
++import org.chromium.chrome.browser.base.SplitCompatApplication;
++import org.chromium.chrome.browser.language.settings.LanguageItem;
++import org.chromium.chrome.browser.language.settings.LanguagesManager;
++import org.chromium.chrome.browser.profiles.Profile;
++import org.chromium.chrome.browser.profiles.ProfileManager;
++import org.chromium.chrome.browser.subresource_filter.RulesetUpdater;
++
++import java.util.ArrayList;
++import java.util.List;
++import java.util.stream.Collectors;
++
++import app.vanadium.config.VanadiumConfConditionals;
++import app.vanadium.config.VanadiumConfConditionals.ConditionSupplier;
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
++
+ final class ChromeApplicationImplHooks {
+ 
+     private static final String TAG = "ChromeApplicationImplHooks";
+ 
+     public static void postAttachBaseContext() {
++        if (!SplitCompatApplication.isBrowserProcess()) {
++            return;
++        }
++
++        VanadiumConfConditionals.setBrowserConditionals(new ConditionSupplier() {
++
++            private List<String> getUserAcceptLanguageForSites() {
++                Profile profile =
++                        ProfileManager.getLastUsedRegularProfile();
++                LanguagesManager languagesManager =
++                        LanguagesManager.getForProfile(profile);
++                ArrayList<String> acceptLanguageCodes = new ArrayList<>();
++                for (LanguageItem languageItem: languagesManager.getUserAcceptLanguageItems()) {
++                    String languageCode = languageItem.getCode();
++                    acceptLanguageCodes.add(languageCode);
++                }
++                return acceptLanguageCodes;
++            }
++
++            @Override
++            public boolean isUserAcceptLanguageIncluded(ComponentCondition componentCondition) {
++                String conditionalLanguageTag = componentCondition.getLanguage();
++                String conditionalBaseLanguageTag =
++                        LocaleUtils.toBaseLanguage(conditionalLanguageTag);
++                boolean isConditionBaseLanguageCode =
++                        conditionalBaseLanguageTag.equals(conditionalLanguageTag);
++                List<String> acceptLanguageCodes = getUserAcceptLanguageForSites();
++                for (String acceptLanguageCode: acceptLanguageCodes) {
++                    if (acceptLanguageCode.equals(conditionalLanguageTag)) {
++                        return true;
++                    }
++
++                    if (isConditionBaseLanguageCode) {
++                        if (LocaleUtils.isBaseLanguageEqual(acceptLanguageCode,
++                                conditionalBaseLanguageTag)) {
++                            return true;
++                        }
++                    }
++                }
++
++                return false;
++            }
++        });
+     }
+ 
+     public static void onCreate() {
+     }
+ 
+     public static void onConfigurationChanged(Configuration newConfig) {
++        if (!SplitCompatApplication.isBrowserProcess()) {
++            Log.i(TAG, "Update only runs on browser process");
++            return;
++        }
++
++        if (!ProfileManager.isInitialized()) {
++            Log.i(TAG, "ProfileManager's native code is not yet loaded");
++            return;
++        }
++
++        RulesetUpdater.update(/* ignoreVersionCheck */ true);
+     }
+ }

@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Fri, 2 Aug 2019 21:11:17 -0400
+Subject: [PATCH] remove translate offer preference
+
+---
+ .../browser/language/settings/LanguageSettingsExt.java     | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java b/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+index 53a64c72cd13b..156a3f8531d4e 100644
+--- a/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
++++ b/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+@@ -7,6 +7,7 @@ package org.chromium.chrome.browser.language.settings;
+ import androidx.preference.PreferenceFragmentCompat;
+ 
+ import org.chromium.base.ThreadUtils;
++import org.chromium.base.settings.SettingsExtUtils;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.chrome.browser.profiles.Profile;
+ 
+@@ -19,5 +20,11 @@ final class LanguageSettingsExt {
+ 
+     static void removePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {
+         ThreadUtils.checkUiThread();
++        SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.TRANSLATE_SWITCH_KEY);
++        SettingsExtUtils.safelyRemovePreference(prefFragment, "translation_settings_section");
++        SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.TRANSLATION_ADVANCED_SECTION);
++        SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.TARGET_LANGUAGE_KEY);
++        SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.ALWAYS_LANGUAGES_KEY);
++        SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.NEVER_LANGUAGES_KEY);
+     }
+ }

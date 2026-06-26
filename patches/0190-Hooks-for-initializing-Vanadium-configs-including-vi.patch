@@ -1,0 +1,174 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 14 Dec 2023 16:54:04 +0000
+Subject: [PATCH] Hooks for initializing Vanadium configs including via config
+ app
+
+---
+ .../chromium_src/base/config/android/BUILD.gn |  19 +++
+ .../base/config/VanadiumConfigsUtils.java     | 130 ++++++++++++++++++
+ 2 files changed, 149 insertions(+)
+ create mode 100644 vanadium/chromium_src/base/config/android/BUILD.gn
+ create mode 100644 vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
+
+diff --git a/vanadium/chromium_src/base/config/android/BUILD.gn b/vanadium/chromium_src/base/config/android/BUILD.gn
+new file mode 100644
+index 0000000000000..63b5b1510de82
+--- /dev/null
++++ b/vanadium/chromium_src/base/config/android/BUILD.gn
+@@ -0,0 +1,19 @@
++# Copyright 2024-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("vanadium_config_utils_java") {
++  sources = [
++    "java/src/org/chromium/base/config/VanadiumConfigsUtils.java",
++  ]
++  deps = [
++    "//base:command_line_java",
++    "//base:log_java",
++    "//vanadium/android_config/parser:config_app_parser_java",
++    "//vanadium/android_config/proto:config_proto_java",
++    "//vanadium/chromium_src/base/command_line/android:command_line_utils_java",
++    "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
+new file mode 100644
+index 0000000000000..865a90abc4097
+--- /dev/null
++++ b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
+@@ -0,0 +1,130 @@
++package org.chromium.base.config;
++
++import android.content.Context;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
++
++import org.chromium.base.CommandLine;
++import org.chromium.base.Log;
++import org.chromium.base.library_loader.LibraryProcessType;
++import org.chromium.build.annotations.NullMarked;
++
++import java.util.ArrayList;
++import java.util.LinkedHashSet;
++import java.util.Map;
++import java.util.Set;
++
++import static org.chromium.base.command_line.VanadiumCommandLineUtils.getCommaDelimitedSwitchValue;
++import static org.chromium.base.command_line.VanadiumCommandLineUtils.setCommaDelimitedSwitchValue;
++
++@NullMarked
++public final class VanadiumConfigsUtils {
++
++    private static final String TAG = "VanadiumConfigsUtils";
++
++    public static void initConfigs(Context appCtx, @LibraryProcessType int libraryProcessType) {
++        switch (libraryProcessType) {
++            case LibraryProcessType.PROCESS_BROWSER -> {
++                VanadiumConfParser.initForBrowser(appCtx);
++            }
++            case LibraryProcessType.PROCESS_WEBVIEW -> {
++                VanadiumConfParser.initForWebView(appCtx);
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                Log.i(TAG, "configs are not initialized for child processes");
++                return;
++            }
++            default -> throw new IllegalStateException();
++        }
++    }
++
++    public static void applyFlagFromConfigs(
++            Context appCtx, @LibraryProcessType int libraryProcessType) {
++        switch (libraryProcessType) {
++            case LibraryProcessType.PROCESS_BROWSER,
++                 LibraryProcessType.PROCESS_WEBVIEW,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED -> {
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                Log.i(TAG, "configs are not initialized for child processes");
++                return;
++            }
++            default -> throw new IllegalStateException();
++        }
++
++        if (!VanadiumConfParser.isInitialized()) {
++            Log.e(TAG, "Config app not parsed nor initialized, returning early");
++            return;
++        }
++
++        if (CommandLine.getInstance() == null) {
++            Log.e(TAG, "No command line instance present");
++            return;
++        }
++
++        Set<String> enabledFeatures = new LinkedHashSet<>(
++                getCommaDelimitedSwitchValue("enable-features"));
++        Set<String> disabledFeatures = new LinkedHashSet<>(
++                getCommaDelimitedSwitchValue("disable-features"));
++
++        for (FlagType flagType : FlagType.values()) {
++            if (flagType == FlagType.UNRECOGNIZED) {
++                continue;
++            }
++
++            if (flagType == FlagType.UNKNOWN) {
++                continue;
++            }
++
++            for (Map.Entry<String, Set<String>> flag :
++                    VanadiumConfParser.getFlagsFor(flagType).entrySet()) {
++                String flagName = flag.getKey();
++                Set<String> flagValues = flag.getValue();
++                switch (flagType) {
++                    case ENABLED_FEATURE:
++                        enabledFeatures.add(flagName);
++                        disabledFeatures.remove(flagName);
++                        break;
++                    case DISABLED_FEATURE:
++                        disabledFeatures.add(flagName);
++                        enabledFeatures.remove(flagName);
++                        break;
++                    case ENABLED_SWITCH:
++                        if (flagValues.isEmpty()) {
++                            CommandLine.getInstance().appendSwitch(flagName);
++                        } else {
++                            Set<String> switchValue = new LinkedHashSet<>(
++                                    getCommaDelimitedSwitchValue(flagName));
++                            switchValue.addAll(flagValues);
++                            setCommaDelimitedSwitchValue(
++                                    flagName, new ArrayList<>(switchValue));
++                        }
++                        break;
++                    case DISABLED_SWITCH:
++                        if (flagValues.isEmpty()) {
++                            CommandLine.getInstance().removeSwitch(flagName);
++                        } else {
++                            Set<String> switchValue = new LinkedHashSet<>(
++                                    getCommaDelimitedSwitchValue(flagName));
++                            switchValue.removeAll(flagValues);
++                            setCommaDelimitedSwitchValue(
++                                    flagName, new ArrayList<>(switchValue));
++                        }
++                        break;
++                    default:
++                        throw new IllegalStateException();
++                }
++            }
++        }
++
++        setCommaDelimitedSwitchValue("enable-features", new ArrayList<>(enabledFeatures));
++        setCommaDelimitedSwitchValue("disable-features", new ArrayList<>(disabledFeatures));
++    }
++
++    private VanadiumConfigsUtils() {
++    }
++}

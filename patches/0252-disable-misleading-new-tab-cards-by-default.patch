@@ -1,0 +1,62 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 7 Nov 2025 06:29:43 +0000
+Subject: [PATCH] disable misleading new tab cards by default
+
+---
+ .../magic_stack/HomeModulesConfigManager.java    | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java b/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
+index 0d80babfbdfb8..e694d4010f89a 100644
+--- a/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
++++ b/chrome/browser/magic_stack/android/java/src/org/chromium/chrome/browser/magic_stack/HomeModulesConfigManager.java
+@@ -80,12 +80,19 @@ public class HomeModulesConfigManager {
+         }
+     }
+ 
++    public boolean shouldStub() {
++        return true;
++    }
++
+     /**
+      * Returns the user preference for whether the given module type is enabled.
+      *
+      * @param moduleType {@link ModuleType} needed to be notified to the listeners.
+      */
+     public boolean getPrefModuleTypeEnabled(@ModuleType int moduleType) {
++        if (shouldStub()) {
++            return false;
++        }
+         return mSharedPreferencesManager.readBoolean(getSettingsPreferenceKey(moduleType), true);
+     }
+ 
+@@ -96,12 +103,18 @@ public class HomeModulesConfigManager {
+      * @param enabled True is the module type is enabled.
+      */
+     public void setPrefModuleTypeEnabled(@ModuleType int moduleType, boolean enabled) {
++        if (shouldStub()) {
++            return;
++        }
+         mSharedPreferencesManager.writeBoolean(getSettingsPreferenceKey(moduleType), enabled);
+         notifyModuleTypeUpdated(moduleType, enabled);
+     }
+ 
+     /** Returns the user preference for whether all cards in the magic stack are enabled. */
+     public boolean getPrefAllCardsEnabled() {
++        if (shouldStub()) {
++            return false;
++        }
+         return mSharedPreferencesManager.readBoolean(
+                 ChromePreferenceKeys.HOME_MODULE_CARDS_ENABLED, true);
+     }
+@@ -112,6 +125,9 @@ public class HomeModulesConfigManager {
+      * @param enabled True is all cards are enabled.
+      */
+     public void setPrefAllCardsEnabled(boolean enabled) {
++        if (shouldStub()) {
++            return;
++        }
+         mSharedPreferencesManager.writeBoolean(
+                 ChromePreferenceKeys.HOME_MODULE_CARDS_ENABLED, enabled);
+         for (HomeModulesStateListener listener : mHomepageStateListeners) {

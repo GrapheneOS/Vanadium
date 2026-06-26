@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 15 Oct 2021 13:49:33 +0000
+Subject: [PATCH] Remove privacy trials preference UI
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java     | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index 28653593ef2c6..d30aa7ae162cc 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -47,6 +47,8 @@ final class PrivacySettingsExt {
+         ThreadUtils.checkUiThread();
+         SettingsExtUtils.safelyRemovePreference(
+                 prefFragment, PrivacySettings.PREF_SYNC_AND_SERVICES_LINK);
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_PRIVACY_SANDBOX);
+     }
+ 
+     static void initializePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {

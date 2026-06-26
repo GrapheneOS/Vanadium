@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 13 Mar 2023 08:41:43 +0000
+Subject: [PATCH] Extend //chrome/browser/ui/android/pdf java target sources
+ and deps
+
+---
+ chrome/browser/ui/android/pdf/BUILD.gn        |  4 +++
+ .../android/pdf/pdf_utils_java_ext_deps.gni   | 26 +++++++++++++++++++
+ .../pdf/pdf_utils_java_ext_sources.gni        | 26 +++++++++++++++++++
+ 3 files changed, 56 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_sources.gni
+
+diff --git a/chrome/browser/ui/android/pdf/BUILD.gn b/chrome/browser/ui/android/pdf/BUILD.gn
+index 73de90815c428..9b73997ab2f91 100644
+--- a/chrome/browser/ui/android/pdf/BUILD.gn
++++ b/chrome/browser/ui/android/pdf/BUILD.gn
+@@ -45,6 +45,10 @@ android_library("pdf_utils_java") {
+     "//ui/android:ui_no_recycler_view_java",
+     "//url:url_java",
+   ]
++  import("//vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_sources.gni")
++  sources += pdf_utils_java_ext_sources
++  import("//vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni")
++  deps += pdf_utils_java_ext_deps
+   resources_package = "org.chromium.chrome.browser.pdf"
+ }
+ 
+diff --git a/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni b/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..1681773c2d484
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_deps += pdf_utils_java_ext_full_path_deps
++foreach(rel_path, pdf_utils_java_ext_rel_path_deps) {
++  pdf_utils_java_ext_deps += [ rebase_path(rel_path) ]
++}
+\ No newline at end of file
+diff --git a/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_sources.gni b/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..a3c57a5f35b05
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++pdf_utils_java_ext_sources += pdf_utils_java_ext_full_path_sources
++foreach(rel_path, pdf_utils_java_ext_rel_path_sources) {
++  pdf_utils_java_ext_sources += [ rebase_path(rel_path) ]
++}
+\ No newline at end of file

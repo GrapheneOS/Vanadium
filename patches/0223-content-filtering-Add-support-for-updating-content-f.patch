@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 10 Apr 2024 16:16:57 +0000
+Subject: [PATCH] content-filtering: Add support for updating content filtering
+ when accept-language is changed
+
+---
+ .../language/settings/ContentLanguagesPreference.java        | 1 +
+ .../browser/language/settings/LanguageSettingsExt.java       | 5 +++++
+ .../browser/language/android/language_java_ext_deps.gni      | 1 +
+ 3 files changed, 7 insertions(+)
+
+diff --git a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
+index 6744931a27342..b3aff572b6256 100644
+--- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
++++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
+@@ -159,6 +159,7 @@ public class ContentLanguagesPreference extends Preference {
+             }
+             setDisplayedLanguages(
+                     LanguagesManager.getForProfile(getProfile()).getUserAcceptLanguageItems());
++            LanguageSettingsExt.onContentLanguagesPreferenceDataUpdated();
+         }
+     }
+ 
+diff --git a/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java b/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+index 156a3f8531d4e..1781b1f61ab97 100644
+--- a/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
++++ b/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+@@ -10,6 +10,7 @@ import org.chromium.base.ThreadUtils;
+ import org.chromium.base.settings.SettingsExtUtils;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.chrome.browser.profiles.Profile;
++import org.chromium.chrome.browser.subresource_filter.RulesetUpdater;
+ 
+ @NullMarked
+ final class LanguageSettingsExt {
+@@ -27,4 +28,8 @@ final class LanguageSettingsExt {
+         SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.ALWAYS_LANGUAGES_KEY);
+         SettingsExtUtils.safelyRemovePreference(prefFragment, LanguageSettings.NEVER_LANGUAGES_KEY);
+     }
++
++    public static void onContentLanguagesPreferenceDataUpdated() {
++        RulesetUpdater.update(/* ignoreVersionCheck */ true);
++    }
+ }
+diff --git a/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni b/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni
+index 5de7b2515355f..a5d21ddc89c37 100644
+--- a/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni
+@@ -7,6 +7,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ language_java_ext_full_path_deps = [
+   "//vanadium/chromium_src/base/settings/android:base_settings_java",
++  "//vanadium/chromium_src/chrome/browser/subresource_filter/ext/android:java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
