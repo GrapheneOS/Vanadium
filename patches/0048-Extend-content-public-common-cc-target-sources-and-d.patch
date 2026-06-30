@@ -1,0 +1,93 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 13 Mar 2023 08:41:43 +0000
+Subject: [PATCH] Extend //content/public/common cc target sources and deps
+
+---
+ content/public/common/BUILD.gn                |  5 ++++
+ .../common/common_sources_cc_ext_deps.gni     | 26 +++++++++++++++++++
+ .../common/common_sources_cc_ext_sources.gni  | 26 +++++++++++++++++++
+ 3 files changed, 57 insertions(+)
+ create mode 100644 vanadium/chromium_src/content/public/common/common_sources_cc_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/content/public/common/common_sources_cc_ext_sources.gni
+
+diff --git a/content/public/common/BUILD.gn b/content/public/common/BUILD.gn
+index 804a65521c257..c2f818852db88 100644
+--- a/content/public/common/BUILD.gn
++++ b/content/public/common/BUILD.gn
+@@ -350,6 +350,11 @@ source_set("common_sources") {
+   if (use_clang_profiling_inside_sandbox) {
+     sources += [ "profiling_utils.h" ]
+   }
++
++  import("//vanadium/chromium_src/content/public/common/common_sources_cc_ext_sources.gni")
++  sources += common_sources_cc_ext_sources
++  import("//vanadium/chromium_src/content/public/common/common_sources_cc_ext_deps.gni")
++  deps += common_sources_cc_ext_deps
+ }
+ 
+ mojom("interfaces") {
+diff --git a/vanadium/chromium_src/content/public/common/common_sources_cc_ext_deps.gni b/vanadium/chromium_src/content/public/common/common_sources_cc_ext_deps.gni
+new file mode 100644
+index 0000000000000..dbf7a520e11b9
+--- /dev/null
++++ b/vanadium/chromium_src/content/public/common/common_sources_cc_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_deps += common_sources_cc_ext_full_path_deps
++foreach(rel_path, common_sources_cc_ext_rel_path_deps) {
++  common_sources_cc_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/content/public/common/common_sources_cc_ext_sources.gni b/vanadium/chromium_src/content/public/common/common_sources_cc_ext_sources.gni
+new file mode 100644
+index 0000000000000..a78607d3690dd
+--- /dev/null
++++ b/vanadium/chromium_src/content/public/common/common_sources_cc_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++common_sources_cc_ext_sources += common_sources_cc_ext_full_path_sources
++foreach(rel_path, common_sources_cc_ext_rel_path_sources) {
++  common_sources_cc_ext_sources += [ rebase_path(rel_path) ]
++}

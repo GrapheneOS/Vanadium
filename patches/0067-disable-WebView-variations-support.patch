@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 10 Dec 2020 10:09:18 -0500
+Subject: [PATCH] disable WebView variations support
+
+---
+ .../android/webview/chromium/WebViewChromiumAwInit.java   | 8 ++++++++
+ .../android_webview/glue/glue_java_ext_deps.gni           | 1 +
+ 2 files changed, 9 insertions(+)
+
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
+index ecc9e62dfbc94..2debb68ae17f9 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
+@@ -1191,6 +1191,10 @@ public class WebViewChromiumAwInit {
+ 
+     // See comments in VariationsSeedLoader.java on when it's safe to call this.
+     void startVariationsInit() {
++        if (!org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED) {
++            return;
++        }
++
+         synchronized (mSeedLoaderLock) {
+             if (mSeedLoader == null) {
+                 mSeedLoader = new VariationsSeedLoader();
+@@ -1200,6 +1204,10 @@ public class WebViewChromiumAwInit {
+     }
+ 
+     private void finishVariationsInitLocked() {
++        if (!org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED) {
++            return;
++        }
++
+         try (DualTraceEvent e =
+                 DualTraceEvent.scoped("WebViewChromiumAwInit.finishVariationsInitLocked")) {
+             synchronized (mSeedLoaderLock) {
+diff --git a/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni b/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni
+index aa7065d0d30c7..7f2c937c1d2d7 100644
+--- a/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni
++++ b/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ glue_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes

@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 8 May 2026 20:26:34 +0000
+Subject: [PATCH] [bugfix] Resolve //chrome/browser:core deps when
+ dfmify_dev_ui=false
+
+---
+ chrome/browser/BUILD.gn | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
+index 311a3dfebc076..335f563a478c4 100644
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -1321,7 +1321,6 @@ source_set("core") {
+     deps += [
+       ":profile_key_startup_accessor",
+       "//chrome/browser/accessibility/accessibility_prefs",
+-      "//chrome/browser/dev_ui",
+       "//chrome/browser/facilitated_payments",
+       "//chrome/browser/feed",
+       "//chrome/browser/notifications/chime/android",

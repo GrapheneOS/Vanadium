@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 15 Apr 2021 02:14:37 -0400
+Subject: [PATCH] remove Help & feedback menu entry
+
+---
+ .../browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java  | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
+index 4bc3bf5a65ad5..cac2150145852 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
+@@ -549,6 +549,10 @@ public class TabbedAppMenuPropertiesDelegate extends AppMenuPropertiesDelegateIm
+         }
+ 
+         // Help
++        boolean enableHelpItem = false;
++        if (!enableHelpItem) {
++            // Don't add any item
++        } else
+         if (ChromeFeatureList.isEnabled(ChromeFeatureList.SUBMENUS_IN_APP_MENU)) {
+             modelList.add(buildHelpParentItem());
+         } else {
