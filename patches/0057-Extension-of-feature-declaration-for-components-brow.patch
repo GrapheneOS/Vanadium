@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 15 Jun 2026 13:55:30 +0000
+Subject: [PATCH] Extension of feature declaration for
+ //components/browser_ui/saved_tab_groups
+
+---
+ .../public/ext/android/BUILD.gn                 | 17 +++++++++++++++++
+ .../public/ext/android/features.cc              |  8 ++++++++
+ .../public/ext/android/features.h               | 11 +++++++++++
+ 3 files changed, 36 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/BUILD.gn
+ create mode 100644 vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc
+ create mode 100644 vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h
+
+diff --git a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/BUILD.gn b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/BUILD.gn
+new file mode 100644
+index 0000000000000..830d04d85d385
+--- /dev/null
++++ b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/BUILD.gn
+@@ -0,0 +1,17 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only-style license that can be
++# found in the LICENSE file.
++
++source_set("features") {
++  sources = [
++    "features.cc",
++    "features.h",
++  ]
++
++  deps = [
++    "//base",
++  ]
++
++  public_deps = [
++  ]
++}
+diff --git a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc
+new file mode 100644
+index 0000000000000..af174d33306fa
+--- /dev/null
++++ b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.cc
+@@ -0,0 +1,8 @@
++#include "vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h"
++
++#include "base/feature_list.h"
++#include "base/metrics/field_trial_params.h"
++
++namespace tab_groups {
++
++} // namespace tab_groups
+diff --git a/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h
+new file mode 100644
+index 0000000000000..c5009ff42da7c
+--- /dev/null
++++ b/vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h
+@@ -0,0 +1,11 @@
++#ifndef COMPONENTS_BROWSER_UI_SAVED_TAB_GROUPS_PUBLIC_EXT_ANDROID_FEATURES_H_
++#define COMPONENTS_BROWSER_UI_SAVED_TAB_GROUPS_PUBLIC_EXT_ANDROID_FEATURES_H_
++
++#include "base/feature_list.h"
++#include "base/metrics/field_trial_params.h"
++
++namespace tab_groups {
++
++} // namespace tab_groups
++
++#endif // COMPONENTS_BROWSER_UI_SAVED_TAB_GROUPS_PUBLIC_EXT_ANDROID_FEATURES_H_

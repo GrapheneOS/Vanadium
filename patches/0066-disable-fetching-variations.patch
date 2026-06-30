@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Wed, 18 Nov 2020 19:08:58 -0500
+Subject: [PATCH] disable fetching variations
+
+---
+ .../org/chromium/chrome/browser/init/AsyncInitTaskRunner.java   | 2 +-
+ vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni   | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java b/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
+index bdae610e561e5..7491c833baf77 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
+@@ -39,7 +39,7 @@ public abstract class AsyncInitTaskRunner {
+ 
+     @VisibleForTesting
+     boolean shouldFetchVariationsSeedDuringFirstRun() {
+-        return VersionInfo.isOfficialBuild();
++        return org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED;
+     }
+ 
+     private class FetchSeedTask implements Runnable {
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+index 55dafeb95ee0c..4b4784cc454f7 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+@@ -7,6 +7,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_java_ext_full_path_deps = [
+   "//vanadium/chromium_src/chrome/browser/flags/ext/android:feature_map_java",
++  "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes

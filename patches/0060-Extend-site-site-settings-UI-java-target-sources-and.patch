@@ -1,0 +1,129 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 22 Mar 2026 13:17:52 +0000
+Subject: [PATCH] Extend site site settings UI java target sources and deps
+
+---
+ .../browser_ui/site_settings/android/BUILD.gn |  7 +++++
+ .../site_settings_android_java_ext_deps.gni   | 26 +++++++++++++++++++
+ ...site_settings_android_java_ext_sources.gni | 26 +++++++++++++++++++
+ ..._settings_android_java_ext_srcjar_deps.gni | 26 +++++++++++++++++++
+ 4 files changed, 85 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni
+
+diff --git a/components/browser_ui/site_settings/android/BUILD.gn b/components/browser_ui/site_settings/android/BUILD.gn
+index 90a3d5a5a590a..2de05af672d90 100644
+--- a/components/browser_ui/site_settings/android/BUILD.gn
++++ b/components/browser_ui/site_settings/android/BUILD.gn
+@@ -160,6 +160,13 @@ android_library("java") {
+     ":site_settings_jni_headers",
+     "//components/content_settings/android:java_pref_names_srcjar",
+   ]
++
++  import("//vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni")
++  sources += site_settings_android_java_ext_sources
++  import("//vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni")
++  deps += site_settings_android_java_ext_deps
++  import("//vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni")
++  srcjar_deps += site_settings_android_java_ext_srcjar_deps
+ }
+ 
+ android_library("javatests") {
+diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..5691edee51869
+--- /dev/null
++++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_deps += site_settings_android_java_ext_full_path_deps
++foreach(rel_path, site_settings_android_java_ext_rel_path_deps) {
++  site_settings_android_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..9f534ef8e911f
+--- /dev/null
++++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_sources += site_settings_android_java_ext_full_path_sources
++foreach(rel_path, site_settings_android_java_ext_rel_path_sources) {
++  site_settings_android_java_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..12c5fb68fa618
+--- /dev/null
++++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_srcjar_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_full_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_rel_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++site_settings_android_java_ext_srcjar_deps += site_settings_android_java_ext_full_path_srcjar_deps
++foreach(rel_path, site_settings_android_java_ext_rel_path_srcjar_deps) {
++  site_settings_android_java_ext_srcjar_deps += [ rebase_path(rel_path) ]
++}

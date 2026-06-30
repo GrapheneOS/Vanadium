@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sat, 7 Aug 2021 15:01:54 -0400
+Subject: [PATCH] remove unwanted sync and services link
+
+---
+ .../chrome/browser/privacy/settings/PrivacySettingsExt.java    | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index 9d293edd42194..28653593ef2c6 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -11,6 +11,7 @@ import androidx.preference.Preference;
+ import androidx.preference.PreferenceFragmentCompat;
+ 
+ import org.chromium.base.ThreadUtils;
++import org.chromium.base.settings.SettingsExtUtils;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.profiles.Profile;
+@@ -44,6 +45,8 @@ final class PrivacySettingsExt {
+ 
+     static void removePreferences(PreferenceFragmentCompat prefFragment) {
+         ThreadUtils.checkUiThread();
++        SettingsExtUtils.safelyRemovePreference(
++                prefFragment, PrivacySettings.PREF_SYNC_AND_SERVICES_LINK);
+     }
+ 
+     static void initializePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {

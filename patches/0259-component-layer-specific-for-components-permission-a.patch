@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 14:19:59 +0000
+Subject: [PATCH] component layer specific for components/permission/android
+ deps
+
+---
+ .../components/permissions/android/ext/BUILD.gn     | 13 +++++++++++++
+ .../android/permissions_android_java_ext_deps.gni   |  1 +
+ 2 files changed, 14 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+new file mode 100644
+index 0000000000000..e45f085c3638a
+--- /dev/null
++++ b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+@@ -0,0 +1,13 @@
++import("//build/config/android/rules.gni")
++import("//third_party/jni_zero/jni_zero.gni")
++
++android_library("permissions_deps_java") {
++  sources = [
++  ]
++
++  deps = [
++  ]
++
++  srcjar_deps = [
++  ]
++}
+diff --git a/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni b/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni
+index acae00d71d434..ec1f3e377ccea 100644
+--- a/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni
++++ b/vanadium/chromium_src/components/permissions/android/permissions_android_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ permissions_android_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/components/permissions/android/ext:permissions_deps_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes

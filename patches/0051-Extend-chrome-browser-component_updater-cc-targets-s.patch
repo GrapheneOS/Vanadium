@@ -1,0 +1,172 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 29 Dec 2023 12:18:15 +0000
+Subject: [PATCH] Extend //chrome/browser/component_updater cc targets sources
+ and deps
+
+---
+ chrome/browser/component_updater/BUILD.gn     | 10 +++++++
+ .../component_updater_cc_ext_public.gni       | 26 +++++++++++++++++++
+ .../component_updater_cc_ext_public_deps.gni  | 26 +++++++++++++++++++
+ .../component_updater_impl_cc_ext_deps.gni    | 26 +++++++++++++++++++
+ .../component_updater_impl_cc_ext_sources.gni | 26 +++++++++++++++++++
+ 5 files changed, 114 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public_deps.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_sources.gni
+
+diff --git a/chrome/browser/component_updater/BUILD.gn b/chrome/browser/component_updater/BUILD.gn
+index 17b5140c7f8ec..25054db29583c 100644
+--- a/chrome/browser/component_updater/BUILD.gn
++++ b/chrome/browser/component_updater/BUILD.gn
+@@ -105,6 +105,11 @@ source_set("component_updater") {
+   if (safe_browsing_mode != 0) {
+     public += [ "file_type_policies_component_installer.h" ]
+   }
++
++  import("//vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public.gni")
++  public += component_updater_cc_ext_public
++  import("//vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public_deps.gni")
++  public_deps += component_updater_cc_ext_public_deps
+ }
+ 
+ # Implementation target. Only .cc/.mm files.
+@@ -287,4 +292,9 @@ source_set("impl") {
+   if (is_chrome_for_testing) {
+     deps += [ "//chrome/browser/chrome_for_testing:browser" ]
+   }
++
++  import("//vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_sources.gni")
++  sources += component_updater_impl_cc_ext_sources
++  import("//vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni")
++  deps += component_updater_impl_cc_ext_deps
+ }
+diff --git a/vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public.gni b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public.gni
+new file mode 100644
+index 0000000000000..f691690e6ff54
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_full_path_public = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_rel_path_public = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_public = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_public += component_updater_cc_ext_full_path_public
++foreach(rel_path, component_updater_cc_ext_rel_path_public) {
++  component_updater_cc_ext_public += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public_deps.gni b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public_deps.gni
+new file mode 100644
+index 0000000000000..ec2802b33f8b1
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_cc_ext_public_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_full_path_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_rel_path_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_public_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_cc_ext_public_deps += component_updater_cc_ext_full_path_public_deps
++foreach(rel_path, component_updater_cc_ext_rel_path_public_deps) {
++  component_updater_cc_ext_public_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni
+new file mode 100644
+index 0000000000000..db0bb142846df
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_deps += component_updater_impl_cc_ext_full_path_deps
++foreach(rel_path, component_updater_impl_cc_ext_rel_path_deps) {
++  component_updater_impl_cc_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_sources.gni b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_sources.gni
+new file mode 100644
+index 0000000000000..1c428ddeed980
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++component_updater_impl_cc_ext_sources += component_updater_impl_cc_ext_full_path_sources
++foreach(rel_path, component_updater_impl_cc_ext_rel_path_sources) {
++  component_updater_impl_cc_ext_sources += [ rebase_path(rel_path) ]
++}

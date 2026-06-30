@@ -1,0 +1,269 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: vanadium-staging <107577710+vanadium-staging@users.noreply.github.com>
+Date: Sun, 23 Nov 2025 04:08:57 +0000
+Subject: [PATCH] always enable autofill screens regardless of autofill
+ settings
+
+---
+ .../AutofillPaymentMethodsFragment.java       |  4 ++-
+ .../options/AutofillOptionsCoordinator.java   | 36 ++++++++++++-------
+ .../RadioButtonGroupThirdPartyPreference.java | 13 +++++++
+ .../strings/android_chrome_strings.grd        |  6 ++++
+ ...OFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1 |  1 +
+ ...FILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1 |  1 +
+ components/autofill_strings.grdp              |  8 ++++-
+ ...PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1 |  2 +-
+ ...Y_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1 |  1 +
+ ..._PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1 |  2 +-
+ ...TY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1 |  1 +
+ .../autofill/android/java_ext_deps.gni        |  1 +
+ .../browser/flags/ext/android/features.cc     |  8 +++++
+ .../browser/flags/ext/android/features.h      |  2 ++
+ .../browser/flags/ChromeExtFeatureList.java   |  7 ++++
+ 15 files changed, 76 insertions(+), 17 deletions(-)
+ create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
+ create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
+ create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
+ create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
+index d69d31365efe1..2b93695a47c74 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
+@@ -808,7 +808,9 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+     private static boolean disabledSettingsInThirdPartyMode(Profile profile) {
+         return (AutofillClientProviderUtils.getAndroidAutofillFrameworkAvailability(
+                                 UserPrefs.get(profile))
+-                        == AndroidAutofillAvailabilityStatus.AVAILABLE);
++                        == AndroidAutofillAvailabilityStatus.AVAILABLE)
++                && org.chromium.chrome.browser.flags.ChromeExtFeatureList
++                        .sThirdPartyDisableChromeAutofillSettingsScreen.isEnabled();
+     }
+ 
+     static boolean shouldShowManagePix(PersonalDataManager manager, Profile profile) {
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java
+index dedc19207607e..6e71cd6622058 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/AutofillOptionsCoordinator.java
+@@ -133,19 +133,29 @@ public class AutofillOptionsCoordinator {
+                                 getString(R.string.autofill_options_undo_toggle_change))
+                         .with(ModalDialogProperties.CANCEL_ON_TOUCH_OUTSIDE, true)
+                         .with(ModalDialogProperties.CONTROLLER, mMediator);
+-        builder.with(
+-                        ModalDialogProperties.TITLE,
+-                        getString(R.string.autofill_options_change_autofill_service_title))
+-                .with(
+-                        ModalDialogProperties.MESSAGE_PARAGRAPHS,
+-                        new ArrayList<>(
+-                                Arrays.asList(
+-                                        getString(
+-                                                R.string
+-                                                        .autofill_options_restart_prompt_paragraph_1_text),
+-                                        getString(
+-                                                R.string
+-                                                        .autofill_options_restart_prompt_paragraph_2_text))));
++        if (org.chromium.chrome.browser.flags.ChromeExtFeatureList
++                .sThirdPartyDisableChromeAutofillSettingsScreen.isEnabled()) {
++            builder.with(
++                            ModalDialogProperties.TITLE,
++                            getString(R.string.autofill_options_change_autofill_service_title))
++                    .with(
++                            ModalDialogProperties.MESSAGE_PARAGRAPHS,
++                            new ArrayList<>(
++                                    Arrays.asList(
++                                            getString(
++                                                    R.string
++                                                            .autofill_options_restart_prompt_paragraph_1_text),
++                                            getString(
++                                                    R.string
++                                                            .autofill_options_restart_prompt_paragraph_2_text))));
++        } else {
++            builder.with(
++                            ModalDialogProperties.TITLE,
++                            getString(R.string.autofill_options_restart_prompt_title))
++                    .with(
++                            ModalDialogProperties.MESSAGE_PARAGRAPH_1,
++                            getString(R.string.autofill_options_restart_prompt_text));
++        }
+         return builder.build();
+     }
+ 
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java
+index be8f08457d243..cbef98cee2ed1 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/options/RadioButtonGroupThirdPartyPreference.java
+@@ -99,6 +99,19 @@ public final class RadioButtonGroupThirdPartyPreference
+ 
+         group.setOnCheckedChangeListener(this::onCheckedChanged);
+         setSelectedOption(mSelectedOption); // Update UI according to internal state.
++        if (org.chromium.chrome.browser.flags.ChromeExtFeatureList
++                .sThirdPartyDisableChromeAutofillSettingsScreen.isEnabled()) {
++            mDefaultOption.setDescriptionText(
++                    getContext()
++                            .getResources()
++                            .getString(
++                                    R.string.autofill_third_party_filling_default_description_new));
++            mOptInOption.setDescriptionText(
++                    getContext()
++                            .getResources()
++                            .getString(
++                                    R.string.autofill_third_party_filling_opt_in_description_new));
++        }
+     }
+ 
+     /**
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 2638d96614994..c30b026dc4ffe 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -761,9 +761,15 @@ For more settings that use data to improve your Vanadium experience, go to <ph n
+       <message name="IDS_AUTOFILL_OPTIONS_CONFIRM_RESTART" desc="Description below switch toggling the use of third-party autofill in Vanadium." formatter_data="android_java">
+         Restart Vanadium
+       </message>
++      <message name="IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
++        Restart Vanadium?
++      </message>
+       <message name="IDS_AUTOFILL_OPTIONS_CHANGE_AUTOFILL_SERVICE_TITLE" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
+         Change autofill service?
+       </message>
++      <message name="IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
++        To finish setting up autofill, restart Vanadium now. Your tabs will automatically reopen.
++      </message>
+       <message name="IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_PARAGRAPH_1_TEXT" desc="Title of the dialog prompting the user to restart to apply the new Autofill settings." formatter_data="android_java">
+         After Vanadium restarts, your info saved from your new provider will be used to autofill passwords, passkeys, addresses, payment methods, and other info.
+       </message>
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1 b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
+new file mode 100644
+index 0000000000000..7ad19dc30474d
+--- /dev/null
++++ b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
+@@ -0,0 +1 @@
++0397c7f77964cacbe565a8765976018a14a2e62a
+\ No newline at end of file
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1 b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
+new file mode 100644
+index 0000000000000..7ad19dc30474d
+--- /dev/null
++++ b/chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
+@@ -0,0 +1 @@
++0397c7f77964cacbe565a8765976018a14a2e62a
+\ No newline at end of file
+diff --git a/components/autofill_strings.grdp b/components/autofill_strings.grdp
+index 8600a4746125f..fd1b05d9d799c 100644
+--- a/components/autofill_strings.grdp
++++ b/components/autofill_strings.grdp
+@@ -453,9 +453,15 @@
+       Autofill using another service
+     </message>
+     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION" desc="Description shown on the option to use the default Vanadium autofill experience." formatter_data="android_java">
+-      Use info saved in your Google Account to autofill passwords, passkeys, addresses, payment methods, and other info
++      Use Google Password Manager and Vanadium Autofill to save and fill passwords, payment methods, and addresses
+     </message>
+     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION" desc="Description shown on the option enabling the use of third-party autofill in Vanadium." formatter_data="android_java">
++      To use another autofill service in Vanadium, turn it on in Android settings and here
++    </message>
++    <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW" desc="Description shown on the option to use the default Vanadium autofill experience." formatter_data="android_java">
++      Use info saved in your Google Account to autofill passwords, passkeys, addresses, payment methods, and other info
++    </message>
++    <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW" desc="Description shown on the option enabling the use of third-party autofill in Vanadium." formatter_data="android_java">
+       To use another autofill service in Vanadium, choose your autofill provider in Android settings
+     </message>
+     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_V2" desc="The description text below the Autofill using another service radio button. It provides instructions on how to enable third-party services, noting the dependency on system-level Android settings." formatter_data="android_java">
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1
+index 1427cbeaebde5..f7681fd553273 100644
+--- a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION.png.sha1
+@@ -1 +1 @@
+-91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
++c02763e3bd6519924b42979a23bf8afa58cd60a1
+\ No newline at end of file
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
+new file mode 100644
+index 0000000000000..1427cbeaebde5
+--- /dev/null
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
+@@ -0,0 +1 @@
++91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1
+index 1427cbeaebde5..f7681fd553273 100644
+--- a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION.png.sha1
+@@ -1 +1 @@
+-91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
++c02763e3bd6519924b42979a23bf8afa58cd60a1
+\ No newline at end of file
+diff --git a/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1 b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
+new file mode 100644
+index 0000000000000..1427cbeaebde5
+--- /dev/null
++++ b/components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
+@@ -0,0 +1 @@
++91d4baabaf13a5cf85e9008c74ce29d43a238531
+\ No newline at end of file
+diff --git a/vanadium/chromium_src/chrome/browser/autofill/android/java_ext_deps.gni b/vanadium/chromium_src/chrome/browser/autofill/android/java_ext_deps.gni
+index 148fbd0f28d65..878a0dce4fdb4 100644
+--- a/vanadium/chromium_src/chrome/browser/autofill/android/java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/browser/autofill/android/java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ java_ext_full_path_deps = [
++  "//vanadium/chromium_src/chrome/browser/flags/ext/android:feature_map_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc b/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc
+index a75df4f9d09c8..cf541158eb3e7 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/features.cc
+@@ -12,10 +12,18 @@
+ 
+ namespace chrome::android {
+ 
++// If the user configured Chrome to use 3P autofill and this feature is enabled,
++// Chrome will disable the preferences in the "Payment methods" and "Addresses
++// and more" screen in the Chrome settings that don't apply in third party mode
++// and would confuse the user.
++BASE_FEATURE(kThirdPartyDisableChromeAutofillSettingsScreen,
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
+ namespace {
+ 
+ const base::Feature* const kFeaturesExposedToJava[] = {
+   &tab_groups::kTabGroupSyncAutoOpenKillSwitch,
++  &kThirdPartyDisableChromeAutofillSettingsScreen,
+ };
+ 
+ // static
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/features.h b/vanadium/chromium_src/chrome/browser/flags/ext/android/features.h
+index d4c0ca59fa8bc..ee443031f4259 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/features.h
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/features.h
+@@ -8,6 +8,8 @@
+ 
+ namespace chrome::android {
+ 
++BASE_DECLARE_FEATURE(kThirdPartyDisableChromeAutofillSettingsScreen);
++
+ } // namespace chrome::android
+ 
+ #endif // CHROME_BROWSER_FLAGS_EXT_ANDROID_FEATURES_H_
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java b/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java
+index d647549b07752..4b3be6b41c641 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/java/src/org/chromium/chrome/browser/flags/ChromeExtFeatureList.java
+@@ -20,4 +20,11 @@ public final class ChromeExtFeatureList {
+                     ChromeExtFeatures.TAB_GROUP_SYNC_AUTO_OPEN_KILL_SWITCH,
+                     true
+             );
++
++    public static final MutableFlagWithSafeDefault sThirdPartyDisableChromeAutofillSettingsScreen =
++            new MutableFlagWithSafeDefault(
++                    ChromeExtFeatureMap.getInstance(),
++                    ChromeExtFeatures.THIRD_PARTY_DISABLE_CHROME_AUTOFILL_SETTINGS_SCREEN,
++                    false
++            );
+ }

@@ -1,0 +1,144 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 19 May 2026 15:03:48 +0000
+Subject: [PATCH] infrastructure permission modification based on content
+ settings type
+
+---
+ .../PageInfoPermissionsController.java        |  8 +++++
+ .../permissions/PermissionUtil.java           |  9 ++++++
+ .../page_info_android_java_ext_deps.gni       |  1 +
+ .../permissions/android/ext/BUILD.gn          |  3 ++
+ .../PermissionsControllerHooks.java           | 32 +++++++++++++++++++
+ .../permissions/PermissionsHooksRegistry.java | 15 +++++++++
+ 6 files changed, 68 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsControllerHooks.java
+ create mode 100644 vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java
+
+diff --git a/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java b/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
+index f03ae9829b92d..1b263fb14d550 100644
+--- a/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
++++ b/components/page_info/android/java/src/org/chromium/components/page_info/PageInfoPermissionsController.java
+@@ -59,6 +59,14 @@ public class PageInfoPermissionsController extends PageInfoPreferenceSubpageCont
+                 boolean allowed,
+                 int warningTextResource,
+                 boolean requested) {
++            org.chromium.components.permissions.PermissionsControllerHooks hooks =
++                    org.chromium.components.permissions.PermissionsHooksRegistry.getPermissionsControllerHooks(type);
++            if (!hooks.isDefaultInstance()) {
++                Boolean allowedOverride = hooks.treatAsAllowedPageInfoOverride();
++                if (allowedOverride != null) {
++                    allowed = allowedOverride;
++                }
++            }
+             this.type = type;
+             this.name = name;
+             this.nameMidSentence = nameMidSentence;
+diff --git a/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java b/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
+index 09e61ec6e4f02..5ba40ef8e3db0 100644
+--- a/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
++++ b/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
+@@ -114,6 +114,15 @@ public class PermissionUtil {
+     @CalledByNative
+     @JniType("std::vector<std::string>")
+     public static String[] getRequiredAndroidPermissionsForContentSetting(int contentSettingType) {
++        PermissionsControllerHooks hooks =
++                PermissionsHooksRegistry.getPermissionsControllerHooks(contentSettingType);
++        if (!hooks.isDefaultInstance()) {
++            String[] requiredPermissions = hooks.getRequiredPermissions();
++            if (requiredPermissions != null) {
++                return Arrays.copyOf(requiredPermissions, requiredPermissions.length);
++            }
++        }
++
+         switch (contentSettingType) {
+             case ContentSettingsType.GEOLOCATION, ContentSettingsType.GEOLOCATION_WITH_OPTIONS:
+                 if (isApproximateLocationSupportEnabled()) {
+diff --git a/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni b/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni
+index 60e879e6ab98a..d1977e1863a8e 100644
+--- a/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni
++++ b/vanadium/chromium_src/components/page_info/android/page_info_android_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ page_info_android_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/components/permissions/android/ext:permissions_deps_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+index e45f085c3638a..98ba867905ac8 100644
+--- a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
++++ b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
+@@ -3,9 +3,12 @@ import("//third_party/jni_zero/jni_zero.gni")
+ 
+ android_library("permissions_deps_java") {
+   sources = [
++    "java/src/org/chromium/components/permissions/PermissionsControllerHooks.java",
++    "java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java",
+   ]
+ 
+   deps = [
++    "//components/content_settings/core/common:content_settings_types_java",
+   ]
+ 
+   srcjar_deps = [
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsControllerHooks.java b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsControllerHooks.java
+new file mode 100644
+index 0000000000000..805dddbdaee9e
+--- /dev/null
++++ b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsControllerHooks.java
+@@ -0,0 +1,32 @@
++package org.chromium.components.permissions;
++
++import org.chromium.build.annotations.NonNull;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++@NullMarked
++public class PermissionsControllerHooks {
++
++    private static final class LazyHolder {
++        @NonNull
++        private static final PermissionsControllerHooks INSTANCE =
++                new PermissionsControllerHooks();
++    }
++
++    @NonNull
++    static PermissionsControllerHooks getDefaultInstance() {
++        return LazyHolder.INSTANCE;
++    }
++
++    public final boolean isDefaultInstance() {
++        return getDefaultInstance() == this;
++    }
++
++    public @Nullable Boolean treatAsAllowedPageInfoOverride() {
++        return null;
++    }
++
++    public String @Nullable [] getRequiredPermissions() {
++        return null;
++    }
++}
+diff --git a/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java
+new file mode 100644
+index 0000000000000..26c251271cd90
+--- /dev/null
++++ b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/PermissionsHooksRegistry.java
+@@ -0,0 +1,15 @@
++package org.chromium.components.permissions;
++
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.components.content_settings.ContentSettingsType;
++
++@NullMarked
++public final class PermissionsHooksRegistry {
++
++    public static PermissionsControllerHooks getPermissionsControllerHooks(
++            @ContentSettingsType.EnumType int contentSettingsType) {
++        return switch (contentSettingsType) {
++            default -> PermissionsControllerHooks.getDefaultInstance();
++        };
++    }
++}

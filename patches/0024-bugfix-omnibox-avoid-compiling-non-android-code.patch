@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 16 May 2026 06:20:18 +0000
+Subject: [PATCH] [bugfix] omnibox: avoid compiling non-android code
+
+---
+ chrome/browser/ui/omnibox/omnibox_edit_model.cc | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/chrome/browser/ui/omnibox/omnibox_edit_model.cc b/chrome/browser/ui/omnibox/omnibox_edit_model.cc
+index 107796e919064..c5e89bf180131 100644
+--- a/chrome/browser/ui/omnibox/omnibox_edit_model.cc
++++ b/chrome/browser/ui/omnibox/omnibox_edit_model.cc
+@@ -1883,11 +1883,15 @@ gfx::Image OmniboxEditModel::GetMatchIcon(const AutocompleteMatch& match,
+     }
+   }
+ 
++#if BUILDFLAG(IS_ANDROID)
++  return gfx::Image();
++#else
+   bool is_starred_match = IsStarredMatch(match);
+   const auto& vector_icon_type = match.GetVectorIcon(is_starred_match, turl);
+ 
+   return controller_->client()->GetSizedIcon(vector_icon_type,
+                                              vector_icon_color);
++#endif // BUILDFLAG(IS_ANDROID)
+ }
+ 
+ gfx::Image OmniboxEditModel::GetMatchIconIfExtension(

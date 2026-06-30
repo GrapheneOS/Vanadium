@@ -1,0 +1,127 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 18 May 2026 14:30:44 +0000
+Subject: [PATCH] class for fetching custom OS permissions existence and value
+
+---
+ vanadium/ext/custom_os/BUILD.gn               | 14 +++
+ .../app/vanadium/ext/CustomOSPermissions.java | 88 +++++++++++++++++++
+ 2 files changed, 102 insertions(+)
+ create mode 100644 vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSPermissions.java
+
+diff --git a/vanadium/ext/custom_os/BUILD.gn b/vanadium/ext/custom_os/BUILD.gn
+index f332cfd799148..f7a56bbf5db02 100644
+--- a/vanadium/ext/custom_os/BUILD.gn
++++ b/vanadium/ext/custom_os/BUILD.gn
+@@ -17,3 +17,17 @@ android_library("custom_os_apis_java") {
+   chromium_code = false
+   enable_errorprone = true
+ }
++
++android_library("custom_os_permissions_java") {
++  sources = [
++    "java/src/app/vanadium/ext/CustomOSPermissions.java",
++  ]
++  deps = [
++    "//third_party/android_deps:org_jspecify_jspecify_java",
++    "//vanadium/ext/utils:member_cache_utils_java",
++  ]
++
++  # See //styleguide/java/nullaway.md
++  chromium_code = false
++  enable_errorprone = true
++}
+diff --git a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSPermissions.java b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSPermissions.java
+new file mode 100644
+index 0000000000000..27184036d6919
+--- /dev/null
++++ b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSPermissions.java
+@@ -0,0 +1,88 @@
++package app.vanadium.ext;
++
++import android.os.Environment;
++import android.util.Log;
++
++import org.jspecify.annotations.NullMarked;
++import org.jspecify.annotations.Nullable;
++
++import java.lang.reflect.Field;
++import java.lang.reflect.Modifier;
++
++import app.vanadium.ext.utils.reflect.MemberCache;
++
++// Meant to be standalone, and avoids chromium source code dependency as much as possible.
++@NullMarked
++@SuppressWarnings("NoAndroidLog")
++public class CustomOSPermissions {
++
++    private static final String TAG = "cr_CustomOSPermissions";
++
++    private static final class PermissionStringFinalFieldWrapper {
++        private final String fieldName;
++        private final MemberCache<Field> fieldCache;
++
++        private PermissionStringFinalFieldWrapper(String fieldName) {
++            this.fieldName = fieldName;
++            this.fieldCache = MemberCache.of(new MemberCache.Fetcher<>() {
++
++                @Override
++                public Field getMember() throws NoSuchFieldException {
++                    return android.Manifest.permission.class.getDeclaredField(fieldName);
++                }
++
++                @Override
++                public void logOrThrow(ReflectiveOperationException e) {
++                    Log.e(TAG, "", e);
++                }
++            });
++        }
++
++        private @Nullable String invokeRes;
++        private volatile boolean invokeResSet;
++
++        @Nullable
++        private String invoke() {
++            Field field = fieldCache.getMember();
++            if (field == null) {
++                return null;
++            }
++
++            if (field.getType() != String.class) {
++                Log.e(TAG, String.format("unexpected field type for %s", fieldName));
++                return null;
++            }
++
++            if (!Modifier.isFinal(field.getModifiers())) {
++                return null;
++            }
++
++            if (invokeResSet) {
++                return invokeRes;
++            }
++
++            try {
++                String res = (String) field.get(null);
++                invokeRes = res;
++                return res;
++            } catch (IllegalAccessException e) {
++                Log.e(TAG, "", e);
++                return null;
++            } finally {
++                invokeResSet = true;
++            }
++        }
++    }
++
++    private static final PermissionStringFinalFieldWrapper sSensorsPermission =
++            new PermissionStringFinalFieldWrapper("OTHER_SENSORS");
++
++    /**
++     * Retrieves the permission name for sensors permission, if exists.
++     * @return the permission value of sensors permission if exists, null otherwise.
++     */
++    @Nullable
++    public static final String getSensorsPermissionName() {
++        return sSensorsPermission.invoke();
++    }
++}

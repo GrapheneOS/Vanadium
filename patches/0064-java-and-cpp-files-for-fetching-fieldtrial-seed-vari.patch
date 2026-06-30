@@ -1,0 +1,74 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 8 Jun 2026 10:09:39 +0000
+Subject: [PATCH] java and cpp files for fetching fieldtrial seed variations
+ build arg
+
+---
+ .../components/variations/common_ext/BUILD.gn | 37 +++++++++++++++++++
+ .../FieldTrialSeedBuildflags.template         | 12 ++++++
+ 2 files changed, 49 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/variations/common_ext/BUILD.gn
+ create mode 100644 vanadium/chromium_src/components/variations/common_ext/android/java/templates/FieldTrialSeedBuildflags.template
+
+diff --git a/vanadium/chromium_src/components/variations/common_ext/BUILD.gn b/vanadium/chromium_src/components/variations/common_ext/BUILD.gn
+new file mode 100644
+index 0000000000000..00f41d06ff668
+--- /dev/null
++++ b/vanadium/chromium_src/components/variations/common_ext/BUILD.gn
+@@ -0,0 +1,37 @@
++# Copyright 2025-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++import("//build/buildflag_header.gni")
++if (is_android) {
++  import("//build/config/android/rules.gni")
++}
++
++declare_args() {
++  # Set to true to allow usage of field trial seeds.
++  fieldtrial_seed_enabled = false
++}
++
++buildflag_header("buildflags") {
++  header = "buildflags.h"
++  flags = []
++  flags += [
++    "FIELDTRIAL_SEED_ENABLED=$fieldtrial_seed_enabled"
++  ]
++}
++
++if (is_android) {
++  java_cpp_template("buildflags_srcjar") {
++    visibility = [ ":*" ]
++    sources = [ "android/java/templates/FieldTrialSeedBuildflags.template" ]
++    defines = [
++      "_FIELDTRIAL_SEED_ENABLED=$fieldtrial_seed_enabled"
++    ]
++  }
++
++  android_library("buildflags_java") {
++    srcjar_deps = [
++     ":buildflags_srcjar",
++    ]
++  }
++}
+diff --git a/vanadium/chromium_src/components/variations/common_ext/android/java/templates/FieldTrialSeedBuildflags.template b/vanadium/chromium_src/components/variations/common_ext/android/java/templates/FieldTrialSeedBuildflags.template
+new file mode 100644
+index 0000000000000..724c490f6c6db
+--- /dev/null
++++ b/vanadium/chromium_src/components/variations/common_ext/android/java/templates/FieldTrialSeedBuildflags.template
+@@ -0,0 +1,12 @@
++// Copyright 2025-2026 GrapheneOS
++// Use of this source code is governed by a a GPL-2.0-only style license that can be
++// found in the LICENSE file.
++
++package org.chromium.components.variations;
++
++public class FieldTrialSeedBuildflags {
++
++    public static final boolean FIELDTRIAL_SEED_ENABLED = _FIELDTRIAL_SEED_ENABLED;
++
++    private FieldTrialSeedBuildflags() {}
++}

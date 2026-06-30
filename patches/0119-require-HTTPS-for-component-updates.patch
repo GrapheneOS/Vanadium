@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Tue, 25 Apr 2023 04:53:22 -0400
+Subject: [PATCH] require HTTPS for component updates
+
+---
+ .../component_updater/chrome_component_updater_configurator.cc  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/component_updater/chrome_component_updater_configurator.cc b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
+index 744a905fa17d6..476f2db900ba9 100644
+--- a/chrome/browser/component_updater/chrome_component_updater_configurator.cc
++++ b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
+@@ -123,7 +123,7 @@ class ChromeConfigurator : public update_client::Configurator {
+ ChromeConfigurator::ChromeConfigurator(const base::CommandLine* cmdline,
+                                        PrefService* pref_service)
+     : configurator_impl_(ComponentUpdaterCommandLineConfigPolicy(cmdline),
+-                         /*require_encryption=*/false),
++                         /*require_encryption=*/true),
+       pref_service_(pref_service),
+       persisted_data_(update_client::CreatePersistedData(
+           base::BindRepeating(

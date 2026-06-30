@@ -1,0 +1,174 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 13 Mar 2023 08:41:43 +0000
+Subject: [PATCH] Extend //chrome/android java targets sources and deps
+
+---
+ chrome/android/BUILD.gn                       | 11 ++++++++
+ .../chrome_app_java_resources_ext_sources.gni | 26 +++++++++++++++++++
+ .../chrome/android/chrome_java_ext_deps.gni   | 26 +++++++++++++++++++
+ .../android/chrome_java_ext_sources.gni       | 26 +++++++++++++++++++
+ .../android/chrome_java_ext_srcjar_deps.gni   | 26 +++++++++++++++++++
+ 5 files changed, 115 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/chrome/android/chrome_java_ext_srcjar_deps.gni
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 1f44f11e6bf18..b337a1c20b307 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -168,6 +168,9 @@ if (_is_default_toolchain) {
+ 
+   android_resources("chrome_app_java_resources") {
+     sources = chrome_java_resources
++    # Extension of sources at chrome_app_java_resources
++    import("//vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni")
++    sources += chrome_app_java_resources_ext_sources
+     sources += [
+       "//chrome/android/java/res_app/layout/main.xml",
+       "//chrome/android/java/res_app/layout/main_forked_with_secondary_ui_container.xml",
+@@ -886,6 +889,14 @@ if (_is_default_toolchain) {
+     # From java_sources.gni.
+     sources = chrome_java_sources
+ 
++    # Extension of sources, deps, and srcjar_deps for chrome_java target
++    import("//vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni")
++    sources += chrome_java_ext_sources
++    import("//vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni")
++    deps += chrome_java_ext_deps
++    import("//vanadium/chromium_src/chrome/android/chrome_java_ext_srcjar_deps.gni")
++    srcjar_deps += chrome_java_ext_srcjar_deps
++
+     # Include sources from feed_java_sources.gni.
+     sources += feed_java_sources
+     srcjar_deps += feed_srcjar_deps
+diff --git a/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+new file mode 100644
+index 0000000000000..ebaed0c1b17be
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_app_java_resources_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_app_java_resources_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_app_java_resources_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_app_java_resources_ext_sources += chrome_app_java_resources_ext_full_path_sources
++foreach(rel_path, chrome_app_java_resources_ext_rel_path_sources) {
++  chrome_app_java_resources_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..9640cd7d65af8
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_deps += chrome_java_ext_full_path_deps
++foreach(rel_path, chrome_java_ext_rel_path_deps) {
++  chrome_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..a982de654d483
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_sources += chrome_java_ext_full_path_sources
++foreach(rel_path, chrome_java_ext_rel_path_sources) {
++  chrome_java_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_srcjar_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..a2d377efcb276
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_srcjar_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_full_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_rel_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++chrome_java_ext_srcjar_deps += chrome_java_ext_full_path_srcjar_deps
++foreach(rel_path, chrome_java_ext_rel_path_srcjar_deps) {
++  chrome_java_ext_srcjar_deps += [ rebase_path(rel_path) ]
++}

@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 4 Jun 2026 15:23:53 +0000
+Subject: [PATCH] Utility class of language settings for modification
+
+---
+ .../language/settings/LanguageSettings.java   |  3 +++
+ .../settings/LanguageSettingsExt.java         | 23 +++++++++++++++++++
+ .../android/language_java_ext_deps.gni        |  1 +
+ .../android/language_java_ext_sources.gni     |  1 +
+ 4 files changed, 28 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+
+diff --git a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
+index 0e829b1174d59..b9b2682f8732a 100644
+--- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
++++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettings.java
+@@ -87,6 +87,9 @@ public class LanguageSettings extends ChromeBaseSettingsFragment
+             createBasicPreferences();
+         }
+ 
++        LanguageSettingsExt.initializePreferences(this, getProfile());
++        LanguageSettingsExt.removePreferences(this, getProfile());
++
+         LanguagesManager.recordImpression(LanguagesManager.LanguageSettingsPageType.PAGE_MAIN);
+     }
+ 
+diff --git a/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java b/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+new file mode 100644
+index 0000000000000..53a64c72cd13b
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java
+@@ -0,0 +1,23 @@
++// Copyright 2023-2026 GrapheneOS
++// Use of this source code is governed by a GPL-2.0-only style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.language.settings;
++
++import androidx.preference.PreferenceFragmentCompat;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.chrome.browser.profiles.Profile;
++
++@NullMarked
++final class LanguageSettingsExt {
++
++    static void initializePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {
++        ThreadUtils.checkUiThread();
++    }
++
++    static void removePreferences(PreferenceFragmentCompat prefFragment, Profile profile) {
++        ThreadUtils.checkUiThread();
++    }
++}
+diff --git a/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni b/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni
+index 4dec40f8ce6aa..5de7b2515355f 100644
+--- a/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ language_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/base/settings/android:base_settings_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_sources.gni b/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_sources.gni
+index 28da6785eee2e..cea128d133a15 100644
+--- a/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_sources.gni
++++ b/vanadium/chromium_src/chrome/browser/language/android/language_java_ext_sources.gni
+@@ -11,6 +11,7 @@ language_java_ext_full_path_sources = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ language_java_ext_rel_path_sources = [
++  "java/src/org/chromium/chrome/browser/language/settings/LanguageSettingsExt.java"
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
