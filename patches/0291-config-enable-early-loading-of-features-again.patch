@@ -1,30 +1,29 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Fri, 19 Jun 2026 15:19:03 +0000
-Subject: [PATCH] [config] disable native-only sandboxed process service at
- runtime too
+Subject: [PATCH] [config] enable early loading of features again
 
 ---
  .../app/vanadium/config/host/ConfigGenerator.java    | 12 ++++++++++++
  1 file changed, 12 insertions(+)
 
 diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
-index 3eb9b5f3fa13a..cddcf818c9d8f 100644
+index cddcf818c9d8f..42b342abc5294 100644
 --- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
 +++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
-@@ -276,6 +276,18 @@ public class ConfigGenerator {
+@@ -288,6 +288,18 @@ public class ConfigGenerator {
                          )
                  ))
          ));
 +        configList.add(config(configParams -> configParams.setSpec(
 +                        spec(specParams -> specParams.setSpecTypes(
-+                                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW))
-+                                .setMinVersion(7871_022_00L)
++                                getSpecTypes(SpecType.BROWSER))
++                                .setMinVersion(7871_064_00L)
++                                .setMaxVersion(7871_065_00L)
 +                        ))
 +                .addAllFlags(flags(
-+                        flag(flagParams -> flagParams.setFlagName("javaless-renderers")
-+                                .addFlagValue("disable")
-+                                .setFlagType(FlagType.ENABLED_SWITCH)
++                        flag(flagParams -> flagParams.setFlagName("LoadNativeEarly")
++                                .setFlagType(FlagType.ENABLED_FEATURE)
 +                        )
 +                ))
 +        ));
