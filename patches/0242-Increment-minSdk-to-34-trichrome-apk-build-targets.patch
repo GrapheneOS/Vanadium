@@ -1,15 +1,31 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Tue, 29 Apr 2025 05:31:59 +0000
-Subject: [PATCH] Increment minSdk to 33 trichrome apk build targets
+Subject: [PATCH] Increment minSdk to 34 trichrome apk build targets
 
 ---
- chrome/android/chrome_public_apk_tmpl.gni | 2 ++
- chrome/android/trichrome.gni              | 5 +++++
- 2 files changed, 7 insertions(+)
+ android_webview/system_webview_apk_tmpl.gni | 5 +++++
+ chrome/android/chrome_public_apk_tmpl.gni   | 2 ++
+ chrome/android/trichrome.gni                | 5 +++++
+ 3 files changed, 12 insertions(+)
 
+diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
+index e82686f3e1c91..43de31dbabf10 100644
+--- a/android_webview/system_webview_apk_tmpl.gni
++++ b/android_webview/system_webview_apk_tmpl.gni
+@@ -350,5 +350,10 @@ template("system_webview_apk_or_module_tmpl") {
+ 
+     version_name = chrome_version_name
+     version_code = _version_code
++    if (defined(invoker.min_sdk_version)) {
++      min_sdk_version = invoker.min_sdk_version
++    } else if (_is_trichrome) {
++      min_sdk_version = 34
++    }
+   }
+ }
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index c946d4307188e..67e461e1ee12e 100644
+index c946d4307188e..3c99c268ef403 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
 @@ -248,6 +248,8 @@ template("chrome_common_apk_or_module_tmpl") {
@@ -17,12 +33,12 @@ index c946d4307188e..67e461e1ee12e 100644
      if (defined(invoker.min_sdk_version)) {
        min_sdk_version = invoker.min_sdk_version
 +    } else if (_is_trichrome) {
-+      min_sdk_version = 33
++      min_sdk_version = 34
      }
      if (defined(invoker.version_name)) {
        version_name = invoker.version_name
 diff --git a/chrome/android/trichrome.gni b/chrome/android/trichrome.gni
-index a64ce2a00136b..c7cb5be50b9fe 100644
+index a64ce2a00136b..640c3df3a839b 100644
 --- a/chrome/android/trichrome.gni
 +++ b/chrome/android/trichrome.gni
 @@ -98,6 +98,11 @@ template("trichrome_library_apk_tmpl") {
@@ -32,7 +48,7 @@ index a64ce2a00136b..c7cb5be50b9fe 100644
 +    if (defined(invoker.min_sdk_version)) {
 +      min_sdk_version = invoker.min_sdk_version
 +    } else {
-+      min_sdk_version = 33
++      min_sdk_version = 34
 +    }
  
      # Only the .build_config.json is used from this target, and it's fine if
