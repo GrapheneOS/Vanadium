@@ -1,0 +1,78 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 8 Jul 2026 13:15:50 +0000
+Subject: [PATCH] Utility class for initializing system feature info cache
+
+---
+ vanadium/ext/utils/BUILD.gn                   | 14 +++++++
+ .../ext/utils/FeatureInfoMapCache.java        | 38 +++++++++++++++++++
+ 2 files changed, 52 insertions(+)
+ create mode 100644 vanadium/ext/utils/java/src/app/vanadium/ext/utils/FeatureInfoMapCache.java
+
+diff --git a/vanadium/ext/utils/BUILD.gn b/vanadium/ext/utils/BUILD.gn
+index 405094aa4ed85..af38a504c68eb 100644
+--- a/vanadium/ext/utils/BUILD.gn
++++ b/vanadium/ext/utils/BUILD.gn
+@@ -30,3 +30,17 @@ android_library("member_cache_utils_java") {
+   chromium_code = false
+   enable_errorprone = true
+ }
++
++android_library("feature_info_map_cache_java") {
++  sources = [
++    "java/src/app/vanadium/ext/utils/FeatureInfoMapCache.java",
++  ]
++  deps = [
++    "//third_party/android_deps:org_jspecify_jspecify_java",
++    "//vanadium/ext/utils:member_cache_utils_java",
++  ]
++
++  # See //styleguide/java/nullaway.md
++  chromium_code = false
++  enable_errorprone = true
++}
+\ No newline at end of file
+diff --git a/vanadium/ext/utils/java/src/app/vanadium/ext/utils/FeatureInfoMapCache.java b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/FeatureInfoMapCache.java
+new file mode 100644
+index 0000000000000..d8f8d0a71227d
+--- /dev/null
++++ b/vanadium/ext/utils/java/src/app/vanadium/ext/utils/FeatureInfoMapCache.java
+@@ -0,0 +1,38 @@
++package app.vanadium.ext.utils;
++
++import android.content.Context;
++import android.content.pm.FeatureInfo;
++import android.content.pm.PackageManager;
++
++import org.jspecify.annotations.NullMarked;
++import org.jspecify.annotations.Nullable;
++
++import java.util.HashMap;
++import java.util.Map;
++
++// Meant to be standalone, and avoids chromium source code dependency as much as possible
++@NullMarked
++@SuppressWarnings("NoAndroidLog")
++public class FeatureInfoMapCache {
++
++    private static final Map<String, FeatureInfo> sFeatureInfoMap = new HashMap<>();
++
++    private static final Object sFeatureInfoMapLock = new Object();
++
++    public static void init(Context ctx) {
++        synchronized (sFeatureInfoMapLock) {
++            PackageManager pm = ctx.getPackageManager();
++            FeatureInfo[] featureInfos = pm.getSystemAvailableFeatures();
++            for (FeatureInfo featureInfo: featureInfos) {
++                sFeatureInfoMap.put(featureInfo.name, featureInfo);
++            }
++        }
++    }
++
++    @Nullable
++    public static FeatureInfo get(String name) {
++        synchronized (sFeatureInfoMapLock) {
++            return sFeatureInfoMap.get(name);
++        }
++    }
++}

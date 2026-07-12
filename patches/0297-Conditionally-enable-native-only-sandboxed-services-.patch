@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 12 Jul 2026 15:09:15 +0000
+Subject: [PATCH] Conditionally enable native-only sandboxed services based on
+ OS version
+
+---
+ .../vanadium/config/host/ConfigGenerator.java | 24 +++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+index ae65d66b0d101..8960cc605aa5c 100644
+--- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+@@ -281,6 +281,12 @@ public class ConfigGenerator {
+                         spec(specParams -> specParams.setSpecTypes(
+                                 getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW))
+                                 .setMinVersion(7871_022_00L)
++                                .addAllSysFeatureConditions(sysFeatureConditions(
++                                        sysFeatureCondition(sysFeatureConditionParams -> sysFeatureConditionParams
++                                            .setFeatureName("grapheneos.version")
++                                            .setMaxVersion(2026071099)
++                                        )
++                                ))
+                         ))
+                 .addAllFlags(flags(
+                         flag(flagParams -> flagParams.setFlagName("javaless-renderers")
+@@ -289,6 +295,24 @@ public class ConfigGenerator {
+                         )
+                 ))
+         ));
++        configList.add(config(configParams -> configParams.setSpec(
++                        spec(specParams -> specParams.setSpecTypes(
++                                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW))
++                                .setMinVersion(7871_022_00L)
++                                .addAllSysFeatureConditions(sysFeatureConditions(
++                                        sysFeatureCondition(sysFeatureConditionParams -> sysFeatureConditionParams
++                                            .setFeatureName("grapheneos.version")
++                                            .setMinVersion(2026071100)
++                                        )
++                                ))
++                        ))
++                .addAllFlags(flags(
++                        flag(flagParams -> flagParams.setFlagName("javaless-renderers")
++                                .addFlagValue("enable")
++                                .setFlagType(FlagType.ENABLED_SWITCH)
++                        )
++                ))
++        ));
+         return sortConfigs(configList);
+     }
+ 

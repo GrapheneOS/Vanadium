@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 8 Jul 2026 13:17:19 +0000
+Subject: [PATCH] Include system feature as spec for configs in config app
+
+Comment message from this line above to fixup with:
+
+fixup! config: Add proto definitions for feature flags and out-of-band component shipping
+---
+ vanadium/android_config/proto/config.proto | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/vanadium/android_config/proto/config.proto b/vanadium/android_config/proto/config.proto
+index f6a74ea40d6b7..74285bac816e9 100644
+--- a/vanadium/android_config/proto/config.proto
++++ b/vanadium/android_config/proto/config.proto
+@@ -40,6 +40,14 @@ message Spec {
+     BROWSER = 0;
+     WEBVIEW = 1;
+   }
++
++  repeated SysFeatureCondition sys_feature_conditions = 4;
++
++  message SysFeatureCondition {
++    string feature_name = 1;
++    int64 min_version = 2;
++    int64 max_version = 3;
++  }
+ }
+ 
+ // Next tag: 4

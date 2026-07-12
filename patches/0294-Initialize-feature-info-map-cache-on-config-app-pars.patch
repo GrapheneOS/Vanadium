@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 8 Jul 2026 13:18:08 +0000
+Subject: [PATCH] Initialize feature info map cache on config app parser init
+
+This adds support for fetching system feature info from the OS as a
+conditional check for applying config entries from the config apps.
+
+Fixup with:
+
+fixup! config: Add protobuf generator, parser for config apk contents
+---
+ vanadium/android_config/parser/BUILD.gn                         | 1 +
+ .../parser/java/src/app/vanadium/config/VanadiumConfParser.java | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/vanadium/android_config/parser/BUILD.gn b/vanadium/android_config/parser/BUILD.gn
+index 10a6fa2fe7371..b92b9c8785ff0 100644
+--- a/vanadium/android_config/parser/BUILD.gn
++++ b/vanadium/android_config/parser/BUILD.gn
+@@ -15,6 +15,7 @@ android_library("config_app_parser_java") {
+     "//third_party/android_deps:protobuf_lite_runtime_java",
+     "//vanadium/android_config:configinfo_java",
+     "//vanadium/android_config/proto:config_proto_java",
++    "//vanadium/ext/utils:feature_info_map_cache_java",
+     "//vanadium/ext/utils:file_utils_java",
+   ]
+ 
+diff --git a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
+index 35a85d2e221ad..da7cbfcde9ebf 100644
+--- a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
++++ b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -38,6 +38,7 @@ import app.vanadium.config.proto.VanadiumConfigProto.Flag;
+ import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
+ import app.vanadium.config.proto.VanadiumConfigProto.Spec;
+ import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType;
++import app.vanadium.ext.utils.FeatureInfoMapCache;
+ 
+ // Meant to be standalone, and avoids chromium source code dependency as much as possible
+ @NullMarked
+@@ -294,6 +295,7 @@ public final class VanadiumConfParser {
+             return;
+         }
+ 
++        FeatureInfoMapCache.init(ctx);
+         parseInBackground(ctx, specType);
+     }
+ 

@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 12 Jul 2026 13:38:30 +0000
+Subject: [PATCH] Support parsing system feature condition as check for config
+ app
+
+Fixup with:
+
+fixup! config-parser: Add config parser for browser and webview
+---
+ .../vanadium/config/VanadiumConfParser.java   | 28 +++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
+index da7cbfcde9ebf..ed7282ea6f830 100644
+--- a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
++++ b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
+@@ -1,6 +1,7 @@
+ package app.vanadium.config;
+ 
+ import android.content.Context;
++import android.content.pm.FeatureInfo;
+ import android.content.pm.PackageInfo;
+ import android.content.pm.PackageManager;
+ import android.os.Build;
+@@ -38,6 +39,7 @@ import app.vanadium.config.proto.VanadiumConfigProto.Flag;
+ import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
+ import app.vanadium.config.proto.VanadiumConfigProto.Spec;
+ import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.SysFeatureCondition;
+ import app.vanadium.ext.utils.FeatureInfoMapCache;
+ 
+ // Meant to be standalone, and avoids chromium source code dependency as much as possible
+@@ -410,6 +412,9 @@ public final class VanadiumConfParser {
+             final ArrayMap<String, Set<String>> disabledSwitchFlags = new ArrayMap<>();
+ 
+             Spec defaultSpec = Spec.getDefaultInstance();
++            SysFeatureCondition defautSysFeatureCondition =
++                    SysFeatureCondition.getDefaultInstance();
++config_loop:
+             for (Config config : configs.getConfigsList()) {
+                 Spec spec = config.getSpec();
+                 final long minVersionCode = spec.getMinVersion();
+@@ -426,6 +431,29 @@ public final class VanadiumConfParser {
+                     continue;
+                 }
+ 
++                for (SysFeatureCondition sysFeatureCondition :
++                        spec.getSysFeatureConditionsList()) {
++                    final String sysFeatureName =
++                            sysFeatureCondition.getFeatureName();
++                    final FeatureInfo sysFeatureInfo =
++                            FeatureInfoMapCache.get(sysFeatureName);
++                    if (sysFeatureInfo == null) {
++                        continue config_loop;
++                    }
++                    final long minSysFeatureVersion =
++                            sysFeatureCondition.getMinVersion();
++                    final long maxSysFeatureVersion =
++                            sysFeatureCondition.getMaxVersion();
++                    final long curSysFeatureVersion = sysFeatureInfo.version;
++                    if (minSysFeatureVersion != defautSysFeatureCondition.getMinVersion()
++                            && minSysFeatureVersion > curSysFeatureVersion) {
++                        continue config_loop;
++                    } else if (maxSysFeatureVersion != defautSysFeatureCondition.getMaxVersion()
++                            && maxSysFeatureVersion < curSysFeatureVersion) {
++                        continue config_loop;
++                    }
++                }
++
+                 Consumer<List<Flag>> appendFlagsToTypes = flagList -> {
+                     for (Flag flag : flagList) {
+                         final String flagName = flag.getFlagName();

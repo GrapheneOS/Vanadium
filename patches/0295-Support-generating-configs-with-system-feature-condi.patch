@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 10 Jul 2026 12:49:34 +0000
+Subject: [PATCH] Support generating configs with system feature condition
+ field
+
+fixup! config: Add protobuf generator, parser for config apk contents
+---
+ .../src/app/vanadium/config/host/ConfigGenerator.java | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+index cddcf818c9d8f..ae65d66b0d101 100644
+--- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+@@ -21,6 +21,7 @@ import app.vanadium.config.proto.VanadiumConfigProto.Flag;
+ import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
+ import app.vanadium.config.proto.VanadiumConfigProto.Spec;
+ import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.SysFeatureCondition;
+ 
+ public class ConfigGenerator {
+ 
+@@ -354,6 +355,16 @@ public class ConfigGenerator {
+         return specParams.apply(Spec.newBuilder()).build();
+     }
+ 
++    private static List<SysFeatureCondition> sysFeatureConditions(
++            Spec.SysFeatureCondition... sysFeatureConditions) {
++        return Arrays.asList(sysFeatureConditions);
++    }
++
++    private static SysFeatureCondition sysFeatureCondition(
++            UnaryOperator<Spec.SysFeatureCondition.Builder> sysFeatureConditionParams) {
++        return sysFeatureConditionParams.apply(Spec.SysFeatureCondition.newBuilder()).build();
++    }
++
+     private static List<Flag> flags(Flag... flags) {
+         return Arrays.asList(flags);
+     }
