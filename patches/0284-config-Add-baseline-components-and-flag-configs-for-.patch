@@ -1,0 +1,377 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 15 Jul 2026 05:58:16 +0000
+Subject: [PATCH] [config] Add baseline components and flag configs for config
+ app
+
+---
+ vanadium/android_config/proto/host/BUILD.gn   |   1 +
+ .../config/host/ConfigGeneratorImpl.kt        | 337 ++++++++++++++++++
+ 2 files changed, 338 insertions(+)
+
+diff --git a/vanadium/android_config/proto/host/BUILD.gn b/vanadium/android_config/proto/host/BUILD.gn
+index e6f8e28f92672..41b5d289ebde9 100644
+--- a/vanadium/android_config/proto/host/BUILD.gn
++++ b/vanadium/android_config/proto/host/BUILD.gn
+@@ -29,6 +29,7 @@ java_library("proto_config_generator_impl_kt_java") {
+   supports_android = true
+   requires_android = true
+   deps = [
++    "//vanadium/android_config/common:common_config_constants_java",
+     "//vanadium/android_config/proto:config_proto_java",
+     "//third_party/kotlin_stdlib:kotlin_stdlib_java",
+     "//third_party/android_deps:protobuf_lite_runtime_java",
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+index 846f0dd5c4ee6..6eb152d9d78dd 100644
+--- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+@@ -1,5 +1,7 @@
+ package app.vanadium.config.host
+ 
++import app.vanadium.config.common.Constants.CheckOsConfigsFeatures
++
+ import app.vanadium.config.proto.VanadiumConfigProto.Component
+ import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent
+ import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition
+@@ -60,6 +62,341 @@ fun main(vararg args: String) {
+ private fun configs(): Configs {
+     val configs = ArrayList<Config>()
+ 
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(getSpecTypes(SpecType.BROWSER))
++        })
++        addAllComponents(components(
++            component {
++                setComponentType(ComponentType.SUBRESOURCE_FILTER_TOOLS)
++                setComponentFileName("unindexed_ruleset")
++                addAllAdditionalComponents(additionalComponents(
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_arabic")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("ar")
++                            },
++                        ))
++                    },
++
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_bulgaria")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("bg")
++                            },
++                        ))
++                    },
++
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_germany")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("de")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_spanish")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("es")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_french")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("fr")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_hebrew")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("he")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_indian")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("hi")
++                            },
++                            componentCondition {
++                                setLanguage("bn")
++                            },
++                            componentCondition {
++                                setLanguage("gu")
++                            },
++                            componentCondition {
++                                setLanguage("pa")
++                            },
++                            componentCondition {
++                                setLanguage("as")
++                            },
++                            componentCondition {
++                                setLanguage("mr")
++                            },
++                            componentCondition {
++                                setLanguage("ta")
++                            },
++                            componentCondition {
++                                setLanguage("ml")
++                            },
++                            componentCondition {
++                                setLanguage("te")
++                            },
++                            componentCondition {
++                                setLanguage("kn")
++                            },
++                            componentCondition {
++                                setLanguage("ne")
++                            },
++                            componentCondition {
++                                setLanguage("si")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_indonesia")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("id")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_italy")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("it")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_korean")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("ko")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_lithuanian")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("lt")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_latvian")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("lv")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_dutch")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("nl")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_nordic")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("no")
++                            },
++                            componentCondition {
++                                setLanguage("nn")
++                            },
++                            componentCondition {
++                                setLanguage("kl")
++                            },
++                            componentCondition {
++                                setLanguage("da")
++                            },
++                            componentCondition {
++                                setLanguage("fi")
++                            },
++                            componentCondition {
++                                setLanguage("is")
++                            },
++                            componentCondition {
++                                setLanguage("sv")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_polish")
++                        addAllConditions(
++                            componentConditions(
++                                componentCondition {
++                                    setLanguage("pl")
++                                }
++                            ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_portuguese")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("pt")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_romanian")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("ro")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_russian")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("ru")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_vietnam")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("vi")
++                            },
++                        ))
++                    },
++                    additionalComponent {
++                        setComponentFileName("unindexed_ruleset_china")
++                        addAllConditions(componentConditions(
++                            componentCondition {
++                                setLanguage("zh")
++                            },
++                        ))
++                    },
++                ))
++            },
++        ))
++    }
++
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(getSpecTypes(SpecType.BROWSER))
++        })
++        addAllFlags(flags(
++            flag {
++                setFlagName("disable-domain-reliability")
++                setFlagType(FlagType.ENABLED_SWITCH)
++            },
++        ))
++    }
++
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(
++                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW)
++            )
++            setMinVersion(vanadiumVersion(major = 7778, minor = 178))
++        })
++        addAllFlags(flags(
++            flag {
++                setFlagName(CheckOsConfigsFeatures.ISOLATED_PROCESS_V1)
++                setFlagType(FlagType.DISABLED_FEATURE)
++            },
++        ))
++    }
++
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(
++                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW)
++            )
++            setMinVersion(vanadiumVersion(major = 7778, minor = 178))
++        })
++        addAllFlags(flags(
++            flag {
++                setFlagName(CheckOsConfigsFeatures.ISOLATED_PROCESS_V2)
++                setFlagType(FlagType.ENABLED_FEATURE)
++            },
++        ))
++    }
++
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(
++                getSpecTypes(SpecType.BROWSER)
++            )
++            setMinVersion(vanadiumVersion(major = 7827, minor = 28))
++        })
++        addAllFlags(flags(
++            flag {
++                setFlagName("IsolateSandboxedIframes:grouping/per-document")
++                setFlagType(FlagType.ENABLED_FEATURE)
++            },
++        ))
++    }
++
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(
++                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW)
++            )
++            setMinVersion(vanadiumVersion(major = 7827, minor = 28))
++            setMaxVersion(vanadiumVersion(major = 7827, minor = 124, increment = 99))
++            addAllSysFeatureConditions(sysFeatureConditions(
++                sysFeatureCondition {
++                    setFeatureName("grapheneos.version")
++                    setMaxVersion(grapheneOsVersion(
++                        year = 2026,
++                        month = 7,
++                        day = 10,
++                        increment = 99
++                    ))
++                },
++            ))
++        })
++        addAllFlags(flags(
++            flag {
++                setFlagName("javaless-renderers")
++                addFlagValue("disable")
++                setFlagType(FlagType.ENABLED_SWITCH)
++            },
++        ))
++    }
++
++    configs += config {
++        setSpec(spec {
++            setSpecTypes(
++                getSpecTypes(SpecType.BROWSER, SpecType.WEBVIEW)
++            )
++            setMinVersion(vanadiumVersion(major = 7922, minor = 18))
++            addAllSysFeatureConditions(sysFeatureConditions(
++                sysFeatureCondition {
++                    setFeatureName("grapheneos.version")
++                    setMinVersion(grapheneOsVersion(year = 2026, month = 7, day = 11))
++                },
++            ))
++        })
++        addAllFlags(flags(
++            flag {
++                setFlagName("javaless-renderers")
++                addFlagValue("enable")
++                setFlagType(FlagType.ENABLED_SWITCH)
++            },
++        ))
++    }
++
+     return sortConfigs(configs)
+ }
+ 

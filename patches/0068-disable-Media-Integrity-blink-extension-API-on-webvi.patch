@@ -13,19 +13,19 @@ removes the Media Integrity blink extension API feature flag.
  ...ontent_browser_client_receiver_bindings.cc | 11 ++-
  .../test/AwMediaIntegrityApiTest.java         | 89 +++++++++++++++++++
  .../renderer/aw_content_renderer_client.cc    | 13 ++-
- .../browser/browser_cc_ext_deps.gni           |  1 +
+ .../browser/browser_cc_ext_deps.gni           |  2 +
  .../android_webview/common/ext/features.cc    |  6 ++
  .../android_webview/common/ext/features.h     |  1 +
  .../common/AwExtFeatureList.java              |  7 ++
  .../renderer/renderer_cc_ext_deps.gni         |  1 +
  ...view_instrumentation_test_apk_ext_deps.gni |  1 +
- 9 files changed, 124 insertions(+), 6 deletions(-)
+ 9 files changed, 125 insertions(+), 6 deletions(-)
 
 diff --git a/android_webview/browser/aw_content_browser_client_receiver_bindings.cc b/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
-index 9634fc6f2edc4..23286616317b4 100644
+index 8a6ad18c0f00e..cea1d04d686be 100644
 --- a/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
 +++ b/android_webview/browser/aw_content_browser_client_receiver_bindings.cc
-@@ -38,6 +38,8 @@
+@@ -41,6 +41,8 @@
  #include "components/spellcheck/browser/spell_check_host_impl.h"
  #endif
  
@@ -34,7 +34,7 @@ index 9634fc6f2edc4..23286616317b4 100644
  namespace android_webview {
  
  namespace {
-@@ -268,8 +270,13 @@ void AwContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+@@ -291,8 +293,13 @@ void AwContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
    map->Add<spellcheck::mojom::SpellCheckHost>(
        create_spellcheck_host, content::GetUIThreadTaskRunner({}));
  #endif
@@ -340,10 +340,10 @@ index 492b3c7a409fa..49ab2316265cf 100644
          MockTokenProvider mockTokenProvider = new MockTokenProvider();
          mPlatformBridge.addProviderResponse(
 diff --git a/android_webview/renderer/aw_content_renderer_client.cc b/android_webview/renderer/aw_content_renderer_client.cc
-index ab470392dd1bb..c2c1295c2d9e4 100644
+index 81c6c7e415d6f..cddad2a25b376 100644
 --- a/android_webview/renderer/aw_content_renderer_client.cc
 +++ b/android_webview/renderer/aw_content_renderer_client.cc
-@@ -58,6 +58,8 @@
+@@ -60,6 +60,8 @@
  #include "components/spellcheck/renderer/spellcheck_provider.h"
  #endif
  
@@ -352,7 +352,7 @@ index ab470392dd1bb..c2c1295c2d9e4 100644
  using content::RenderThread;
  
  namespace android_webview {
-@@ -215,10 +217,13 @@ void AwContentRendererClient::
+@@ -226,10 +228,13 @@ void AwContentRendererClient::
      blink::WebRuntimeFeatures::EnableManualText(true);
    }
  
@@ -371,14 +371,20 @@ index ab470392dd1bb..c2c1295c2d9e4 100644
  
  void AwContentRendererClient::WebViewCreated(
 diff --git a/vanadium/chromium_src/android_webview/browser/browser_cc_ext_deps.gni b/vanadium/chromium_src/android_webview/browser/browser_cc_ext_deps.gni
-index 866fa812ff11b..22b87b840e4da 100644
+index 866fa812ff11b..8dcc245ff589e 100644
 --- a/vanadium/chromium_src/android_webview/browser/browser_cc_ext_deps.gni
 +++ b/vanadium/chromium_src/android_webview/browser/browser_cc_ext_deps.gni
-@@ -6,6 +6,7 @@
+@@ -6,11 +6,13 @@
  # Three lines of code for minimizing conflicts in rebasing changes
  # Three lines of code for minimizing conflicts in rebasing changes
  browser_cc_ext_full_path_deps = [
 +  "//vanadium/chromium_src/android_webview/common/ext:features",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ browser_cc_ext_rel_path_deps = [
++  "../common/ext:features",
  ]
  # Three lines of code for minimizing conflicts in rebasing changes
  # Three lines of code for minimizing conflicts in rebasing changes

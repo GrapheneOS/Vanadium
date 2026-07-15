@@ -4,15 +4,15 @@ Date: Fri, 16 Aug 2019 02:03:45 -0400
 Subject: [PATCH] redirect settings help icon
 
 ---
- .../chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java    | 2 +-
- .../browser/feedback/HelpAndFeedbackLauncherDelegate.java       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ .../browser/feedback/HelpAndFeedbackLauncherImpl.java       | 2 +-
+ .../browser/feedback/HelpAndFeedbackLauncherDelegate.java   | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
-index 07642a2074096..8ae8f1583fb39 100644
+index 137f969c5cf7f..141d53a483e8c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
-@@ -38,7 +38,7 @@ import java.util.Map;
+@@ -39,7 +39,7 @@ import java.util.Map;
  @NullMarked
  public class HelpAndFeedbackLauncherImpl implements HelpAndFeedbackLauncher {
      protected static final String FALLBACK_SUPPORT_URL =
@@ -22,15 +22,26 @@ index 07642a2074096..8ae8f1583fb39 100644
      private static @Nullable ProfileKeyedMap<HelpAndFeedbackLauncher> sProfileToLauncherMap;
      private final HelpAndFeedbackLauncherDelegate mDelegate;
 diff --git a/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java b/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
-index 13793349cb392..5c3682292572d 100644
+index 09c7de60751f1..caac7838b69d1 100644
 --- a/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
 +++ b/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
-@@ -15,7 +15,7 @@ import org.chromium.build.annotations.NullMarked;
+@@ -17,8 +17,8 @@ import org.chromium.build.annotations.Nullable;
  /** Delegate that handles the display of the HelpAndFeedback flows. */
  @NullMarked
  public interface HelpAndFeedbackLauncherDelegate {
 -    String FALLBACK_SUPPORT_URL = "https://support.google.com/chrome/topic/6069782";
+-    String P_LINK_URL_PREFIX = "https://support.google.com/chrome/?p=";
 +    String FALLBACK_SUPPORT_URL = "https://grapheneos.org/usage#web-browsing";
++    String P_LINK_URL_PREFIX = "https://grapheneos.org/usage#web-browsing";
  
      /**
       * Starts an activity showing a help page for the specified context ID.
+@@ -47,7 +47,7 @@ public interface HelpAndFeedbackLauncherDelegate {
+      * @return The generated help URL.
+      */
+     static String getPLinkHelpUrl(String helpContext) {
+-        return P_LINK_URL_PREFIX + helpContext;
++        return P_LINK_URL_PREFIX;
+     }
+ 
+     // TODO(crbug.com/365755043): Remove once downstream call has migrated.

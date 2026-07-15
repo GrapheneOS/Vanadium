@@ -25,7 +25,7 @@ index bde438ed438c6..71911553c4c65 100644
          download::DownloadClient::OPTIMIZATION_GUIDE_PREDICTION_MODELS,
          std::make_unique<download::DeferredClientWrapper>(
 diff --git a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
-index dde5364783a2d..a3a65c554534f 100644
+index ef37e2a49a01d..05cd4ccf537cb 100644
 --- a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
 +++ b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
 @@ -152,8 +152,11 @@ ChromePredictionManager::ChromePredictionManager()
@@ -43,10 +43,10 @@ index dde5364783a2d..a3a65c554534f 100644
  ChromePredictionManager::~ChromePredictionManager() = default;
  
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 25c200ff02161..5279965d4b281 100644
+index 688cf8d95f7f6..28d43f938038a 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -58,6 +58,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -57,6 +57,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
  // Enables the prediction of optimization targets.
  BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -57,7 +57,7 @@ index 25c200ff02161..5279965d4b281 100644
  // This feature flag does not turn off any behavior, it is only used for
  // experiment parameters.
  BASE_FEATURE(kPageTextExtraction,
-@@ -365,6 +369,10 @@ base::TimeDelta ModelExecutionWatchdogDefaultTimeout() {
+@@ -375,6 +379,10 @@ base::TimeDelta ModelExecutionWatchdogDefaultTimeout() {
        ));
  }
  
@@ -69,7 +69,7 @@ index 25c200ff02161..5279965d4b281 100644
    DCHECK(base::FeatureList::IsEnabled(kOptimizationGuideMetadataValidation));
    return GetFieldTrialParamByFeatureAsBool(kOptimizationGuideMetadataValidation,
 diff --git a/components/optimization_guide/core/optimization_guide_features.h b/components/optimization_guide/core/optimization_guide_features.h
-index 0f7dfde8ab1a4..87ff1b9303320 100644
+index bd5df5d3e2c69..339c90952ebf9 100644
 --- a/components/optimization_guide/core/optimization_guide_features.h
 +++ b/components/optimization_guide/core/optimization_guide_features.h
 @@ -58,6 +58,8 @@ BASE_DECLARE_FEATURE(kOptimizationGuideFetchingForSRP);
@@ -81,7 +81,7 @@ index 0f7dfde8ab1a4..87ff1b9303320 100644
  BASE_DECLARE_FEATURE(kPageTextExtraction);
  COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
  BASE_DECLARE_FEATURE(kPushNotifications);
-@@ -268,6 +270,10 @@ bool IsModelExecutionWatchdogEnabled();
+@@ -274,6 +276,10 @@ bool IsModelExecutionWatchdogEnabled();
  COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
  base::TimeDelta ModelExecutionWatchdogDefaultTimeout();
  

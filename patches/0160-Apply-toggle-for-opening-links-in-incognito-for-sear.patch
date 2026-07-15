@@ -24,10 +24,10 @@ index 3057834be4543..6b3bff0c05148 100644
          }
          return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 0bc071bb40029..f8b91a021bc38 100644
+index 4a377e55fd590..f3dc2425bc9cd 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -530,7 +530,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -442,7 +442,8 @@ public class SearchActivity extends AsyncInitializationActivity
  
      @Override
      protected OneshotSupplier<ProfileProvider> createProfileProvider() {
@@ -36,7 +36,7 @@ index 0bc071bb40029..f8b91a021bc38 100644
 +                || SearchActivityHooks.shouldOpenInIncognito(getIntent());
          ActivityProfileProvider profileProvider =
                  new ActivityProfileProvider(getLifecycleDispatcher());
-         profileProvider.onAvailable(
+         profileProvider.runSyncOrOnAvailable(
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 index e5ab145e31955..b5f5769429b4a 100644
 --- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java

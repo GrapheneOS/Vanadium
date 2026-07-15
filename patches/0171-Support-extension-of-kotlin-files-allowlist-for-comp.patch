@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 14 Jul 2026 15:42:31 +0000
+Subject: [PATCH] Support extension of kotlin files allowlist for compilation
+
+---
+ build/config/android/internal_rules.gni           |  2 ++
+ .../build/config/android/internal_rules_ext.gni   | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+)
+ create mode 100644 vanadium/chromium_src/build/config/android/internal_rules_ext.gni
+
+diff --git a/build/config/android/internal_rules.gni b/build/config/android/internal_rules.gni
+index b8ff683bd4c69..053c8c7f03df5 100644
+--- a/build/config/android/internal_rules.gni
++++ b/build/config/android/internal_rules.gni
+@@ -3986,6 +3986,8 @@ if (enable_java_templates) {
+           "*/webengine_shell_apk/*",
+           "//chrome/browser/ui/android/bricks/internal/*",
+         ]
++        import("//vanadium/chromium_src/build/config/android/internal_rules_ext.gni")
++        _kt_allowlist += kt_allowlist_ext
+         _found_kt = filter_exclude(_abs_kt_files, _kt_allowlist)
+         assert(
+             _found_kt == [],
+diff --git a/vanadium/chromium_src/build/config/android/internal_rules_ext.gni b/vanadium/chromium_src/build/config/android/internal_rules_ext.gni
+new file mode 100644
+index 0000000000000..a3b1934cb8c05
+--- /dev/null
++++ b/vanadium/chromium_src/build/config/android/internal_rules_ext.gni
+@@ -0,0 +1,15 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license
++# that can be found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Additional filters to allow kotlin source files to be compiled.
++# Examples: "//path/to/kotlin/source/*"
++#           "*/FileName.kt"
++kt_allowlist_ext = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes

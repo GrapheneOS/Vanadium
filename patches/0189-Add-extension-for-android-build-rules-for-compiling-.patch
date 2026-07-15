@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 8 Jun 2026 13:12:37 +0000
+Subject: [PATCH] Add extension for android build rules for compiling apps
+
+---
+ build/config/android/rules.gni                     |  6 ++++++
+ .../build/config/android/rules_ext.gni             | 14 ++++++++++++++
+ 2 files changed, 20 insertions(+)
+ create mode 100644 vanadium/chromium_src/build/config/android/rules_ext.gni
+
+diff --git a/build/config/android/rules.gni b/build/config/android/rules.gni
+index e5187476c2a59..1512f6637ebfc 100644
+--- a/build/config/android/rules.gni
++++ b/build/config/android/rules.gni
+@@ -2736,6 +2736,12 @@ if (!is_robolectric && enable_java_templates) {
+     _enable_lint = defined(invoker.enable_lint) && invoker.enable_lint &&
+                    !disable_android_lint
+ 
++    import("//vanadium/chromium_src/build/config/android/rules_ext.gni")
++    _srcjar_deps += android_apk_or_module_srcjar_deps_common
++    if (!_omit_dex) {
++      _srcjar_deps += android_apk_or_module_srcjar_deps_with_dex
++    }
++
+     # We cannot skip this target when omit_dex = true because it writes the
+     # build_config.json.
+     java_library_impl(_java_target_name) {
+diff --git a/vanadium/chromium_src/build/config/android/rules_ext.gni b/vanadium/chromium_src/build/config/android/rules_ext.gni
+new file mode 100644
+index 0000000000000..c338fac56d9f3
+--- /dev/null
++++ b/vanadium/chromium_src/build/config/android/rules_ext.gni
+@@ -0,0 +1,14 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license
++# that can be found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++android_apk_or_module_srcjar_deps_common = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++android_apk_or_module_srcjar_deps_with_dex = [
++]

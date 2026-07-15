@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Zoraver Kang <Zoraver@users.noreply.github.com>
+Date: Mon, 4 Jul 2022 14:28:02 -0400
+Subject: [PATCH] Use the content filtering from config app when available
+
+Do not register subresource filter component updater from upstream
+whenever Vanadium is installled on devices that can parse the config
+app.
+---
+ chrome/browser/component_updater/registration.cc         | 9 ++++++++-
+ .../component_updater_impl_cc_ext_deps.gni               | 9 +++++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/component_updater/registration.cc b/chrome/browser/component_updater/registration.cc
+index 78bb87ef64640..2074a214b6291 100644
+--- a/chrome/browser/component_updater/registration.cc
++++ b/chrome/browser/component_updater/registration.cc
+@@ -99,6 +99,9 @@
+ #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+ #include "chrome/browser/component_updater/file_type_policies_component_installer.h"
+ #endif
++#if BUILDFLAG(IS_ANDROID)
++#include "vanadium/chromium_src/components/subresource_filter/ext/android/subresource_filter_fetching.h"
++#endif // BUILDFLAG(IS_ANDROID)
+ 
+ namespace component_updater {
+ 
+@@ -142,7 +145,11 @@ void RegisterComponentsForUpdate() {
+   RegisterWidevineCdmComponent(cus);
+ #endif  // BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
+ 
+-  RegisterSubresourceFilterComponent(cus);
++#if BUILDFLAG(IS_ANDROID)
++  if (!subresource_filter::IsInitializedFromConfig()) {
++    RegisterSubresourceFilterComponent(cus);
++  }
++#endif // BUILDFLAG(IS_ANDROID)
+   RegisterOnDeviceHeadSuggestComponent(
+       cus, g_browser_process->GetApplicationLocale());
+   RegisterOptimizationHintsComponent(cus);
+diff --git a/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni
+index db0bb142846df..d7bd63b089fd9 100644
+--- a/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/browser/component_updater/component_updater_impl_cc_ext_deps.gni
+@@ -10,6 +10,15 @@ component_updater_impl_cc_ext_full_path_deps = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
++if (is_android) {
++  component_updater_impl_cc_ext_full_path_deps += [
++    "//vanadium/chromium_src/chrome/browser/subresource_filter/ext/android:android",
++    "//vanadium/chromium_src/components/subresource_filter/ext/android:android",
++  ]
++}
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
+ component_updater_impl_cc_ext_rel_path_deps = [
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes

@@ -14,10 +14,10 @@ Subject: [PATCH] Disable opening PDF in the app by default
  7 files changed, 27 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
-index 55c32f304af98..5f052180d339a 100644
+index ad6ebaa55280e..f7b194ae03f11 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
-@@ -250,8 +250,10 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
+@@ -251,8 +251,10 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
          boolean isContentScheme = url.getScheme().equals(UrlConstants.CONTENT_SCHEME);
          // TODO(crbug.com/384992232): Hide open in Chrome for blob and data url until such view
          //  intent can be handled.
@@ -31,7 +31,7 @@ index 55c32f304af98..5f052180d339a 100644
          }
          addToHomeScreenVisible &=
 diff --git a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
-index 13d85c36b3781..e717fa6391ffc 100644
+index 719beb40af849..c7fee31d8031d 100644
 --- a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
 +++ b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
 @@ -32,6 +32,7 @@ import org.chromium.base.ContextUtils;
@@ -61,20 +61,20 @@ index 13d85c36b3781..e717fa6391ffc 100644
      @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
      @Mock private Tab mTab;
 diff --git a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
-index db45fe25ea38e..6832b7d074d75 100644
+index 27872af6fd14b..ec89a036c81de 100644
 --- a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
 +++ b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
-@@ -145,6 +145,10 @@ public class PdfUtils {
-     public static boolean shouldOpenPdfInline(boolean isIncognito) {
-         if (sShouldOpenPdfInlineForTesting) return true;
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+@@ -146,6 +146,10 @@ public class PdfUtils {
+     }
+ 
+     private static boolean isPlatformSupported() {
 +            if (!org.chromium.content_public.ContentExtFeatureList
 +                    .sAndroidOpenPdfInline.isEnabled()) {
 +                return false;
 +            }
-             if (isIncognito) {
-                 return false;
-             }
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+             return true;
+         }
 diff --git a/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni b/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni
 index 1681773c2d484..eb7f4dfeee78b 100644
 --- a/vanadium/chromium_src/chrome/browser/ui/android/pdf/pdf_utils_java_ext_deps.gni

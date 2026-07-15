@@ -11,10 +11,10 @@ Subject: [PATCH] disable WebView variations support
  4 files changed, 34 insertions(+), 7 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index ecc9e62dfbc94..2debb68ae17f9 100644
+index 8cbb827b664ab..1893553baf8ce 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -1191,6 +1191,10 @@ public class WebViewChromiumAwInit {
+@@ -1270,6 +1270,10 @@ public class WebViewChromiumAwInit {
  
      // See comments in VariationsSeedLoader.java on when it's safe to call this.
      void startVariationsInit() {
@@ -25,7 +25,7 @@ index ecc9e62dfbc94..2debb68ae17f9 100644
          synchronized (mSeedLoaderLock) {
              if (mSeedLoader == null) {
                  mSeedLoader = new VariationsSeedLoader();
-@@ -1200,6 +1204,10 @@ public class WebViewChromiumAwInit {
+@@ -1279,6 +1283,10 @@ public class WebViewChromiumAwInit {
      }
  
      private void finishVariationsInitLocked() {

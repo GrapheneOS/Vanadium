@@ -4,21 +4,34 @@ Date: Thu, 15 Apr 2021 02:14:37 -0400
 Subject: [PATCH] remove Help & feedback menu entry
 
 ---
- .../browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java  | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../tabbed_mode/TabbedAppMenuPropertiesDelegate.java   | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
-index 4bc3bf5a65ad5..cac2150145852 100644
+index e248048c4b702..c2e7f5ae93b1d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedAppMenuPropertiesDelegate.java
-@@ -549,6 +549,10 @@ public class TabbedAppMenuPropertiesDelegate extends AppMenuPropertiesDelegateIm
+@@ -546,7 +546,10 @@ public class TabbedAppMenuPropertiesDelegate extends AppMenuPropertiesDelegateIm
          }
  
          // Help
+-        modelList.add(buildHelpItem());
 +        boolean enableHelpItem = false;
-+        if (!enableHelpItem) {
-+            // Don't add any item
-+        } else
-         if (ChromeFeatureList.isEnabled(ChromeFeatureList.SUBMENUS_IN_APP_MENU)) {
-             modelList.add(buildHelpParentItem());
-         } else {
++        if (enableHelpItem) {
++            modelList.add(buildHelpItem());
++        }
+ 
+         // Managed by
+         if (shouldShowManagedByMenuItem(currentTab)) {
+@@ -729,7 +732,10 @@ public class TabbedAppMenuPropertiesDelegate extends AppMenuPropertiesDelegateIm
+         modelList.add(buildSettingsItem());
+ 
+         // Help
+-        modelList.add(buildHelpParentItem());
++        boolean enableHelpItem = false;
++        if (enableHelpItem) {
++            modelList.add(buildHelpParentItem());
++        }
+ 
+         // Managed by
+         if (shouldShowManagedByMenuItem(currentTab)) {
