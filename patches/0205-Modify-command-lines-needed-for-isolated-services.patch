@@ -1,0 +1,186 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 27 Apr 2026 16:16:14 +0000
+Subject: [PATCH] Modify command lines needed for isolated services
+
+This commit applies the needed configs, specifically command line for
+javascript flags, based on OS DCL restriction state, whether to run
+javascript and wasm in JITless mode.
+---
+ .../ChildProcessLauncherHelperImpl.java       |   6 +
+ .../android/content_full_java_ext_deps.gni    |   1 +
+ .../public/child_process/android/BUILD.gn     |  19 +++
+ .../ChildProcessLauncherHelperImplHooks.java  | 109 ++++++++++++++++++
+ 4 files changed, 135 insertions(+)
+ create mode 100644 vanadium/chromium_src/content/public/child_process/android/BUILD.gn
+ create mode 100644 vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
+
+diff --git a/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java b/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java
+index 7a80cd0d8ae48..639cbbc88e804 100644
+--- a/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImpl.java
+@@ -430,6 +430,12 @@ public final class ChildProcessLauncherHelperImpl {
+             }
+         }
+ 
++        String[] newCommandLine = ChildProcessLauncherHelperImplHooks.maybeModifyCommandLine(
++                commandLine, sandboxed);
++        if (newCommandLine != null) {
++            commandLine = newCommandLine;
++        }
++
+         IBinder binderCallback =
+                 ContentSwitches.SWITCH_GPU_PROCESS.equals(processType)
+                         ? new GpuProcessCallback()
+diff --git a/vanadium/chromium_src/content/public/android/content_full_java_ext_deps.gni b/vanadium/chromium_src/content/public/android/content_full_java_ext_deps.gni
+index 4c4f42c555277..db4aed28be4a9 100644
+--- a/vanadium/chromium_src/content/public/android/content_full_java_ext_deps.gni
++++ b/vanadium/chromium_src/content/public/android/content_full_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ content_full_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/content/public/child_process/android:child_process_launcher_helper_hooks_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/content/public/child_process/android/BUILD.gn b/vanadium/chromium_src/content/public/child_process/android/BUILD.gn
+new file mode 100644
+index 0000000000000..35c6051b5fe9a
+--- /dev/null
++++ b/vanadium/chromium_src/content/public/child_process/android/BUILD.gn
+@@ -0,0 +1,19 @@
++# Copyright 2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("child_process_launcher_helper_hooks_java") {
++  sources = [
++    "java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java",
++  ]
++  deps = [
++    "//base:library_loader_java",
++    "//vanadium/android_config/common:common_config_constants_java",
++    "//vanadium/android_config/parser:config_app_parser_java",
++    "//vanadium/android_config/proto:config_proto_java",
++    "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
++    "//vanadium/ext/custom_os:custom_os_apis_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java b/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
+new file mode 100644
+index 0000000000000..1d8d9d4616f54
+--- /dev/null
++++ b/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
+@@ -0,0 +1,109 @@
++package org.chromium.content.browser;
++
++import android.text.TextUtils;
++
++import org.chromium.base.library_loader.LibraryLoader;
++import org.chromium.base.library_loader.LibraryProcessType;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.ext.CustomOSApis;
++
++import java.util.Arrays;
++import java.util.LinkedHashSet;
++import java.util.Set;
++
++import static app.vanadium.config.common.Constants.CheckOsConfigsFeatures.ISOLATED_PROCESS_V2;
++import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
++
++@NullMarked
++final class ChildProcessLauncherHelperImplHooks {
++
++    private ChildProcessLauncherHelperImplHooks() {
++    }
++
++    private static boolean isDisabled() {
++        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE)
++                .containsKey(ISOLATED_PROCESS_V2)) {
++            return true;
++        }
++
++        return false;
++    }
++
++    static String @Nullable[] maybeModifyCommandLine(
++            final String @Nullable[] commandLine, final boolean sandboxed) {
++        if (isDisabled()) {
++            return null;
++        }
++
++        if (!sandboxed) {
++            return null;
++        }
++
++        if (commandLine == null) {
++            return null;
++        }
++
++        switch (LibraryLoader.getInstance().getLibraryProcessType()) {
++            case LibraryProcessType.PROCESS_BROWSER -> {
++                Boolean isMemoryDclRestricted = CustomOSApis.isMemoryDclRestricted();
++                if (isMemoryDclRestricted != null && isMemoryDclRestricted) {
++                    break;
++                }
++
++                return null;
++            }
++
++            case LibraryProcessType.PROCESS_WEBVIEW -> {
++                Boolean isWebViewDclRestricted = CustomOSApis.isWebViewDclRestricted();
++                if (isWebViewDclRestricted != null && isWebViewDclRestricted) {
++                    break;
++                }
++
++                return null;
++            }
++
++            default -> {
++                return null;
++            }
++        }
++
++        String[] newCommandLine = commandLine;
++        boolean alreadySet = false;
++        String jsFlagsPrefix = "--js-flags=";
++        Set<String> jsFlagValuesToRemove =
++                new LinkedHashSet<>(Arrays.asList("--no-jitless", "--no_jitless",
++                        "--no-wasm-jitless", "--no-wasm_jitless",
++                        "--no_wasm_jitless", "--no_wasm_jitless"));
++        Set<String> jsFlagValuesToAppend =
++                new LinkedHashSet<>(Arrays.asList("--jitless", "--wasm_jitless"));
++        String delimiter = ",";
++        for (int i = newCommandLine.length - 1; i >= 0; --i) {
++            final String command = newCommandLine[i];
++            if (command == null) {
++                continue;
++            }
++
++            if (command.startsWith(jsFlagsPrefix)) {
++                String values = command.substring(jsFlagsPrefix.length());
++                Set<String> valueSet =
++                        new LinkedHashSet<>(Arrays.asList(values.split(delimiter)));
++                valueSet.removeAll(jsFlagValuesToRemove);
++                valueSet.addAll(jsFlagValuesToAppend);
++                newCommandLine[i] = jsFlagsPrefix + TextUtils.join(delimiter, valueSet);
++                alreadySet = true;
++                break;
++            }
++        }
++
++        if (!alreadySet) {
++            newCommandLine = Arrays.copyOf(newCommandLine, newCommandLine.length + 1);
++            newCommandLine[newCommandLine.length - 1] =
++                    jsFlagsPrefix + TextUtils.join(delimiter, jsFlagValuesToAppend);
++        }
++
++        return newCommandLine;
++    }
++}

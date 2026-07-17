@@ -1,0 +1,389 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 22 Dec 2023 07:19:23 +0000
+Subject: [PATCH] config: Add protobuf generator, parser for config apk
+ contents
+
+---
+ vanadium/android_config/proto/host/BUILD.gn   |  54 ++++
+ .../vanadium/config/host/ConfigGenerator.java |  10 +
+ .../config/host/ConfigGeneratorImpl.kt        | 239 ++++++++++++++++++
+ .../vanadium/config/host/ConfigParser.java    |  31 +++
+ .../config/android/internal_rules_ext.gni     |   2 +
+ 5 files changed, 336 insertions(+)
+ create mode 100644 vanadium/android_config/proto/host/BUILD.gn
+ create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+ create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+ create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigParser.java
+
+diff --git a/vanadium/android_config/proto/host/BUILD.gn b/vanadium/android_config/proto/host/BUILD.gn
+new file mode 100644
+index 0000000000000..e6f8e28f92672
+--- /dev/null
++++ b/vanadium/android_config/proto/host/BUILD.gn
+@@ -0,0 +1,54 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++java_binary("proto_config_generator_java") {
++  sources = [
++    "java/src/app/vanadium/config/host/ConfigGenerator.java",
++  ]
++  deps = [
++    ":proto_config_generator_impl_kt_java",
++  ]
++  # Needed to be able to compile this as a java binary with python script wrapper, for pb2 generation
++  bypass_platform_checks = true
++  # No need to enable checks for unused methods here.
++  enable_errorprone = false
++  main_class = "app.vanadium.config.host.ConfigGenerator"
++  wrapper_script_name = "android_config_apk/config_apk_generator.py"
++}
++
++java_library("proto_config_generator_impl_kt_java") {
++  sources = [
++    "java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt",
++  ]
++
++  # Workaround for not detecting java dependency on build-time,
++  # along with the dependency list requiring the declarations below.
++  supports_android = true
++  requires_android = true
++  deps = [
++    "//vanadium/android_config/proto:config_proto_java",
++    "//third_party/kotlin_stdlib:kotlin_stdlib_java",
++    "//third_party/android_deps:protobuf_lite_runtime_java",
++  ]
++  # No need to enable checks for unused methods here.
++  enable_errorprone = false
++}
++
++java_binary("proto_config_parser_java") {
++  sources = [
++    "java/src/app/vanadium/config/host/ConfigParser.java",
++  ]
++  deps = [
++    "//vanadium/android_config/proto:config_proto_java",
++    "//third_party/android_deps:protobuf_lite_runtime_java",
++  ]
++  # Needed to be able to compile this as a java binary with python script wrapper, for pb2 generation
++  bypass_platform_checks = true
++  # No need to enable checks for unused methods here.
++  enable_errorprone = false
++  main_class = "app.vanadium.config.host.ConfigParser"
++  wrapper_script_name = "android_config_apk/config_apk_parser.py"
++}
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+new file mode 100644
+index 0000000000000..14174cf8ba465
+--- /dev/null
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
+@@ -0,0 +1,10 @@
++package app.vanadium.config.host;
++
++import java.io.IOException;
++
++public class ConfigGenerator {
++
++    public static void main(String[] args) throws IOException {
++        ConfigGeneratorImplKt.main(args);
++    }
++}
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+new file mode 100644
+index 0000000000000..846f0dd5c4ee6
+--- /dev/null
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+@@ -0,0 +1,239 @@
++package app.vanadium.config.host
++
++import app.vanadium.config.proto.VanadiumConfigProto.Component
++import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition
++import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentType
++import app.vanadium.config.proto.VanadiumConfigProto.Config
++import app.vanadium.config.proto.VanadiumConfigProto.Configs
++import app.vanadium.config.proto.VanadiumConfigProto.Flag
++import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType
++import app.vanadium.config.proto.VanadiumConfigProto.Spec
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.SysFeatureCondition
++
++import com.google.protobuf.Internal.EnumLite
++
++import java.io.FileOutputStream
++
++import kotlin.IllegalArgumentException
++import kotlin.Int
++import kotlin.String
++import kotlin.Unit
++import kotlin.run
++
++
++fun main(vararg args: String) {
++    var outFile: String? = null
++    val iter = args.iterator()
++    while (iter.hasNext()) {
++        when (val curArg = iter.next()) {
++            "-o", "--out_file", "--out-file", "-o=", "--out_file=", "--out-file=" -> {
++                if (!iter.hasNext()) {
++                    throw IllegalArgumentException("Missing args for file")
++                }
++                outFile = iter.next()
++                continue
++            }
++            else -> {
++                if (curArg.startsWith("-o=")
++                    || curArg.startsWith("--out-file=")
++                    || curArg.startsWith("--out_file=")
++                ) {
++                    outFile = curArg.split("=")[1]
++                    continue
++                }
++                throw IllegalArgumentException("Unrecognized argument")
++            }
++        }
++    }
++
++    if (outFile.isNullOrBlank()) {
++        throw IllegalArgumentException("Missing output file argument")
++    }
++
++    FileOutputStream(outFile).use {
++        configs().writeTo(it)
++    }
++}
++
++private fun configs(): Configs {
++    val configs = ArrayList<Config>()
++
++    return sortConfigs(configs)
++}
++
++
++private fun sortConfigs(configList: List<Config>): Configs {
++    return Configs.newBuilder().addAllConfigs(
++        configList.sortedWith { config: Config, otherConfig: Config ->
++            val spec = config.spec
++            val otherSpec = otherConfig.spec
++            val specTypeCmp = spec.specTypes.compareTo(otherSpec.specTypes)
++            if (specTypeCmp != 0) {
++                return@sortedWith specTypeCmp
++            }
++
++            val minVerCmp = spec.minVersion.compareTo(otherSpec.minVersion)
++            if (minVerCmp != 0) {
++                return@sortedWith minVerCmp
++            }
++
++            val maxVerCmp = spec.maxVersion.compareTo(otherSpec.maxVersion)
++            if (maxVerCmp != 0) {
++                return@sortedWith maxVerCmp
++            }
++
++            0
++    }).build()
++}
++
++private fun config(
++    components: List<Component>,
++    flags: List<Flag>,
++    block: Config.Builder.() -> Unit,
++): Config {
++    return Config.newBuilder().run {
++        addAllComponents(components)
++        addAllFlags(flags)
++        block(this)
++        build()
++    }
++}
++
++private fun config(
++    spec: Spec,
++    components: List<Component>,
++    flags: List<Flag>,
++    block: Config.Builder.() -> Unit,
++): Config {
++    return Config.newBuilder().run {
++        setSpec(spec)
++        addAllComponents(components)
++        addAllFlags(flags)
++        block(this)
++        build()
++    }
++}
++
++private fun config(block: Config.Builder.() -> Unit): Config {
++    return Config.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun spec(block: Spec.Builder.() -> Unit): Spec {
++    return Spec.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun sysFeatureConditions(
++    vararg sysFeatureConditions: SysFeatureCondition
++): List<SysFeatureCondition> {
++    return listOf(*sysFeatureConditions)
++}
++
++private fun sysFeatureCondition(block: SysFeatureCondition.Builder.() -> Unit): SysFeatureCondition {
++    return SysFeatureCondition.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun flags(vararg flags: Flag): List<Flag> {
++    return listOf(*flags)
++}
++
++private fun flag(block: Flag.Builder.() -> Unit): Flag {
++    return Flag.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun components(vararg components: Component): List<Component> {
++    return listOf(*components)
++}
++
++private fun component(
++    additionalComponents: List<AdditionalComponent>,
++    dependentFlags: List<Flag>,
++    block: Component.Builder.() -> Unit,
++): Component {
++    return Component.newBuilder().run {
++        addAllAdditionalComponents(additionalComponents)
++        addAllDependentFlags(dependentFlags)
++        block(this)
++        build()
++    }
++}
++
++private fun component(block: Component.Builder.() -> Unit): Component {
++    return Component.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun additionalComponents(vararg additionalComponents: AdditionalComponent): List<AdditionalComponent> {
++    return listOf(*additionalComponents)
++}
++
++private fun additionalComponent(
++    componentConditions: List<ComponentCondition>,
++    block: AdditionalComponent.Builder.() -> Unit,
++): AdditionalComponent {
++    return AdditionalComponent.newBuilder().run {
++        addAllConditions(componentConditions)
++        block(this)
++        build()
++    }
++}
++
++private fun additionalComponent(block: AdditionalComponent.Builder.() -> Unit): AdditionalComponent {
++    return AdditionalComponent.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun componentConditions(vararg componentConditions: ComponentCondition): List<ComponentCondition> {
++    return listOf(*componentConditions)
++}
++
++private fun componentCondition(block: ComponentCondition.Builder.() -> Unit): ComponentCondition {
++    return ComponentCondition.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
++private fun getSpecTypes(vararg specTypes: SpecType): Long {
++    return enumBitsLong(*specTypes)
++}
++
++private fun enumBitsLong(vararg enumBits: EnumLite): Long {
++    var bits = 0L
++    for (enumBit in enumBits) {
++        bits = bits or (1L shl enumBit.getNumber())
++    }
++    return bits
++}
++
++private fun vanadiumVersion(major: Int, minor: Int, increment: Int = 0): Long {
++    check(major > 0)
++    check(minor in 0..999)
++    check(increment in 0..99)
++    return major * 100_000L + minor * 100L + increment
++}
++
++private fun grapheneOsVersion(year: Int, month: Int, day: Int, increment: Int = 0): Long {
++    check(year > 0)
++    check(month in 1..12)
++    check(day in 1..31)
++    check(increment in 0..100)
++    return year * 1_000_000L + month * 10_000L + day * 100L + increment
++}
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigParser.java b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigParser.java
+new file mode 100644
+index 0000000000000..49906f6568255
+--- /dev/null
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigParser.java
+@@ -0,0 +1,31 @@
++package app.vanadium.config.host;
++
++import java.io.ByteArrayOutputStream;
++import java.io.FileInputStream;
++import java.io.IOException;
++
++import app.vanadium.config.proto.VanadiumConfigProto.Configs;
++
++public class ConfigParser {
++    public static void main(String[] args) throws IOException {
++        String inFile = null;
++        for (int i = 0; i < args.length; i++) {
++            String arg = args[i];
++            if ("-i".equals(arg) || "--in_file".equals(arg)) {
++                inFile = args[i + 1];
++                break;
++            } else if (arg.startsWith("--in_file=")) {
++                inFile = arg.split("=")[1];
++                break;
++            }
++        }
++        if (inFile == null || inFile.isBlank() || inFile.isEmpty()) {
++            throw new IllegalArgumentException("No input file supplied, exiting");
++        }
++        try (var inputStream = new FileInputStream(inFile)) {
++            var configs = Configs.parseFrom(inputStream);
++            System.out.println(configs.toString());
++            System.exit(0);
++        }
++    }
++}
+diff --git a/vanadium/chromium_src/build/config/android/internal_rules_ext.gni b/vanadium/chromium_src/build/config/android/internal_rules_ext.gni
+index a3b1934cb8c05..561ece78a23d2 100644
+--- a/vanadium/chromium_src/build/config/android/internal_rules_ext.gni
++++ b/vanadium/chromium_src/build/config/android/internal_rules_ext.gni
+@@ -9,6 +9,8 @@
+ # Examples: "//path/to/kotlin/source/*"
+ #           "*/FileName.kt"
+ kt_allowlist_ext = [
++  # Needed for more readable variant of config generation, in Kotlin
++  "//vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes

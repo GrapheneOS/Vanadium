@@ -1,0 +1,210 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 5 Jan 2024 13:49:26 +0000
+Subject: [PATCH] Extend //components/subresource_filter/android java and cc
+ targets deps and sources
+
+---
+ .../subresource_filter/android/BUILD.gn       | 12 +++++++++
+ ...subresource_filter_android_cc_ext_deps.gni | 26 +++++++++++++++++++
+ ...resource_filter_android_cc_ext_sources.gni | 26 +++++++++++++++++++
+ ...bresource_filter_android_java_ext_deps.gni | 26 +++++++++++++++++++
+ ...source_filter_android_java_ext_sources.gni | 26 +++++++++++++++++++
+ ...ce_filter_android_java_ext_srcjar_deps.gni | 26 +++++++++++++++++++
+ 6 files changed, 142 insertions(+)
+ create mode 100644 vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_sources.gni
+ create mode 100644 vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_srcjar_deps.gni
+
+diff --git a/components/subresource_filter/android/BUILD.gn b/components/subresource_filter/android/BUILD.gn
+index 77550b110d944..f1c401665ab48 100644
+--- a/components/subresource_filter/android/BUILD.gn
++++ b/components/subresource_filter/android/BUILD.gn
+@@ -28,6 +28,13 @@ android_library("java") {
+     "//ui/android:ui_no_recycler_view_java",
+   ]
+ 
++  import("//vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_sources.gni")
++  sources += subresource_filter_android_java_ext_sources
++  import("//vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_deps.gni")
++  deps += subresource_filter_android_java_ext_deps
++  import("//vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_srcjar_deps.gni")
++  srcjar_deps += subresource_filter_android_java_ext_srcjar_deps
++
+   resources_package = "org.chromium.components.subresource_filter"
+ }
+ 
+@@ -61,6 +68,11 @@ source_set("android") {
+     "//content/public/browser",
+     "//ui/android",
+   ]
++
++  import("//vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_sources.gni")
++  sources += subresource_filter_android_cc_ext_sources
++  import("//vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_deps.gni")
++  deps += subresource_filter_android_cc_ext_deps
+ }
+ 
+ android_resources("java_resources") {
+diff --git a/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_deps.gni b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_deps.gni
+new file mode 100644
+index 0000000000000..caaba54fdd505
+--- /dev/null
++++ b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_deps += subresource_filter_android_cc_ext_full_path_deps
++foreach(rel_path, subresource_filter_android_cc_ext_rel_path_deps) {
++  subresource_filter_android_cc_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_sources.gni b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_sources.gni
+new file mode 100644
+index 0000000000000..4754768d319c6
+--- /dev/null
++++ b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_cc_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_cc_ext_sources += subresource_filter_android_cc_ext_full_path_sources
++foreach(rel_path, subresource_filter_android_cc_ext_rel_path_sources) {
++  subresource_filter_android_cc_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_deps.gni b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_deps.gni
+new file mode 100644
+index 0000000000000..84d4074443d57
+--- /dev/null
++++ b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_deps += subresource_filter_android_java_ext_full_path_deps
++foreach(rel_path, subresource_filter_android_java_ext_rel_path_deps) {
++  subresource_filter_android_java_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_sources.gni b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_sources.gni
+new file mode 100644
+index 0000000000000..cc11572429810
+--- /dev/null
++++ b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_sources += subresource_filter_android_java_ext_full_path_sources
++foreach(rel_path, subresource_filter_android_java_ext_rel_path_sources) {
++  subresource_filter_android_java_ext_sources += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_srcjar_deps.gni b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_srcjar_deps.gni
+new file mode 100644
+index 0000000000000..34e27f846d1eb
+--- /dev/null
++++ b/vanadium/chromium_src/components/subresource_filter/android/subresource_filter_android_java_ext_srcjar_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_full_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_rel_path_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_srcjar_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++subresource_filter_android_java_ext_srcjar_deps += subresource_filter_android_java_ext_full_path_srcjar_deps
++foreach(rel_path, subresource_filter_android_java_ext_rel_path_srcjar_deps) {
++  subresource_filter_android_java_ext_srcjar_deps += [ rebase_path(rel_path) ]
++}

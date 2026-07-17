@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 29 Dec 2023 11:04:00 +0000
+Subject: [PATCH] Update subresource filter from config apk
+
+Add needed deps for browser level static library for config component
+updates
+---
+ .../chrome/browser/init/ProcessInitializationHandler.java        | 1 +
+ vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni    | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
+index 29235c88fb946..e2521fab6aafd 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
+@@ -736,6 +736,7 @@ public class ProcessInitializationHandler {
+         // Asynchronously query system accessibility state so it is ready for clients.
+         tasks.add(AccessibilityState::initializeOnStartup);
+         tasks.add(TabPersistentStoreImpl::onDeferredStartup);
++        tasks.add(org.chromium.chrome.browser.subresource_filter.RulesetUpdater::init);
+     }
+ 
+     /**
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+index a27fef5889d2d..e1e604f751713 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
+@@ -9,6 +9,7 @@ chrome_java_ext_full_path_deps = [
+   "//vanadium/chromium_src/base/settings/android:base_settings_java",
+   "//vanadium/chromium_src/chrome/browser/flags/ext/android:feature_map_java",
+   "//vanadium/chromium_src/chrome/browser/referrer/android:cross_origin_referrer_settings_java",
++  "//vanadium/chromium_src/chrome/browser/subresource_filter/ext/android:java",
+   "//vanadium/chromium_src/chrome/browser/webrtc/android:webrtc_settings_java",
+   "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]

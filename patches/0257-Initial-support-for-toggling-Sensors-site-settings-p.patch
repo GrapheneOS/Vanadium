@@ -4,20 +4,20 @@ Date: Mon, 19 Jan 2026 14:36:41 +0000
 Subject: [PATCH] Initial support for toggling Sensors site settings per-site
 
 ---
- .../site_settings/SensorsSettingsHooks.java   | 222 ++++++++++++++++++
+ .../site_settings/SensorsSettingsHooks.java   | 196 ++++++++++++++++++
  .../SiteSettingsHooksRegistry.java            |   5 +
  .../site_settings_android_java_ext_deps.gni   |   1 +
  ...site_settings_android_java_ext_sources.gni |   1 +
  .../strings/android/site_settings_ext.grdp    |   6 +
- 5 files changed, 235 insertions(+)
+ 5 files changed, 209 insertions(+)
  create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 
 diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java b/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
 new file mode 100644
-index 0000000000000..0dcd69e628f78
+index 0000000000000..74074faf96629
 --- /dev/null
 +++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SensorsSettingsHooks.java
-@@ -0,0 +1,222 @@
+@@ -0,0 +1,196 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import android.content.Context;
@@ -39,24 +39,16 @@ index 0000000000000..0dcd69e628f78
 +import org.chromium.components.embedder_support.util.UrlConstants;
 +import org.chromium.content_public.browser.BrowserContextHandle;
 +
-+import app.vanadium.config.VanadiumConfParser;
 +import app.vanadium.ext.CustomOSPermissions;
 +
 +import java.util.ArrayList;
 +import java.util.Arrays;
 +import java.util.Collection;
 +
-+import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
-+
 +@NullMarked
 +public final class SensorsSettingsHooks {
 +
 +    private static boolean isPermissionExistingAndRevoked() {
-+        String featureKey = "CheckOSPermissionForSensorsSiteSettingsUI";
-+        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE).containsKey(featureKey)) {
-+            return false;
-+        }
-+
 +        String permission = CustomOSPermissions.getSensorsPermissionName();
 +        if (permission == null) {
 +            return false;
@@ -134,16 +126,6 @@ index 0000000000000..0dcd69e628f78
 +
 +    static final class SingleCategorySettingsHooksImpl extends SingleCategorySettingsHooks {
 +
-+        private static boolean shouldUseRevisedSiteSettingsException() {
-+            String featureKey = "MotionSensorsRevisedSiteSettingsException";
-+            if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE)
-+                    .containsKey(featureKey)) {
-+                return false;
-+            }
-+
-+            return true;
-+        }
-+
 +        @Override
 +        protected int getAddExceptionDialogMessageResourceId(boolean isCategoryEnabled) {
 +            return isCategoryEnabled
@@ -157,15 +139,11 @@ index 0000000000000..0dcd69e628f78
 +                return false;
 +            }
 +
-+            return shouldUseRevisedSiteSettingsException();
++            return true;
 +        }
 +
 +        @Override
 +        protected @Nullable Collection<Website> applyFilters(Collection<Website> sites) {
-+            if (!shouldUseRevisedSiteSettingsException()) {
-+                return null;
-+            }
-+
 +            Collection<Website> filtered = new ArrayList<>();
 +            for (Website site : sites) {
 +                if (site.getAddress().getOrigin().startsWith(UrlConstants.HTTPS_URL_PREFIX)) {
@@ -181,10 +159,6 @@ index 0000000000000..0dcd69e628f78
 +
 +        @Override
 +        protected @Nullable String maybeModifyPrimaryPattern(String pattern) {
-+            if (!shouldUseRevisedSiteSettingsException()) {
-+                return null;
-+            }
-+
 +            String originString = pattern.contains("://")
 +                    ? pattern
 +                    : UrlConstants.HTTPS_URL_PREFIX + pattern;
@@ -285,12 +259,12 @@ index 7c40ff5e17575..6c2c92bf6947d 100644
          };
      }
 diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
-index 43022f3f4c5a9..78079297b9bb1 100644
+index d82fb83525352..0827c707d0af4 100644
 --- a/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
 +++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/site_settings_android_java_ext_deps.gni
-@@ -14,6 +14,7 @@ site_settings_android_java_ext_rel_path_deps = [
-   "//vanadium/android_config/parser:config_app_parser_java",
-   "//vanadium/android_config/proto:config_proto_java",
+@@ -7,6 +7,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ site_settings_android_java_ext_full_path_deps = [
    "//vanadium/ext/custom_os:custom_os_apis_java",
 +  "//vanadium/ext/custom_os:custom_os_permissions_java",
  ]
