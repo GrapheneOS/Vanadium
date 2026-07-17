@@ -8,13 +8,13 @@ Subject: [PATCH] prepare for adding/modifying site settings downstream
  1 file changed, 9 insertions(+)
 
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index 950cfa5d881be..7978c2e5780c7 100644
+index fba7f48fed6b7..3a47238e83f7b 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -843,6 +843,15 @@ void ContentSettingsRegistry::Init() {
+@@ -852,6 +852,15 @@ void ContentSettingsRegistry::Init() {
             WebsiteSettingsRegistry::DESKTOP,
-            ContentSettingsInfo::DONT_INHERIT_IN_INCOGNITO,
-            PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
+            ContentSettingsInfo::INHERIT_IN_INCOGNITO,
+            PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_AND_INSECURE_ORIGINS);
 +  // START extension of added content settings initialization
 +  // Always copy the three lines comment below when adding changes,
 +  // above the actual changes or additions on settings registration.

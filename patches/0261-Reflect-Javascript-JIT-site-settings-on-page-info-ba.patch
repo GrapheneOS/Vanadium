@@ -5,17 +5,17 @@ Subject: [PATCH] Reflect Javascript JIT site settings on page info based on
  memory DCL state
 
 ---
- .../permissions/android/ext/BUILD.gn          |  4 +++
- .../JavascriptJitPermissionsHooks.java        | 35 +++++++++++++++++++
+ .../permissions/android/ext/BUILD.gn          |  2 ++
+ .../JavascriptJitPermissionsHooks.java        | 27 +++++++++++++++++++
  .../permissions/PermissionsHooksRegistry.java |  1 +
- 3 files changed, 40 insertions(+)
+ 3 files changed, 30 insertions(+)
  create mode 100644 vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/JavascriptJitPermissionsHooks.java
 
 diff --git a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
-index 98ba867905ac8..4f7480b239e59 100644
+index 98ba867905ac8..df5ed1918bd60 100644
 --- a/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
 +++ b/vanadium/chromium_src/components/permissions/android/ext/BUILD.gn
-@@ -3,12 +3,16 @@ import("//third_party/jni_zero/jni_zero.gni")
+@@ -3,12 +3,14 @@ import("//third_party/jni_zero/jni_zero.gni")
  
  android_library("permissions_deps_java") {
    sources = [
@@ -26,37 +26,27 @@ index 98ba867905ac8..4f7480b239e59 100644
  
    deps = [
      "//components/content_settings/core/common:content_settings_types_java",
-+    "//vanadium/android_config/parser:config_app_parser_java",
-+    "//vanadium/android_config/proto:config_proto_java",
 +    "//vanadium/ext/custom_os:custom_os_apis_java",
    ]
  
    srcjar_deps = [
 diff --git a/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/JavascriptJitPermissionsHooks.java b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/JavascriptJitPermissionsHooks.java
 new file mode 100644
-index 0000000000000..8dc4763fcf992
+index 0000000000000..0a58b1c2fb738
 --- /dev/null
 +++ b/vanadium/chromium_src/components/permissions/android/ext/java/src/org/chromium/components/permissions/JavascriptJitPermissionsHooks.java
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,27 @@
 +package org.chromium.components.permissions;
-+
-+import static app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType.DISABLED_FEATURE;
 +
 +import org.chromium.build.annotations.NullMarked;
 +import org.chromium.build.annotations.Nullable;
 +
-+import app.vanadium.config.VanadiumConfParser;
 +import app.vanadium.ext.CustomOSApis;
 +
 +@NullMarked
 +final class JavascriptJitPermissionsHooks {
 +
 +    private static boolean isMemoryDclRestricted() {
-+        String featureKey = "CheckOsConfigsForJavascriptJitSiteSettingsForPermissions";
-+        if (VanadiumConfParser.getFlagsFor(DISABLED_FEATURE).containsKey(featureKey)) {
-+            return false;
-+        }
-+
 +        Boolean isMemoryDclRestricted = CustomOSApis.isMemoryDclRestricted();
 +        return isMemoryDclRestricted != null && isMemoryDclRestricted;
 +    }

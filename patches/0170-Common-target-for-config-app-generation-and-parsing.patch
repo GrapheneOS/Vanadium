@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 12 Jul 2026 15:09:15 +0000
+Subject: [PATCH] Common target for config app generation and parsing
+
+---
+ vanadium/android_config/common/BUILD.gn              | 12 ++++++++++++
+ .../src/app/vanadium/config/common/Constants.java    |  9 +++++++++
+ 2 files changed, 21 insertions(+)
+ create mode 100644 vanadium/android_config/common/BUILD.gn
+ create mode 100644 vanadium/android_config/common/java/src/app/vanadium/config/common/Constants.java
+
+diff --git a/vanadium/android_config/common/BUILD.gn b/vanadium/android_config/common/BUILD.gn
+new file mode 100644
+index 0000000000000..7659f0f8be0c5
+--- /dev/null
++++ b/vanadium/android_config/common/BUILD.gn
+@@ -0,0 +1,12 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++java_library("common_config_constants_java") {
++  supports_android = true
++  sources = [
++    "java/src/app/vanadium/config/common/Constants.java",
++  ]
++}
+diff --git a/vanadium/android_config/common/java/src/app/vanadium/config/common/Constants.java b/vanadium/android_config/common/java/src/app/vanadium/config/common/Constants.java
+new file mode 100644
+index 0000000000000..920148bc2eb52
+--- /dev/null
++++ b/vanadium/android_config/common/java/src/app/vanadium/config/common/Constants.java
+@@ -0,0 +1,9 @@
++package app.vanadium.config.common;
++
++public interface Constants {
++
++    interface CheckOsConfigsFeatures {
++        String ISOLATED_PROCESS_V1 = "CheckOsConfigsForIsolatedProcessV1";
++        String ISOLATED_PROCESS_V2 = "CheckOsConfigsForIsolatedProcessV2";
++    }
++}

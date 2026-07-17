@@ -11,10 +11,10 @@ Subject: [PATCH] Apply toggle for opening links in incognito for explicit
  3 files changed, 37 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index a9e5e451ebdae..2bbd679f36137 100644
+index 7efa6dc05214c..370c5b2248340 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1849,6 +1849,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -1864,6 +1864,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
                  return;
              }
  
@@ -23,7 +23,7 @@ index a9e5e451ebdae..2bbd679f36137 100644
              // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
              // adding NEW_TASK flag to make sure backing from CCT brings up the caller activity,
              // and not Chrome
-@@ -2317,6 +2319,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -2336,6 +2338,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
              Log.i(TAG, "#initializeState");
              Intent intent = getIntent();
  

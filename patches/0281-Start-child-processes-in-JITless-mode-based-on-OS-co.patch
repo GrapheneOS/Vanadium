@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 20 Feb 2024 04:05:46 +0000
+Subject: [PATCH] Start child processes in JITless mode based on OS
+ configurations
+
+This is the current approach prior to Android 17 for starting isolated
+processes in JITless mode, specifically when dynamic code loading in
+memory is restricted, that is, when execmem is blocked in SELinux. This
+implementation is kept behind a config-specfic feature flags that's
+parsed and appended into per-process command line flags, where jitless
+mode flags is set upon each isolated process initialized with ART.
+
+Maintained indefinitely for compatibility purposes on older GrapheneOS
+versions.
+---
+ .../chromium_src/base/config/android/BUILD.gn |  2 ++
+ .../base/config/VanadiumConfigsUtils.java     | 36 ++++++++++++++++++-
+ 2 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/vanadium/chromium_src/base/config/android/BUILD.gn b/vanadium/chromium_src/base/config/android/BUILD.gn
+index 63b5b1510de82..733025588ae35 100644
+--- a/vanadium/chromium_src/base/config/android/BUILD.gn
++++ b/vanadium/chromium_src/base/config/android/BUILD.gn
+@@ -11,8 +11,10 @@ android_library("vanadium_config_utils_java") {
+   deps = [
+     "//base:command_line_java",
+     "//base:log_java",
++    "//vanadium/android_config/common:common_config_constants_java",
+     "//vanadium/android_config/parser:config_app_parser_java",
+     "//vanadium/android_config/proto:config_proto_java",
++    "//vanadium/ext/custom_os:custom_os_apis_java",
+     "//vanadium/chromium_src/base/command_line/android:command_line_utils_java",
+     "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
+   ]
+diff --git a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
+index 4ac6693c1a83e..f33b8f174a1ff 100644
+--- a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
++++ b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
+@@ -9,12 +9,14 @@ import org.chromium.build.annotations.NullMarked;
+ 
+ import app.vanadium.config.VanadiumConfParser;
+ import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
++import app.vanadium.ext.CustomOSApis;
+ 
+ import java.util.ArrayList;
+ import java.util.LinkedHashSet;
+ import java.util.Map;
+ import java.util.Set;
+ 
++import static app.vanadium.config.common.Constants.CheckOsConfigsFeatures.ISOLATED_PROCESS_V1;
+ import static org.chromium.base.command_line.VanadiumCommandLineUtils.getCommaDelimitedSwitchValue;
+ import static org.chromium.base.command_line.VanadiumCommandLineUtils.setCommaDelimitedSwitchValue;
+ 
+@@ -50,7 +52,39 @@ public final class VanadiumConfigsUtils {
+             }
+             case LibraryProcessType.PROCESS_CHILD,
+                  LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
+-                Log.i(TAG, "configs are not initialized for child processes");
++                CommandLine commandLine = CommandLine.getInstance();
++                if (commandLine != null && !CommandLine.hasSwitchedToNative()) {
++                    Set<String> disabledFeatures = new LinkedHashSet<>(
++                            getCommaDelimitedSwitchValue("disable-features"));
++
++                    // Include checks for custom OS API existence for older OS versions
++                    if (disabledFeatures.contains(ISOLATED_PROCESS_V1)
++                            && CustomOSApis.isMemoryDclRestricted() != null
++                            && CustomOSApis.isWebViewDclRestricted() != null) {
++                        return;
++                    }
++
++                    // Only use this approach if new checks from OS configs for DCL
++                    // has regressions, using the needed config flags.
++                    Boolean isExecmemBlocked = CustomOSApis.isExecmemBlocked();
++                    if (isExecmemBlocked == null || !isExecmemBlocked) {
++                        return;
++                    }
++
++                    String jsFlagsName = "js-flags";
++                    LinkedHashSet<String> jsFlags = new LinkedHashSet<>(
++                            getCommaDelimitedSwitchValue(jsFlagsName));
++                    Set<String> jsFlagValuesToRemove = new LinkedHashSet<>(Set.of(
++                            "--no-jitless", "--no_jitless",
++                            "--no-wasm-jitless", "--no-wasm_jitless",
++                            "--no_wasm-jitless", "--no_wasm_jitless"));
++                    jsFlags.removeAll(jsFlagValuesToRemove);
++                    Set<String> jsFlagValuesToAppend = new LinkedHashSet<>(Set.of(
++                            "--jitless", "--wasm_jitless"));
++                    jsFlags.addAll(jsFlagValuesToAppend);
++                    setCommaDelimitedSwitchValue(
++                            jsFlagsName, new ArrayList<>(jsFlags));
++                }
+                 return;
+             }
+             default -> throw new IllegalStateException();

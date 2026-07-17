@@ -20,7 +20,7 @@ such case is on autocomplete clipboard checks at the url bar.
  3 files changed, 25 insertions(+)
 
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/AutocompleteController.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/AutocompleteController.java
-index 1bb44580999c5..4cbddad4c889f 100644
+index 7953cdbe0f872..7550207c88868 100644
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/AutocompleteController.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/AutocompleteController.java
 @@ -117,6 +117,7 @@ public class AutocompleteController {
@@ -31,7 +31,7 @@ index 1bb44580999c5..4cbddad4c889f 100644
          AutocompleteControllerJni.get()
                  .start(
                          mNativeController,
-@@ -179,6 +180,7 @@ public class AutocompleteController {
+@@ -178,6 +179,7 @@ public class AutocompleteController {
       */
      public @Nullable AutocompleteMatch classify(String text) {
          if (mNativeController == 0) return null;
@@ -39,7 +39,7 @@ index 1bb44580999c5..4cbddad4c889f 100644
          return AutocompleteControllerJni.get().classify(mNativeController, text);
      }
  
-@@ -191,6 +193,7 @@ public class AutocompleteController {
+@@ -190,6 +192,7 @@ public class AutocompleteController {
      public void startZeroSuggest(@Nullable WebContents webContents, AutocompleteInput input) {
          if (mNativeController == 0) return;
  
@@ -62,10 +62,10 @@ index 3f542c5f5151a..302522687151e 100644
       * Emulates the behavior of the now-deprecated {@link
       * android.text.ClipboardManager#setText(CharSequence)}, setting the clipboard's current primary
 diff --git a/ui/android/java/src/org/chromium/ui/base/ClipboardImpl.java b/ui/android/java/src/org/chromium/ui/base/ClipboardImpl.java
-index b4071733454c1..8f9388af5fc58 100644
+index a767173284ffe..009fc29de2a6b 100644
 --- a/ui/android/java/src/org/chromium/ui/base/ClipboardImpl.java
 +++ b/ui/android/java/src/org/chromium/ui/base/ClipboardImpl.java
-@@ -390,8 +390,27 @@ public class ClipboardImpl extends Clipboard
+@@ -415,8 +415,27 @@ public class ClipboardImpl extends Clipboard
          return uris.toArray(new String[][] {});
      }
  

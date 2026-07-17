@@ -11,10 +11,10 @@ to avoid the need to update the histogram map.
  2 files changed, 29 insertions(+), 2 deletions(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_uma_util.cc b/components/content_settings/core/browser/content_settings_uma_util.cc
-index 78419a8c6fe1a..cc59ca9999585 100644
+index 9336b8d35d9e5..4d4224ffc54d4 100644
 --- a/components/content_settings/core/browser/content_settings_uma_util.cc
 +++ b/components/content_settings/core/browser/content_settings_uma_util.cc
-@@ -225,16 +225,26 @@ namespace content_settings_uma_util {
+@@ -226,16 +226,26 @@ namespace content_settings_uma_util {
  
  void RecordContentSettingsHistogram(const std::string& name,
                                      ContentSettingsType content_setting) {
@@ -43,7 +43,7 @@ index 78419a8c6fe1a..cc59ca9999585 100644
        "Update content settings histogram lookup");
  
    auto found = kHistogramValue.find(content_setting);
-@@ -248,6 +258,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
+@@ -249,6 +259,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
  
  void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
                               ContentSettingsType content_setting_type) {
@@ -55,7 +55,7 @@ index 78419a8c6fe1a..cc59ca9999585 100644
    content_settings_uma_util::RecordContentSettingsHistogram(
        base::StrCat({"ContentSettings.ActiveExpiry.",
                      GetProviderNameForHistograms(provider_type),
-@@ -257,6 +272,11 @@ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
+@@ -258,6 +273,11 @@ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
  
  void RecordContentSettingChange(ContentSetting content_setting_value,
                                  ContentSettingsType content_setting_type) {
@@ -68,13 +68,13 @@ index 78419a8c6fe1a..cc59ca9999585 100644
      case CONTENT_SETTING_ALLOW:
        content_settings_uma_util::RecordContentSettingsHistogram(
 diff --git a/components/content_settings/core/common/content_settings_types.mojom b/components/content_settings/core/common/content_settings_types.mojom
-index c495aa32fd832..9230120959207 100644
+index 5284b3aeddfb1..d99395efe29f2 100644
 --- a/components/content_settings/core/common/content_settings_types.mojom
 +++ b/components/content_settings/core/common/content_settings_types.mojom
-@@ -487,5 +487,12 @@ enum ContentSettingsType {
-   // - ALLOW: Skip the prompt and allow adding sub apps.
-   // - BLOCK: Skip the prompt and block adding sub apps.
-   SUB_APPS_WITHOUT_PROMPTS,
+@@ -490,5 +490,12 @@ enum ContentSettingsType {
+ 
+   // Controls the display of the inline cue menu in a website.
+   INLINE_CUE_MENU,
 +
 +  // Indicator for latest upstream content settings type.
 +  // Currently, histograms are unused and planned to be stubbed in the near future.
