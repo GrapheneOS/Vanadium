@@ -1,0 +1,1331 @@
+From 92b25fc63213e7dac78dc61fc66e2bb83cd78f1a Mon Sep 17 00:00:00 2001
+From: aaravrav <37036762+aaravrav@users.noreply.github.com>
+Date: Tue, 14 Jul 2026 11:49:03 +0530
+Subject: [PATCH] Add clear browsing data on exit
+
+Add independent options for clearing history, site data, cache,
+passwords, form data and site settings. Clear selected data when the
+last browser activity finishes and before browsing can begin the next
+time Vanadium opens.
+---
+ .../chrome/browser/app/ChromeActivity.java    |  22 ++
+ .../customtabs/CustomTabsConnection.java      |  39 ++
+ .../browser/customtabs/HiddenTabHolder.java   |   7 +
+ .../chrome/browser/init/BrowserParts.java     |  10 +
+ .../init/ChromeBrowserInitializer.java        |  13 +-
+ chrome/android/junit/BUILD.gn                 |   1 +
+ .../CustomTabsConnectionUnitTest.java         |  43 +++
+ .../shared_preferences/SharedPrefsUtils.java  |  18 +
+ .../chrome_app_java_resources_ext_sources.gni |   1 +
+ .../android/chrome_java_ext_sources.gni       |   2 +
+ ...lear_browsing_data_on_exit_preferences.xml |  34 ++
+ .../java/res/xml/privacy_preferences_ext.xml  |   6 +-
+ .../ClearBrowsingDataOnExitManager.java       | 304 ++++++++++++++++
+ .../ClearBrowsingDataOnExitSettings.java      |  65 ++++
+ .../privacy/settings/PrivacySettingsExt.java  |   8 +
+ .../ClearBrowsingDataOnExitManagerTest.java   | 343 ++++++++++++++++++
+ .../strings/android_chrome_ext_strings.grdp   |   6 +
+ 17 files changed, 918 insertions(+), 4 deletions(-)
+ create mode 100644 vanadium/chromium_src/chrome/android/java/res/xml/clear_browsing_data_on_exit_preferences.xml
+ create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManager.java
+ create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/ClearBrowsingDataOnExitSettings.java
+ create mode 100644 vanadium/chromium_src/chrome/android/junit/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManagerTest.java
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+index df1e608403265..417135f1aca41 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -77,6 +77,7 @@ import org.chromium.chrome.browser.ChromeActivitySessionTracker;
+ import org.chromium.chrome.browser.ChromeApplicationImpl;
+ import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
+ import org.chromium.chrome.browser.ChromeWindow;
++import org.chromium.chrome.browser.ClearBrowsingDataOnExitManager;
+ import org.chromium.chrome.browser.DeferredStartupHandler;
+ import org.chromium.chrome.browser.IntentHandler;
+ import org.chromium.chrome.browser.PlayServicesVersionInfo;
+@@ -452,6 +453,7 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
+     private CloseListenerManager mCloseListenerManager;
+     private StylusWritingCoordinator mStylusWritingCoordinator;
+     private boolean mBlockingDrawForAppRestart;
++    private boolean mIsRegisteredForBrowsingDataOnExit;
+     private Runnable mShowContentRunnable;
+     private boolean mIsRecreatingForTabletModeChange;
+     // This is only used on automotive.
+@@ -511,6 +513,9 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
+     protected void onPostCreate() {
+         incrementCounter(ChromePreferenceKeys.UMA_ON_POSTCREATE_COUNTER);
+         super.onPostCreate();
++        assert !mIsRegisteredForBrowsingDataOnExit;
++        mIsRegisteredForBrowsingDataOnExit = true;
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
+     }
+ 
+     @Override
+@@ -1052,6 +1057,18 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
+         return mLaunchCause;
+     }
+ 
++    @Override
++    public void prepareForInitialNavigation(Runnable onComplete) {
++        getProfileProviderSupplier().runSyncOrOnAvailable((profileProvider) -> {
++            if (isActivityFinishingOrDestroyed()) {
++                onComplete.run();
++                return;
++            }
++            ClearBrowsingDataOnExitManager.prepareForBrowsingSession(
++                    profileProvider.getOriginalProfile(), onComplete);
++        });
++    }
++
+     @Override
+     public void initializeState() {
+         super.initializeState();
+@@ -2079,6 +2096,11 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
+ 
+         mActivityTabProvider.destroy();
+ 
++        if (mIsRegisteredForBrowsingDataOnExit) {
++            ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(isFinishing());
++            mIsRegisteredForBrowsingDataOnExit = false;
++        }
++
+         super.onDestroy();
+     }
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabsConnection.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabsConnection.java
+index 6e3ecf9d905d6..e2ccc30a9a893 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabsConnection.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabsConnection.java
+@@ -60,6 +60,7 @@ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.build.annotations.Nullable;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.ChromeApplicationImpl;
++import org.chromium.chrome.browser.ClearBrowsingDataOnExitManager;
+ import org.chromium.chrome.browser.IntentHandler;
+ import org.chromium.chrome.browser.WarmupManager;
+ import org.chromium.chrome.browser.browserservices.PostMessageHandler;
+@@ -461,6 +462,7 @@ public class CustomTabsConnection {
+      * @return true for success.
+      */
+     private boolean warmupInternal(@Nullable Runnable completionCallback) {
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return false;
+         // Here and in mayLaunchUrl(), don't do expensive work for background applications.
+         if (!isCallerForegroundOrSelf()) return false;
+         int uid = Binder.getCallingUid();
+@@ -500,6 +502,7 @@ public class CustomTabsConnection {
+             tasks.add(
+                     TaskTraits.UI_DEFAULT,
+                     () -> {
++                        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return;
+                         if (mHiddenTabHolder.hasHiddenTab()) return;
+ 
+                         try (TraceEvent e = TraceEvent.scoped("CreateSpareTab")) {
+@@ -658,6 +661,7 @@ public class CustomTabsConnection {
+             final @Nullable Uri url,
+             final @Nullable Bundle extras,
+             final @Nullable List<Bundle> otherLikelyBundles) {
++        if (ClearBrowsingDataOnExitManager.isEnabled()) return false;
+         // mayLaunchUrl should not be executed for Incognito CCT since all setup is created with
+         // regular profile. If we need to enable mayLaunchUrl for off-the-record profiles, we need
+         // to update the profile used. Please see crbug.com/40706528.
+@@ -706,6 +710,7 @@ public class CustomTabsConnection {
+     @ExperimentalPrefetch
+     private void prefetchInternal(
+             SessionHolder<?> session, List<Uri> urls, PrefetchOptions options) {
++        if (ClearBrowsingDataOnExitManager.isEnabled()) return;
+         boolean usePrefetchProxy = options.requiresAnonymousIpWhenCrossOrigin;
+         Origin sourceOrigin =
+                 options.sourceOrigin != null
+@@ -722,6 +727,9 @@ public class CustomTabsConnection {
+         // (3)
+         Runnable startPrefetch =
+                 () -> {
++                    if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) {
++                        return;
++                    }
+                     String verifiedSourceOrigin =
+                             isValidForPrefetchSourceOrigin(session, sourceOrigin)
+                                     ? sourceOrigin.toString()
+@@ -732,6 +740,10 @@ public class CustomTabsConnection {
+                         PostTask.postTask(
+                                 TaskTraits.UI_DEFAULT,
+                                 () -> {
++                                    if (ClearBrowsingDataOnExitManager
++                                            .shouldBlockCustomTabPreloading()) {
++                                        return;
++                                    }
+                                     WarmupManager.getInstance()
+                                             .startPrefetchFromCct(
+                                                     urlString,
+@@ -782,6 +794,7 @@ public class CustomTabsConnection {
+             final @Nullable List<Bundle> otherLikelyBundles) {
+         ThreadUtils.assertOnUiThread();
+         try (TraceEvent e = TraceEvent.scoped("CustomTabsConnection.mayLaunchUrlOnUiThread")) {
++            if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return;
+             enableExperimentIdsIfNecessary(extras);
+ 
+             if (lowConfidence) {
+@@ -1085,6 +1098,7 @@ public class CustomTabsConnection {
+      * @param intent incoming intent.
+      */
+     public void onHandledIntent(@Nullable SessionHolder<?> session, Intent intent) {
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return;
+         String url = IntentHandler.getUrlFromIntent(intent);
+         if (TextUtils.isEmpty(url)) {
+             return;
+@@ -1127,6 +1141,7 @@ public class CustomTabsConnection {
+ 
+     private void maybePreconnectToRedirectEndpoint(
+             @Nullable SessionHolder<?> session, String url, Intent intent) {
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return;
+         // For the preconnection to not be a no-op, we need more than just the native library.
+         if (!ChromeBrowserInitializer.getInstance().isFullBrowserInitialized()) {
+             return;
+@@ -1203,6 +1218,10 @@ public class CustomTabsConnection {
+             @Nullable SessionHolder<?> session, Intent intent) {
+         ThreadUtils.assertOnUiThread();
+ 
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) {
++            return ParallelRequestStatus.NO_REQUEST;
++        }
++
+         if (!intent.hasExtra(PARALLEL_REQUEST_URL_KEY)
+                 && !intent.hasExtra(PARALLEL_REQUEST_URL_LIST_KEY)) {
+             return ParallelRequestStatus.NO_REQUEST;
+@@ -1287,6 +1306,8 @@ public class CustomTabsConnection {
+     int maybePrefetchResources(@Nullable SessionHolder<?> session, Intent intent) {
+         ThreadUtils.assertOnUiThread();
+ 
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return 0;
++
+         if (!mClientManager.getAllowResourcePrefetchForSession(session)) return 0;
+ 
+         if (IntentHandler.hasAnyIncognitoExtra(intent.getExtras())) {
+@@ -1986,6 +2007,9 @@ public class CustomTabsConnection {
+     }
+ 
+     boolean maySpeculate(SessionHolder<?> session) {
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) {
++            return false;
++        }
+         if (!DeviceClassManager.enablePrerendering()) {
+             return false;
+         }
+@@ -2006,6 +2030,20 @@ public class CustomTabsConnection {
+         mHiddenTabHolder.destroyHiddenTab(session);
+     }
+ 
++    /** Cancels pending warmup tasks and destroys spare and hidden tabs. */
++    public static void destroyPreloadedTabs() {
++        ThreadUtils.assertOnUiThread();
++        CustomTabsConnection connection = sInstance;
++        if (connection != null) {
++            @Nullable ChainedTasks warmupTasks = connection.mWarmupTasks;
++            if (warmupTasks != null) warmupTasks.cancel();
++        }
++        WarmupManager.getInstance().destroySpareTab();
++        if (connection != null) {
++            connection.mHiddenTabHolder.destroyHiddenTabUnconditionally();
++        }
++    }
++
+     /*
+      * This function will do as much as it can to have a subsequent navigation
+      * to the specified url sped up, including speculatively loading a url, preconnecting,
+@@ -2259,6 +2297,7 @@ public class CustomTabsConnection {
+ 
+     /** Kicks off a navigation in the background before the CustomTabActivity is started. */
+     public boolean startEarlyNavigationInHiddenTab(Profile profile, Intent intent) {
++        if (ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading()) return false;
+         return mHiddenTabHolder.startEarlynavigation(profile, intent);
+     }
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/HiddenTabHolder.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/HiddenTabHolder.java
+index 405efead2011e..47429b1a2a51f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/HiddenTabHolder.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/HiddenTabHolder.java
+@@ -273,6 +273,13 @@ public class HiddenTabHolder {
+         mSpeculation = null;
+     }
+ 
++    /** Destroys the hidden tab regardless of its session or navigation state. */
++    void destroyHiddenTabUnconditionally() {
++        if (mSpeculation == null) return;
++        mSpeculation.hiddenTab.tab.destroy();
++        mSpeculation = null;
++    }
++
+     /** Returns whether there currently is a hidden tab. */
+     boolean hasHiddenTab() {
+         return mSpeculation != null;
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/BrowserParts.java b/chrome/android/java/src/org/chromium/chrome/browser/init/BrowserParts.java
+index e351342039631..48a6ae9208612 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/BrowserParts.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/BrowserParts.java
+@@ -40,6 +40,16 @@ public interface BrowserParts {
+      */
+     void postInflationStartup();
+ 
++    /**
++     * Called after the browser process starts but before activity startup tasks that may navigate.
++     * Implementations must invoke {@code onComplete} before initial navigation continues.
++     *
++     * @param onComplete Callback to invoke when initial navigation may proceed.
++     */
++    default void prepareForInitialNavigation(Runnable onComplete) {
++        onComplete.run();
++    }
++
+     /**
+      * Called during {@link ChromeBrowserInitializer#handlePostNativeStartup(BrowserParts)}.
+      * Optionaly preconnect to the URL specified in the launch intent, if any. The
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeBrowserInitializer.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeBrowserInitializer.java
+index ec9adf97fdedc..99bbd7efdfaca 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeBrowserInitializer.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeBrowserInitializer.java
+@@ -168,15 +168,18 @@ public class ChromeBrowserInitializer {
+ 
+         ProcessInitializationHandler.getInstance().onPostNativeStartup();
+ 
+-        final ChainedTasks tasks = new ChainedTasks();
++        final ChainedTasks beforeActivityNativeInitTasks = new ChainedTasks();
+         ProcessInitializationHandler.getInstance()
+                 .enqueuePostNativeTasksToRunBeforeActivityNativeInit(
+-                        tasks, delegate.startMinimalBrowser());
++                        beforeActivityNativeInitTasks, delegate.startMinimalBrowser());
++
++        final ChainedTasks tasks = new ChainedTasks();
+ 
+         tasks.add(
+                 TaskTraits.UI_DEFAULT,
+                 () -> {
+                     try (TraceEvent te = TraceEvent.scoped("Activity.maybePreconnect")) {
++                        if (delegate.isActivityFinishingOrDestroyed()) return;
+                         // Run as early as possible. It should also be in a separate task (and
+                         // after) initNetworkChangeNotifier, as this posts a task to the UI thread
+                         // that would interfere with preconneciton otherwise. By preconnecting
+@@ -229,6 +232,9 @@ public class ChromeBrowserInitializer {
+                 });
+ 
+         if (isAsync) {
++            beforeActivityNativeInitTasks.add(
++                    TaskTraits.UI_DEFAULT,
++                    () -> delegate.prepareForInitialNavigation(() -> tasks.start(false)));
+             // We want to start this queue once the C++ startup tasks have run; allow the
+             // C++ startup to run asynchronously, and set it up to start the Java queue once
+             // it has finished.
+@@ -243,11 +249,12 @@ public class ChromeBrowserInitializer {
+ 
+                         @Override
+                         public void onSuccess(@Nullable StartupMetrics metrics) {
+-                            tasks.start(false);
++                            beforeActivityNativeInitTasks.start(false);
+                         }
+                     });
+         } else {
+             startChromeBrowserProcessesSync(delegate.shouldStartGpuProcess());
++            beforeActivityNativeInitTasks.start(true);
+             tasks.start(true);
+         }
+     }
+diff --git a/chrome/android/junit/BUILD.gn b/chrome/android/junit/BUILD.gn
+index 997eeb22b7b8c..9a5adc1fc8648 100644
+--- a/chrome/android/junit/BUILD.gn
++++ b/chrome/android/junit/BUILD.gn
+@@ -428,6 +428,7 @@ if (is_android) {
+     sources = [
+       "//chrome/android/java/src/org/chromium/chrome/browser/bottombar/BottomBarAppMenuUpdateBadgeControllerUnitTest.java",
+       "//chrome/android/java/src/org/chromium/chrome/browser/bottombar/BottomBarContainerCoordinatorUnitTest.java",
++      "//vanadium/chromium_src/chrome/android/junit/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManagerTest.java",
+       "src/org/chromium/chrome/browser/BrowserExitReasonTrackerUnitTest.java",
+       "src/org/chromium/chrome/browser/ChromeActionModeHandlerUnitTest.java",
+       "src/org/chromium/chrome/browser/ChromeActivityUnitTest.java",
+diff --git a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabsConnectionUnitTest.java b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabsConnectionUnitTest.java
+index 94d45825b5aa1..83899ca10b8f2 100644
+--- a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabsConnectionUnitTest.java
++++ b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabsConnectionUnitTest.java
+@@ -30,6 +30,7 @@ import static org.chromium.chrome.browser.customtabs.CustomTabsConnection.ON_ACT
+ import android.app.PendingIntent;
+ import android.content.Intent;
+ import android.net.Network;
++import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.Process;
+ 
+@@ -51,6 +52,7 @@ import org.robolectric.RuntimeEnvironment;
+ import org.robolectric.annotation.Config;
+ import org.robolectric.shadows.ShadowProcess;
+ 
++import org.chromium.base.shared_preferences.SharedPrefsUtils.SharedPrefsExt;
+ import org.chromium.base.test.BaseRobolectricTestRunner;
+ import org.chromium.base.test.util.Batch;
+ import org.chromium.base.test.util.Features.DisableFeatures;
+@@ -62,6 +64,7 @@ import org.chromium.chrome.browser.browserservices.intents.SessionHolder;
+ import org.chromium.chrome.browser.customtabs.content.EngagementSignalsHandler;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManagerImpl;
++import org.chromium.chrome.browser.profiles.Profile;
+ import org.chromium.chrome.browser.tab.Tab;
+ 
+ /** Tests for some parts of {@link CustomTabsConnection}. */
+@@ -86,6 +89,7 @@ public class CustomTabsConnectionUnitTest {
+ 
+     @Before
+     public void setup() {
++        resetClearBrowsingDataOnExitPreferences();
+         CustomTabsConnection.setInstanceForTesting(null);
+         mConnection = CustomTabsConnection.getInstance();
+         mSession = spy(CustomTabsSessionToken.createMockSessionTokenForTesting());
+@@ -101,6 +105,36 @@ public class CustomTabsConnectionUnitTest {
+     @After
+     public void tearDown() {
+         SessionDataHolder.getInstance().removeActiveHandler(mSessionHandler);
++        resetClearBrowsingDataOnExitPreferences();
++    }
++
++    @Test
++    public void clearBrowsingDataOnExitDisablesSpeculation() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.putSync(true);
++
++        assertFalse(mConnection.maySpeculate(mSessionHolder));
++    }
++
++    @Test
++    public void clearBrowsingDataOnExitDisablesEarlyNavigation() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.putSync(true);
++
++        assertFalse(mConnection.startEarlyNavigationInHiddenTab(mock(Profile.class), new Intent()));
++    }
++
++    @Test
++    public void clearBrowsingDataOnExitDisablesServicePreloading() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.putSync(true);
++        Uri url = Uri.parse("https://example.test/");
++
++        assertFalse(mConnection.warmup());
++        assertFalse(mConnection.mayLaunchUrl(mSession, url, null, null));
++
++        Intent intent = new Intent();
++        intent.putExtra(CustomTabsConnection.PARALLEL_REQUEST_URL_KEY, url);
++        assertEquals(
++                CustomTabsConnection.ParallelRequestStatus.NO_REQUEST,
++                mConnection.handleParallelRequest(mSessionHolder, intent));
+     }
+ 
+     @Test
+@@ -207,6 +241,15 @@ public class CustomTabsConnectionUnitTest {
+                 handler);
+     }
+ 
++    private static void resetClearBrowsingDataOnExitPreferences() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.putSync(false);
++    }
++
+     @Test
+     @DisableFeatures(ChromeFeatureList.SEARCH_IN_CCT)
+     public void shouldEnableOmniboxForIntent_featureDisabled() {
+diff --git a/vanadium/chromium_src/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java b/vanadium/chromium_src/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+index e9f9abe73111d..e98079a47d580 100644
+--- a/vanadium/chromium_src/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
++++ b/vanadium/chromium_src/base/android/java/src/org/chromium/base/shared_preferences/SharedPrefsUtils.java
+@@ -119,6 +119,18 @@ public final class SharedPrefsUtils {
+ 
+     // Stores SharedPreferences keys and its default value
+     public static class SharedPrefsExt {
++        public static final BoolSharedPref CLEAR_BROWSING_DATA_ON_EXIT_CACHE =
++                new BoolSharedPref("clear_browsing_data_on_exit_cache", false);
++        public static final BoolSharedPref CLEAR_BROWSING_DATA_ON_EXIT_COOKIES =
++                new BoolSharedPref("clear_browsing_data_on_exit_cookies", false);
++        public static final BoolSharedPref CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA =
++                new BoolSharedPref("clear_browsing_data_on_exit_form_data", false);
++        public static final BoolSharedPref CLEAR_BROWSING_DATA_ON_EXIT_HISTORY =
++                new BoolSharedPref("clear_browsing_data_on_exit_history", false);
++        public static final BoolSharedPref CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS =
++                new BoolSharedPref("clear_browsing_data_on_exit_passwords", false);
++        public static final BoolSharedPref CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS =
++                new BoolSharedPref("clear_browsing_data_on_exit_site_settings", false);
+         public static final BoolSharedPref CLOSE_TABS_ON_EXIT =
+                 new BoolSharedPref("close_tabs_on_exit", false);
+         public static final BoolSharedPref OPEN_LINKS_IN_INCOGNITO =
+@@ -133,6 +145,12 @@ public final class SharedPrefsUtils {
+     static boolean isKeyInUse(String key) {
+         // clang-format off
+         return Arrays.asList(
++            SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.getKey(),
++            SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.getKey(),
++            SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.getKey(),
++            SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.getKey(),
++            SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.getKey(),
++            SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.getKey(),
+             SharedPrefsExt.CLOSE_TABS_ON_EXIT.getKey(),
+             SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.getKey()
+         ).contains(key);
+diff --git a/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+index 77db9242631bb..004177626a488 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_app_java_resources_ext_sources.gni
+@@ -11,6 +11,7 @@ chrome_app_java_resources_ext_full_path_sources = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_app_java_resources_ext_rel_path_sources = [
++  "java/res/xml/clear_browsing_data_on_exit_preferences.xml",
+   "java/res/xml/privacy_preferences_ext.xml",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+index 62b91c8e5cfda..25d7027ca54c6 100644
+--- a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
++++ b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
+@@ -12,8 +12,10 @@ chrome_java_ext_full_path_sources = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ chrome_java_ext_rel_path_sources = [
+   "java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java",
++  "java/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManager.java",
+   "java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java",
+   "java/src/org/chromium/chrome/browser/TabPreferencesUtils.java",
++  "java/src/org/chromium/chrome/browser/privacy/settings/ClearBrowsingDataOnExitSettings.java",
+   "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
+   "java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java",
+   "java/src/org/chromium/chrome/browser/settings/search/SearchIndexProviderHooks.java",
+diff --git a/vanadium/chromium_src/chrome/android/java/res/xml/clear_browsing_data_on_exit_preferences.xml b/vanadium/chromium_src/chrome/android/java/res/xml/clear_browsing_data_on_exit_preferences.xml
+new file mode 100644
+index 0000000000000..0b308ed5b50a6
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/java/res/xml/clear_browsing_data_on_exit_preferences.xml
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++Copyright 2026 GrapheneOS
++Use of this source code is governed by a GPL-2.0-only style license
++that can be found in the LICENSE file.
++-->
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="clear_browsing_data_on_exit_history"
++        android:title="@string/clear_history_title"
++        android:summary="@string/clear_browsing_history_summary"
++        android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="clear_browsing_data_on_exit_cookies"
++        android:title="@string/clear_cookies_and_site_data_title"
++        android:summary="@string/clear_cookies_and_site_data_summary_basic"
++        android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="clear_browsing_data_on_exit_cache"
++        android:title="@string/clear_cache_title"
++        android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="clear_browsing_data_on_exit_passwords"
++        android:title="@string/clear_passwords_title"
++        android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="clear_browsing_data_on_exit_form_data"
++        android:title="@string/clear_form_data_title"
++        android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="clear_browsing_data_on_exit_site_settings"
++        android:title="@string/prefs_site_settings"
++        android:persistent="false"/>
++</PreferenceScreen>
+diff --git a/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml b/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml
+index f1d44d6b4b764..5c091109d20b4 100644
+--- a/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml
++++ b/vanadium/chromium_src/chrome/android/java/res/xml/privacy_preferences_ext.xml
+@@ -15,6 +15,11 @@ that can be found in the LICENSE file.
+         android:title="@string/close_tabs_on_exit_title"
+         android:summary="@string/close_tabs_on_exit_summary"
+         android:persistent="false"/>
++    <org.chromium.components.browser_ui.settings.ChromeBasePreference
++        android:key="clear_browsing_data_on_exit"
++        android:title="@string/clear_browsing_data_on_exit_title"
++        android:summary="@string/clear_browsing_data_on_exit_summary"
++        android:fragment="org.chromium.chrome.browser.privacy.settings.ClearBrowsingDataOnExitSettings"/>
+     <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
+         android:key="open_links_in_incognito"
+         android:title="@string/open_links_in_incognito_title"
+@@ -29,4 +34,3 @@ that can be found in the LICENSE file.
+         android:title="@string/cross_origin_referrer_policy_title"
+         android:fragment="org.chromium.chrome.browser.referrer.settings.CrossOriginReferrerPolicySettings"/>
+ </PreferenceScreen>
+-
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManager.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManager.java
+new file mode 100644
+index 0000000000000..0494b5e9cb543
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManager.java
+@@ -0,0 +1,304 @@
++// Copyright 2026 GrapheneOS
++// Use of this source code is governed by a GPL-2.0-only style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser;
++
++import androidx.annotation.VisibleForTesting;
++
++import org.chromium.base.ResettersForTesting;
++import org.chromium.base.ThreadUtils;
++import org.chromium.base.shared_preferences.SharedPrefsUtils.SharedPrefsExt;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++import org.chromium.chrome.browser.browsing_data.BrowsingDataBridge;
++import org.chromium.chrome.browser.browsing_data.BrowsingDataBridge.OnClearBrowsingDataListener;
++import org.chromium.chrome.browser.browsing_data.BrowsingDataType;
++import org.chromium.chrome.browser.browsing_data.TimePeriod;
++import org.chromium.chrome.browser.customtabs.CustomTabsConnection;
++import org.chromium.chrome.browser.profiles.Profile;
++
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.List;
++
++/** Clears user-selected browsing data between browser activity sessions. */
++@NullMarked
++public final class ClearBrowsingDataOnExitManager {
++    private static final int DATA_TYPE_COUNT = 6;
++    private static final int NO_SESSION_ID = -1;
++
++    @VisibleForTesting
++    interface BrowsingDataClearer {
++        void clear(Profile profile, Runnable onComplete, int[] dataTypes);
++    }
++
++    private static final BrowsingDataClearer DEFAULT_BROWSING_DATA_CLEARER =
++            ClearBrowsingDataOnExitManager::clearBrowsingData;
++    private static final List<Runnable> sSessionReadyCallbacks = new ArrayList<>();
++
++    private static BrowsingDataClearer sBrowsingDataClearer = DEFAULT_BROWSING_DATA_CLEARER;
++    private static @Nullable Profile sSessionProfile;
++    private static int sRegisteredActivityCount;
++    private static int sPendingActivityRecreationCount;
++    private static int sSessionId;
++    // Custom Tab service callbacks can query this before posting work to the UI thread.
++    private static volatile boolean sCleanupInProgress;
++    private static boolean sSessionReady;
++    private static boolean sSessionStarted;
++    private static boolean sStartupCleanupRequired;
++
++    private ClearBrowsingDataOnExitManager() {}
++
++    /** Registers a browser activity before its native initialization starts. */
++    public static void onBrowsingActivityCreated() {
++        ThreadUtils.checkUiThread();
++        if (sPendingActivityRecreationCount != 0) {
++            // Keep the activity counted while Android recreates it.
++            sPendingActivityRecreationCount--;
++            return;
++        }
++        sRegisteredActivityCount++;
++    }
++
++    /**
++     * Starts a browsing session and invokes {@code onReady} after selected data has been cleared.
++     * Callers must wait for this before preconnecting, restoring tabs, or navigating. Cleanup also
++     * runs at startup because Android can kill the process without finishing the last activity. If
++     * a Custom Tab service keeps the process alive after the last activity closes, the next
++     * activity waits for the previous cleanup to finish.
++     *
++     * @param profile Regular profile whose browsing data may be cleared.
++     * @param onReady Callback to invoke when browser session startup may proceed.
++     */
++    public static void prepareForBrowsingSession(Profile profile, Runnable onReady) {
++        ThreadUtils.checkUiThread();
++        assert sRegisteredActivityCount != 0 : "Browsing session started without an activity";
++        if (sSessionStarted) {
++            assert sSessionProfile == profile : "A browsing session cannot span original profiles";
++            runWhenSessionReady(onReady);
++            return;
++        }
++
++        sSessionStarted = true;
++        sSessionReady = false;
++        sSessionProfile = profile;
++        sSessionId++;
++        sStartupCleanupRequired = isEnabled();
++
++        if (!sCleanupInProgress && !sStartupCleanupRequired) {
++            sSessionReady = true;
++            onReady.run();
++            return;
++        }
++
++        sSessionReadyCallbacks.add(onReady);
++        continueSessionStartup();
++    }
++
++    /**
++     * Unregisters a browser activity and clears data after the last registered activity finishes.
++     * An activity being recreated remains counted until Android creates its replacement. This
++     * prevents cleanup from starting if another activity closes before the replacement is created.
++     *
++     * @param activityFinishing Whether the activity is finishing rather than being recreated.
++     */
++    public static void onBrowsingActivityDestroyed(boolean activityFinishing) {
++        ThreadUtils.checkUiThread();
++        if (sRegisteredActivityCount == 0) {
++            assert false : "Browsing activity destroyed without a matching creation";
++            return;
++        }
++
++        if (!activityFinishing) {
++            sPendingActivityRecreationCount++;
++            return;
++        }
++
++        sRegisteredActivityCount--;
++        if (sRegisteredActivityCount != 0 || !sSessionStarted) {
++            return;
++        }
++
++        sSessionStarted = false;
++        sSessionReady = false;
++        sStartupCleanupRequired = false;
++        Profile profile = sSessionProfile;
++        sSessionProfile = null;
++        if (profile == null) {
++            assert false : "Browsing session ended without an original profile";
++            return;
++        }
++
++        int[] dataTypes = getSelectedDataTypes();
++        if (dataTypes.length == 0) return;
++
++        if (!sCleanupInProgress) {
++            startBrowsingDataCleanup(profile, dataTypes, NO_SESSION_ID);
++        }
++    }
++
++    /** Updates cleanup state after the selected data types change. */
++    public static void onDataTypePreferenceChanged() {
++        ThreadUtils.checkUiThread();
++        if (sSessionStarted && !sSessionReady) {
++            // If the selected data types change while startup cleanup is running, clean again
++            // using the updated selection before startup continues.
++            sStartupCleanupRequired = isEnabled();
++        }
++        if (isEnabled()) {
++            CustomTabsConnection.destroyPreloadedTabs();
++        }
++    }
++
++    /** Returns whether at least one data type is selected for automatic cleanup. */
++    public static boolean isEnabled() {
++        return SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.get()
++                || SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.get()
++                || SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.get()
++                || SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.get()
++                || SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.get()
++                || SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.get();
++    }
++
++    /** Returns whether automatic cleanup requires Custom Tab preloading to remain disabled. */
++    public static boolean shouldBlockCustomTabPreloading() {
++        return sCleanupInProgress || isEnabled();
++    }
++
++    private static void runWhenSessionReady(Runnable onReady) {
++        if (!sSessionReady) {
++            sSessionReadyCallbacks.add(onReady);
++        } else {
++            onReady.run();
++        }
++    }
++
++    private static void continueSessionStartup() {
++        if (!sSessionStarted || sSessionReady || sCleanupInProgress) return;
++        if (!sStartupCleanupRequired) {
++            finishSessionStartup();
++            return;
++        }
++
++        int[] dataTypes = getSelectedDataTypes();
++        sStartupCleanupRequired = false;
++        if (dataTypes.length == 0) {
++            finishSessionStartup();
++            return;
++        }
++
++        Profile profile = sSessionProfile;
++        if (profile == null) {
++            assert false : "Browsing session started without an original profile";
++            finishSessionStartup();
++            return;
++        }
++        startBrowsingDataCleanup(profile, dataTypes, sSessionId);
++    }
++
++    private static void finishSessionStartup() {
++        assert sSessionStarted;
++        assert !sCleanupInProgress;
++        sSessionReady = true;
++        runSessionReadyCallbacks();
++    }
++
++    private static void runSessionReadyCallbacks() {
++        List<Runnable> readyCallbacks = new ArrayList<>(sSessionReadyCallbacks);
++        sSessionReadyCallbacks.clear();
++        for (Runnable callback : readyCallbacks) {
++            callback.run();
++        }
++    }
++
++    private static void startBrowsingDataCleanup(
++            Profile profile, int[] dataTypes, int cleanupSessionId) {
++        assert !sCleanupInProgress;
++        sCleanupInProgress = true;
++        // Custom Tab preloading is not associated with an activity and could otherwise run while
++        // data is being cleared. Enabling automatic cleanup also prevents new preload requests.
++        CustomTabsConnection.destroyPreloadedTabs();
++        sBrowsingDataClearer.clear(
++                profile,
++                () -> {
++                    ThreadUtils.checkUiThread();
++                    assert sCleanupInProgress;
++                    sCleanupInProgress = false;
++
++                    if (sSessionStarted && !sSessionReady) {
++                        // If cleanup started for the previous session, run cleanup again with the
++                        // new session's selections before startup continues.
++                        if (cleanupSessionId != sSessionId) {
++                            sStartupCleanupRequired = isEnabled();
++                        }
++                        if (cleanupSessionId == sSessionId && !sStartupCleanupRequired) {
++                            finishSessionStartup();
++                        } else {
++                            continueSessionStartup();
++                        }
++                        return;
++                    }
++
++                    // If the activity is destroyed while waiting for cleanup, invoke its pending
++                    // callbacks so browser initialization can finish.
++                    runSessionReadyCallbacks();
++                },
++                dataTypes);
++    }
++
++    @VisibleForTesting
++    static int[] getSelectedDataTypesForTesting() {
++        return getSelectedDataTypes();
++    }
++
++    private static int[] getSelectedDataTypes() {
++        int[] dataTypes = new int[DATA_TYPE_COUNT];
++        int count = 0;
++        if (SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.get()) {
++            dataTypes[count++] = BrowsingDataType.HISTORY;
++        }
++        if (SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.get()) {
++            dataTypes[count++] = BrowsingDataType.SITE_DATA;
++        }
++        if (SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.get()) {
++            dataTypes[count++] = BrowsingDataType.CACHE;
++        }
++        if (SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.get()) {
++            dataTypes[count++] = BrowsingDataType.PASSWORDS;
++        }
++        if (SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.get()) {
++            dataTypes[count++] = BrowsingDataType.FORM_DATA;
++        }
++        if (SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.get()) {
++            dataTypes[count++] = BrowsingDataType.SITE_SETTINGS;
++        }
++        return Arrays.copyOf(dataTypes, count);
++    }
++
++    private static void clearBrowsingData(Profile profile, Runnable onComplete, int[] dataTypes) {
++        OnClearBrowsingDataListener listener = onComplete::run;
++        BrowsingDataBridge.getForProfile(profile).clearBrowsingData(
++                listener, dataTypes, TimePeriod.ALL_TIME);
++    }
++
++    @VisibleForTesting
++    static void setBrowsingDataClearerForTesting(BrowsingDataClearer browsingDataClearer) {
++        sBrowsingDataClearer = browsingDataClearer;
++        ResettersForTesting.register(ClearBrowsingDataOnExitManager::resetForTesting);
++    }
++
++    @VisibleForTesting
++    static void resetForTesting() {
++        sBrowsingDataClearer = DEFAULT_BROWSING_DATA_CLEARER;
++        sSessionReadyCallbacks.clear();
++        sSessionProfile = null;
++        sRegisteredActivityCount = 0;
++        sPendingActivityRecreationCount = 0;
++        sSessionId = 0;
++        sCleanupInProgress = false;
++        sSessionReady = false;
++        sSessionStarted = false;
++        sStartupCleanupRequired = false;
++    }
++}
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/ClearBrowsingDataOnExitSettings.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/ClearBrowsingDataOnExitSettings.java
+new file mode 100644
+index 0000000000000..7f01e356dca3b
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/ClearBrowsingDataOnExitSettings.java
+@@ -0,0 +1,65 @@
++// Copyright 2026 GrapheneOS
++// Use of this source code is governed by a GPL-2.0-only style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.privacy.settings;
++
++import android.os.Bundle;
++
++import org.chromium.base.shared_preferences.SharedPrefsUtils.BoolSharedPref;
++import org.chromium.base.shared_preferences.SharedPrefsUtils.SharedPrefsExt;
++import org.chromium.base.supplier.MonotonicObservableSupplier;
++import org.chromium.base.supplier.ObservableSuppliers;
++import org.chromium.base.supplier.SettableMonotonicObservableSupplier;
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++import org.chromium.chrome.R;
++import org.chromium.chrome.browser.ClearBrowsingDataOnExitManager;
++import org.chromium.chrome.browser.settings.ChromeBaseSettingsFragment;
++import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
++import org.chromium.components.browser_ui.settings.SettingsUtils;
++
++@NullMarked
++public final class ClearBrowsingDataOnExitSettings extends ChromeBaseSettingsFragment {
++    private final SettableMonotonicObservableSupplier<String> mPageTitle =
++            ObservableSuppliers.createMonotonic();
++
++    @Override
++    public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
++        SettingsUtils.addPreferencesFromResource(
++                this, R.xml.clear_browsing_data_on_exit_preferences);
++        mPageTitle.set(getString(R.string.clear_browsing_data_on_exit_title));
++
++        bindPreference(SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY);
++        bindPreference(SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES);
++        bindPreference(SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE);
++        bindPreference(SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS);
++        bindPreference(SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA);
++        bindPreference(SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS);
++    }
++
++    private void bindPreference(BoolSharedPref sharedPref) {
++        ChromeSwitchPreference preference = findPreference(sharedPref.getKey());
++        if (preference == null) {
++            return;
++        }
++
++        preference.setChecked(sharedPref.get());
++        preference.setOnPreferenceChangeListener(
++                (ignoredPreference, newValue) -> {
++                    sharedPref.put((boolean) newValue);
++                    ClearBrowsingDataOnExitManager.onDataTypePreferenceChanged();
++                    return true;
++                });
++    }
++
++    @Override
++    public MonotonicObservableSupplier<String> getPageTitle() {
++        return mPageTitle;
++    }
++
++    @Override
++    public int getAnimationType() {
++        return AnimationType.PROPERTY;
++    }
++}
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+index d0711e695b226..8967b9ad96815 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
+@@ -30,6 +30,8 @@ import org.chromium.components.user_prefs.UserPrefs;
+ final class PrivacySettingsExt {
+ 
+     private static final String PREF_SEARCH_SUGGESTIONS = "search_suggestions";
++    private static final String PREF_CLEAR_BROWSING_DATA_ON_EXIT =
++            "clear_browsing_data_on_exit";
+     private static final String PREF_CLOSE_TABS_ON_EXIT = SharedPrefsExt.CLOSE_TABS_ON_EXIT.getKey();
+     private static final String PREF_OPEN_LINKS_IN_INCOGNITO =
+             SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.getKey();
+@@ -100,6 +102,12 @@ final class PrivacySettingsExt {
+             closeTabsOnExitPref.setOnPreferenceChangeListener(getListener(profile));
+         }
+ 
++        Preference clearBrowsingDataOnExitPref =
++                prefFragment.findPreference(PREF_CLEAR_BROWSING_DATA_ON_EXIT);
++        if (clearBrowsingDataOnExitPref != null) {
++            clearBrowsingDataOnExitPref.setOrder(PRIVACY_PREFERENCES_ORDER);
++        }
++
+         ChromeSwitchPreference openLinksInIncognitoPref =
+                 (ChromeSwitchPreference) prefFragment.findPreference(PREF_OPEN_LINKS_IN_INCOGNITO);
+         if (openLinksInIncognitoPref != null) {
+diff --git a/vanadium/chromium_src/chrome/android/junit/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManagerTest.java b/vanadium/chromium_src/chrome/android/junit/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManagerTest.java
+new file mode 100644
+index 0000000000000..0e0ad35420b20
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/junit/src/org/chromium/chrome/browser/ClearBrowsingDataOnExitManagerTest.java
+@@ -0,0 +1,343 @@
++// Copyright 2026 GrapheneOS
++// Use of this source code is governed by a GPL-2.0-only style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser;
++
++import static org.junit.Assert.assertArrayEquals;
++import static org.junit.Assert.assertEquals;
++import static org.junit.Assert.assertFalse;
++import static org.junit.Assert.assertTrue;
++import static org.mockito.Mockito.mock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.robolectric.RobolectricTestRunner;
++import org.robolectric.RuntimeEnvironment;
++import org.robolectric.annotation.Config;
++
++import org.chromium.base.ContextUtils;
++import org.chromium.base.shared_preferences.SharedPrefsUtils.SharedPrefsExt;
++import org.chromium.chrome.browser.browsing_data.BrowsingDataType;
++import org.chromium.chrome.browser.profiles.Profile;
++
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.List;
++
++/** Unit tests for {@link ClearBrowsingDataOnExitManager}. */
++@RunWith(RobolectricTestRunner.class)
++@Config(manifest = Config.NONE)
++public final class ClearBrowsingDataOnExitManagerTest {
++    private static final class PendingClearRequest {
++        final int[] dataTypes;
++        final Runnable completionCallback;
++
++        PendingClearRequest(int[] dataTypes, Runnable completionCallback) {
++            this.dataTypes = Arrays.copyOf(dataTypes, dataTypes.length);
++            this.completionCallback = completionCallback;
++        }
++
++        void complete() {
++            completionCallback.run();
++        }
++    }
++
++    private final List<PendingClearRequest> mClearRequests = new ArrayList<>();
++    private Profile mProfile;
++
++    @Before
++    public void setUp() {
++        ContextUtils.initApplicationContextForTests(RuntimeEnvironment.getApplication());
++        resetPreferences();
++        mProfile = mock(Profile.class);
++        ClearBrowsingDataOnExitManager.setBrowsingDataClearerForTesting(this::recordClearRequest);
++    }
++
++    @After
++    public void tearDown() {
++        ClearBrowsingDataOnExitManager.resetForTesting();
++        resetPreferences();
++    }
++
++    @Test
++    public void testDefaultDoesNotClear() {
++        boolean[] ready = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++
++        assertTrue(ready[0]);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertTrue(mClearRequests.isEmpty());
++    }
++
++    @Test
++    public void testSelectedDataTypes() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(true);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.put(true);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.put(true);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.put(true);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.put(true);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.put(true);
++
++        int[] expected = {BrowsingDataType.HISTORY, BrowsingDataType.SITE_DATA,
++                BrowsingDataType.CACHE, BrowsingDataType.PASSWORDS, BrowsingDataType.FORM_DATA,
++                BrowsingDataType.SITE_SETTINGS};
++        assertArrayEquals(
++                expected, ClearBrowsingDataOnExitManager.getSelectedDataTypesForTesting());
++    }
++
++    @Test
++    public void testEnabledReflectsSelections() {
++        assertFalse(ClearBrowsingDataOnExitManager.isEnabled());
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(true);
++        assertTrue(ClearBrowsingDataOnExitManager.isEnabled());
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(false);
++        assertFalse(ClearBrowsingDataOnExitManager.isEnabled());
++    }
++
++    @Test
++    public void testStartupCleanupBlocksUntilCompletion() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(true);
++        boolean[] ready = {false};
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++
++        assertEquals(1, mClearRequests.size());
++        assertFalse(ready[0]);
++        assertArrayEquals(new int[] {BrowsingDataType.HISTORY}, mClearRequests.get(0).dataTypes);
++        mClearRequests.get(0).complete();
++        assertTrue(ready[0]);
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++    }
++
++    @Test
++    public void testEachSessionClearsAtStartupWhenEnabled() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.put(true);
++        startSessionAndCompleteStartupCleanup();
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++        mClearRequests.get(1).complete();
++
++        boolean[] ready = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        assertEquals(3, mClearRequests.size());
++        assertFalse(ready[0]);
++    }
++
++    @Test
++    public void testActivityRecreationDoesNotClear() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.put(true);
++        startSessionAndCompleteStartupCleanup();
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ false);
++        assertEquals(1, mClearRequests.size());
++
++        boolean[] replacementReady = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(
++                mProfile, () -> replacementReady[0] = true);
++        assertTrue(replacementReady[0]);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++    }
++
++    @Test
++    public void testOtherBrowsingActivityDelaysCleanup() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.put(true);
++        boolean[] ready = {false, false};
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[1] = true);
++        assertEquals(1, mClearRequests.size());
++        assertFalse(ready[0]);
++        assertFalse(ready[1]);
++
++        mClearRequests.get(0).complete();
++        assertTrue(ready[0]);
++        assertTrue(ready[1]);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(1, mClearRequests.size());
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++    }
++
++    @Test
++    public void testActivityIsCountedBeforeNativeInitialization() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.put(true);
++        startSessionAndCompleteStartupCleanup();
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(1, mClearRequests.size());
++
++        boolean[] ready = {false};
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        assertTrue(ready[0]);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++    }
++
++    @Test
++    public void testPendingRecreationPreventsCleanupBetweenActivities() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(true);
++        boolean[] ready = {false, false};
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[1] = true);
++        mClearRequests.get(0).complete();
++        assertTrue(ready[0]);
++        assertTrue(ready[1]);
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ false);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(1, mClearRequests.size());
++
++        boolean[] replacementReady = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(
++                mProfile, () -> replacementReady[0] = true);
++        assertTrue(replacementReady[0]);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++    }
++
++    @Test
++    public void testNewSessionRunsFreshCleanupAfterInFlightExitCleanup() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.put(true);
++        startSessionAndCompleteStartupCleanup();
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++
++        boolean[] ready = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        assertEquals(2, mClearRequests.size());
++        assertFalse(ready[0]);
++
++        mClearRequests.get(1).complete();
++        assertEquals(3, mClearRequests.size());
++        assertFalse(ready[0]);
++        assertArrayEquals(new int[] {BrowsingDataType.PASSWORDS}, mClearRequests.get(2).dataTypes);
++        mClearRequests.get(2).complete();
++        assertTrue(ready[0]);
++    }
++
++    @Test
++    public void testSelectionChangeDuringStartupRunsFreshCleanup() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(true);
++        boolean[] ready = {false};
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        assertArrayEquals(new int[] {BrowsingDataType.HISTORY}, mClearRequests.get(0).dataTypes);
++
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.put(true);
++        ClearBrowsingDataOnExitManager.onDataTypePreferenceChanged();
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.put(false);
++        ClearBrowsingDataOnExitManager.onDataTypePreferenceChanged();
++        mClearRequests.get(0).complete();
++
++        assertEquals(2, mClearRequests.size());
++        assertFalse(ready[0]);
++        assertArrayEquals(new int[] {BrowsingDataType.CACHE}, mClearRequests.get(1).dataTypes);
++        mClearRequests.get(1).complete();
++        assertTrue(ready[0]);
++    }
++
++    @Test
++    public void testDestroyedActivityStillRunsQueuedStartupCallback() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.put(true);
++        boolean[] ready = {false};
++
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertFalse(ready[0]);
++
++        mClearRequests.get(0).complete();
++        assertTrue(ready[0]);
++
++        boolean[] nextReady = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(
++                mProfile, () -> nextReady[0] = true);
++        assertEquals(2, mClearRequests.size());
++        assertFalse(nextReady[0]);
++    }
++
++    @Test
++    public void testDisablingSelectionWaitsForInFlightCleanup() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.put(true);
++        startSessionAndCompleteStartupCleanup();
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.put(false);
++        ClearBrowsingDataOnExitManager.onDataTypePreferenceChanged();
++        assertTrue(ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading());
++        boolean[] ready = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        assertFalse(ready[0]);
++
++        mClearRequests.get(1).complete();
++        assertTrue(ready[0]);
++        assertEquals(2, mClearRequests.size());
++        assertFalse(ClearBrowsingDataOnExitManager.shouldBlockCustomTabPreloading());
++        ClearBrowsingDataOnExitManager.onBrowsingActivityDestroyed(
++                /* activityFinishing= */ true);
++        assertEquals(2, mClearRequests.size());
++    }
++
++    private void startSessionAndCompleteStartupCleanup() {
++        int requestIndex = mClearRequests.size();
++        boolean[] ready = {false};
++        ClearBrowsingDataOnExitManager.onBrowsingActivityCreated();
++        ClearBrowsingDataOnExitManager.prepareForBrowsingSession(mProfile, () -> ready[0] = true);
++        assertEquals(requestIndex + 1, mClearRequests.size());
++        assertFalse(ready[0]);
++        mClearRequests.get(requestIndex).complete();
++        assertTrue(ready[0]);
++    }
++
++    private void recordClearRequest(Profile profile, Runnable onComplete, int[] dataTypes) {
++        assertEquals(mProfile, profile);
++        mClearRequests.add(new PendingClearRequest(dataTypes, onComplete));
++    }
++
++    private static void resetPreferences() {
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_HISTORY.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_COOKIES.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_CACHE.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_PASSWORDS.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_FORM_DATA.putSync(false);
++        SharedPrefsExt.CLEAR_BROWSING_DATA_ON_EXIT_SITE_SETTINGS.putSync(false);
++    }
++}
+diff --git a/vanadium/chromium_src/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp b/vanadium/chromium_src/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+index 3dc9d0438ec7d..bd18dfb1c220d 100644
+--- a/vanadium/chromium_src/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
++++ b/vanadium/chromium_src/chrome/browser/ui/android/strings/android_chrome_ext_strings.grdp
+@@ -3,6 +3,12 @@
+  Use of this source code is governed by a GPLv2 only-style license that can be
+  found in the LICENSE file. -->
+ <grit-part>
++  <message name="IDS_CLEAR_BROWSING_DATA_ON_EXIT_TITLE" desc="Title of the clear browsing data on exit settings page">
++    Clear browsing data on exit
++  </message>
++  <message name="IDS_CLEAR_BROWSING_DATA_ON_EXIT_SUMMARY" desc="Summary of the clear browsing data on exit settings page">
++    Choose data to delete when Vanadium closes
++  </message>
+   <message name="IDS_CLOSE_TABS_ON_EXIT_TITLE" desc="Title of closing tabs on exit menu item">
+     Close tabs on exit
+   </message>
+-- 
+2.55.0
+
