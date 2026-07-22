@@ -106,7 +106,7 @@ index 6605e0ebf2bdc..78f72008133a4 100644
    <if expr="not use_titlecase">
      <message name="IDS_BOOKMARK_BAR_SHOW_APPS_SHORTCUT" desc="Name shown in the context menu to hide/show the apps shortcut in the bookmark bar">
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 7975344fb1a89..a86382f0781bf 100644
+index 1d6b3ad9adaa3..d6eb987cacdfa 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
 @@ -5116,11 +5116,11 @@ are declared in tools/grit/grit_args.gni.
@@ -123,7 +123,7 @@ index 7975344fb1a89..a86382f0781bf 100644
        <message name="IDS_UTILITY_PROCESS_QRCODE_GENERATOR_SERVICE_NAME" desc="The name of the utility process used for encoding QR Codes.">
          QR Code Generator
        </message>
-@@ -11527,7 +11527,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11533,7 +11533,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
        </if>
  
        <!-- Android uses custom UI for Bookmark importing -->
@@ -132,7 +132,7 @@ index 7975344fb1a89..a86382f0781bf 100644
          <!-- Import Settings Dialog -->
          <if expr="is_win">
            <message name="IDS_IMPORT_FROM_IE" desc="browser combo box: Microsoft Internet Explorer">
-@@ -11560,7 +11560,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11566,7 +11566,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
              Import Bookmarks and Settings...
            </message>
          </if> <!-- is_macosx -->
@@ -636,7 +636,7 @@ index 6330c044076e4..566e380aca5d4 100644
  
          assert false : "Unhandled menu click.";
 diff --git a/chrome/browser/bookmarks/android/junit/src/org/chromium/chrome/browser/bookmarks/FakeBookmarkModel.java b/chrome/browser/bookmarks/android/junit/src/org/chromium/chrome/browser/bookmarks/FakeBookmarkModel.java
-index b65fc38acf013..cbe832705889b 100644
+index b65fc38acf013..a47dca2f3b222 100644
 --- a/chrome/browser/bookmarks/android/junit/src/org/chromium/chrome/browser/bookmarks/FakeBookmarkModel.java
 +++ b/chrome/browser/bookmarks/android/junit/src/org/chromium/chrome/browser/bookmarks/FakeBookmarkModel.java
 @@ -798,5 +798,13 @@ public class FakeBookmarkModel extends BookmarkModel {
@@ -645,11 +645,11 @@ index b65fc38acf013..cbe832705889b 100644
          }
 +
 +        @Override
-+        public void importBookmarks(long nativeBookmarkBridge, WindowAndroid window) {
++        public void importBookmarks(long nativeBookmarkBridge, org.chromium.ui.base.WindowAndroid window) {
 +        }
 +
 +        @Override
-+        void exportBookmarks(long nativeBookmarkBridge, WindowAndroid window) {
++        void exportBookmarks(long nativeBookmarkBridge, org.chromium.ui.base.WindowAndroid window) {
 +        }
      }
  }
@@ -721,7 +721,7 @@ index 8a1d68e110774..5717c7e5f375f 100644
  
  void ExternalProcessImporterHost::OnImportLockDialogEnd(bool is_continue) {
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 59cace10d483f..21033578e21d8 100644
+index 33e86a31a4b24..bce138649dbd5 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -4811,6 +4811,12 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
