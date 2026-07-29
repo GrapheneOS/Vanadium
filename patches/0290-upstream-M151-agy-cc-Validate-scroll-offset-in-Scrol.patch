@@ -1,0 +1,336 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Tzarial <zork@google.com>
+Date: Mon, 27 Jul 2026 13:30:07 -0700
+Subject: [PATCH] [upstream] [M151] [agy][cc] Validate scroll offset in
+ ScrollTree
+
+Original change's description:
+> [agy][cc] Validate scroll offset in ScrollTree
+>
+> Validate scroll offset in ScrollTree to prevent NaN/Inf values
+> from causing crashes during serialization in the browser process.
+>
+> Fixed: 526716883
+> Test: cc_unittests --gtest_filter=PropertyTreeTest.ScrollOffsetValidation
+> Change-Id: I483625d68df27f7b92a4df9c8b29d93ecbac8e43
+> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8139200
+> Auto-Submit: Tzarial <zork@chromium.org>
+> Commit-Queue: Mark Schillaci <mschillaci@google.com>
+> Reviewed-by: Mark Schillaci <mschillaci@google.com>
+> Cr-Commit-Position: refs/heads/main@{#1667849}
+
+(cherry picked from commit 73cfe40698a5c69f61431235ed9aa17712202d0a)
+
+(cherry picked from commit 18e56e053bbef6f116d9f65033c40c2dcee64380)
+
+Bug: 539560458,526716883
+Change-Id: I483625d68df27f7b92a4df9c8b29d93ecbac8e43
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8155962
+Auto-Submit: chrome-cherry-picker@chops-service-accounts.iam.gserviceaccount.com <chrome-cherry-picker@chops-service-accounts.iam.gserviceaccount.com>
+Bot-Commit: rubber-stamper@appspot.gserviceaccount.com <rubber-stamper@appspot.gserviceaccount.com>
+Commit-Queue: rubber-stamper@appspot.gserviceaccount.com <rubber-stamper@appspot.gserviceaccount.com>
+Cr-Original-Commit-Position: refs/branch-heads/7922@{#2097}
+Cr-Original-Branched-From: 059c884787b1bc15faa5afe5250f7d3a7e0ef64a-refs/heads/main@{#1654411}
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8157783
+Auto-Submit: Harry Souders <harrysouders@google.com>
+Owners-Override: Harry Souders <harrysouders@google.com>
+Cr-Commit-Position: refs/branch-heads/7922_47@{#5}
+Cr-Branched-From: c583827a354674180dc8856eb65aeb3f0afa5ee9-refs/branch-heads/7922@{#1740}
+Cr-Branched-From: 059c884787b1bc15faa5afe5250f7d3a7e0ef64a-refs/heads/main@{#1654411}
+---
+ cc/layers/layer.cc                            |  7 ++
+ cc/trees/property_tree.cc                     |  7 ++
+ cc/trees/property_tree_layer_list_delegate.cc | 66 +++++++-------
+ cc/trees/property_tree_unittest.cc            | 90 +++++++++++++++++++
+ cc/trees/transform_node.cc                    |  6 ++
+ 5 files changed, 146 insertions(+), 30 deletions(-)
+
+diff --git a/cc/layers/layer.cc b/cc/layers/layer.cc
+index 8a108ce15c1a0..7255a87f7271b 100644
+--- a/cc/layers/layer.cc
++++ b/cc/layers/layer.cc
+@@ -8,6 +8,7 @@
+ #include <stdint.h>
+ 
+ #include <algorithm>
++#include <cmath>
+ #include <string>
+ #include <unordered_set>
+ #include <utility>
+@@ -1039,6 +1040,9 @@ void Layer::SetTransformOrigin(const gfx::Point3F& transform_origin) {
+ }
+ 
+ void Layer::SetScrollOffset(const gfx::PointF& scroll_offset) {
++  if (!std::isfinite(scroll_offset.x()) || !std::isfinite(scroll_offset.y())) {
++    return;
++  }
+   DCHECK(IsPropertyChangeAllowed());
+ 
+   auto& inputs = EnsureLayerTreeInputs();
+@@ -1055,6 +1059,9 @@ void Layer::SetScrollOffset(const gfx::PointF& scroll_offset) {
+ }
+ 
+ void Layer::SetScrollOffsetFromImplSide(const gfx::PointF& scroll_offset) {
++  if (!std::isfinite(scroll_offset.x()) || !std::isfinite(scroll_offset.y())) {
++    return;
++  }
+   DCHECK(IsPropertyChangeAllowed());
+   // This function only gets called during a BeginMainFrame, so there
+   // is no need to call SetNeedsUpdate here.
+diff --git a/cc/trees/property_tree.cc b/cc/trees/property_tree.cc
+index 8a25a2b4df4ff..40c93aba8b5d0 100644
+--- a/cc/trees/property_tree.cc
++++ b/cc/trees/property_tree.cc
+@@ -7,6 +7,7 @@
+ #include <stddef.h>
+ 
+ #include <algorithm>
++#include <cmath>
+ #include <memory>
+ #include <set>
+ #include <string>
+@@ -2175,6 +2176,9 @@ void ScrollTree::ApplySentScrollDeltasFromAbortedCommit(
+ 
+ void ScrollTree::SetBaseScrollOffset(ElementId id,
+                                      const gfx::PointF& scroll_offset) {
++  if (!std::isfinite(scroll_offset.x()) || !std::isfinite(scroll_offset.y())) {
++    return;
++  }
+   if (property_trees()->is_main_thread()) {
+     scroll_offset_map_[id] = scroll_offset;
+     return;
+@@ -2186,6 +2190,9 @@ void ScrollTree::SetBaseScrollOffset(ElementId id,
+ 
+ bool ScrollTree::SetScrollOffset(ElementId id,
+                                  const gfx::PointF& scroll_offset) {
++  if (!std::isfinite(scroll_offset.x()) || !std::isfinite(scroll_offset.y())) {
++    return false;
++  }
+   // TODO(crbug.com/40132829): Remove TRACE_EVENT call when the bug is fixed
+   TRACE_EVENT2("cc", "ScrollTree::SetScrollOffset", "x", scroll_offset.x(), "y",
+                scroll_offset.y());
+diff --git a/cc/trees/property_tree_layer_list_delegate.cc b/cc/trees/property_tree_layer_list_delegate.cc
+index fab1443db4f78..6521b8ed7b6e5 100644
+--- a/cc/trees/property_tree_layer_list_delegate.cc
++++ b/cc/trees/property_tree_layer_list_delegate.cc
+@@ -4,6 +4,8 @@
+ 
+ #include "cc/trees/property_tree_layer_list_delegate.h"
+ 
++#include <cmath>
++
+ #include "base/trace_event/trace_event.h"
+ #include "cc/layers/heads_up_display_layer.h"
+ #include "cc/trees/layer_tree_host.h"
+@@ -54,6 +56,9 @@ void PropertyTreeLayerListDelegate::UpdateScrollOffsetFromImpl(
+     const std::optional<TargetSnapAreaElementIds>& snap_target_ids) {
+   auto& scroll_tree = host()->property_trees()->scroll_tree_mutable();
+   auto new_offset = scroll_tree.current_scroll_offset(id) + delta;
++  if (!std::isfinite(new_offset.x()) || !std::isfinite(new_offset.y())) {
++    return;
++  }
+   TRACE_EVENT_INSTANT("cc", "NotifyDidScroll", "cur_y",
+                       scroll_tree.current_scroll_offset(id).y(), "delta",
+                       delta.y());
+@@ -61,39 +66,40 @@ void PropertyTreeLayerListDelegate::UpdateScrollOffsetFromImpl(
+     // This update closely follows
+     // blink::PropertyTreeManager::DirectlyUpdateScrollOffsetTransform.
+ 
+-    scroll_tree.SetScrollOffset(id, new_offset);
+-    // |blink::PropertyTreeManager::DirectlySetScrollOffset| (called from
+-    // |blink::PropertyTreeManager::DirectlyUpdateScrollOffsetTransform|)
+-    // marks the layer as needing to push properties in order to clobber
+-    // animations, but that is not needed for an impl-side scroll.
+-
+-    // Update the offset in the transform node.
+-    TransformTree& transform_tree =
+-        host()->property_trees()->transform_tree_mutable();
+-    int transform_id = scroll_node->transform_id;
+-    if (transform_id != kInvalidPropertyNodeId) {
+-      auto& transform_node = transform_tree.MutableNode(transform_id);
+-      if (transform_node.scroll_offset() != new_offset) {
+-        transform_node.SetScrollOffset(new_offset, DamageReason::kUntracked);
+-        transform_node.needs_local_transform_update = true;
+-        transform_node.SetTransformChanged(DamageReason::kUntracked);
+-        transform_tree.set_needs_update(true);
++    if (scroll_tree.SetScrollOffset(id, new_offset)) {
++      // |blink::PropertyTreeManager::DirectlySetScrollOffset| (called from
++      // |blink::PropertyTreeManager::DirectlyUpdateScrollOffsetTransform|)
++      // marks the layer as needing to push properties in order to clobber
++      // animations, but that is not needed for an impl-side scroll.
++
++      // Update the offset in the transform node.
++      TransformTree& transform_tree =
++          host()->property_trees()->transform_tree_mutable();
++      int transform_id = scroll_node->transform_id;
++      if (transform_id != kInvalidPropertyNodeId) {
++        auto& transform_node = transform_tree.MutableNode(transform_id);
++        if (transform_node.scroll_offset() != new_offset) {
++          transform_node.SetScrollOffset(new_offset, DamageReason::kUntracked);
++          transform_node.needs_local_transform_update = true;
++          transform_node.SetTransformChanged(DamageReason::kUntracked);
++          transform_tree.set_needs_update(true);
++        }
++
++        // If the scroll was realized on the compositor, then its transform node
++        // is already updated (see LayerTreeImpl::DidUpdateScrollOffset) and we
++        // are now "catching up" to it on main, so we don't need a commit.
++        //
++        // But if the scroll should be realized on the main thread, we need a
++        // commit to push the transform change.
++        if (scroll_tree.ShouldRealizeScrollsOnMain(*scroll_node)) {
++          host()->SetNeedsCommit();
++        }
+       }
+ 
+-      // If the scroll was realized on the compositor, then its transform node
+-      // is already updated (see LayerTreeImpl::DidUpdateScrollOffset) and we
+-      // are now "catching up" to it on main, so we don't need a commit.
+-      //
+-      // But if the scroll should be realized on the main thread, we need a
+-      // commit to push the transform change.
+-      if (scroll_tree.ShouldRealizeScrollsOnMain(*scroll_node)) {
+-        host()->SetNeedsCommit();
+-      }
++      // The transform tree has been modified which requires a call to
++      // |LayerTreeHost::UpdateLayers| to update the property trees.
++      host()->SetNeedsUpdateLayers();
+     }
+-
+-    // The transform tree has been modified which requires a call to
+-    // |LayerTreeHost::UpdateLayers| to update the property trees.
+-    host()->SetNeedsUpdateLayers();
+   }
+ 
+   scroll_tree.NotifyDidCompositorScroll(id, new_offset, type, snap_target_ids);
+diff --git a/cc/trees/property_tree_unittest.cc b/cc/trees/property_tree_unittest.cc
+index e8b5092191049..bc71ece1b8bd5 100644
+--- a/cc/trees/property_tree_unittest.cc
++++ b/cc/trees/property_tree_unittest.cc
+@@ -4,6 +4,7 @@
+ 
+ #include "cc/trees/property_tree.h"
+ 
++#include <cmath>
+ #include <utility>
+ 
+ #include "cc/input/main_thread_scrolling_reason.h"
+@@ -1003,5 +1004,94 @@ TEST(PropertyTreeTest, AnchorPositionAndStickyDataStaleIndex) {
+   EXPECT_EQ(tree.Node(node2.id).sticky_position_constraint_id, 0);
+ }
+ 
++TEST(PropertyTreeTest, ScrollOffsetValidation) {
++  PropertyTrees property_trees;
++  ScrollTree& scroll_tree = property_trees.scroll_tree_mutable();
++
++  // 1. Main thread SetScrollOffset
++  {
++    ElementId id(1);
++    property_trees.set_is_main_thread(true);
++    property_trees.set_is_active(false);
++
++    EXPECT_TRUE(scroll_tree.SetScrollOffset(id, gfx::PointF(10, 20)));
++    EXPECT_POINTF_EQ(gfx::PointF(10, 20),
++                     scroll_tree.current_scroll_offset(id));
++
++    EXPECT_FALSE(scroll_tree.SetScrollOffset(id, gfx::PointF(NAN, 20)));
++    EXPECT_POINTF_EQ(gfx::PointF(10, 20),
++                     scroll_tree.current_scroll_offset(id));
++
++    EXPECT_FALSE(scroll_tree.SetScrollOffset(id, gfx::PointF(10, INFINITY)));
++    EXPECT_POINTF_EQ(gfx::PointF(10, 20),
++                     scroll_tree.current_scroll_offset(id));
++  }
++
++  // 2. Impl thread (active tree) SetScrollOffset
++  {
++    ElementId id(2);
++    property_trees.set_is_main_thread(false);
++    property_trees.set_is_active(true);
++
++    scroll_tree.GetOrCreateSyncedScrollOffsetForTesting(id);
++
++    EXPECT_TRUE(scroll_tree.SetScrollOffset(id, gfx::PointF(30, 40)));
++    EXPECT_POINTF_EQ(gfx::PointF(30, 40),
++                     scroll_tree.current_scroll_offset(id));
++
++    EXPECT_FALSE(scroll_tree.SetScrollOffset(id, gfx::PointF(NAN, 40)));
++    EXPECT_POINTF_EQ(gfx::PointF(30, 40),
++                     scroll_tree.current_scroll_offset(id));
++
++    EXPECT_FALSE(scroll_tree.SetScrollOffset(id, gfx::PointF(30, INFINITY)));
++    EXPECT_POINTF_EQ(gfx::PointF(30, 40),
++                     scroll_tree.current_scroll_offset(id));
++  }
++
++  // 3. SetBaseScrollOffset on main thread
++  {
++    ElementId id(3);
++    property_trees.set_is_main_thread(true);
++    property_trees.set_is_active(false);
++
++    scroll_tree.SetBaseScrollOffset(id, gfx::PointF(50, 60));
++    EXPECT_POINTF_EQ(gfx::PointF(50, 60),
++                     scroll_tree.current_scroll_offset(id));
++
++    scroll_tree.SetBaseScrollOffset(id, gfx::PointF(NAN, 60));
++    EXPECT_POINTF_EQ(gfx::PointF(50, 60),
++                     scroll_tree.current_scroll_offset(id));
++  }
++
++  // 4. SetBaseScrollOffset on impl thread (pending tree)
++  {
++    ElementId id(4);
++    property_trees.set_is_main_thread(false);
++    property_trees.set_is_active(false);
++
++    scroll_tree.GetOrCreateSyncedScrollOffsetForTesting(id);
++
++    scroll_tree.SetBaseScrollOffset(id, gfx::PointF(70, 80));
++    EXPECT_POINTF_EQ(gfx::PointF(70, 80),
++                     scroll_tree.current_scroll_offset(id));
++
++    scroll_tree.SetBaseScrollOffset(id, gfx::PointF(NAN, 80));
++    EXPECT_POINTF_EQ(gfx::PointF(70, 80),
++                     scroll_tree.current_scroll_offset(id));
++  }
++}
++
++TEST(PropertyTreeTest, TransformNodeScrollOffsetValidation) {
++  TransformNode node;
++  node.SetScrollOffset(gfx::PointF(10, 20), DamageReason::kUntracked);
++  EXPECT_POINTF_EQ(gfx::PointF(10, 20), node.scroll_offset());
++
++  node.SetScrollOffset(gfx::PointF(NAN, 20), DamageReason::kUntracked);
++  EXPECT_POINTF_EQ(gfx::PointF(10, 20), node.scroll_offset());
++
++  node.SetScrollOffset(gfx::PointF(10, INFINITY), DamageReason::kUntracked);
++  EXPECT_POINTF_EQ(gfx::PointF(10, 20), node.scroll_offset());
++}
++
+ }  // namespace
+ }  // namespace cc
+diff --git a/cc/trees/transform_node.cc b/cc/trees/transform_node.cc
+index 6ebd52d550672..3e84fa2166cf6 100644
+--- a/cc/trees/transform_node.cc
++++ b/cc/trees/transform_node.cc
+@@ -3,6 +3,9 @@
+ // found in the LICENSE file.
+ 
+ #include "cc/trees/transform_node.h"
++
++#include <cmath>
++
+ #include "base/trace_event/traced_value.h"
+ #include "cc/base/math_util.h"
+ #include "cc/layers/layer.h"
+@@ -18,6 +21,9 @@ TransformNode& TransformNode::operator=(const TransformNode&) = default;
+ 
+ void TransformNode::SetScrollOffset(const gfx::PointF& offset,
+                                     DamageReason damage_reason) {
++  if (!std::isfinite(offset.x()) || !std::isfinite(offset.y())) {
++    return;
++  }
+   scroll_offset_ = offset;
+   damage_reasons_.Put(damage_reason);
+ }

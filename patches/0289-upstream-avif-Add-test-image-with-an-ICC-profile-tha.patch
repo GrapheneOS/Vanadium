@@ -1,0 +1,209 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Pierce Fortin <pierce.fortin@promenade.co>
+Date: Mon, 27 Jul 2026 13:26:33 -0700
+Subject: [PATCH] [upstream] avif: Add test image with an ICC profile that
+ strict parsers reject
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Merge to release branch 7922 for M151.
+
+Adds red-icc-version-zero.avif, a 3x3 AVIF whose 'colr' prof box
+contains a 564-byte "sRGB IEC61966-2-1 black scaled" ICC profile whose
+header declares an invalid version of 0.0, as emitted by Dropbox image
+export pipelines and common in the wild. The Rust ICC parser (moxcms)
+rejects this profile, while skcms accepts it. Since M150
+(crrev.com/c/7755142) the Rust parser is the default, so AVIF decode
+currently fails for such images (see bug).
+
+Also adds a disabled unit test asserting that this image decodes with a
+fallback to the CICP color description. The test is added disabled so
+that the fix CLs can share the image and test; it will be enabled when
+AVIF decode of this image is fixed, via the ICC parser accepting such
+profiles (crrev.com/c/8138946) and/or an AVIFImageDecoder fallback to
+the CICP color description (crrev.com/c/8127810).
+
+Also adds Pierce Fortin to AUTHORS (first contribution).
+
+R=wtc@google.com
+
+    --gtest_also_run_disabled_tests reproduces the current decode
+    failure.
+
+(cherry picked from commit 8374c2b8511ad768e2bf9aa624ffb44268833c3a)
+
+(cherry picked from commit 6bc9fafb0b5690d756ee0916468d0d2b28490e12)
+
+Bug: 537416045
+Bug: 538918586
+Test: blink_platform_unittests --gtest_filter=*UnparsableIcc*
+Change-Id: I8d59f529938363a8207ce7053276abc2d868f912
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8137970
+Reviewed-by: Sergio Gonzalez Martin <sergiog@microsoft.com>
+Commit-Queue: Wan-Teh Chang <wtc@google.com>
+Reviewed-by: Wan-Teh Chang <wtc@google.com>
+SLSA-Policy-Verified: SLSA Policy Verification Service <devtools-gerritcodereview-exitgate@google.com>
+Cr-Original-Original-Commit-Position: refs/heads/main@{#1667815}
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8150788
+Reviewed-by: Łukasz Anforowicz <lukasza@chromium.org>
+Cr-Original-Commit-Position: refs/branch-heads/7922@{#2087}
+Cr-Original-Branched-From: 059c884787b1bc15faa5afe5250f7d3a7e0ef64a-refs/heads/main@{#1654411}
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8155963
+Auto-Submit: Harry Souders <harrysouders@google.com>
+Commit-Queue: rubber-stamper@appspot.gserviceaccount.com <rubber-stamper@appspot.gserviceaccount.com>
+Owners-Override: Harry Souders <harrysouders@google.com>
+Bot-Commit: rubber-stamper@appspot.gserviceaccount.com <rubber-stamper@appspot.gserviceaccount.com>
+Cr-Commit-Position: refs/branch-heads/7922_47@{#4}
+Cr-Branched-From: c583827a354674180dc8856eb65aeb3f0afa5ee9-refs/branch-heads/7922@{#1740}
+Cr-Branched-From: 059c884787b1bc15faa5afe5250f7d3a7e0ef64a-refs/heads/main@{#1654411}
+---
+ AUTHORS                                       |   1 +
+ ...nk_platform_unittests_bundle_data.filelist |   1 +
+ .../avif/avif_image_decoder_test.cc           |  40 ++++++++++++++++++
+ .../web_tests/images/resources/avif/README.md |  21 +++++++++
+ .../resources/avif/red-icc-version-zero.avif  | Bin 0 -> 892 bytes
+ 5 files changed, 63 insertions(+)
+ create mode 100644 third_party/blink/web_tests/images/resources/avif/red-icc-version-zero.avif
+
+diff --git a/AUTHORS b/AUTHORS
+index 4d2e526db6fe6..fdef9ac806a49 100644
+--- a/AUTHORS
++++ b/AUTHORS
+@@ -1287,6 +1287,7 @@ Philipp Hancke <philipp.hancke@googlemail.com>
+ Philippe Beauchamp <philippe.beauchamp@gmail.com>
+ Philippe Beaudoin <philippe.beaudoin@gmail.com>
+ PhistucK <phistuck@gmail.com>
++Pierce Fortin <pierce.fortin@promenade.co>
+ Pierre Neter <pierreneter@gmail.com>
+ Pierre-Antoine LaFayette <pierre.lafayette@gmail.com>
+ Po-Chun Chang <pochang0403@gmail.com>
+diff --git a/third_party/blink/renderer/platform/blink_platform_unittests_bundle_data.filelist b/third_party/blink/renderer/platform/blink_platform_unittests_bundle_data.filelist
+index cf93a325886a9..05972587d8367 100644
+--- a/third_party/blink/renderer/platform/blink_platform_unittests_bundle_data.filelist
++++ b/third_party/blink/renderer/platform/blink_platform_unittests_bundle_data.filelist
+@@ -424,6 +424,7 @@
+ ../../web_tests/images/resources/avif/red-full-range-mode-0-420-8bpc.avif
+ ../../web_tests/images/resources/avif/red-full-range-mode-1-420-8bpc.avif
+ ../../web_tests/images/resources/avif/red-full-range-unspecified-420-8bpc.avif
++../../web_tests/images/resources/avif/red-icc-version-zero.avif
+ ../../web_tests/images/resources/avif/red-limited-range-420-10bpc.avif
+ ../../web_tests/images/resources/avif/red-limited-range-420-12bpc.avif
+ ../../web_tests/images/resources/avif/red-limited-range-420-8bpc.avif
+diff --git a/third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder_test.cc b/third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder_test.cc
+index 4aa70f2318c81..db8bb96c7b1f1 100644
+--- a/third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder_test.cc
++++ b/third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder_test.cc
+@@ -14,6 +14,7 @@
+ #include "base/bit_cast.h"
+ #include "base/compiler_specific.h"
+ #include "base/functional/bind.h"
++#include "base/functional/callback_helpers.h"
+ #include "base/strings/stringprintf.h"
+ #include "base/synchronization/waitable_event.h"
+ #include "base/task/thread_pool.h"
+@@ -24,6 +25,7 @@
+ #include "third_party/blink/public/platform/platform.h"
+ #include "third_party/blink/renderer/platform/image-decoders/image_decoder_test_helpers.h"
+ #include "third_party/blink/renderer/platform/wtf/shared_buffer.h"
++#include "third_party/skia/include/private/chromium/SkCodecsICCProfileChromium.h"
+ #include "ui/gfx/color_space.h"
+ 
+ #define FIXME_SUPPORT_ICC_PROFILE_NO_TRANSFORM 0
+@@ -1520,6 +1522,44 @@ TEST(StaticAVIFTests, UnsupportedTransferFunctionInColrProperty) {
+   EXPECT_TRUE(decoder->Failed());
+ }
+ 
++// TODO(crbug.com/537416045): Enable this test when AVIF decode no longer
++// fails on this image (via an AVIFImageDecoder fallback to the CICP color
++// description and/or the ICC parser accepting such profiles).
++TEST(StaticAVIFTests, DISABLED_UnparsableIccProfileFallsBackToCicp) {
++  // The 'colr' prof box in this image contains an ICC profile whose header
++  // declares an invalid profile version of 0.0, as emitted by some image
++  // export pipelines found in the wild. The Rust ICC parser (moxcms) rejects
++  // such profiles, while skcms accepts them.
++  //
++  // Force the Rust parser to match the production configuration: in content
++  // processes, content/common/skia_utils.cc calls ForceSkcms() with the
++  // value of blink::features::kForceSkcmsICCParsing, which is disabled by
++  // default. That initialization does not run in blink_platform_unittests,
++  // so this process is still at Skia's compiled-in default of forcing skcms
++  // (which would accept the profile and hide the failure mode this test
++  // covers). Restore that default, true, on exit; ForceSkcms() has no
++  // corresponding getter with which to capture the prior value.
++  SkCodecs::ICCProfileChromium::ForceSkcms(false);
++  base::ScopedClosureRunner restore_skcms(
++      base::BindOnce([] { SkCodecs::ICCProfileChromium::ForceSkcms(true); }));
++
++  std::unique_ptr<ImageDecoder> decoder = CreateAVIFDecoder();
++  decoder->SetData(ReadFileToSharedBuffer(
++                       "/images/resources/avif/red-icc-version-zero.avif"),
++                   true);
++  // The unparsable ICC profile must be ignored, not fail the decode. Since
++  // the image's nclx color primaries and transfer characteristics are
++  // unspecified, no embedded color profile is set at all.
++  EXPECT_TRUE(decoder->IsSizeAvailable());
++  EXPECT_FALSE(decoder->Failed());
++  EXPECT_FALSE(decoder->HasEmbeddedColorProfile());
++  ASSERT_EQ(decoder->FrameCount(), 1u);
++  ImageFrame* frame = decoder->DecodeFrameBufferAtIndex(0);
++  ASSERT_TRUE(frame);
++  EXPECT_EQ(ImageFrame::kFrameComplete, frame->GetStatus());
++  EXPECT_FALSE(decoder->Failed());
++}
++
+ TEST(StaticAVIFTests, ClapPropertyZeroOrigin) {
+   constexpr int kClapWidth = 200;
+   constexpr int kClapHeight = 50;
+diff --git a/third_party/blink/web_tests/images/resources/avif/README.md b/third_party/blink/web_tests/images/resources/avif/README.md
+index 5d28f6799a42e..d24ab254b42c1 100644
+--- a/third_party/blink/web_tests/images/resources/avif/README.md
++++ b/third_party/blink/web_tests/images/resources/avif/README.md
+@@ -147,6 +147,27 @@ line:
+ avifenc -r f -d 8 -y 420 -s 0 --nclx 1/11/1 red.png red-unsupported-transfer.avif
+ ```
+ 
++### red-icc-version-zero.avif
++The 'colr' prof box in this file contains a nonstandard 564-byte ICC profile
++whose header declares an invalid profile version of 0.0 (bytes 8-11 are
++zeroed, as are the CMM type and creator fields). This profile ("sRGB
++IEC61966-2-1 black scaled", creator text "Dropbox, Inc.") is common in the
++wild in images derived from Dropbox export pipelines. The 'colr' nclx box has
++unspecified (2) color primaries and transfer characteristics.
++
++This is generated from red.png with the appropriate avifenc command line:
++```
++avifenc -r f -d 8 -y 444 -s 0 --icc dropbox-srgb-black-scaled.icc red.png \
++  red-icc-version-zero.avif
++```
++where dropbox-srgb-black-scaled.icc is the profile described above. It can be
++extracted from this file with:
++```
++python3 -c "d = open('red-icc-version-zero.avif', 'rb').read(); \
++  i = d.find(b'colrprof'); \
++  open('dropbox-srgb-black-scaled.icc', 'wb').write(d[i+8:i+8+564])"
++```
++
+ ### blue-and-magenta-crop.avif
+ This image uses a 'clap' (clean aperture) image property to crop the image to
+ contain the blue rectangle only (with a magenta rectangle inside).
+diff --git a/third_party/blink/web_tests/images/resources/avif/red-icc-version-zero.avif b/third_party/blink/web_tests/images/resources/avif/red-icc-version-zero.avif
+new file mode 100644
+index 0000000000000000000000000000000000000000..ef444eb592b206d7b3c4f03e3352c6f9bffc485d
+GIT binary patch
+literal 892
+zc-muNU{FXasVqn=%S>Yc0uY^>nP!-qnV9D5Xz0kmz^s#-T9U{B0g4$ZIYm%5LqTS8
+z2?HA7E66O#1+y4|SS~XsKN-Yv0r43jqRb&cS_6bLGxO5mYNddjR3<1dvCP2GIX@>K
+zWEa!w%z~l<Al;o=kem+`5XmeqNQK(R48;NknH8B}0S*ohAjOkdX6W3g01{zxNY2kG
+zDk#ba+Qno7b7*c}Nl}oylR`vflmh!b1~vv320;dG28+bx;sORtz=&Xey9VK1)@2|a
+zaHXUcgF@sF5LYH;7XSm0u>$0$@)9t+2gFV;C<3t;0NJ8NKnDWZJ3!*;5cU}mI|;&m
+z0Ad$~1UUoQUw~|fbR>2X5*unS2*?+MJnrf0Y-VU_W~OVTYp9TvlbD>XP@J5YlbXUn
+zbpQ%uXmp7Iu`w_nmLS9s;aQSe0ZvdZMfn9u`4u_}o_Wc7DEjjkF)&zs1)4DdA(k|g
+zfnj?q1B1jZgqR92?D$(47`B~HE-fm9IztMGk20QNPGX(Rk<I;0z(F)n+C=fA<^&@N
+z>q%~`fn~98vkR(NJ2%a$S(CZH?()Hx=Kuc#^$3H~PhN6P1p^ZhvNZsOBr*$f6X8jN
+zk(H6DnS~X|Hpop$ED>Vh;;>-J+`_>j<zOTw-jvL8fWZi)i@_trEOAXz1DDzUPaD5G
+F003IEm#F{%
+
+literal 0
+Hc-jL100001
+

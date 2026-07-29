@@ -6,8 +6,8 @@ Subject: [PATCH] Hooks for initializing Vanadium configs including via config
 
 ---
  .../chromium_src/base/config/android/BUILD.gn |  19 +++
- .../base/config/VanadiumConfigsUtils.java     | 130 ++++++++++++++++++
- 2 files changed, 149 insertions(+)
+ .../base/config/VanadiumConfigsUtils.java     | 148 ++++++++++++++++++
+ 2 files changed, 167 insertions(+)
  create mode 100644 vanadium/chromium_src/base/config/android/BUILD.gn
  create mode 100644 vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
 
@@ -38,10 +38,10 @@ index 0000000000000..63b5b1510de82
 +}
 diff --git a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
 new file mode 100644
-index 0000000000000..4ac6693c1a83e
+index 0000000000000..89ba01f27ac48
 --- /dev/null
 +++ b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,148 @@
 +package org.chromium.base.config;
 +
 +import android.content.Context;
@@ -54,7 +54,7 @@ index 0000000000000..4ac6693c1a83e
 +import app.vanadium.config.VanadiumConfParser;
 +import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
 +
-+import java.util.ArrayList;
++import java.util.LinkedHashMap;
 +import java.util.LinkedHashSet;
 +import java.util.Map;
 +import java.util.Set;
@@ -110,6 +110,10 @@ index 0000000000000..4ac6693c1a83e
 +            return;
 +        }
 +
++        CommandLine.getInstance().removeSwitch("config-switches-begin");
++        CommandLine.getInstance().removeSwitch("config-switches-end");
++        CommandLine.getInstance().appendSwitch("config-switches-begin");
++        Map<String, Set<String>> affectedSwitchesWithValues = new LinkedHashMap<>();
 +        Set<String> enabledFeatures = new LinkedHashSet<>(
 +                getCommaDelimitedSwitchValue("enable-features"));
 +        Set<String> disabledFeatures = new LinkedHashSet<>(
@@ -129,44 +133,58 @@ index 0000000000000..4ac6693c1a83e
 +                String flagName = flag.getKey();
 +                Set<String> flagValues = flag.getValue();
 +                switch (flagType) {
-+                    case ENABLED_FEATURE:
++                    case ENABLED_FEATURE -> {
 +                        enabledFeatures.add(flagName);
 +                        disabledFeatures.remove(flagName);
-+                        break;
-+                    case DISABLED_FEATURE:
++                    }
++                    case DISABLED_FEATURE -> {
 +                        disabledFeatures.add(flagName);
 +                        enabledFeatures.remove(flagName);
-+                        break;
-+                    case ENABLED_SWITCH:
-+                        if (flagValues.isEmpty()) {
-+                            CommandLine.getInstance().appendSwitch(flagName);
-+                        } else {
-+                            Set<String> switchValue = new LinkedHashSet<>(
-+                                    getCommaDelimitedSwitchValue(flagName));
-+                            switchValue.addAll(flagValues);
-+                            setCommaDelimitedSwitchValue(
-+                                    flagName, new ArrayList<>(switchValue));
-+                        }
-+                        break;
-+                    case DISABLED_SWITCH:
++                    }
++                    case ENABLED_SWITCH -> {
 +                        if (flagValues.isEmpty()) {
 +                            CommandLine.getInstance().removeSwitch(flagName);
-+                        } else {
-+                            Set<String> switchValue = new LinkedHashSet<>(
-+                                    getCommaDelimitedSwitchValue(flagName));
-+                            switchValue.removeAll(flagValues);
-+                            setCommaDelimitedSwitchValue(
-+                                    flagName, new ArrayList<>(switchValue));
++                            CommandLine.getInstance().appendSwitch(flagName);
++                            continue;
 +                        }
-+                        break;
-+                    default:
-+                        throw new IllegalStateException();
++
++                        Set<String> values = affectedSwitchesWithValues.get(flagName);
++                        if (values == null) {
++                            values = new LinkedHashSet<>(getCommaDelimitedSwitchValue(flagName));
++                        }
++
++                        values.addAll(flagValues);
++                        affectedSwitchesWithValues.put(flagName, values);
++                    }
++                    case DISABLED_SWITCH -> {
++                        if (flagValues.isEmpty()) {
++                            CommandLine.getInstance().removeSwitch(flagName);
++                            continue;
++                        }
++
++                        Set<String> values = affectedSwitchesWithValues.get(flagName);
++                        if (values == null) {
++                            values = new LinkedHashSet<>(getCommaDelimitedSwitchValue(flagName));
++                        }
++
++                        values.removeAll(flagValues);
++                        affectedSwitchesWithValues.put(flagName, values);
++                    }
++                    default -> throw new IllegalStateException();
 +                }
 +            }
 +        }
 +
-+        setCommaDelimitedSwitchValue("enable-features", new ArrayList<>(enabledFeatures));
-+        setCommaDelimitedSwitchValue("disable-features", new ArrayList<>(disabledFeatures));
++        for (Map.Entry<String, Set<String>> affectedArgs
++                : affectedSwitchesWithValues.entrySet()) {
++            String name = affectedArgs.getKey();
++            Set<String> values = affectedArgs.getValue();
++            setCommaDelimitedSwitchValue(name, values);
++        }
++
++        setCommaDelimitedSwitchValue("enable-features", enabledFeatures);
++        setCommaDelimitedSwitchValue("disable-features", disabledFeatures);
++        CommandLine.getInstance().appendSwitch("config-switches-end");
 +    }
 +
 +    private VanadiumConfigsUtils() {
