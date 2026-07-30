@@ -5,14 +5,14 @@ Subject: [PATCH] [config] Add baseline components and flag configs for config
  app
 
 ---
- .../config/host/ConfigGeneratorImpl.kt        | 412 ++++++++++++++++++
- 1 file changed, 412 insertions(+)
+ .../config/host/ConfigGeneratorImpl.kt        | 413 ++++++++++++++++++
+ 1 file changed, 413 insertions(+)
 
 diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
 index 24a3312d7b0e4..45e975a6ae297 100644
 --- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
 +++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
-@@ -67,6 +67,418 @@ fun main(vararg args: String) {
+@@ -67,6 +67,419 @@ fun main(vararg args: String) {
  private fun unsortedConfigs(): List<Config> {
      val configs = ArrayList<Config>()
  
@@ -394,8 +394,9 @@ index 24a3312d7b0e4..45e975a6ae297 100644
 +            addAllSysFeatureConditions(
 +                sysFeatureConditions(
 +                    sysFeatureCondition {
-+                        // disabled until the OS fix lands for devices with legacy package name
-+                        disableForAllGosVersions()
++                        setGosVersionBounds(
++                            minGosVersion = GrapheneOsVersion(year = 2026, month = 7, day = 29)
++                        )
 +                    },
 +                )
 +            )
