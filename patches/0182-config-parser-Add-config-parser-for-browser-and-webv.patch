@@ -14,12 +14,15 @@ Changes since:
     - support for upstream file-based parsing of unindexed content filtering component
   - 150.0.7871.124.1:
     - support for system feature info checks before parsing a config entry
+  - 151.0.7922.47.2:
+    - support for device-specific allowlist and blocklist checks before
+      parsing a config entry
 ---
- vanadium/android_config/parser/BUILD.gn       |  25 +
+ vanadium/android_config/parser/BUILD.gn       |  26 +
  .../SubresourceFilterComponentUtils.java      |  90 +++
  .../config/VanadiumConfConditionals.java      |  60 ++
- .../vanadium/config/VanadiumConfParser.java   | 549 ++++++++++++++++++
- 4 files changed, 724 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 601 ++++++++++++++++++
+ 4 files changed, 777 insertions(+)
  create mode 100644 vanadium/android_config/parser/BUILD.gn
  create mode 100644 vanadium/android_config/parser/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
  create mode 100644 vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfConditionals.java
@@ -27,10 +30,10 @@ Changes since:
 
 diff --git a/vanadium/android_config/parser/BUILD.gn b/vanadium/android_config/parser/BUILD.gn
 new file mode 100644
-index 0000000000000..b92b9c8785ff0
+index 0000000000000..ac2a463833065
 --- /dev/null
 +++ b/vanadium/android_config/parser/BUILD.gn
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,26 @@
 +# Copyright 2023-2026 GrapheneOS
 +# Use of this source code is governed by a GPL-2.0 style license that can be
 +# found in the LICENSE file.
@@ -47,6 +50,7 @@ index 0000000000000..b92b9c8785ff0
 +    "//third_party/android_deps:org_jspecify_jspecify_java",
 +    "//third_party/android_deps:protobuf_lite_runtime_java",
 +    "//vanadium/android_config:configinfo_java",
++    "//vanadium/android_config/common:common_config_constants_java",
 +    "//vanadium/android_config/proto:config_proto_java",
 +    "//vanadium/ext/utils:feature_info_map_cache_java",
 +    "//vanadium/ext/utils:file_utils_java",
@@ -220,26 +224,26 @@ index 0000000000000..f23da6445d09d
 +}
 diff --git a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..0a6b8e114332b
+index 0000000000000..da87b2742c40f
 --- /dev/null
 +++ b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,549 @@
+@@ -0,0 +1,601 @@
 +package app.vanadium.config;
 +
++import android.annotation.SuppressLint;
 +import android.content.Context;
++import android.content.pm.ApplicationInfo;
 +import android.content.pm.FeatureInfo;
 +import android.content.pm.PackageInfo;
 +import android.content.pm.PackageManager;
 +import android.os.Build;
-+import android.util.ArrayMap;
 +import android.util.Log;
 +import android.util.SparseArray;
-+
-+import com.google.protobuf.ByteString;
 +
 +import org.jspecify.annotations.NullMarked;
 +import org.jspecify.annotations.Nullable;
 +
++import app.vanadium.config.common.Constants.SystemFeatures;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
@@ -249,6 +253,7 @@ index 0000000000000..0a6b8e114332b
 +import app.vanadium.config.proto.VanadiumConfigProto.Flag;
 +import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
 +import app.vanadium.config.proto.VanadiumConfigProto.Spec;
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.DeviceSupportCondition;
 +import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType;
 +import app.vanadium.config.proto.VanadiumConfigProto.Spec.SysFeatureCondition;
 +import app.vanadium.ext.utils.SystemFeatureInfoMapCache;
@@ -256,6 +261,7 @@ index 0000000000000..0a6b8e114332b
 +import java.io.IOException;
 +import java.io.InputStream;
 +import java.lang.reflect.Method;
++import java.util.LinkedHashMap;
 +import java.util.LinkedHashSet;
 +import java.util.List;
 +import java.util.Map;
@@ -363,7 +369,8 @@ index 0000000000000..0a6b8e114332b
 +                } else if (additionalRes != null) {
 +                    byte[] newRes = new byte[res.length + additionalRes.length];
 +                    System.arraycopy(res, 0, newRes, 0, res.length);
-+                    System.arraycopy(additionalRes, 0, newRes, res.length, additionalRes.length);
++                    System.arraycopy(
++                            additionalRes, 0, newRes, res.length, additionalRes.length);
 +                    res = newRes;
 +                }
 +            }
@@ -391,11 +398,7 @@ index 0000000000000..0a6b8e114332b
 +                }
 +
 +                try (InputStream inputStream = f.getInputStream(e)) {
-+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-+                        return inputStream.readAllBytes();
-+                    }
-+
-+                    return ByteString.readFrom(inputStream).toByteArray();
++                    return inputStream.readAllBytes();
 +                }
 +            } catch (IOException ignored) {
 +                Log.e(TAG, "unable to read zip file");
@@ -413,11 +416,12 @@ index 0000000000000..0a6b8e114332b
 +            byte[] curComponentByteArray = cachedComponentByteArray;
 +            if (curComponentByteArray != null) {
 +                if (ConfigInfo.IS_DEBUG) {
-+                    Log.i(TAG, "value has been cached for " + componentType.toString());
++                    Log.i(TAG, "value has been cached for " + componentType);
 +                }
 +                return curComponentByteArray;
 +            }
 +
++            Future<byte @Nullable[]> componentByteArray = this.componentByteArray;
 +            if (componentByteArray == null) {
 +                if (ConfigInfo.IS_DEBUG) {
 +                    Log.i(TAG, "no current component byte array for initialization yet");
@@ -426,10 +430,12 @@ index 0000000000000..0a6b8e114332b
 +            }
 +
 +            try {
-+                curComponentByteArray = this.componentByteArray.get();
 +                if (componentByteArray.isCancelled()) {
-+                    componentByteArray = executor.submit(() -> getByteArrayForMainComponentInternal(configApkFilePath));
++                    componentByteArray = executor.submit(
++                            () -> getByteArrayForMainComponentInternal(configApkFilePath));
++                    this.componentByteArray = componentByteArray;
 +                }
++                curComponentByteArray = componentByteArray.get();
 +                cachedComponentByteArray = curComponentByteArray;
 +                return curComponentByteArray;
 +            } catch (ExecutionException e) {
@@ -444,13 +450,14 @@ index 0000000000000..0a6b8e114332b
 +
 +    private static final class ParsedFlagSet {
 +        private final FlagType flagType;
-+        private final ArrayMap<String, Set<String>> flagSet;
-+        private ParsedFlagSet(FlagType flagType, ArrayMap<String, Set<String>> flagSet) {
++        private final LinkedHashMap<String, Set<String>> flagSet;
++        private ParsedFlagSet(FlagType flagType, LinkedHashMap<String, Set<String>> flagSet) {
 +            this.flagType = flagType;
 +            this.flagSet = flagSet;
 +        }
 +
-+        private static final ParsedFlagSet EMPTY = new ParsedFlagSet(FlagType.UNKNOWN, new ArrayMap<>());
++        private static final ParsedFlagSet EMPTY =
++                new ParsedFlagSet(FlagType.UNKNOWN, new LinkedHashMap<>());
 +    }
 +
 +    private static volatile @Nullable Future<@Nullable ParsedConfigs> futureParsedConfigs;
@@ -532,13 +539,13 @@ index 0000000000000..0a6b8e114332b
 +    }
 +
 +    private static boolean verifyPackage(Context ctx, String pkgName, byte[] sha256CertDigestBytes) {
-+
 +        return ctx.getPackageManager().hasSigningCertificate(
 +                pkgName, sha256CertDigestBytes, PackageManager.CERT_INPUT_SHA256);
 +    }
 +
 +    private static @Nullable ParsedConfigs getParsedConfigs() {
-+        if (futureParsedConfigs == null) {
++        Future<@Nullable ParsedConfigs> curFutureParsedConfigs = futureParsedConfigs;
++        if (curFutureParsedConfigs == null) {
 +            if (ConfigInfo.IS_DEBUG) {
 +                Log.i(TAG, "config has " + ((parsedConfigs == null) ? "not yet " : "") + "been parsed");
 +            }
@@ -547,7 +554,6 @@ index 0000000000000..0a6b8e114332b
 +        }
 +
 +        try {
-+            Future<@Nullable ParsedConfigs> curFutureParsedConfigs = futureParsedConfigs;
 +            parsedConfigs = curFutureParsedConfigs.get();
 +            futureParsedConfigs = null;
 +        } catch (ExecutionException e) {
@@ -571,11 +577,6 @@ index 0000000000000..0a6b8e114332b
 +
 +    private static @Nullable ParsedConfigs parse(
 +            Context ctx, SpecType specType) {
-+        if (!isEligible()) {
-+            Log.d(TAG, "Config apk feature is unsupported below android 13");
-+            return null;
-+        }
-+
 +        PackageInfo unverifiedConfigPkgInfo = getPackageInfoOrNull(
 +                ctx, ConfigInfo.CONFIG_APK_PACKAGE, PackageManager.MATCH_DISABLED_COMPONENTS);
 +        if (unverifiedConfigPkgInfo == null) {
@@ -592,6 +593,7 @@ index 0000000000000..0a6b8e114332b
 +            case BROWSER -> getPackageInfoOrNull(ctx, ctx.getPackageName(), 0);
 +            case WEBVIEW -> {
 +                try {
++                    @SuppressLint("PrivateApi")
 +                    Class<?> wvus = Class.forName("android.webkit.WebViewUpdateService");
 +                    Method getWebViewPackageName =
 +                            wvus.getDeclaredMethod("getCurrentWebViewPackageName");
@@ -611,12 +613,13 @@ index 0000000000000..0a6b8e114332b
 +        PackageInfo configPkgInfo = getPackageInfoOrNull(
 +                ctx, ConfigInfo.CONFIG_APK_PACKAGE, PackageManager.MATCH_DISABLED_COMPONENTS);
 +        if (configPkgInfo == null) {
-+            Log.e(TAG, "config package not found", new IllegalStateException("must be able to find config package once verified"));
++            Log.e(TAG, "config package not found", new IllegalStateException());
 +            return ParsedConfigs.EMPTY;
 +        }
 +
 +        final long configVersionCode = configPkgInfo.getLongVersionCode();
 +
++        final ParsedConfigs parsedConfigs = VanadiumConfParser.parsedConfigs;
 +        if (parsedConfigs != null) {
 +            if (configVersionCode <= parsedConfigs.configVersionCode) {
 +                Log.w(TAG, "Only update to newer versions are allowed to update parsed config," +
@@ -625,7 +628,13 @@ index 0000000000000..0a6b8e114332b
 +            }
 +        }
 +
-+        String configApkFilePath = configPkgInfo.applicationInfo.publicSourceDir;
++        ApplicationInfo configAppInfo = configPkgInfo.applicationInfo;
++        if (configAppInfo == null) {
++            Log.e(TAG, "config app info not found", new IllegalStateException());
++            return ParsedConfigs.EMPTY;
++        }
++
++        String configApkFilePath = configAppInfo.publicSourceDir;
 +        Configs configs;
 +        try (ZipFile f = new ZipFile(configApkFilePath)) {
 +            ZipEntry e = f.getEntry("proto_config.pb2");
@@ -647,14 +656,12 @@ index 0000000000000..0a6b8e114332b
 +            final SparseArray<ParsedFlagSet> pendingFlags = new SparseArray<>();
 +            final SparseArray<ParsedComponent> pendingComponents = new SparseArray<>();
 +
-+            final ArrayMap<String, Set<String>> enabledFeatureFlags = new ArrayMap<>();
-+            final ArrayMap<String, Set<String>> disabledFeatureFlags = new ArrayMap<>();
-+            final ArrayMap<String, Set<String>> enabledSwitchFlags = new ArrayMap<>();
-+            final ArrayMap<String, Set<String>> disabledSwitchFlags = new ArrayMap<>();
++            final LinkedHashMap<String, Set<String>> enabledFeatureFlags = new LinkedHashMap<>();
++            final LinkedHashMap<String, Set<String>> disabledFeatureFlags = new LinkedHashMap<>();
++            final LinkedHashMap<String, Set<String>> enabledSwitchFlags = new LinkedHashMap<>();
++            final LinkedHashMap<String, Set<String>> disabledSwitchFlags = new LinkedHashMap<>();
 +
 +            Spec defaultSpec = Spec.getDefaultInstance();
-+            SysFeatureCondition defaultSysFeatureCondition =
-+                    SysFeatureCondition.getDefaultInstance();
 +config_loop:
 +            for (Config config : configs.getConfigsList()) {
 +                Spec spec = config.getSpec();
@@ -686,31 +693,84 @@ index 0000000000000..0a6b8e114332b
 +                    final long maxSysFeatureVersion =
 +                            sysFeatureCondition.getMaxVersion();
 +                    final long curSysFeatureVersion = sysFeatureInfo.version;
-+                    if (minSysFeatureVersion != defaultSysFeatureCondition.getMinVersion()
++                    if (minSysFeatureVersion != SystemFeatures.UNBOUNDED_FEATURE_VERSION
 +                            && minSysFeatureVersion > curSysFeatureVersion) {
 +                        continue config_loop;
-+                    } else if (maxSysFeatureVersion != defaultSysFeatureCondition.getMaxVersion()
++                    } else if (maxSysFeatureVersion != SystemFeatures.UNBOUNDED_FEATURE_VERSION
 +                            && maxSysFeatureVersion < curSysFeatureVersion) {
 +                        continue config_loop;
 +                    }
 +                }
 +
++                DeviceSupportCondition deviceSupportCondition =
++                        spec.getDeviceSupportCondition();
++                List<String> allowedDevices =
++                        deviceSupportCondition.getAllowedDevicesList();
++                List<String> blockedDevices =
++                        deviceSupportCondition.getBlockedDevicesList();
++                if (blockedDevices.contains(Build.DEVICE)) {
++                    continue;
++                } else if (!allowedDevices.isEmpty()
++                        && !allowedDevices.contains(Build.DEVICE)) {
++                    continue;
++                }
++
 +                Consumer<List<Flag>> appendFlagsToTypes = flagList -> {
 +                    for (Flag flag : flagList) {
 +                        final String flagName = flag.getFlagName();
-+                        final Set<String> flagValues = new LinkedHashSet<>(flag.getFlagValueList());
++                        final Set<String> flagValues =
++                                new LinkedHashSet<>(flag.getFlagValueList());
 +                        final FlagType flagType = flag.getFlagType();
-+                        if (flagType == FlagType.ENABLED_FEATURE) {
-+                            enabledFeatureFlags.put(flagName, flagValues);
-+                        } else if (flagType == FlagType.DISABLED_FEATURE) {
-+                            disabledFeatureFlags.put(flagName, flagValues);
-+                        } else if (flagType == FlagType.ENABLED_SWITCH) {
-+                            enabledSwitchFlags.put(flagName, flagValues);
-+                        } else if (flagType == FlagType.DISABLED_SWITCH) {
-+                            disabledSwitchFlags.put(flagName, flagValues);
-+                        } else {
-+                            throw new IllegalStateException();
++                        final Map<String, Set<String>> map = switch (flagType) {
++                            case ENABLED_FEATURE -> enabledFeatureFlags;
++                            case DISABLED_FEATURE -> disabledFeatureFlags;
++                            case ENABLED_SWITCH -> enabledSwitchFlags;
++                            case DISABLED_SWITCH -> disabledSwitchFlags;
++                            default -> throw new IllegalStateException();
++                        };
++                        final Map<String, Set<String>> oppositeMap = switch (flagType) {
++                            case ENABLED_FEATURE -> disabledFeatureFlags;
++                            case DISABLED_FEATURE -> enabledFeatureFlags;
++                            case ENABLED_SWITCH -> disabledSwitchFlags;
++                            case DISABLED_SWITCH -> enabledSwitchFlags;
++                            default -> throw new IllegalStateException();
++                        };
++                        Set<String> existingValues = map.get(flagName);
++                        final Set<String> newValues = new LinkedHashSet<>();
++                        if (existingValues != null) {
++                            newValues.addAll(existingValues);
 +                        }
++                        newValues.addAll(flagValues);
++
++                        Set<String> existingOnOpposite = oppositeMap.get(flagName);
++                        if (existingOnOpposite != null) {
++                            switch (flagType) {
++                                case ENABLED_FEATURE, DISABLED_FEATURE -> {
++                                    oppositeMap.remove(flagName);
++                                }
++                                case ENABLED_SWITCH, DISABLED_SWITCH -> {
++                                    boolean existingOnOppositeWasEmpty =
++                                            existingOnOpposite.isEmpty();
++                                    Set<String> commonOnNewFlags =
++                                            new LinkedHashSet<>(existingOnOpposite);
++                                    commonOnNewFlags.retainAll(flagValues);
++                                    existingOnOpposite.removeAll(commonOnNewFlags);
++                                    if (!existingOnOppositeWasEmpty
++                                            && existingOnOpposite.isEmpty()) {
++                                        oppositeMap.remove(flagName);
++                                    }
++                                    boolean newValuesWasEmpty = newValues.isEmpty();
++                                    newValues.removeAll(commonOnNewFlags);
++                                    if (!newValuesWasEmpty && newValues.isEmpty()) {
++                                        map.remove(flagName);
++                                        continue;
++                                    }
++                                }
++                                default -> throw new IllegalStateException();
++                            }
++                        }
++
++                        map.put(flagName, newValues);
 +                    }
 +                };
 +
@@ -765,10 +825,6 @@ index 0000000000000..0a6b8e114332b
 +            Log.e(TAG, "package " + pkgName + " not found", e);
 +            return null;
 +        }
-+    }
-+
-+    private static boolean isEligible() {
-+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 +    }
 +
 +    private VanadiumConfParser() {}

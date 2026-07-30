@@ -1,16 +1,16 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Fri, 22 Dec 2023 07:19:23 +0000
-Subject: [PATCH] config: Add protobuf generator, parser for config apk
+Subject: [PATCH] [config] Add protobuf generator, parser for config apk
  contents
 
 ---
- vanadium/android_config/proto/host/BUILD.gn   |  54 ++++
+ vanadium/android_config/proto/host/BUILD.gn   |  55 ++++
  .../vanadium/config/host/ConfigGenerator.java |  10 +
- .../config/host/ConfigGeneratorImpl.kt        | 239 ++++++++++++++++++
- .../vanadium/config/host/ConfigParser.java    |  31 +++
+ .../config/host/ConfigGeneratorImpl.kt        | 299 ++++++++++++++++++
+ .../vanadium/config/host/ConfigParser.java    |  31 ++
  .../config/android/internal_rules_ext.gni     |   2 +
- 5 files changed, 336 insertions(+)
+ 5 files changed, 397 insertions(+)
  create mode 100644 vanadium/android_config/proto/host/BUILD.gn
  create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
  create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
@@ -18,10 +18,10 @@ Subject: [PATCH] config: Add protobuf generator, parser for config apk
 
 diff --git a/vanadium/android_config/proto/host/BUILD.gn b/vanadium/android_config/proto/host/BUILD.gn
 new file mode 100644
-index 0000000000000..e6f8e28f92672
+index 0000000000000..41b5d289ebde9
 --- /dev/null
 +++ b/vanadium/android_config/proto/host/BUILD.gn
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,55 @@
 +# Copyright 2023-2026 GrapheneOS
 +# Use of this source code is governed by a GPL-2.0 style license that can be
 +# found in the LICENSE file.
@@ -53,6 +53,7 @@ index 0000000000000..e6f8e28f92672
 +  supports_android = true
 +  requires_android = true
 +  deps = [
++    "//vanadium/android_config/common:common_config_constants_java",
 +    "//vanadium/android_config/proto:config_proto_java",
 +    "//third_party/kotlin_stdlib:kotlin_stdlib_java",
 +    "//third_party/android_deps:protobuf_lite_runtime_java",
@@ -94,11 +95,14 @@ index 0000000000000..14174cf8ba465
 +}
 diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
 new file mode 100644
-index 0000000000000..846f0dd5c4ee6
+index 0000000000000..24a3312d7b0e4
 --- /dev/null
 +++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,299 @@
 +package app.vanadium.config.host
++
++import app.vanadium.config.common.Constants.CheckOsConfigsFeatures
++import app.vanadium.config.common.Constants.SystemFeatures
 +
 +import app.vanadium.config.proto.VanadiumConfigProto.Component
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.AdditionalComponent
@@ -109,6 +113,7 @@ index 0000000000000..846f0dd5c4ee6
 +import app.vanadium.config.proto.VanadiumConfigProto.Flag
 +import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType
 +import app.vanadium.config.proto.VanadiumConfigProto.Spec
++import app.vanadium.config.proto.VanadiumConfigProto.Spec.DeviceSupportCondition
 +import app.vanadium.config.proto.VanadiumConfigProto.Spec.SpecType
 +import app.vanadium.config.proto.VanadiumConfigProto.Spec.SysFeatureCondition
 +
@@ -135,6 +140,7 @@ index 0000000000000..846f0dd5c4ee6
 +                outFile = iter.next()
 +                continue
 +            }
++
 +            else -> {
 +                if (curArg.startsWith("-o=")
 +                    || curArg.startsWith("--out-file=")
@@ -152,15 +158,17 @@ index 0000000000000..846f0dd5c4ee6
 +        throw IllegalArgumentException("Missing output file argument")
 +    }
 +
++    val sortedConfigs = sortConfigs(unsortedConfigs())
++
 +    FileOutputStream(outFile).use {
-+        configs().writeTo(it)
++        sortedConfigs.writeTo(it)
 +    }
 +}
 +
-+private fun configs(): Configs {
++private fun unsortedConfigs(): List<Config> {
 +    val configs = ArrayList<Config>()
 +
-+    return sortConfigs(configs)
++    return configs
 +}
 +
 +
@@ -230,14 +238,27 @@ index 0000000000000..846f0dd5c4ee6
 +    }
 +}
 +
++private fun deviceSupportCondition(
++    block: DeviceSupportCondition.Builder.() -> Unit
++): DeviceSupportCondition {
++    return DeviceSupportCondition.newBuilder().run {
++        block(this)
++        build()
++    }
++}
++
 +private fun sysFeatureConditions(
 +    vararg sysFeatureConditions: SysFeatureCondition
 +): List<SysFeatureCondition> {
 +    return listOf(*sysFeatureConditions)
 +}
 +
-+private fun sysFeatureCondition(block: SysFeatureCondition.Builder.() -> Unit): SysFeatureCondition {
++private fun sysFeatureCondition(
++    block: SysFeatureCondition.Builder.() -> Unit
++): SysFeatureCondition {
 +    return SysFeatureCondition.newBuilder().run {
++        minVersion = SystemFeatures.UNBOUNDED_FEATURE_VERSION
++        maxVersion = SystemFeatures.UNBOUNDED_FEATURE_VERSION
 +        block(this)
 +        build()
 +    }
@@ -255,20 +276,7 @@ index 0000000000000..846f0dd5c4ee6
 +}
 +
 +private fun components(vararg components: Component): List<Component> {
-+    return listOf(*components)
-+}
-+
-+private fun component(
-+    additionalComponents: List<AdditionalComponent>,
-+    dependentFlags: List<Flag>,
-+    block: Component.Builder.() -> Unit,
-+): Component {
-+    return Component.newBuilder().run {
-+        addAllAdditionalComponents(additionalComponents)
-+        addAllDependentFlags(dependentFlags)
-+        block(this)
-+        build()
-+    }
++    return components.toList()
 +}
 +
 +private fun component(block: Component.Builder.() -> Unit): Component {
@@ -278,19 +286,10 @@ index 0000000000000..846f0dd5c4ee6
 +    }
 +}
 +
-+private fun additionalComponents(vararg additionalComponents: AdditionalComponent): List<AdditionalComponent> {
-+    return listOf(*additionalComponents)
-+}
-+
-+private fun additionalComponent(
-+    componentConditions: List<ComponentCondition>,
-+    block: AdditionalComponent.Builder.() -> Unit,
-+): AdditionalComponent {
-+    return AdditionalComponent.newBuilder().run {
-+        addAllConditions(componentConditions)
-+        block(this)
-+        build()
-+    }
++private fun additionalComponents(
++    vararg additionalComponents: AdditionalComponent
++): List<AdditionalComponent> {
++    return additionalComponents.toList()
 +}
 +
 +private fun additionalComponent(block: AdditionalComponent.Builder.() -> Unit): AdditionalComponent {
@@ -300,8 +299,10 @@ index 0000000000000..846f0dd5c4ee6
 +    }
 +}
 +
-+private fun componentConditions(vararg componentConditions: ComponentCondition): List<ComponentCondition> {
-+    return listOf(*componentConditions)
++private fun componentConditions(
++    vararg componentConditions: ComponentCondition
++): List<ComponentCondition> {
++    return componentConditions.toList()
 +}
 +
 +private fun componentCondition(block: ComponentCondition.Builder.() -> Unit): ComponentCondition {
@@ -311,31 +312,91 @@ index 0000000000000..846f0dd5c4ee6
 +    }
 +}
 +
-+private fun getSpecTypes(vararg specTypes: SpecType): Long {
-+    return enumBitsLong(*specTypes)
++private fun Spec.Builder.specTypes(vararg specTypesList: SpecType) {
++    specTypesWithVersionBounds(specTypesList.toList())
 +}
 +
-+private fun enumBitsLong(vararg enumBits: EnumLite): Long {
++private fun Spec.Builder.specTypesWithVersionBounds(
++    specTypesList: List<SpecType>,
++    minVanadiumVersion: VanadiumVersion? = null,
++    maxVanadiumVersion: VanadiumVersion? = null
++) {
++    specTypes = specTypesListEnum(specTypesList)
++    minVersion = minVanadiumVersion?.toLong() ?: 0L
++    maxVersion = maxVanadiumVersion?.toLong() ?: 0L
++}
++
++private fun specTypesListEnum(specTypes: List<SpecType>): Long {
++    return enumBitsLong(specTypes)
++}
++
++private fun <T : EnumLite> enumBitsLong(enumBits: List<T>): Long {
 +    var bits = 0L
-+    for (enumBit in enumBits) {
-+        bits = bits or (1L shl enumBit.getNumber())
++    enumBits.forEach {
++        check(it.number <= 63)
++        bits = bits or (1L shl it.number)
 +    }
 +    return bits
 +}
 +
-+private fun vanadiumVersion(major: Int, minor: Int, increment: Int = 0): Long {
-+    check(major > 0)
-+    check(minor in 0..999)
-+    check(increment in 0..99)
-+    return major * 100_000L + minor * 100L + increment
++private fun SysFeatureCondition.Builder.disableForAllGosVersions() {
++    setGosVersionBoundsInner(minVersionLong = Long.MAX_VALUE)
 +}
 +
-+private fun grapheneOsVersion(year: Int, month: Int, day: Int, increment: Int = 0): Long {
-+    check(year > 0)
-+    check(month in 1..12)
-+    check(day in 1..31)
-+    check(increment in 0..100)
-+    return year * 1_000_000L + month * 10_000L + day * 100L + increment
++private fun SysFeatureCondition.Builder.setGosVersionBounds(
++    minGosVersion: GrapheneOsVersion? = null,
++    maxGosVersion: GrapheneOsVersion? = null,
++) {
++    setGosVersionBoundsInner(
++        minVersionLong = minGosVersion?.toLong() ?: 0L,
++        maxVersionLong = maxGosVersion?.toLong() ?: 0L
++    )
++}
++
++private fun SysFeatureCondition.Builder.setGosVersionBoundsInner(
++    minVersionLong: Long = 0L,
++    maxVersionLong: Long = 0L,
++) {
++    featureName = SystemFeatures.GRAPHENEOS_VERSION
++    minVersion = minVersionLong
++    maxVersion = maxVersionLong
++}
++
++data class VanadiumVersion(
++    val major: Int,
++    val minor: Int,
++    val archApkVariant: Int = 0
++) {
++    init {
++        check(major > 0)
++        check(minor in 0..999)
++        check(archApkVariant in 0..99)
++    }
++
++    fun toLong() = major * 100_000L + minor * 100L + archApkVariant
++    companion object {
++        fun min() = VanadiumVersion(major = 6261, minor = 43 + 1)
++    }
++}
++
++data class GrapheneOsVersion(
++    val year: Int,
++    val month: Int,
++    val day: Int,
++    val increment: Int = 0
++) {
++    init {
++        check(year > 0)
++        check(month in 1..12)
++        check(day in 1..31)
++        check(increment in 0..100)
++    }
++
++    fun toLong() = year * 1_000_000L + month * 10_000L + day * 100L + increment
++    companion object {
++        // Initial version the config app is included in the OS
++        fun min() = GrapheneOsVersion(year = 2024, month = 2, day = 23)
++    }
 +}
 diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigParser.java b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigParser.java
 new file mode 100644

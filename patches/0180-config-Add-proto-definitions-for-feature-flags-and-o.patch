@@ -6,8 +6,8 @@ Subject: [PATCH] config: Add proto definitions for feature flags and
 
 ---
  vanadium/android_config/proto/BUILD.gn     |  12 +++
- vanadium/android_config/proto/config.proto | 100 +++++++++++++++++++++
- 2 files changed, 112 insertions(+)
+ vanadium/android_config/proto/config.proto | 111 +++++++++++++++++++++
+ 2 files changed, 123 insertions(+)
  create mode 100644 vanadium/android_config/proto/BUILD.gn
  create mode 100644 vanadium/android_config/proto/config.proto
 
@@ -31,10 +31,10 @@ index 0000000000000..7ccfd430aa163
 +}
 diff --git a/vanadium/android_config/proto/config.proto b/vanadium/android_config/proto/config.proto
 new file mode 100644
-index 0000000000000..99e95c81ea126
+index 0000000000000..8871124c1866c
 --- /dev/null
 +++ b/vanadium/android_config/proto/config.proto
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,111 @@
 +// Copyright 2023 GrapheneOS
 +// Use of this source code is governed by a GPL-2.0 style license that can be
 +// found in the LICENSE file.
@@ -62,7 +62,7 @@ index 0000000000000..99e95c81ea126
 +
 +// Defines a specification where configuration change(s) must apply, with version constrains and types.
 +// At the moment, only browser and webview are considered different types of spec.
-+// Next tag: 5
++// Next tag: 6
 +message Spec {
 +  // Indicates the types of Chromium builds where the configuration may apply.
 +  int64 spec_types = 1;
@@ -78,12 +78,23 @@ index 0000000000000..99e95c81ea126
 +    WEBVIEW = 1;
 +  }
 +
++  // Empty means no system features conditions are required, otherwise,
++  // it is checked if all system feature condition are met.
 +  repeated SysFeatureCondition sys_feature_conditions = 4;
 +
 +  message SysFeatureCondition {
 +    string feature_name = 1;
++    // Minimum version where the feature condition will apply. No minimum version is indicated by 0.
 +    int64 min_version = 2;
++    // Maximum version where the feature condition will apply. No maximum version is indicated by 0.
 +    int64 max_version = 3;
++  }
++
++  DeviceSupportCondition device_support_condition = 5;
++
++  message DeviceSupportCondition {
++    repeated string allowed_devices = 1;
++    repeated string blocked_devices = 2;
 +  }
 +}
 +
@@ -103,7 +114,7 @@ index 0000000000000..99e95c81ea126
 +  }
 +}
 +
-+// Next tag: 6
++// Next tag: 7
 +message Component {
 +  ComponentType component_type = 1;
 +  string component_file_name = 2;
