@@ -11,16 +11,16 @@ Subject: [PATCH] Initial support for hooking site settings UI changes
  .../site_settings/SiteSettingsCategory.java   |  51 +++++++-
  .../site_settings/SiteSettingsUtil.java       |   4 +-
  .../browser_ui/site_settings/Website.java     |  35 ++++++
- .../WebsitePermissionsFetcher.java            |  19 +++
+ .../WebsitePermissionsFetcher.java            |  22 ++++
  .../SingleCategorySettingsHooks.java          |  77 ++++++++++++
  .../SingleWebsiteSettingsHooks.java           |  50 ++++++++
  .../SiteSettingsCategoryHooks.java            |  48 ++++++++
  .../SiteSettingsHooksRegistry.java            | 113 ++++++++++++++++++
  .../SiteSettingsResourcesHooks.java           |  75 ++++++++++++
- .../SiteSettingsScreenHooks.java              | 112 +++++++++++++++++
- .../WebsitePermissionsFetcherHooks.java       |  54 +++++++++
+ .../SiteSettingsScreenHooks.java              | 110 +++++++++++++++++
+ .../WebsitePermissionsFetcherHooks.java       |  56 +++++++++
  ...site_settings_android_java_ext_sources.gni |   7 ++
- 16 files changed, 841 insertions(+), 4 deletions(-)
+ 16 files changed, 844 insertions(+), 4 deletions(-)
  create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettingsHooks.java
  create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettingsHooks.java
  create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategoryHooks.java
@@ -130,7 +130,7 @@ index 1f64ec7cecd46..19a421860ed78 100644
              case ContentSettingsType.ADS:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index 8459e479c9872..e681ff7f60488 100644
+index 3044a2aa45769..2efc0d75507ba 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 @@ -313,6 +313,14 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
@@ -247,7 +247,7 @@ index 8459e479c9872..e681ff7f60488 100644
          ChromeBasePreference osWarning = new ChromeBasePreference(getStyledContext(), null);
          ChromeBasePreference osWarningExtra = new ChromeBasePreference(getStyledContext(), null);
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
-index 8575e49fcf43d..1895b7a19dce2 100644
+index b83d80bced1c1..2992686c45860 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java
 @@ -141,6 +141,15 @@ public class SingleWebsiteSettings extends BaseSiteSettingsFragment
@@ -334,7 +334,7 @@ index 17565d1f9be60..ffc8a7df63ce8 100644
          }
      }
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
-index e3e889fb0ac83..44bc76d957422 100644
+index 4bb190a45e6b2..61e45aa1d3d1c 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 @@ -82,7 +82,13 @@ public class SiteSettingsCategory {
@@ -424,7 +424,7 @@ index e3e889fb0ac83..44bc76d957422 100644
          switch (type) {
              case Type.ADS:
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
-index 1ff4b51bc9735..3f03fb3ab7f02 100644
+index 359f35c02dff2..08d8995e42d1f 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsUtil.java
 @@ -24,7 +24,7 @@ import org.chromium.content_public.browser.HostZoomMap;
@@ -499,12 +499,12 @@ index 318f54493a67e..879cf1401edd4 100644
              // The Auto Picture-in-Picture permission is defaulted to allowed/denied based on the
              // incognito status. When the user explicitly sets the permission for the first time, no
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
-index 88739522a0061..25985dd1af205 100644
+index 972489a97c082..7a43ba9d9b4cc 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcher.java
-@@ -76,6 +76,25 @@ public class WebsitePermissionsFetcher {
+@@ -89,6 +89,28 @@ public class WebsitePermissionsFetcher {
       */
-     public static @Nullable WebsitePermissionsType getPermissionsType(
+     public static @WebsitePermissionsType int getPermissionsType(
              @ContentSettingsType.EnumType int contentSettingsType) {
 +        WebsitePermissionsFetcherHooks hooks =
 +                SiteSettingsHooksRegistry.getWebsitePermissionsFetcherHooks(contentSettingsType);
@@ -516,6 +516,9 @@ index 88739522a0061..25985dd1af205 100644
 +                }
 +                case WebsitePermissionsFetcherHooks.PERMISSION_INFO -> {
 +                    return WebsitePermissionsType.PERMISSION_INFO;
++                }
++                case WebsitePermissionsFetcherHooks.EMBEDDED_PERMISSION -> {
++                    return WebsitePermissionsType.EMBEDDED_PERMISSION;
 +                }
 +                case WebsitePermissionsFetcherHooks.CHOSEN_OBJECT_INFO -> {
 +                    return WebsitePermissionsType.CHOSEN_OBJECT_INFO;
@@ -923,10 +926,10 @@ index 0000000000000..50fecca54b3e4
 +}
 diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java b/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java
 new file mode 100644
-index 0000000000000..bd2d0f4e4381b
+index 0000000000000..337e73f86c8b5
 --- /dev/null
 +++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsScreenHooks.java
-@@ -0,0 +1,112 @@
+@@ -0,0 +1,110 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import android.content.Context;
@@ -1003,13 +1006,11 @@ index 0000000000000..bd2d0f4e4381b
 +        PreferenceScreen preferenceScreen = siteSettingsFragment.getPreferenceScreen();
 +        int prevContentSetting = getPreviousContentSettings();
 +        int curContentSetting = SiteSettingsCategory.contentSettingsType(categoryType);
-+        WebsitePermissionsFetcher.WebsitePermissionsType permissionsType =
++        @WebsitePermissionsFetcher.WebsitePermissionsType int permissionsType =
 +                WebsitePermissionsFetcher.getPermissionsType(curContentSetting);
 +        int prefCount = preferenceScreen.getPreferenceCount();
 +        final int orderDefault;
-+        if (permissionsType == null) {
-+            orderDefault = prefCount - 2;
-+        } else if (permissionsType == WebsitePermissionsFetcher.WebsitePermissionsType.PERMISSION_INFO) {
++        if (permissionsType == WebsitePermissionsFetcher.WebsitePermissionsType.PERMISSION_INFO) {
 +            Preference permissionGroup = preferenceScreen.findPreference("content_category");
 +            orderDefault = permissionGroup.getOrder() - 2;
 +        } else {
@@ -1041,10 +1042,10 @@ index 0000000000000..bd2d0f4e4381b
 +}
 diff --git a/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcherHooks.java b/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcherHooks.java
 new file mode 100644
-index 0000000000000..c5850b5a96911
+index 0000000000000..069373fd597d9
 --- /dev/null
 +++ b/vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/WebsitePermissionsFetcherHooks.java
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,56 @@
 +package org.chromium.components.browser_ui.site_settings;
 +
 +import androidx.annotation.IntDef;
@@ -1076,15 +1077,17 @@ index 0000000000000..c5850b5a96911
 +        return LazyHolder.DEF_INSTANCE;
 +    }
 +
-+    static final int UNKNOWN = -1;
++    static final int UNKNOWN = -2;
 +    static final int CONTENT_SETTING_EXCEPTION = 0;
 +    static final int PERMISSION_INFO = 1;
-+    static final int CHOSEN_OBJECT_INFO = 2;
++    static final int EMBEDDED_PERMISSION = 2;
++    static final int CHOSEN_OBJECT_INFO = 3;
 +
 +    @IntDef({
 +        UNKNOWN,
 +        CONTENT_SETTING_EXCEPTION,
 +        PERMISSION_INFO,
++        EMBEDDED_PERMISSION,
 +        CHOSEN_OBJECT_INFO,
 +    })
 +    @interface PermissionTypeOverride {

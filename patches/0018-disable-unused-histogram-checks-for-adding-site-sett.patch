@@ -6,15 +6,15 @@ Subject: [PATCH] disable unused histogram checks for adding site settings
 Added NUM_TYPES_CHROMIUM to indicate the content setting type boundary
 to avoid the need to update the histogram map.
 ---
- .../core/browser/content_settings_uma_util.cc | 24 +++++++++++++++++--
- .../core/common/content_settings_types.mojom  |  7 ++++++
- 2 files changed, 29 insertions(+), 2 deletions(-)
+ .../core/browser/content_settings_uma_util.cc | 19 +++++++++++++++++--
+ .../core/common/content_settings_types.mojom  |  7 +++++++
+ 2 files changed, 24 insertions(+), 2 deletions(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_uma_util.cc b/components/content_settings/core/browser/content_settings_uma_util.cc
-index 9336b8d35d9e5..4d4224ffc54d4 100644
+index a920b1dd191cb..4c69eb48ed8f1 100644
 --- a/components/content_settings/core/browser/content_settings_uma_util.cc
 +++ b/components/content_settings/core/browser/content_settings_uma_util.cc
-@@ -226,16 +226,26 @@ namespace content_settings_uma_util {
+@@ -16,16 +16,26 @@ namespace content_settings_uma_util {
  
  void RecordContentSettingsHistogram(const std::string& name,
                                      ContentSettingsType content_setting) {
@@ -25,7 +25,7 @@ index 9336b8d35d9e5..4d4224ffc54d4 100644
 +
    base::UmaHistogramExactLinear(
        name, ContentSettingTypeToHistogramValue(content_setting),
-       kkHistogramValueMax + 1);
+       content_settings::kContentSettingsTypeToHistogramValueMax + 1);
  }
  
  int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
@@ -35,27 +35,15 @@ index 9336b8d35d9e5..4d4224ffc54d4 100644
 +  }
 +
    static_assert(
-       kHistogramValue.size() ==
+       content_settings::kContentSettingsTypeToHistogramValue.size() ==
 -          // DEFAULT is not in the histogram, so we want [0, kMaxValue]
 -          1 + static_cast<size_t>(ContentSettingsType::kMaxValue),
 +          // DEFAULT is not in the histogram, so we want [0, NUM_TYPES_CHROMIUM - 1]
 +          static_cast<size_t>(ContentSettingsType::NUM_TYPES_CHROMIUM),
        "Update content settings histogram lookup");
  
-   auto found = kHistogramValue.find(content_setting);
-@@ -249,6 +259,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
- 
- void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
-                              ContentSettingsType content_setting_type) {
-+  if (content_setting_type >= ContentSettingsType::NUM_TYPES_CHROMIUM) {
-+    // We don't store histogram values for donwstream added site settings.
-+    return;
-+  }
-+
-   content_settings_uma_util::RecordContentSettingsHistogram(
-       base::StrCat({"ContentSettings.ActiveExpiry.",
-                     GetProviderNameForHistograms(provider_type),
-@@ -258,6 +273,11 @@ void RecordActiveExpiryEvent(content_settings::ProviderType provider_type,
+   auto found = content_settings::kContentSettingsTypeToHistogramValue.find(
+@@ -40,6 +50,11 @@ int ContentSettingTypeToHistogramValue(ContentSettingsType content_setting) {
  
  void RecordContentSettingChange(ContentSetting content_setting_value,
                                  ContentSettingsType content_setting_type) {
@@ -68,13 +56,13 @@ index 9336b8d35d9e5..4d4224ffc54d4 100644
      case CONTENT_SETTING_ALLOW:
        content_settings_uma_util::RecordContentSettingsHistogram(
 diff --git a/components/content_settings/core/common/content_settings_types.mojom b/components/content_settings/core/common/content_settings_types.mojom
-index 5284b3aeddfb1..d99395efe29f2 100644
+index e0129fbbea160..ebe846d8370e1 100644
 --- a/components/content_settings/core/common/content_settings_types.mojom
 +++ b/components/content_settings/core/common/content_settings_types.mojom
-@@ -490,5 +490,12 @@ enum ContentSettingsType {
+@@ -493,5 +493,12 @@ enum ContentSettingsType {
  
-   // Controls the display of the inline cue menu in a website.
-   INLINE_CUE_MENU,
+   // Stores allowlist decisions for Suspicious Site Warnings.
+   SUSPICIOUS_SITE_WARNING_DATA,
 +
 +  // Indicator for latest upstream content settings type.
 +  // Currently, histograms are unused and planned to be stubbed in the near future.
@@ -83,4 +71,4 @@ index 5284b3aeddfb1..d99395efe29f2 100644
 +  // Three line placeholder comment to minimize cascading conflicts.
 +  // Three line placeholder comment to minimize cascading conflicts.
  };
- // LINT.ThenChange(//components/content_settings/core/browser/content_settings_uma_util.cc:kHistogramValue)
+ // LINT.ThenChange(//components/content_settings/core/common/content_settings_uma_constants.h:kContentSettingsTypeToHistogramValue)
