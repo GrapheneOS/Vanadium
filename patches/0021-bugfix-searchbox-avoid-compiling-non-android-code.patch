@@ -8,7 +8,7 @@ Subject: [PATCH] [bugfix] searchbox: avoid compiling non-android code
  1 file changed, 6 insertions(+)
 
 diff --git a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-index 35dabcfd69cdf..27025b32a7582 100644
+index d3e1502aec422..4a31f16adafa4 100644
 --- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 +++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 @@ -227,6 +227,7 @@ constexpr char kShareIconResourceName[] =
@@ -27,7 +27,7 @@ index 35dabcfd69cdf..27025b32a7582 100644
  
  std::string GetBase64UrlVariations(Profile* profile) {
    variations::VariationsClient* provider = profile->GetVariationsClient();
-@@ -846,6 +848,9 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -844,6 +846,9 @@ SearchboxHandler::CreateAutocompleteMatch(
      bookmarks::BookmarkModel* bookmark_model,
      const omnibox::GroupConfigMap& suggestion_groups_map,
      const TemplateURLService* turl_service) const {
@@ -37,11 +37,11 @@ index 35dabcfd69cdf..27025b32a7582 100644
    // Skip the primary column horizontal matches. This check guards against
    // this unexpected scenario as the UI expects the primary column matches to
    // be vertical ones.
-@@ -1004,6 +1009,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -999,6 +1004,7 @@ SearchboxHandler::CreateAutocompleteMatch(
    mojom_match->is_contextual_suggestion = match.IsContextualSearchSuggestion();
  
    return mojom_match;
 +#endif // BUILDFLAG(IS_ANDROID)
  }
  
- SearchboxHandler::SearchboxHandler(
+ WindowOpenDisposition SearchboxHandler::ComputeWindowOpenDisposition(

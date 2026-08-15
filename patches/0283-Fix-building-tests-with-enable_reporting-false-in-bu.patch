@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 20 Jul 2026 13:49:21 +0000
+Subject: [PATCH] Fix building tests with enable_reporting=false in build args
+
+---
+ .../chrome_browsing_data_remover_delegate_unittest.cc           | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc b/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc
+index d59988f0f76b0..8986ee21d2f60 100644
+--- a/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc
++++ b/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc
+@@ -841,6 +841,7 @@ class RemoveDownloadsTester {
+   raw_ptr<ChromeDownloadManagerDelegate> chrome_download_manager_delegate_;
+ };
+ 
++#if BUILDFLAG(ENABLE_REPORTING)
+ base::RepeatingCallback<bool(const GURL&)> CreateUrlFilterFromOriginFilter(
+     const base::RepeatingCallback<bool(const url::Origin&)>& origin_filter) {
+   if (origin_filter.is_null()) {
+@@ -850,6 +851,7 @@ base::RepeatingCallback<bool(const GURL&)> CreateUrlFilterFromOriginFilter(
+     return origin_filter.Run(url::Origin::Create(url));
+   });
+ }
++#endif // BUILDFLAG(ENABLE_REPORTING)
+ 
+ class RemoveAutofillTester {
+  public:

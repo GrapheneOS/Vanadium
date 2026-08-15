@@ -25,10 +25,10 @@ index bde438ed438c6..71911553c4c65 100644
          download::DownloadClient::OPTIMIZATION_GUIDE_PREDICTION_MODELS,
          std::make_unique<download::DeferredClientWrapper>(
 diff --git a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
-index ef37e2a49a01d..05cd4ccf537cb 100644
+index 31d70223c8186..4093cf36035ea 100644
 --- a/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
 +++ b/chrome/browser/optimization_guide/model_execution/optimization_guide_global_state.cc
-@@ -152,8 +152,11 @@ ChromePredictionManager::ChromePredictionManager()
+@@ -153,8 +153,11 @@ ChromePredictionManager::ChromePredictionManager()
                            OptimizationGuideLogger::GetInstance(),
                            base::BindRepeating(&unzip::LaunchUnzipper)) {
    prediction_model_store_.Initialize(GetBaseStoreDir());
@@ -43,10 +43,10 @@ index ef37e2a49a01d..05cd4ccf537cb 100644
  ChromePredictionManager::~ChromePredictionManager() = default;
  
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 688cf8d95f7f6..28d43f938038a 100644
+index d78f4fb6ac962..69585e5c2ea0e 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -57,6 +57,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -58,6 +58,10 @@ BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);
  // Enables the prediction of optimization targets.
  BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -69,7 +69,7 @@ index 688cf8d95f7f6..28d43f938038a 100644
    DCHECK(base::FeatureList::IsEnabled(kOptimizationGuideMetadataValidation));
    return GetFieldTrialParamByFeatureAsBool(kOptimizationGuideMetadataValidation,
 diff --git a/components/optimization_guide/core/optimization_guide_features.h b/components/optimization_guide/core/optimization_guide_features.h
-index bd5df5d3e2c69..339c90952ebf9 100644
+index 39b0be6200ec0..41a25b1bca6d6 100644
 --- a/components/optimization_guide/core/optimization_guide_features.h
 +++ b/components/optimization_guide/core/optimization_guide_features.h
 @@ -58,6 +58,8 @@ BASE_DECLARE_FEATURE(kOptimizationGuideFetchingForSRP);
@@ -81,7 +81,7 @@ index bd5df5d3e2c69..339c90952ebf9 100644
  BASE_DECLARE_FEATURE(kPageTextExtraction);
  COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
  BASE_DECLARE_FEATURE(kPushNotifications);
-@@ -274,6 +276,10 @@ bool IsModelExecutionWatchdogEnabled();
+@@ -272,6 +274,10 @@ bool IsModelExecutionWatchdogEnabled();
  COMPONENT_EXPORT(OPTIMIZATION_GUIDE_FEATURES)
  base::TimeDelta ModelExecutionWatchdogDefaultTimeout();
  

@@ -11,10 +11,10 @@ Subject: [PATCH] disable seed-based field trials
  4 files changed, 20 insertions(+)
 
 diff --git a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
-index 6cec4114b0de6..d452b7941dcd4 100644
+index c4a92525441eb..e027d082b2a4f 100644
 --- a/components/variations/service/variations_field_trial_creator.cc
 +++ b/components/variations/service/variations_field_trial_creator.cc
-@@ -59,6 +59,7 @@
+@@ -60,6 +60,7 @@
  #include "components/variations/variations_switches.h"
  #include "components/version_info/version_info.h"
  #include "ui/base/l10n/l10n_util.h"
@@ -22,7 +22,7 @@ index 6cec4114b0de6..d452b7941dcd4 100644
  
  namespace variations {
  namespace {
-@@ -267,9 +268,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -268,9 +269,15 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    // Force the variation ids selected in chrome://flags and/or specified using
    // the command-line flag.
@@ -38,7 +38,7 @@ index 6cec4114b0de6..d452b7941dcd4 100644
  
    switch (result) {
      case VariationsIdsProvider::ForceIdsResult::INVALID_SWITCH_ENTRY:
-@@ -347,27 +354,35 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
+@@ -348,27 +355,35 @@ bool VariationsFieldTrialCreator::SetUpFieldTrials(
  
    CreateTrialsResult create_trials_result = {.applied_seed = false};
    if (!used_testing_config && client_filterable_state) {
