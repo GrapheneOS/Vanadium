@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lee Bousfield <ljbousfield@gmail.com>
+Date: Sat, 15 Aug 2026 21:46:59 +0000
+Subject: [PATCH] report safe browsing init success
+
+---
+ .../chromium/android_webview/AwContentsStatics.java   | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java b/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java
+index 93e5f78be8b8d..5b3c1087d251b 100644
+--- a/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java
++++ b/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java
+@@ -120,13 +120,10 @@ public class AwContentsStatics {
+                     }
+                 };
+ 
+-        if (AwSafeBrowsingSafeModeAction.isSafeBrowsingDisabled()) {
+-            wrapperCallback.onResult(PlatformServiceBridge.getInstance().canUseGms());
+-            return;
+-        }
+-
+-        PlatformServiceBridge.getInstance()
+-                .warmUpSafeBrowsing(context.getApplicationContext(), wrapperCallback);
++        // Safe Browsing is a no-op in this build due to the lack of a GMS backend, but report
++        // success anyway: some apps (e.g. the Fiserv Zelle bridge) gate WebView URL loading on
++        // this callback and hang indefinitely when it reports failure.
++        wrapperCallback.onResult(true);
+     }
+ 
+     public static Uri getSafeBrowsingPrivacyPolicyUrl() {
