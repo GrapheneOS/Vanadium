@@ -73,10 +73,10 @@ index 9439049658b53..e25365261e42e 100644
             /*valid_settings=*/{CONTENT_SETTING_ALLOW, CONTENT_SETTING_BLOCK},
             WebsiteSettingsInfo::TOP_ORIGIN_ONLY_SCOPE,
 diff --git a/components/page_info/android/page_info_controller_android.cc b/components/page_info/android/page_info_controller_android.cc
-index 124e59f8cdc51..30205c187670c 100644
+index 871bc5637426f..c5c523a3607d6 100644
 --- a/components/page_info/android/page_info_controller_android.cc
 +++ b/components/page_info/android/page_info_controller_android.cc
-@@ -216,6 +216,7 @@ void PageInfoControllerAndroid::SetPermissionInfo(
+@@ -207,6 +207,7 @@ void PageInfoControllerAndroid::SetPermissionInfo(
    permissions_to_display.push_back(ContentSettingsType::IDLE_DETECTION);
    permissions_to_display.push_back(ContentSettingsType::IMAGES);
    permissions_to_display.push_back(ContentSettingsType::JAVASCRIPT);
@@ -84,7 +84,7 @@ index 124e59f8cdc51..30205c187670c 100644
    permissions_to_display.push_back(ContentSettingsType::POPUPS);
    if (base::FeatureList::IsEnabled(
            permissions::features::kAndroidWindowManagementWebApi)) {
-@@ -341,6 +342,8 @@ std::optional<PermissionSetting> PageInfoControllerAndroid::GetSettingToDisplay(
+@@ -332,6 +333,8 @@ std::optional<PermissionSetting> PageInfoControllerAndroid::GetSettingToDisplay(
      // The javascript content setting should show up if it is blocked globally
      // to give users an easy way to create exceptions.
      return permission.default_setting;
@@ -94,7 +94,7 @@ index 124e59f8cdc51..30205c187670c 100644
               (base::FeatureList::IsEnabled(
                    permissions::kPermissionsAndroidClapperLoud) ||
 diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
-index a4c68d2bf10a8..525fd15bbd79c 100644
+index 683d85f2be542..c658c77b16138 100644
 --- a/components/page_info/page_info.cc
 +++ b/components/page_info/page_info.cc
 @@ -121,6 +121,7 @@ ContentSettingsType kPermissionType[] = {
@@ -105,7 +105,7 @@ index a4c68d2bf10a8..525fd15bbd79c 100644
  #if !BUILDFLAG(IS_ANDROID)
      ContentSettingsType::IMAGES,
  #endif
-@@ -1492,6 +1493,11 @@ bool PageInfo::ShouldShowPermission(
+@@ -1501,6 +1502,11 @@ bool PageInfo::ShouldShowPermission(
    }
  #endif  // BUILDFLAG(IS_CHROMEOS)
  

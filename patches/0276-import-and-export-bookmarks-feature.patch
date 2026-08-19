@@ -106,7 +106,7 @@ index 85b399973deab..e65ea726ed77b 100644
    <if expr="not use_titlecase">
      <message name="IDS_BOOKMARK_BAR_SHOW_APPS_SHORTCUT" desc="Name shown in the context menu to hide/show the apps shortcut in the bookmark bar">
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index a15ac69245eb4..513ddccdc84c2 100644
+index 492b7b3492dc3..a0791221ea3c3 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
 @@ -5103,11 +5103,11 @@ are declared in tools/grit/grit_args.gni.
@@ -123,7 +123,7 @@ index a15ac69245eb4..513ddccdc84c2 100644
        <message name="IDS_UTILITY_PROCESS_QRCODE_GENERATOR_SERVICE_NAME" desc="The name of the utility process used for encoding QR Codes.">
          QR Code Generator
        </message>
-@@ -11558,7 +11558,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11433,7 +11433,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
        </if>
  
        <!-- Android uses custom UI for Bookmark importing -->
@@ -132,7 +132,7 @@ index a15ac69245eb4..513ddccdc84c2 100644
          <!-- Import Settings Dialog -->
          <if expr="is_win">
            <message name="IDS_IMPORT_FROM_IE" desc="browser combo box: Microsoft Internet Explorer">
-@@ -11591,7 +11591,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11466,7 +11466,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
              Import Bookmarks and Settings...
            </message>
          </if> <!-- is_macosx -->
@@ -741,10 +741,10 @@ index 44ed7f5d1a49a..681b556b7e149 100644
          Sorting by last opened
        </message>
 diff --git a/chrome/common/importer/BUILD.gn b/chrome/common/importer/BUILD.gn
-index c719a21360bfb..9e1197322d7b9 100644
+index bc73d6fe724c9..91f19ba423c26 100644
 --- a/chrome/common/importer/BUILD.gn
 +++ b/chrome/common/importer/BUILD.gn
-@@ -88,6 +88,12 @@ source_set("importer") {
+@@ -89,6 +89,12 @@ source_set("importer") {
      "importer_bridge.h",
      "pstore_declarations.h",
    ]
@@ -758,7 +758,7 @@ index c719a21360bfb..9e1197322d7b9 100644
      sources += [ "firefox_importer_utils_linux.cc" ]
    } else if (is_mac) {
 diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
-index 48138252497a5..521aa3320076f 100644
+index 500cbc7ed8e76..d524ec96ff35f 100644
 --- a/chrome/utility/BUILD.gn
 +++ b/chrome/utility/BUILD.gn
 @@ -91,7 +91,7 @@ static_library("utility") {
@@ -815,7 +815,7 @@ index 5f8f27c70bafe..ec2eb79f70948 100644
        return new FirefoxImporter();
  #endif
 diff --git a/chrome/utility/services.cc b/chrome/utility/services.cc
-index 37f6b72d73e90..9105a5b2e2d22 100644
+index fe34a39eb840c..7cd56bc597b8d 100644
 --- a/chrome/utility/services.cc
 +++ b/chrome/utility/services.cc
 @@ -61,6 +61,11 @@
@@ -830,7 +830,7 @@ index 37f6b72d73e90..9105a5b2e2d22 100644
  #if !BUILDFLAG(IS_ANDROID)
  #include "chrome/common/importer/profile_import.mojom.h"
  #include "chrome/services/reading_mode_metrics/reading_mode_metrics_service.h"
-@@ -235,6 +240,16 @@ auto RunSystemSignalsService(
+@@ -237,6 +242,16 @@ auto RunSystemSignalsService(
  }
  #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
  
@@ -847,7 +847,7 @@ index 37f6b72d73e90..9105a5b2e2d22 100644
  auto RunOakSessionService(
      mojo::PendingReceiver<private_ai::mojom::OakSession> receiver) {
    return std::make_unique<private_ai::OakSessionService>(std::move(receiver));
-@@ -482,6 +497,11 @@ void RegisterMainThreadServices(mojo::ServiceFactory& services) {
+@@ -484,6 +499,11 @@ void RegisterMainThreadServices(mojo::ServiceFactory& services) {
    services.Add(RunPassageEmbeddingsService);
    services.Add(RunOakSessionService);
  
