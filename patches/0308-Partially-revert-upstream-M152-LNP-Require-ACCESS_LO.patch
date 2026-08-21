@@ -1,0 +1,83 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: inthewaves <inthewaves@pm.me>
+Date: Thu, 20 Aug 2026 20:01:29 -0700
+Subject: [PATCH] Partially revert upstream "[M152] [LNP] Require
+ ACCESS_LOCAL_NETWORK only when targetSdkVersion >= 37"
+
+This partially reverts commit 2b774bd306c8dd41aa471d49141a34ef5b95beb0. It removes only the
+targetSdkVersion >= 37 condition while retaining the helper and Android version check.
+
+android.permission.ACCESS_LOCAL_NETWORK is a split permission from INTERNET. It is only implicitly
+granted when
+
+1. The app targets SDK < 37
+2. The app requests INTERNET
+3. The app does not already request ACCESS_LOCAL_NETWORK
+
+However, as of commit
+https://chromium.googlesource.com/chromium/src/+/6a6d202a1596821b35195abc88eaca7ee4ae4133, Chrome
+does request ACCESS_LOCAL_NETWORK and still has targetSdkVersion 36, so this implicit grant doesn't
+happen. Chrome then assumes it has local network permission, repeatedly tries to connect to the
+local address, and retries until it reaches ERR_TOO_MANY_RETRIES (SIGTRAP, x0 = 0xfffffe89 = -375)
+
+Upstream fixes this in a different way as part of an "emergency kill switch for a release blocker"
+in https://chromium-review.googlesource.com/c/chromium/src/+/8260249 by removing
+ACCESS_LOCAL_NETWORK entirely. (They also have
+https://chromium-review.googlesource.com/c/chromium/src/+/8260580 which lets Chrome show a "too many
+retries" error page instead of crashing.) However, removing ACCESS_LOCAL_NETWORK after the user has
+installed a release that previously had ACCESS_LOCAL_NETWORK declared in the manifest would result
+in local network still being denied.
+
+By removing this targetSdkVersion >= 37 check, this would at least allow Vanadium to ask the user to
+grant the local network permission via the Nearby devices permission group. We'll probably need to
+revert https://chromium.googlesource.com/chromium/src/+/9672d55e2ab78ab4dd4130fb95ed8421cee9fe3f if
+that commit remains, since that'll prevent Vanadium from asking the user to grant local network
+permission.
+
+Bug: 549892117, 549297724
+Test: Open local network address without Nearby devices permission, see Chrome properly ask for
+local network access
+---
+ .../permissions/PermissionUtil.java           | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java b/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
+index dbfa50012ccf8..ad1d9e574e6d9 100644
+--- a/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
++++ b/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
+@@ -13,7 +13,6 @@ import org.jni_zero.CalledByNative;
+ import org.jni_zero.JniType;
+ import org.jni_zero.NativeMethods;
+ 
+-import org.chromium.base.ContextUtils;
+ import org.chromium.base.metrics.RecordHistogram;
+ import org.chromium.build.annotations.NullMarked;
+ import org.chromium.components.content_settings.ContentSetting;
+@@ -115,17 +114,19 @@ public class PermissionUtil {
+     /**
+      * Returns whether Local Network Access permission is required.
+      *
+-     * <p>Local Network Protection (LNP) runtime permission is only required when both:
+-     * 1. The host device is running Android 17 (SDK 37) or higher (Build.VERSION.SDK_INT >= 37).
+-     * 2. The application targets Android 17 (SDK 37) or higher (targetSdkVersion >= 37).
++     * <p>Local Network Protection (LNP) runtime permission is required when the host device is
++     * running Android 17 (SDK 37) or higher (Build.VERSION.SDK_INT >= 37).
+      *
+-     * <p>For apps targeting lower SDK versions (<37), local network access is implicitly granted
+-     * by the OS using the INTERNET permission without requiring runtime prompts.
+-     * See: https://developer.android.com/privacy-and-security/local-network-permission
++     * <p>Apps targeting lower SDK versions only receive the permission implicitly when they don't
++     * declare {@code ACCESS_LOCAL_NETWORK}. Chrome declares it, so the target SDK version does not
++     * bypass the runtime permission requirement.
++     *
++     * <p>Existing installations that ran a release declaring the permission also don't regain
++     * effective implicit access if a later release removes it: Android preserves the denied state
++     * by revoking the app op for the implicit grant.
+      */
+     private static boolean isLocalNetworkAccessPermissionRequired() {
+-        return Build.VERSION.SDK_INT >= 37
+-                && ContextUtils.getApplicationContext().getApplicationInfo().targetSdkVersion >= 37;
++        return Build.VERSION.SDK_INT >= 37;
+     }
+ 
+     /**

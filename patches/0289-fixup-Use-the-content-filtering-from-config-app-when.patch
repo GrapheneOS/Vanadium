@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:32:14 +0000
+Subject: [PATCH] fixup! Use the content filtering from config app when
+ available
+
+---
+ chrome/browser/component_updater/DEPS | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/chrome/browser/component_updater/DEPS b/chrome/browser/component_updater/DEPS
+index ad19333ae54c8..45dbcce70aa79 100644
+--- a/chrome/browser/component_updater/DEPS
++++ b/chrome/browser/component_updater/DEPS
+@@ -17,4 +17,8 @@ specific_include_rules = {
+     "+net/http/transport_security_state.h",
+     "+services/network/sct_auditing/sct_auditing_cache.h",
+   ],
++  # Vanadium-specific dependencies
++  "registration\\.cc": [
++    "+vanadium/chromium_src/components/subresource_filter/ext/android",
++  ]
+ }

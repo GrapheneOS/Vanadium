@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:40:33 +0000
+Subject: [PATCH] fixup! Respect connectivity check setting on DNS-over-HTTPS
+
+---
+ net/DEPS | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/DEPS b/net/DEPS
+index 487034149f731..38cb666caea9a 100644
+--- a/net/DEPS
++++ b/net/DEPS
+@@ -12,6 +12,9 @@ include_rules = [
+   "+third_party/zlib",
+   "+third_party/simdutf",
+ 
++  # Vanadium-specific dependencies
++  "+vanadium/chromium_src/net/downstream/conn_checks/android",
++
+   # Most of net should not depend on icu, and brotli to keep size down when
+   # built as a library.
+   "-base/i18n",
