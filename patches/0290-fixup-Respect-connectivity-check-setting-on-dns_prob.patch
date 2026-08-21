@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:34:34 +0000
+Subject: [PATCH] fixup! Respect connectivity check setting on dns_probe_runner
+
+---
+ chrome/browser/net/DEPS | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/browser/net/DEPS b/chrome/browser/net/DEPS
+index af8c1fd224c49..99eadefcda482 100644
+--- a/chrome/browser/net/DEPS
++++ b/chrome/browser/net/DEPS
+@@ -1,5 +1,7 @@
+ include_rules = [
+   "+components/link_header_util",
++  # Vanadium-specific dependencies
++  "+vanadium/chromium_src/net/downstream/conn_checks/android",
+ ]
+ 
+ specific_include_rules = {

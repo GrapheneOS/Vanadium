@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:37:59 +0000
+Subject: [PATCH] fixup! disable seed-based field trials
+
+---
+ components/variations/DEPS         | 2 ++
+ components/variations/service/DEPS | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/components/variations/DEPS b/components/variations/DEPS
+index 0786821d39aa5..5858c1fbab096 100644
+--- a/components/variations/DEPS
++++ b/components/variations/DEPS
+@@ -18,4 +18,6 @@ include_rules = [
+   "+third_party/smhasher",
+   "+third_party/zlib/google",
+   "+third_party/zstd",
++  # Vanadium-specific dependencies
++  "+vanadium/chromium_src/components/variations/common_ext",
+ ]
+diff --git a/components/variations/service/DEPS b/components/variations/service/DEPS
+index e16aa29d55923..75e486dc22486 100644
+--- a/components/variations/service/DEPS
++++ b/components/variations/service/DEPS
+@@ -14,4 +14,6 @@ include_rules = [
+   "+services/network/public",
+   "+services/network/test",
+   "+ui/base",
++  # Vanadium-specific dependencies
++  "+vanadium/chromium_src/components/variations/common_ext",
+ ]

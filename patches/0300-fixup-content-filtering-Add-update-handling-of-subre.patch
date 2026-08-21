@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:52:07 +0000
+Subject: [PATCH] fixup! content-filtering: Add update handling of subresource
+ filter component from config apk
+
+---
+ .../browser/subresource_filter/ext/android/DEPS       | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/browser/subresource_filter/ext/android/DEPS
+
+diff --git a/vanadium/chromium_src/chrome/browser/subresource_filter/ext/android/DEPS b/vanadium/chromium_src/chrome/browser/subresource_filter/ext/android/DEPS
+new file mode 100644
+index 0000000000000..5250b2956bebc
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/subresource_filter/ext/android/DEPS
+@@ -0,0 +1,11 @@
++include_rules = [
++  "+base",
++  "+components/subresource_filter/content/browser",
++  "+components/subresource_filter/core/browser",
++]
++
++specific_include_rules = {
++  "ruleset_updater\\.cc": [
++    "+chrome/browser/browser_process.h",
++  ],
++}

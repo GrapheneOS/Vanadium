@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:52:54 +0000
+Subject: [PATCH] fixup! Disable tab group sync settings UI by default
+
+---
+ vanadium/chromium_src/chrome/browser/flags/ext/android/DEPS | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/vanadium/chromium_src/chrome/browser/flags/ext/android/DEPS b/vanadium/chromium_src/chrome/browser/flags/ext/android/DEPS
+index 5cd0867c848de..f0fb50cbeb1e6 100644
+--- a/vanadium/chromium_src/chrome/browser/flags/ext/android/DEPS
++++ b/vanadium/chromium_src/chrome/browser/flags/ext/android/DEPS
+@@ -1,3 +1,9 @@
+ include_rules = [
+   "+base",
+ ]
++
++specific_include_rules = {
++  "features.cc": [
++    "+vanadium/chromium_src/components/browser_ui/saved_tab_groups/public/ext/android/features.h",
++  ],
++}

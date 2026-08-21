@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 16:33:49 +0000
+Subject: [PATCH] Extend //sandbox/policy/linux cc targets sources and deps
+
+---
+ sandbox/policy/BUILD.gn                       |  6 +++++
+ .../linux/policy_sources_cc_ext_deps.gni      | 26 +++++++++++++++++++
+ .../linux/policy_sources_cc_ext_sources.gni   | 26 +++++++++++++++++++
+ 3 files changed, 58 insertions(+)
+ create mode 100644 vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_deps.gni
+ create mode 100644 vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_sources.gni
+
+diff --git a/sandbox/policy/BUILD.gn b/sandbox/policy/BUILD.gn
+index ca9b0f2fc959b..13769618c817f 100644
+--- a/sandbox/policy/BUILD.gn
++++ b/sandbox/policy/BUILD.gn
+@@ -192,6 +192,12 @@ component("policy") {
+       "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.ui.composition:fuchsia.ui.composition_hlcpp",
+     ]
+   }
++  if (is_linux) {
++    import("//vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_deps.gni")
++    deps += policy_sources_cc_ext_deps
++    import("//vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_sources.gni")
++    sources += policy_sources_cc_ext_sources
++  }
+ }
+ 
+ buildflag_header("chromecast_sandbox_allowlist_buildflags") {
+diff --git a/vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_deps.gni b/vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_deps.gni
+new file mode 100644
+index 0000000000000..452ea6ece6f23
+--- /dev/null
++++ b/vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_deps.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_full_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_rel_path_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_deps = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_deps += policy_sources_cc_ext_full_path_deps
++foreach(rel_path, policy_sources_cc_ext_rel_path_deps) {
++  policy_sources_cc_ext_deps += [ rebase_path(rel_path) ]
++}
+diff --git a/vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_sources.gni b/vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_sources.gni
+new file mode 100644
+index 0000000000000..fe2eb17b321f2
+--- /dev/null
++++ b/vanadium/chromium_src/sandbox/policy/linux/policy_sources_cc_ext_sources.gni
+@@ -0,0 +1,26 @@
++# Copyright 2023-2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0-only style license that can be
++# found in the LICENSE file.
++
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_full_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_rel_path_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_sources = [
++]
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++# Three lines of code for minimizing conflicts in rebasing changes
++policy_sources_cc_ext_sources += policy_sources_cc_ext_full_path_sources
++foreach(rel_path, policy_sources_cc_ext_rel_path_sources) {
++  policy_sources_cc_ext_sources += [ rebase_path(rel_path) ]
++}
