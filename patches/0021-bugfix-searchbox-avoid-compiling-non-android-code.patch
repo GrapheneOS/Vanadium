@@ -8,10 +8,10 @@ Subject: [PATCH] [bugfix] searchbox: avoid compiling non-android code
  1 file changed, 6 insertions(+)
 
 diff --git a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-index 6e771163b7fe5..d62070d4526c2 100644
+index af4b729f0f567..80b2cd31d6a9f 100644
 --- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 +++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-@@ -227,6 +227,7 @@ constexpr char kShareIconResourceName[] =
+@@ -232,6 +232,7 @@ constexpr char kShareIconResourceName[] =
      "//resources/cr_components/searchbox/icons/share_cr23.svg";
  #endif
  
@@ -19,7 +19,7 @@ index 6e771163b7fe5..d62070d4526c2 100644
  std::u16string GetAdditionalA11yMessage(
      const AutocompleteMatch& match,
      searchbox::mojom::SelectionLineState state) {
-@@ -264,6 +265,7 @@ bool MatchHasSideTypeAndRenderType(
+@@ -269,6 +270,7 @@ bool MatchHasSideTypeAndRenderType(
           suggestion_groups_map.at(group_id).side_type() == side_type &&
           suggestion_groups_map.at(group_id).render_type() == render_type;
  }
@@ -27,7 +27,7 @@ index 6e771163b7fe5..d62070d4526c2 100644
  
  std::string GetBase64UrlVariations(Profile* profile) {
    variations::VariationsClient* provider = profile->GetVariationsClient();
-@@ -844,6 +846,9 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -877,6 +879,9 @@ SearchboxHandler::CreateAutocompleteMatch(
      bookmarks::BookmarkModel* bookmark_model,
      const omnibox::GroupConfigMap& suggestion_groups_map,
      const TemplateURLService* turl_service) const {
@@ -37,7 +37,7 @@ index 6e771163b7fe5..d62070d4526c2 100644
    // Skip the primary column horizontal matches. This check guards against
    // this unexpected scenario as the UI expects the primary column matches to
    // be vertical ones.
-@@ -999,6 +1004,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -1039,6 +1044,7 @@ SearchboxHandler::CreateAutocompleteMatch(
    mojom_match->is_contextual_suggestion = match.IsContextualSearchSuggestion();
  
    return mojom_match;
