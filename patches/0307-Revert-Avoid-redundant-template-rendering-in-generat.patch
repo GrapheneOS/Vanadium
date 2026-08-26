@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 19 Aug 2026 15:40:56 +0000
+Subject: [PATCH] Revert "Avoid redundant template rendering in
+ generate_gradle.py."
+
+This reverts commit 0a4ae0d6eb65490ce4ad85fcccd0a69059c40cc7.
+
+Currently, this breaks gradle target generation with default --all
+argument.
+---
+ build/android/gradle/generate_gradle.py | 29 ++++++++++++-------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
+
+diff --git a/build/android/gradle/generate_gradle.py b/build/android/gradle/generate_gradle.py
+index 0da8038bfbc25..48c0961435020 100755
+--- a/build/android/gradle/generate_gradle.py
++++ b/build/android/gradle/generate_gradle.py
+@@ -1099,6 +1099,20 @@ def main():
+         _BuildTargets(output_dir, targets)
+ 
+     project_entries = []
++    # When only one entry will be generated we want it to have a valid
++    # build.gradle file with its own AndroidManifest.
++    for entry in entries:
++        data = _GenerateGradleFile(
++            entry, generator, build_vars, jinja_processor
++        )
++        if data and not args.all:
++            project_entries.append((entry.ProjectName(), entry.GradleSubdir()))
++            _WriteFile(
++                os.path.join(
++                    generator.EntryOutputDir(entry), _GRADLE_BUILD_FILE
++                ),
++                data,
++            )
+     if args.all:
+         project_entries.append((_MODULE_ALL, _MODULE_ALL))
+         _GenerateModuleAll(
+@@ -1108,21 +1122,6 @@ def main():
+             jinja_processor,
+             args.native_targets,
+         )
+-    else:
+-        for entry in entries:
+-            data = _GenerateGradleFile(
+-                entry, generator, build_vars, jinja_processor
+-            )
+-            if data:
+-                project_entries.append(
+-                    (entry.ProjectName(), entry.GradleSubdir())
+-                )
+-                _WriteFile(
+-                    os.path.join(
+-                        generator.EntryOutputDir(entry), _GRADLE_BUILD_FILE
+-                    ),
+-                    data,
+-                )
+ 
+     root_gradle_path = os.path.join(generator.project_dir, _GRADLE_BUILD_FILE)
+     _WriteFile(

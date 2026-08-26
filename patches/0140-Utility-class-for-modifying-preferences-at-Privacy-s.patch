@@ -15,19 +15,19 @@ Subject: [PATCH] Utility class for modifying preferences at Privacy section
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 6a38e9e9acb7d..1a65b91b98c95 100644
+index 481074efa8ca4..24e6fa8bc3aa8 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -145,6 +145,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -141,6 +141,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
  
          SettingsUtils.addPreferencesFromResource(this, R.xml.privacy_preferences);
  
 +        PrivacySettingsExt.initializePreferences(this, getProfile());
 +
-         Preference sandboxPreference = findPreference(PREF_PRIVACY_SANDBOX);
-         // Overwrite the click listener to pass a correct referrer to the fragment.
-         sandboxPreference.setOnPreferenceClickListener(
-@@ -298,6 +300,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+         Preference privacyGuidePreference = findPreference(PREF_PRIVACY_GUIDE);
+         // Record the launch of PG from the S&P link-row entry point
+         privacyGuidePreference.setOnPreferenceClickListener(
+@@ -278,6 +280,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
              scrollToPreference(PREF_ADVANCED_PROTECTION_INFO);
          }
  
@@ -36,7 +36,7 @@ index 6a38e9e9acb7d..1a65b91b98c95 100644
          updatePreferences();
      }
  
-@@ -501,6 +505,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -454,6 +458,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
                              ? R.string.website_settings_category_javascript_optimizer_allowed_list
                              : R.string.website_settings_category_javascript_optimizer_blocked_list);
          }
