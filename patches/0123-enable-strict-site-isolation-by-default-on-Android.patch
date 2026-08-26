@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index f50171e75b72d..ad56cd0367922 100644
+index 2436933ad48c4..5beea9d18def2 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -5574,16 +5574,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -5654,16 +5654,6 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_VALUE_TYPE(features::kNotificationsIgnoreRequireInteraction)},
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -27,13 +27,13 @@ index f50171e75b72d..ad56cd0367922 100644
 -     SINGLE_VALUE_TYPE(switches::kSitePerProcess)},
 -#endif
  
-     {"force-enterprise-isolated-mode-replaces-incognito",
+     {kEnterpriseIsolatedModeInternalName,
       flag_descriptions::kEnterpriseIsolatedModeName,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 8d33a8d9447f8..58b093b567838 100644
+index a67210a039224..3c10c3f3355aa 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -1648,11 +1648,7 @@ BASE_FEATURE(kServiceWorkerForegroundOnExtensionStartup,
+@@ -1674,11 +1674,7 @@ BASE_FEATURE(kExtensionServiceWorkerPriorityVoter,
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  BASE_FEATURE(kSitePerProcess,
