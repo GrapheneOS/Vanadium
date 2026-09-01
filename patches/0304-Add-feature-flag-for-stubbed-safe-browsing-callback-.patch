@@ -1,0 +1,129 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 18 Aug 2026 14:22:50 +0000
+Subject: [PATCH] Add feature flag for stubbed safe browsing callback for
+ WebView
+
+---
+ .../android_webview/AwContentsStatics.java    | 26 +++++++++++++++++++
+ .../android_webview/browser_java_ext_deps.gni |  1 +
+ .../android_webview/common/ext/features.cc    |  4 +++
+ .../android_webview/common/ext/features.h     |  2 ++
+ .../common/AwExtFeatureList.java              |  9 +++++++
+ 5 files changed, 42 insertions(+)
+
+diff --git a/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java b/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java
+index 93e5f78be8b8d..5138afdd410dc 100644
+--- a/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java
++++ b/android_webview/java/src/org/chromium/android_webview/AwContentsStatics.java
+@@ -102,6 +102,11 @@ public class AwContentsStatics {
+     }
+ 
+     public static void setSafeBrowsingAllowlist(List<String> urls, Callback<Boolean> callback) {
++        if (isSafeBrowsingCallbackStubbed()) {
++            wrapCallback(callback).onResult(true);
++            return;
++        }
++
+         String[] urlArray = urls.toArray(new String[urls.size()]);
+         if (callback == null) {
+             callback = CallbackUtils.emptyCallback();
+@@ -111,6 +116,21 @@ public class AwContentsStatics {
+ 
+     @SuppressWarnings("NoContextGetApplicationContext")
+     public static void initSafeBrowsing(Context context, final Callback<Boolean> callback) {
++        Callback<Boolean> wrapperCallback = wrapCallback(callback);
++        if (isSafeBrowsingCallbackStubbed()) {
++            wrapperCallback.onResult(true);
++            return;
++        }
++
++        initSafeBrowsingInner(context, wrapperCallback);
++    }
++
++    private static boolean isSafeBrowsingCallbackStubbed() {
++        return org.chromium.android_webview.common.AwExtFeatureList
++                .sWebViewStubSafeBrowsingCallback.isEnabled();
++    }
++
++    public static Callback<Boolean> wrapCallback(final Callback<Boolean> callback) {
+         // Wrap the callback to make sure we always invoke it on the UI thread, as guaranteed by the
+         // API.
+         Callback<Boolean> wrapperCallback =
+@@ -120,6 +140,12 @@ public class AwContentsStatics {
+                     }
+                 };
+ 
++        return wrapperCallback;
++    }
++
++    @SuppressWarnings("NoContextGetApplicationContext")
++    private static void initSafeBrowsingInner(
++            Context context, final Callback<Boolean> wrapperCallback) {
+         if (AwSafeBrowsingSafeModeAction.isSafeBrowsingDisabled()) {
+             wrapperCallback.onResult(PlatformServiceBridge.getInstance().canUseGms());
+             return;
+diff --git a/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni b/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
+index bc6f47b708a74..36d429ac074b0 100644
+--- a/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
++++ b/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ browser_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/android_webview/common/ext:feature_map_java",
+   "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/android_webview/common/ext/features.cc b/vanadium/chromium_src/android_webview/common/ext/features.cc
+index a7d47b0ab7991..d1a2453c505b5 100644
+--- a/vanadium/chromium_src/android_webview/common/ext/features.cc
++++ b/vanadium/chromium_src/android_webview/common/ext/features.cc
+@@ -15,10 +15,14 @@ namespace android_webview {
+ BASE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension,
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ 
++BASE_FEATURE(kWebViewStubSafeBrowsingCallback,
++             base::FEATURE_DISABLED_BY_DEFAULT);
++
+ namespace {
+ 
+ const base::Feature* const kFeaturesExposedToJava[] = {
+     &kWebViewMediaIntegrityApiBlinkExtension,
++    &kWebViewStubSafeBrowsingCallback,
+ };
+ 
+ // static
+diff --git a/vanadium/chromium_src/android_webview/common/ext/features.h b/vanadium/chromium_src/android_webview/common/ext/features.h
+index d88a297ea53a1..ce0e1035436df 100644
+--- a/vanadium/chromium_src/android_webview/common/ext/features.h
++++ b/vanadium/chromium_src/android_webview/common/ext/features.h
+@@ -9,6 +9,8 @@
+ namespace android_webview {
+ 
+ BASE_DECLARE_FEATURE(kWebViewMediaIntegrityApiBlinkExtension);
++
++BASE_DECLARE_FEATURE(kWebViewStubSafeBrowsingCallback);
+ } // namespace android_webview
+ 
+ #endif // ANDROID_WEBVIEW_COMMON_EXT_FEATURES_H_
+diff --git a/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/AwExtFeatureList.java b/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/AwExtFeatureList.java
+index e693aaf62390f..09d42fa38e224 100644
+--- a/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/AwExtFeatureList.java
++++ b/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/AwExtFeatureList.java
+@@ -18,6 +18,15 @@ public final class AwExtFeatureList {
+                     AwExtFeatures.WEBVIEW_MEDIA_INTEGRITY_API_BLINK_EXTENSION,
+                     false
+             );
++
++    @NonNull
++    public static final MutableFlagWithSafeDefault sWebViewStubSafeBrowsingCallback =
++            new MutableFlagWithSafeDefault(
++                    AwExtFeatureMap.getInstance(),
++                    AwExtFeatures.WEBVIEW_STUB_SAFE_BROWSING_CALLBACK,
++                    false
++            );
++
+     private AwExtFeatureList() {
+     }
+ }
