@@ -1,0 +1,98 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Sky Malice <skym@chromium.org>
+Date: Thu, 20 Aug 2026 07:49:25 -0700
+Subject: [PATCH] [upstream] [Gradle] Support preview target SDK in generated
+ Gradle files.
+
+In https://crrev.com/c/8261195, targetSdkVersion was updated to
+the modern targetSdk property. However, when
+android_sdk_platform_version is set to a preview SDK (such as
+"DEV"), targetSdk fails because it expects an Integer.
+
+This change separates integer SDK versions from preview string
+versions in generate_gradle.py and updates android.jinja to emit
+targetSdk or targetSdkPreview (as well as minSdk / minSdkPreview)
+accordingly.
+
+TAG=agy
+CONV=d3d1aaac-105b-44cc-8c46-2a78e835b869
+
+Bug: 544686123
+Change-Id: I7739d3cdef00682e10dcf894dab1cb39497cd354
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8267592
+Reviewed-by: Jakob Koblinsky <jkoblinsky@google.com>
+Commit-Queue: Sky Malice <skym@chromium.org>
+Reviewed-by: Peter Wen <wnwen@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1683144}
+---
+ build/android/gradle/android.jinja      |  8 +++++++
+ build/android/gradle/generate_gradle.py | 31 ++++++++++++++++---------
+ 2 files changed, 28 insertions(+), 11 deletions(-)
+
+diff --git a/build/android/gradle/android.jinja b/build/android/gradle/android.jinja
+index e17e8e65311da..cfbe5658d18ec 100644
+--- a/build/android/gradle/android.jinja
++++ b/build/android/gradle/android.jinja
+@@ -52,8 +52,16 @@ android {
+ 
+     defaultConfig {
+         vectorDrawables.useSupportLibrary = true
++{% if min_sdk_version is defined %}
+         minSdk = {{ min_sdk_version }}
++{% elif min_sdk_preview is defined %}
++        minSdkPreview = "{{ min_sdk_preview }}"
++{% endif %}
++{% if target_sdk_version is defined %}
+         targetSdk = {{ target_sdk_version }}
++{% elif target_sdk_preview is defined %}
++        targetSdkPreview = "{{ target_sdk_preview }}"
++{% endif %}
+     }
+ 
+     compileOptions {
+diff --git a/build/android/gradle/generate_gradle.py b/build/android/gradle/generate_gradle.py
+index 0da8038bfbc25..7b3f287a0ef20 100755
+--- a/build/android/gradle/generate_gradle.py
++++ b/build/android/gradle/generate_gradle.py
+@@ -683,21 +683,30 @@ def _GenerateGradleProperties(sdk_version=None):
+     return '\n'.join(lines)
+ 
+ 
++def _ParseSdkVersion(version):
++    try:
++        # Convert float versions like "36.1" to integers for AGP compatibility.
++        return int(float(version))
++    except (ValueError, TypeError):
++        return version
++
++
+ def _GenerateBaseVars(generator, build_vars):
+     variables = {}
+     # Avoid pre-release SDKs since Studio might not know how to download them.
+-    sdk_version = build_vars['android_sdk_platform_version']
+-    try:
+-        # Convert float versions like "36.1" to integers for AGP compatibility.
+-        sdk_version = int(float(sdk_version))
+-    except ValueError:
+-        pass
++    sdk_version = _ParseSdkVersion(build_vars['android_sdk_platform_version'])
+     variables['compile_sdk_version'] = 'android-%s' % sdk_version
+-    target_sdk_version = sdk_version
+-    if str(target_sdk_version).isalpha():
+-        target_sdk_version = '"{}"'.format(target_sdk_version)
+-    variables['target_sdk_version'] = target_sdk_version
+-    variables['min_sdk_version'] = build_vars['default_min_sdk_version']
++    if isinstance(sdk_version, int):
++        variables['target_sdk_version'] = sdk_version
++    else:
++        variables['target_sdk_preview'] = sdk_version
++
++    min_sdk_version = _ParseSdkVersion(build_vars['default_min_sdk_version'])
++    if isinstance(min_sdk_version, int):
++        variables['min_sdk_version'] = min_sdk_version
++    else:
++        variables['min_sdk_preview'] = min_sdk_version
++
+     variables['use_gradle_process_resources'] = (
+         generator.use_gradle_process_resources
+     )
