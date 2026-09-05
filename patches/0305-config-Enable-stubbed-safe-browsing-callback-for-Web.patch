@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 18 Aug 2026 14:31:32 +0000
+Subject: [PATCH] [config] Enable stubbed safe browsing callback for WebView
+
+---
+ .../vanadium/config/host/ConfigGeneratorImpl.kt | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+index b204c47005723..0121207f3b7e3 100644
+--- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+@@ -482,6 +482,23 @@ private fun unsortedConfigs(): List<Config> {
+         addAllFlags(enabledJavalessRendererFlags)
+     }
+ 
++    configs += config {
++        setSpec(spec {
++            specTypesWithVersionBounds(
++                specTypesList = listOf(SpecType.WEBVIEW),
++                minVanadiumVersion = VanadiumVersion(major = 7977, minor = 54)
++            )
++        })
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = "WebViewStubSafeBrowsingCallback"
++                    flagType = FlagType.ENABLED_FEATURE
++                }
++            )
++        )
++    }
++
+     return configs
+ }
+ 
