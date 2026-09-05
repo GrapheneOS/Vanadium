@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 15:17:11 +0000
+Subject: [PATCH] fixup! disable Media Integrity blink extension API on webview
+ by default
+
+---
+ android_webview/browser/DEPS  | 3 +++
+ android_webview/renderer/DEPS | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/android_webview/browser/DEPS b/android_webview/browser/DEPS
+index 4d9d9dc2daacf..de7e6ca10c961 100644
+--- a/android_webview/browser/DEPS
++++ b/android_webview/browser/DEPS
+@@ -181,4 +181,7 @@ include_rules = [
+   # For Chrome's API keys in WebView.
+   "+google_apis/common/api_key_request_util.h",
+   "+google_apis/google_api_keys.h",
++
++  # Vanadium-specific dependencies
++  "+vanadium/chromium_src/android_webview/common/ext",
+ ]
+diff --git a/android_webview/renderer/DEPS b/android_webview/renderer/DEPS
+index b7a917f3f128e..cf18a79b35f42 100644
+--- a/android_webview/renderer/DEPS
++++ b/android_webview/renderer/DEPS
+@@ -39,4 +39,7 @@ include_rules = [
+   "+third_party/blink/public/web",
+ 
+   "+ui/gfx",
++
++  # Vanadium-specific dependencies
++  "+vanadium/chromium_src/android_webview/common/ext",
+ ]
