@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 28 Aug 2026 07:52:23 +0000
+Subject: [PATCH] fixup! import and export bookmarks feature
+
+---
+ chrome/browser/bookmarks/android/DEPS | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/bookmarks/android/DEPS b/chrome/browser/bookmarks/android/DEPS
+index d5f1722606e1f..4840951f15636 100644
+--- a/chrome/browser/bookmarks/android/DEPS
++++ b/chrome/browser/bookmarks/android/DEPS
+@@ -18,4 +18,10 @@ include_rules = [
+     "+chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java",
+     "+chrome/android/java/src/org/chromium/chrome/browser/ActivityUtils.java",
+     "+chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java",
+-]
+\ No newline at end of file
++]
++
++specific_include_rules = {
++  "bookmark_import_export_helper\\.(cc|h)": [
++    "+chrome/utility/importer/bookmarks_file_importer.h",
++  ],
++}
