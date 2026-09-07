@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 28 Aug 2026 07:52:49 +0000
+Subject: [PATCH] fixup! Partially revert changes on UserActionableError enums
+
+---
+ components/sync/service/DEPS | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/components/sync/service/DEPS b/components/sync/service/DEPS
+index a627fa3392ec3..fa62179ee1cac 100644
+--- a/components/sync/service/DEPS
++++ b/components/sync/service/DEPS
+@@ -27,6 +27,9 @@ include_rules = [
+   "+ui/base/l10n",
+ ]
+ specific_include_rules = {
++  "sync_(service|internals_util)\\.(cc|h)": [
++    "+components/password_manager/core/browser/password_manager_buildflags.h",
++  ],
+   "sync_service_impl_unittest\\.cc": [
+     "+components/sync_preferences",
+   ],

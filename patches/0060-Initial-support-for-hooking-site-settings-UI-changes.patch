@@ -130,10 +130,10 @@ index 1f64ec7cecd46..19a421860ed78 100644
              case ContentSettingsType.ADS:
                  return new ResourceItem(
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-index 3044a2aa45769..2efc0d75507ba 100644
+index 007fc5c8b116f..c04cdc6433abc 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleCategorySettings.java
-@@ -313,6 +313,14 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -314,6 +314,14 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                  }
                  return filtered;
              }
@@ -148,7 +148,7 @@ index 3044a2aa45769..2efc0d75507ba 100644
              return sites;
          }
      }
-@@ -484,6 +492,22 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -485,6 +493,22 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
              mGlobalToggleLayout = GlobalToggleLayout.BINARY_RADIO_BUTTON;
          }
  
@@ -171,7 +171,7 @@ index 3044a2aa45769..2efc0d75507ba 100644
          ViewGroup view = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
  
          mListView = getListView();
-@@ -794,6 +818,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -802,6 +826,15 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
      }
  
      private int getAddExceptionDialogMessageResourceId() {
@@ -187,7 +187,7 @@ index 3044a2aa45769..2efc0d75507ba 100644
          switch (mCategory.getType()) {
              case SiteSettingsCategory.Type.AUTOMATIC_DOWNLOADS:
                  return isCategoryEnabled()
-@@ -894,6 +927,17 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -902,6 +935,17 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                  assert false;
          }
  
@@ -205,7 +205,7 @@ index 3044a2aa45769..2efc0d75507ba 100644
          WebsitePreferenceBridge.setContentSettingCustomScope(
                  browserContextHandle,
                  mCategory.getContentSettingsType(),
-@@ -953,6 +997,16 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -961,6 +1005,16 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
                  break;
          }
  
@@ -222,7 +222,7 @@ index 3044a2aa45769..2efc0d75507ba 100644
          int exceptionDialogMessageResourceId = getAddExceptionDialogMessageResourceId();
          assert shouldAddExceptionButton == (exceptionDialogMessageResourceId != 0);
  
-@@ -1439,10 +1493,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
+@@ -1447,10 +1501,23 @@ public class SingleCategorySettings extends BaseSiteSettingsFragment
      }
  
      private void maybeShowOsWarning(PreferenceScreen screen) {

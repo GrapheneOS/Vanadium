@@ -10,66 +10,66 @@ Subject: [PATCH] Support for extended version name and increments
  3 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/build/util/android_chrome_version.py b/build/util/android_chrome_version.py
-index f408f6851b77f..3f6ee98e44e5a 100755
+index e1d83ce9ac2f9..769c73a34d760 100755
 --- a/build/util/android_chrome_version.py
 +++ b/build/util/android_chrome_version.py
-@@ -349,7 +349,7 @@ def TranslateVersionCode(version_code, is_webview=False):
-                                is_next_build)
+@@ -358,7 +358,7 @@ def TranslateVersionCode(version_code, is_webview=False):
+     )
  
  
 -def GenerateVersionCodes(build_number, patch_number, arch):
 +def GenerateVersionCodes(build_number, patch_number, increment_number, arch):
-   """Build dict of version codes for the specified build architecture. Eg:
+     """Build dict of version codes for the specified build architecture. Eg:
  
-   {
-@@ -372,7 +372,7 @@ def GenerateVersionCodes(build_number, patch_number, arch):
+     {
+@@ -381,7 +381,7 @@ def GenerateVersionCodes(build_number, patch_number, arch):
  
-   Thus, this method is responsible for the final two digits of versionCode.
-   """
--  base_version_code = (build_number * 1000 + patch_number) * 100
-+  base_version_code = (build_number * 1000 + patch_number + increment_number) * 100
+     Thus, this method is responsible for the final two digits of versionCode.
+     """
+-    base_version_code = (build_number * 1000 + patch_number) * 100
++    base_version_code = (build_number * 1000 + patch_number + increment_number) * 100
  
-   mfg, bitness = _ARCH_TO_MFG_AND_BITNESS[arch]
+     mfg, bitness = _ARCH_TO_MFG_AND_BITNESS[arch]
  
-@@ -410,8 +410,8 @@ def main():
-   elif args.version_name:
-     if not args.arch:
-       parser.error('Required --arch')
--    _, _, build, patch = args.version_name.split('.')
--    values = GenerateVersionCodes(int(build), int(patch), args.arch)
-+    _, _, build, patch, increment = args.version_name.split('.')
-+    values = GenerateVersionCodes(int(build), int(patch), int(increment), args.arch)
-     for k, v in values.items():
-       print(f'{k}={v}')
-   else:
+@@ -423,8 +423,8 @@ def main():
+     elif args.version_name:
+         if not args.arch:
+             parser.error('Required --arch')
+-        _, _, build, patch = args.version_name.split('.')
+-        values = GenerateVersionCodes(int(build), int(patch), args.arch)
++        _, _, build, patch, increment = args.version_name.split('.')
++        values = GenerateVersionCodes(int(build), int(patch), int(increment), args.arch)
+         for k, v in values.items():
+             print(f'{k}={v}')
+     else:
 diff --git a/build/util/version.py b/build/util/version.py
-index c69969b91736c..922a4a2e6ca6c 100755
+index a5611af802974..8775e292ccd66 100755
 --- a/build/util/version.py
 +++ b/build/util/version.py
-@@ -136,6 +136,10 @@ def BuildParser():
-                       help='Write substituted strings to FILE.')
-   parser.add_argument('-t', '--template', default=None,
-                       help='Use TEMPLATE as the strings to substitute.')
-+  parser.add_argument(
-+      '--increment',
-+      default='0',
-+      help='Version increment to append at version_name, add at version_code.')
-   parser.add_argument('-x',
-                       '--executable',
-                       default=False,
-@@ -209,9 +213,11 @@ def GenerateValues(options, evals):
-   for key, val in evals.items():
-     values[key] = str(eval(val, globals(), values))
+@@ -154,6 +154,11 @@ def BuildParser():
+         default=None,
+         help='Use TEMPLATE as the strings to substitute.',
+     )
++    parser.add_argument(
++        '--increment',
++        default='0',
++        help='Version increment to append at version_name, add at version_code.'
++    )
+     parser.add_argument(
+         '-x',
+         '--executable',
+@@ -240,9 +245,10 @@ def GenerateValues(options, evals):
+         values[key] = str(eval(val, globals(), values))
  
-+  values['INCREMENT'] = options.increment
-   if options.os == 'android':
-     android_chrome_version_codes = android_chrome_version.GenerateVersionCodes(
--        int(values['BUILD']), int(values['PATCH']), options.arch)
-+        int(values['BUILD']), int(values['PATCH']), int(values['INCREMENT']),
-+        options.arch)
-     values.update(android_chrome_version_codes)
- 
-   return values
+     if options.os == 'android':
++        values['INCREMENT'] = options.increment
+         android_chrome_version_codes = (
+             android_chrome_version.GenerateVersionCodes(
+-                int(values['BUILD']), int(values['PATCH']), options.arch
++                int(values['BUILD']), int(values['PATCH']), int(values['INCREMENT']), options.arch
+             )
+         )
+         values.update(android_chrome_version_codes)
 diff --git a/chrome/version.gni b/chrome/version.gni
 index 934e5d9ea8136..ac125025888e6 100644
 --- a/chrome/version.gni

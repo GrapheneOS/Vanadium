@@ -8,15 +8,15 @@ Subject: [PATCH] disable trials of privacy-aware analytics/advertising APIs
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_prefs.cc b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-index c58d4cb4a9e53..29149cc0844d9 100644
+index 3fad8a7681bca..556fe9ac8b433 100644
 --- a/components/privacy_sandbox/privacy_sandbox_prefs.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_prefs.cc
-@@ -51,7 +51,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -23,7 +23,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
        prefs::kPrivacySandboxRelatedWebsiteSetsDataAccessAllowedInitialized,
        false);
    registry->RegisterBooleanPref(
 -      prefs::kPrivacySandboxRelatedWebsiteSetsEnabled, true,
 +      prefs::kPrivacySandboxRelatedWebsiteSetsEnabled, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ }
  
-   registry->RegisterBooleanPref(prefs::kPrivacySandboxTopicsConsentGiven,
