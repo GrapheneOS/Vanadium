@@ -14,7 +14,7 @@ The chrome for the cross-origin referrer policy preference is based on
  chrome/browser/renderer_preferences_util.cc   |  3 +
  chrome/browser/ui/prefs/pref_watcher.cc       |  2 +
  chrome/common/pref_names.h                    |  4 +
- .../renderer_host/navigation_request.cc       | 23 +++++
+ .../renderer_host/navigation_request.cc       | 34 +++++++
  content/renderer/render_frame_impl.cc         | 25 +++++
  services/network/network_context.cc           | 10 ++
  services/network/network_context.h            |  3 +
@@ -39,7 +39,7 @@ The chrome for the cross-origin referrer policy preference is based on
  .../CrossOriginReferrerPolicySettings.java    | 63 ++++++++++++
  .../CrossOriginReferrerPolicyUtils.java       | 44 +++++++++
  .../strings/android_chrome_ext_strings.grdp   | 13 +++
- 30 files changed, 548 insertions(+), 6 deletions(-)
+ 30 files changed, 559 insertions(+), 6 deletions(-)
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/BUILD.gn
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/java/res/layout/cross_origin_referrer_policy_preference.xml
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/java/res/xml/cross_origin_referrer_policy_preferences.xml
@@ -160,39 +160,78 @@ index 03d2b7db06bba..1587f18fe2d79 100644
  inline constexpr char kEnableDoNotTrack[] = "enable_do_not_track";
  
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
-index b1d10c220c511..945789c8ea3f7 100644
+index b1d10c220c511..52df269f9826a 100644
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
-@@ -415,6 +415,29 @@ void AddAdditionalRequestHeaders(
+@@ -376,6 +376,32 @@ std::string ComputeUserAgentValue(const std::string& user_agent_override) {
+   return GetContentClient()->browser()->GetUserAgent();
+ }
+ 
++void ApplyCrossOriginReferrerPolicy(FrameTreeNode* frame_tree_node,
++                                    const GURL& url,
++                                    blink::mojom::Referrer* referrer) {
++  if (referrer->url.is_empty() || url::IsSameOriginWith(url, referrer->url)) {
++    return;
++  }
++
++  RenderViewHostImpl* render_view_host =
++      frame_tree_node->current_frame_host()->render_view_host();
++  switch (render_view_host->GetDelegate()
++              ->GetRendererPrefs(render_view_host)
++              .cross_origin_referrer_policy) {
++    case network::mojom::CrossOriginReferrerPolicy::kDefault:
++      break;
++    case network::mojom::CrossOriginReferrerPolicy::kReduce:
++      *referrer = blink::mojom::Referrer(
++          url::Origin::Create(referrer->url).GetURL(),
++          network::mojom::ReferrerPolicy::kOriginWhenCrossOrigin);
++      break;
++    case network::mojom::CrossOriginReferrerPolicy::kDisable:
++      *referrer = blink::mojom::Referrer(
++          GURL(), network::mojom::ReferrerPolicy::kSameOrigin);
++      break;
++  }
++}
++
+ void AddAdditionalRequestHeaders(
+     net::HttpRequestHeaders* headers,
+     const GURL& url,
+@@ -415,6 +441,8 @@ void AddAdditionalRequestHeaders(
          blink::mojom::Referrer(GURL(), network::mojom::ReferrerPolicy::kNever);
    }
  
-+  // Enforce cross-origin referrer policy
-+  switch (render_prefs.cross_origin_referrer_policy) {
-+    case network::mojom::CrossOriginReferrerPolicy::kDefault:
-+      break;
-+    case network::mojom::CrossOriginReferrerPolicy::kReduce: {
-+      if (!referrer->url.is_empty() &&
-+          !url::IsSameOriginWith(url, referrer->url)) {
-+        auto capped_referrer = url::Origin::Create(referrer->url);
-+        *referrer = blink::mojom::Referrer(capped_referrer.GetURL(),
-+            network::mojom::ReferrerPolicy::kOriginWhenCrossOrigin);
-+      }
-+      break;
-+    }
-+    case network::mojom::CrossOriginReferrerPolicy::kDisable: {
-+      if (!referrer->url.is_empty() &&
-+          !url::IsSameOriginWith(url, referrer->url)) {
-+        *referrer = blink::mojom::Referrer(GURL(),
-+            network::mojom::ReferrerPolicy::kSameOrigin);
-+      }
-+      break;
-+    }
-+  }
++  ApplyCrossOriginReferrerPolicy(frame_tree_node, url, referrer);
 +
    // Next, set the HTTP Origin if needed.
    std::optional<std::string> existing_origin =
        headers->GetHeader(net::HttpRequestHeaders::kOrigin);
+@@ -3982,6 +4010,8 @@ void NavigationRequest::OnRequestRedirected(
+   common_params_->referrer->url = GURL(redirect_info.new_referrer);
+   common_params_->referrer = Referrer::SanitizeForRequest(
+       common_params_->url, *common_params_->referrer);
++  ApplyCrossOriginReferrerPolicy(frame_tree_node_, common_params_->url,
++                                 common_params_->referrer.get());
+ 
+   // On redirects, the initial referrer is no longer correct, so it must
+   // be updated.  (A parallel process updates the outgoing referrer in the
+@@ -9445,6 +9475,8 @@ void NavigationRequest::UpdateStateFollowingRedirect(
+   }
+ 
+   common_params_->referrer = sanitized_referrer_.Clone();
++  ApplyCrossOriginReferrerPolicy(frame_tree_node_, common_params_->url,
++                                 common_params_->referrer.get());
+ 
+   was_redirected_ = true;
+   redirect_chain_.push_back(common_params_->url);
+@@ -10467,6 +10499,8 @@ void NavigationRequest::SetReferrer(blink::mojom::ReferrerPtr referrer) {
+   sanitized_referrer_ =
+       Referrer::SanitizeForRequest(common_params_->url, *referrer);
+   common_params_->referrer = sanitized_referrer_.Clone();
++  ApplyCrossOriginReferrerPolicy(frame_tree_node_, common_params_->url,
++                                 common_params_->referrer.get());
+ }
+ 
+ bool NavigationRequest::HasUserGesture() {
 diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
 index b9cf2bc2b62ce..5b034dcb142dd 100644
 --- a/content/renderer/render_frame_impl.cc
