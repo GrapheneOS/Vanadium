@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Navras98 <andrea.sforna@gmail.com>
+Subject: [PATCH] Mitigate tapjacking for file picker
+
+Instant selection right after the picker opens (e.g. via an overlay-driven
+tap) uploads the file with no chance to cancel (Vanadium #1116). Require
+the picker to be visible for a minimum dwell time before accepting the
+result, as suggested in the issue (delay like permission dialogues).
+---
+ ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java | 12 ++++++++++++
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
+--- a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
++++ b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
+@@ -258,2 +258,6 @@
+ 
++    // Vanadium #1116 anti-tapjacking: ignore picker results arriving suspiciously
++    // fast after showing it; an overlay-driven tap could otherwise select+upload instantly.
++    private static final long MIN_PICKER_VISIBLE_TIME_MS = 1500;
++    private long mPickerShownTimeMs;
+     private long mNativeSelectFileDialog;
+@@ -348,2 +348,3 @@
+             WindowAndroid window) {
++        mPickerShownTimeMs = System.currentTimeMillis();
+         mIntentAction = intentAction;
+@@ -967,2 +967,6 @@
+     public void onIntentCompleted(int resultCode, @Nullable Intent results) {
++        if (System.currentTimeMillis() - mPickerShownTimeMs < MIN_PICKER_VISIBLE_TIME_MS) {
++            onFileNotSelected();
++            return;
++        }
+         if (sPhotoPicker != null) {
