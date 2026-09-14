@@ -1,0 +1,136 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 10 Dec 2020 10:09:18 -0500
+Subject: [PATCH] disable WebView variations support
+
+---
+ .../android_webview/AwBrowserProcess.java     |  8 ++++
+ .../android_webview/test/VariationsTest.java  | 38 ++++++++++++++-----
+ .../android_webview/browser_java_ext_deps.gni |  1 +
+ ...view_instrumentation_test_apk_ext_deps.gni |  1 +
+ 4 files changed, 38 insertions(+), 10 deletions(-)
+
+diff --git a/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java b/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
+index 4d36344a23e23..6c39d8e3947fc 100644
+--- a/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
++++ b/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
+@@ -119,6 +119,10 @@ public final class AwBrowserProcess {
+ 
+     // See comments in VariationsSeedLoader.java on when it's safe to call this.
+     public static void startVariationsInit() {
++        if (!org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED) {
++            return;
++        }
++
+         if (FastVariationsSeedSafeModeAction.hasRun()) {
+             return;
+         }
+@@ -131,6 +135,10 @@ public final class AwBrowserProcess {
+     }
+ 
+     public static void finishVariationsInit() {
++        if (!org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED) {
++            return;
++        }
++
+         if (FastVariationsSeedSafeModeAction.hasRun()) {
+             return;
+         }
+diff --git a/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java b/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java
+index e10f3a631c3c9..d41ce13e3d419 100644
+--- a/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java
++++ b/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java
+@@ -122,8 +122,10 @@ public class VariationsTest extends AwParameterizedTest {
+ 
+             ThreadUtils.runOnUiThreadBlocking(
+                     () -> {
+-                        Assert.assertTrue(
+-                                "TEST_FEATURE_NAME should be enabled",
++                        Assert.assertEquals(
++                                "TEST_FEATURE_NAME being enabled by field trials "
++                                    + " should be dependent on field trial seed buildflag",
++                                isFieldTrialSeedEnabled(),
+                                 AwFeatureMap.isEnabled(AwFeatures.WEBVIEW_TEST_FEATURE));
+                     });
+         } finally {
+@@ -152,16 +154,24 @@ public class VariationsTest extends AwParameterizedTest {
+                                             .setName("TestStudy")
+                                             .addExperiment(defaultGroup))
+                             .build();
+-            HistogramWatcher histogramExpectation =
+-                    HistogramWatcher.newSingleRecordWatcher(seedFreshnessHistogramName, 0);
++            final HistogramWatcher histogramExpectation;
++            if (isFieldTrialSeedEnabled()) {
++                histogramExpectation = HistogramWatcher.newSingleRecordWatcher(
++                        seedFreshnessHistogramName, 0);
++            } else {
++                histogramExpectation = HistogramWatcher.newBuilder()
++                        .expectNoRecords(seedFreshnessHistogramName)
++                        .build();
++            }
+             WebViewCachedFlags.initForTesting(new InMemorySharedPreferences());
+             createAndLoadSeedFile(seed);
+ 
+             // The seed should be loaded during browser process startup.
+             mActivityTestRule.startBrowserProcess();
+ 
+-            histogramExpectation.assertExpected(
+-                    "SeedFreshness should have been written to once, with value 0 (<1 minute)");
++            histogramExpectation.assertExpected(isFieldTrialSeedEnabled()
++                    ? "SeedFreshness should have not been written at all"
++                    : "SeedFreshness should have been written to once, with value 0 (<1 minute)");
+         } finally {
+             VariationsTestUtils.deleteSeeds();
+         }
+@@ -297,15 +307,23 @@ public class VariationsTest extends AwParameterizedTest {
+                         Assert.assertFalse(
+                                 "Limited-layer constrained study should not exist",
+                                 FieldTrialList.trialExists(limitedStudyName));
+-                        Assert.assertTrue(
+-                                "Low-layer constrained study should exist",
++                        Assert.assertEquals(
++                                "Low-layer constrained study existence "
++                                    + "should be dependent on field trial seed buildflag",
++                                isFieldTrialSeedEnabled(),
+                                 FieldTrialList.trialExists(lowStudyName));
+-                        Assert.assertTrue(
+-                                "Layerless study should exist",
++                        Assert.assertEquals(
++                                "Layerless study existence "
++                                    + "should be dependent on field trial seed buildflag",
++                                isFieldTrialSeedEnabled(),
+                                 FieldTrialList.trialExists(layerlessStudyName));
+                     });
+         } finally {
+             VariationsTestUtils.deleteSeeds();
+         }
+     }
++
++    private boolean isFieldTrialSeedEnabled() {
++        return org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED;
++    }
+ }
+diff --git a/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni b/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
+index b23943c5a66c9..bc6f47b708a74 100644
+--- a/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
++++ b/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ browser_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/android_webview/test/webview_instrumentation_test_apk_ext_deps.gni b/vanadium/chromium_src/android_webview/test/webview_instrumentation_test_apk_ext_deps.gni
+index ace2714e92845..d84759765b6e8 100644
+--- a/vanadium/chromium_src/android_webview/test/webview_instrumentation_test_apk_ext_deps.gni
++++ b/vanadium/chromium_src/android_webview/test/webview_instrumentation_test_apk_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ webview_instrumentation_test_apk_ext_full_path_deps = [
++  "//vanadium/chromium_src/components/variations/common_ext:buildflags_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
