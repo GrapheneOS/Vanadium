@@ -1,0 +1,117 @@
+From c0f7928b9674e25afdf2f023f7d90a4f05693897 Mon Sep 17 00:00:00 2001
+From: jamesoofou <jamesisarobot@gmail.com>
+Date: Wed, 2 Sep 2026 06:25:34 +0800
+Subject: [PATCH] Use Android document picker for web media uploads
+
+Android Photo Picker only exposes system-defined albums, which prevents users from selecting media in arbitrary user-created folders. Route ordinary image and video uploads through the existing external picker path instead. Explicit capture requests still use the camera path.
+---
+ .../chromium/ui/base/SelectFileDialog.java    | 20 ++------
+ .../ui/base/SelectFileDialogTest.java         | 47 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 17 deletions(-)
+
+diff --git a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
+index 46713bd3..faabaf20 100644
+--- a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
++++ b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
+@@ -561,23 +561,9 @@ public class SelectFileDialog implements WindowAndroid.IntentCallback, PhotoPick
+             if (mWindowAndroid.showIntent(soundRecorder, this, R.string.low_memory_error)) return;
+         }
+ 
+-        // Use the new photo picker, if available.
+-        if (shouldUsePhotoPicker()
+-                && showPhotoPicker(
+-                        mWindowAndroid,
+-                        /* intentCallback= */ this,
+-                        /* listener= */ this,
+-                        mAllowMultiple,
+-                        mMimeTypes)) {
+-            mMediaPickerWasUsed = true;
+-            return;
+-        } else {
+-            mMediaPickerWasUsed = false;
+-            if (!shouldUsePhotoPicker()) {
+-                logMediaPickerShown(SHOWING_SUPPRESSED);
+-            }
+-        }
+-
++        // Android's Photo Picker only exposes system-defined albums. Use the external document
++        // picker so that users can browse arbitrary folders, including user-created ones.
++        mMediaPickerWasUsed = false;
+         showExternalPicker(camera, videoCapture, soundRecorder);
+     }
+ 
+diff --git a/ui/android/junit/src/org/chromium/ui/base/SelectFileDialogTest.java b/ui/android/junit/src/org/chromium/ui/base/SelectFileDialogTest.java
+index 3861d0ac..d4e87183 100644
+--- a/ui/android/junit/src/org/chromium/ui/base/SelectFileDialogTest.java
++++ b/ui/android/junit/src/org/chromium/ui/base/SelectFileDialogTest.java
+@@ -42,6 +42,7 @@ import org.mockito.junit.MockitoRule;
+ import org.robolectric.Shadows;
+ import org.robolectric.annotation.Config;
+ import org.robolectric.shadows.ShadowMimeTypeMap;
++import org.robolectric.util.ReflectionHelpers;
+ 
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.DeviceInfo;
+@@ -59,6 +60,7 @@ import org.chromium.ui.permissions.PermissionCallback;
+ 
+ import java.io.File;
+ import java.io.IOException;
++import java.lang.ref.WeakReference;
+ import java.nio.file.Path;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -256,6 +258,51 @@ public class SelectFileDialogTest {
+         testMimeTypesWithExternalPicker(Intent.ACTION_GET_CONTENT);
+     }
+ 
++    @Test
++    @Config(sdk = Build.VERSION_CODES.TIRAMISU)
++    public void testMediaTypesUseExternalPickerWhenPhotoPickerIsAvailable() throws Exception {
++        ReflectionHelpers.setStaticField(
++                SelectFileDialog.class,
++                "sPhotoPickerDelegate",
++                Mockito.mock(PhotoPickerDelegate.class));
++        try {
++            TestSelectFileDialog selectFileDialog = new TestSelectFileDialog(0);
++            WindowAndroid windowAndroid = Mockito.mock(WindowAndroid.class);
++            when(windowAndroid.getActivity())
++                    .thenReturn(new WeakReference<>(Mockito.mock(Activity.class)));
++            when(windowAndroid.showIntent(
++                            any(Intent.class),
++                            (WindowAndroid.IntentCallback) any(),
++                            anyInt()))
++                    .thenReturn(true);
++
++            selectFileDialog.selectFile(
++                    Intent.ACTION_GET_CONTENT,
++                    new String[] {"image/jpeg"},
++                    /* capture= */ false,
++                    /* multiple= */ false,
++                    /* defaultDirectory= */ null,
++                    /* suggestedName= */ null,
++                    windowAndroid);
++
++            Mockito.verify(windowAndroid)
++                    .showIntent(
++                            ArgumentMatchers.argThat(
++                                    new IntentArgumentMatcher(Intent.ACTION_CHOOSER)),
++                            (WindowAndroid.IntentCallback) any(),
++                            anyInt());
++            Mockito.verify(windowAndroid, Mockito.never())
++                    .showIntent(
++                            ArgumentMatchers.argThat(
++                                    new IntentArgumentMatcher(MediaStore.ACTION_PICK_IMAGES)),
++                            (WindowAndroid.IntentCallback) any(),
++                            anyInt());
++        } finally {
++            ReflectionHelpers.setStaticField(
++                    SelectFileDialog.class, "sPhotoPickerDelegate", null);
++        }
++    }
++
+     @Test
+     public void testExternalPickerWithFileExtensions() throws Exception {
+         verifyExternalPickerWithFileExtensions(Intent.ACTION_GET_CONTENT);
+-- 
+2.43.0
+
