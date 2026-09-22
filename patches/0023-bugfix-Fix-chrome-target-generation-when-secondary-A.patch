@@ -9,10 +9,10 @@ Subject: [PATCH] [bugfix] Fix chrome target generation when secondary ABI is
  1 file changed, 32 insertions(+), 24 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 70fcd7c6d5e4e..76b18b033e044 100644
+index d32e85c29957d..29cdb09356a3b 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -3530,42 +3530,50 @@ if (_is_default_toolchain &&
+@@ -3531,42 +3531,50 @@ if (_is_default_toolchain &&
      deps = []
      if (enable_libs_and_assets_verification) {
        deps += [
