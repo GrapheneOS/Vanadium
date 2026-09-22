@@ -8,7 +8,7 @@ Subject: [PATCH] [bugfix] searchbox: avoid compiling non-android code
  1 file changed, 6 insertions(+)
 
 diff --git a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-index c7559e14368d7..22e6068116d7e 100644
+index 569803648f205..878cf3ffcc804 100644
 --- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 +++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 @@ -234,6 +234,7 @@ constexpr char kShareIconResourceName[] =
@@ -27,7 +27,7 @@ index c7559e14368d7..22e6068116d7e 100644
  
  std::string GetBase64UrlVariations(Profile* profile) {
    variations::VariationsClient* provider = profile->GetVariationsClient();
-@@ -879,6 +881,9 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -920,6 +922,9 @@ SearchboxHandler::CreateAutocompleteMatch(
      bookmarks::BookmarkModel* bookmark_model,
      const omnibox::GroupConfigMap& suggestion_groups_map,
      const TemplateURLService* turl_service) const {
@@ -37,7 +37,7 @@ index c7559e14368d7..22e6068116d7e 100644
    // Skip the primary column horizontal matches. This check guards against
    // this unexpected scenario as the UI expects the primary column matches to
    // be vertical ones.
-@@ -1046,6 +1051,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -1099,6 +1104,7 @@ SearchboxHandler::CreateAutocompleteMatch(
    }
  
    return mojom_match;
