@@ -12,7 +12,7 @@ Subject: [PATCH] Add hooks for ChromeApplicationImpl to initialize
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
-index 5abcdccc9e331..264b8fa0760d0 100644
+index 5abcdccc9e331..2bfa050056621 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
 @@ -41,10 +41,17 @@ import org.chromium.url.GURL;
@@ -38,8 +38,8 @@ index 5abcdccc9e331..264b8fa0760d0 100644
      public void onConfigurationChanged(Configuration newConfig) {
          super.onConfigurationChanged(newConfig);
 +
-+        ChromeApplicationImplHooks.onConfigurationChanged(
-+                getApplication().getResources().getConfiguration(), newConfig);
++        ChromeApplicationImplHooks.onConfigurationChanged(newConfig);
++
          // TODO(huayinz): Add observer pattern for application configuration changes.
          SystemNightModeMonitor.getInstance().onApplicationConfigurationChanged();
      }
