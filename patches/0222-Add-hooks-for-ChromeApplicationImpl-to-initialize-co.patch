@@ -5,14 +5,14 @@ Subject: [PATCH] Add hooks for ChromeApplicationImpl to initialize
  conditionals for config app
 
 ---
- .../chrome/browser/ChromeApplicationImpl.java | 10 +++++++++
- .../android/chrome_java_ext_sources.gni       |  1 +
- .../browser/ChromeApplicationImplHooks.java   | 21 +++++++++++++++++++
- 3 files changed, 32 insertions(+)
+ .../chrome/browser/ChromeApplicationImpl.java   | 10 ++++++++++
+ .../chrome/android/chrome_java_ext_sources.gni  |  1 +
+ .../browser/ChromeApplicationImplHooks.java     | 17 +++++++++++++++++
+ 3 files changed, 28 insertions(+)
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
-index 5abcdccc9e331..264b8fa0760d0 100644
+index 5abcdccc9e331..2bfa050056621 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
 @@ -41,10 +41,17 @@ import org.chromium.url.GURL;
@@ -38,8 +38,8 @@ index 5abcdccc9e331..264b8fa0760d0 100644
      public void onConfigurationChanged(Configuration newConfig) {
          super.onConfigurationChanged(newConfig);
 +
-+        ChromeApplicationImplHooks.onConfigurationChanged(
-+                getApplication().getResources().getConfiguration(), newConfig);
++        ChromeApplicationImplHooks.onConfigurationChanged(newConfig);
++
          // TODO(huayinz): Add observer pattern for application configuration changes.
          SystemNightModeMonitor.getInstance().onApplicationConfigurationChanged();
      }
@@ -57,17 +57,14 @@ index 3b559cb448cf6..9e82309253caa 100644
    "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 new file mode 100644
-index 0000000000000..963d6bda39c85
+index 0000000000000..a445c2b87e4fe
 --- /dev/null
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,17 @@
 +package org.chromium.chrome.browser;
 +
 +import android.content.res.Configuration;
 +
-+import org.chromium.build.annotations.NullMarked;
-+
-+@NullMarked
 +final class ChromeApplicationImplHooks {
 +
 +    private static final String TAG = "ChromeApplicationImplHooks";
@@ -78,7 +75,6 @@ index 0000000000000..963d6bda39c85
 +    public static void onCreate() {
 +    }
 +
-+    public static void onConfigurationChanged(
-+            Configuration oldConfig, Configuration newConfig) {
++    public static void onConfigurationChanged(Configuration newConfig) {
 +    }
 +}

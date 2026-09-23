@@ -6,8 +6,8 @@ Subject: [PATCH] Add support for conditional content filtering component based
 
 ---
  .../chrome/android/chrome_java_ext_deps.gni   |  2 +
- .../browser/ChromeApplicationImplHooks.java   | 74 +++++++++++++++++++
- 2 files changed, 76 insertions(+)
+ .../browser/ChromeApplicationImplHooks.java   | 71 +++++++++++++++++++
+ 2 files changed, 73 insertions(+)
 
 diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_deps.gni
 index b60fcdd75998b..ed9820c13f80c 100644
@@ -23,18 +23,15 @@ index b60fcdd75998b..ed9820c13f80c 100644
    "//vanadium/chromium_src/chrome/browser/flags/ext/android:feature_map_java",
    "//vanadium/chromium_src/chrome/browser/referrer/android:cross_origin_referrer_settings_java",
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-index 963d6bda39c85..8159621f5413a 100644
+index a445c2b87e4fe..172af1ba94137 100644
 --- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-@@ -1,8 +1,24 @@
- package org.chromium.chrome.browser;
+@@ -2,16 +2,87 @@ package org.chromium.chrome.browser;
  
-+import android.content.pm.ActivityInfo;
  import android.content.res.Configuration;
  
 +import org.chromium.base.LocaleUtils;
 +import org.chromium.base.Log;
- import org.chromium.build.annotations.NullMarked;
 +import org.chromium.chrome.browser.base.SplitCompatApplication;
 +import org.chromium.chrome.browser.language.settings.LanguageItem;
 +import org.chromium.chrome.browser.language.settings.LanguagesManager;
@@ -44,14 +41,14 @@ index 963d6bda39c85..8159621f5413a 100644
 +
 +import java.util.ArrayList;
 +import java.util.List;
++import java.util.stream.Collectors;
 +
 +import app.vanadium.config.VanadiumConfConditionals;
 +import app.vanadium.config.VanadiumConfConditionals.ConditionSupplier;
 +import app.vanadium.config.proto.VanadiumConfigProto.Component.ComponentCondition;
- 
- @NullMarked
++
  final class ChromeApplicationImplHooks {
-@@ -10,6 +26,49 @@ final class ChromeApplicationImplHooks {
+ 
      private static final String TAG = "ChromeApplicationImplHooks";
  
      public static void postAttachBaseContext() {
@@ -101,10 +98,9 @@ index 963d6bda39c85..8159621f5413a 100644
      }
  
      public static void onCreate() {
-@@ -17,5 +76,20 @@ final class ChromeApplicationImplHooks {
+     }
  
-     public static void onConfigurationChanged(
-             Configuration oldConfig, Configuration newConfig) {
+     public static void onConfigurationChanged(Configuration newConfig) {
 +        if (!SplitCompatApplication.isBrowserProcess()) {
 +            Log.i(TAG, "Update only runs on browser process");
 +            return;
@@ -112,10 +108,6 @@ index 963d6bda39c85..8159621f5413a 100644
 +
 +        if (!ProfileManager.isInitialized()) {
 +            Log.i(TAG, "ProfileManager's native code is not yet loaded");
-+            return;
-+        }
-+
-+        if ((newConfig.diff(oldConfig) & ActivityInfo.CONFIG_LOCALE) == 0) {
 +            return;
 +        }
 +
