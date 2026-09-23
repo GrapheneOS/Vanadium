@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 23 Sep 2026 11:38:30 +0000
+Subject: [PATCH] Disable new tab appearance customization feature by default
+
+---
+ .../org/chromium/chrome/browser/flags/ChromeFeatureList.java    | 2 +-
+ components/segmentation_platform/public/features.cc             | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index aaa281094e307..8324292886c15 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -1292,7 +1292,7 @@ public abstract class ChromeFeatureList {
+     public static final CachedFlag sNewTabPageCustomizationThemeSync =
+             newCachedFlag(NEW_TAB_PAGE_CUSTOMIZATION_THEME_SYNC, /* defaultValue= */ false);
+     public static final CachedFlag sNewTabPageCustomizationV2 =
+-            newCachedFlag(NEW_TAB_PAGE_CUSTOMIZATION_V2, true);
++            newCachedFlag(NEW_TAB_PAGE_CUSTOMIZATION_V2, false);
+     public static final CachedFlag sNotificationTrampoline =
+             newCachedFlag(NOTIFICATION_TRAMPOLINE, false);
+     public static final CachedFlag sNotificationTrampolineNoNewTask =
+diff --git a/components/segmentation_platform/public/features.cc b/components/segmentation_platform/public/features.cc
+index e1449a262f6be..bd59058930bcf 100644
+--- a/components/segmentation_platform/public/features.cc
++++ b/components/segmentation_platform/public/features.cc
+@@ -248,7 +248,7 @@ constexpr base::FeatureParam<bool> kEnableRecentTabsTip{
+     &kAndroidTipsNotificationsV2, "enable_recent_tabs_tip",
+     /*default_value=*/true};
+ 
+-BASE_FEATURE(kNewTabPageCustomizationV2, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kNewTabPageCustomizationV2, base::FEATURE_DISABLED_BY_DEFAULT);
+ constexpr base::FeatureParam<bool> kNewTabPageCustomizationV2ShowPromo{
+     &kNewTabPageCustomizationV2, "show_promo",
+     /*default_value=*/true};
