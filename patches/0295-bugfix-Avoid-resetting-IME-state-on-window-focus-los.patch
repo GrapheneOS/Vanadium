@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: inthewaves <inthewaves@pm.me>
+Date: Thu, 24 Sep 2026 18:06:37 -0700
+Subject: [PATCH] [bugfix] Avoid resetting IME state on window focus loss
+
+Window focus can move to a popup while the underlying text field remains focused. The
+unconditional reset added by upstream d411ccf133376a271e736e1dd9892f9a8833ac6d clears the editor
+state and hides the keyboard in this case. Opening the spelling suggestion popup reproduces this.
+
+Remove only the reset on window focus loss. Keep the renderer state refresh on window focus gain
+and the existing cleanup on view or activity focus loss. Android already restarts input when the
+window regains focus without an active input connection.
+---
+ .../src/org/chromium/content/browser/input/ImeAdapterImpl.java   | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java b/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
+index b74a52b4347bc..ca3435c6a8a12 100644
+--- a/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
+@@ -1028,7 +1028,6 @@ public class ImeAdapterImpl
+     public void onWindowFocusChanged(boolean gainFocus) {
+         if (DEBUG_LOGS) Log.i(TAG, "onWindowFocusChanged: gainFocus [%b]", gainFocus);
+ 
+-        if (!gainFocus) resetAndHideKeyboard();
+         if (gainFocus
+                 && isValid()
+                 && ContentFeatureMap.isEnabled(
