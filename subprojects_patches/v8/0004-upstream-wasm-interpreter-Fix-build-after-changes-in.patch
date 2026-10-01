@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paolo Severini <paolosev@microsoft.com>
+Date: Wed, 30 Sep 2026 11:52:26 +0200
+Subject: [PATCH] [upstream] [wasm interpreter] Fix build after changes in
+ WasmTrustedInstanceData
+
+Fix the Wasm interpreter build after recent changes:
+Update memory0_size() to memory_size(0) in WasmTrustedInstanceData.
+
+Bug: none
+Change-Id: I2c29b725ac598607757b5a875d52402a293dda0b
+Reviewed-on: https://chromium-review.googlesource.com/c/v8/v8/+/8488465
+Reviewed-by: Jakob Linke <jgruber@chromium.org>
+Reviewed-by: Daniel Lehmann <dlehmann@chromium.org>
+Commit-Queue: Paolo Severini <paolosev@microsoft.com>
+Cr-Commit-Position: refs/heads/main@{#110186}
+---
+ src/wasm/interpreter/wasm-interpreter-runtime-inl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/wasm/interpreter/wasm-interpreter-runtime-inl.h b/src/wasm/interpreter/wasm-interpreter-runtime-inl.h
+index 1bc64acc614..64805ff9900 100644
+--- a/src/wasm/interpreter/wasm-interpreter-runtime-inl.h
++++ b/src/wasm/interpreter/wasm-interpreter-runtime-inl.h
+@@ -143,7 +143,7 @@ inline size_t WasmInterpreterRuntime::GetMemorySize(
+ }
+ 
+ inline size_t WasmInterpreterRuntime::GetMemorySize() const {
+-  return wasm_trusted_instance_data()->memory0_size();
++  return wasm_trusted_instance_data()->memory_size(0);
+ }
+ 
+ inline void WasmInterpreterRuntime::DataDrop(uint32_t index) {
