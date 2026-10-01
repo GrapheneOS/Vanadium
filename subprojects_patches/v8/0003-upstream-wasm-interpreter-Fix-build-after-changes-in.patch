@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paolo Severini <paolosev@microsoft.com>
+Date: Wed, 30 Sep 2026 11:52:26 +0200
+Subject: [PATCH] [upstream] [wasm interpreter] Fix build after changes in
+ ScopeIterator
+
+Bug: none
+Change-Id: I2c29b725ac598607757b5a875d52402a293dda0b
+Reviewed-on: https://chromium-review.googlesource.com/c/v8/v8/+/8488465
+Reviewed-by: Jakob Linke <jgruber@chromium.org>
+Reviewed-by: Daniel Lehmann <dlehmann@chromium.org>
+Commit-Queue: Paolo Severini <paolosev@microsoft.com>
+Cr-Commit-Position: refs/heads/main@{#110186}
+---
+ src/debug/debug-wasm-objects.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/debug/debug-wasm-objects.cc b/src/debug/debug-wasm-objects.cc
+index 0cf893b6c41..812c7e50bcf 100644
+--- a/src/debug/debug-wasm-objects.cc
++++ b/src/debug/debug-wasm-objects.cc
+@@ -798,6 +798,8 @@ class DebugWasmInterpreterScopeIterator final : public debug::ScopeIterator {
+
+   ScopeType GetType() override { return type_; }
+
++  bool DeclaresLocals() override { return true; }
++
+   v8::Local<v8::Object> GetObject() override {
+     Isolate* isolate = frame_->isolate();
+     switch (type_) {
