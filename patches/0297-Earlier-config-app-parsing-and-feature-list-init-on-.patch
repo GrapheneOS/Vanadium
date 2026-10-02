@@ -1,0 +1,97 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 29 Sep 2026 13:31:23 +0000
+Subject: [PATCH] Earlier config app parsing and feature list init on browser
+ process
+
+---
+ .../browser/base/SplitCompatApplication.java  |  2 ++
+ .../android/base_module_java_ext_deps.gni     |  1 +
+ .../chrome/browser/base/android/BUILD.gn      | 14 +++++++++++
+ .../base/SplitCompatApplicationHooks.java     | 24 +++++++++++++++++++
+ 4 files changed, 41 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/browser/base/android/BUILD.gn
+ create mode 100644 vanadium/chromium_src/chrome/browser/base/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplicationHooks.java
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
+index 0cd18caf4d7f3..f84efab2980a1 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
+@@ -174,6 +174,7 @@ public class SplitCompatApplication extends Application {
+                 BundleUtils.getInstalledSplitNamesForLogging());
+ 
+         if (isBrowserProcess) {
++            SplitCompatApplicationHooks.attachBaseContextInBrowserProcess();
+             // This must come as early as possible to avoid early loading of the native library from
+             // failing unnoticed.
+             LibraryLoader.sLoadFailedCallback =
+@@ -216,6 +217,7 @@ public class SplitCompatApplication extends Application {
+             // (see ChildProcessService.java).
+             CommandLineInitUtil.initCommandLine(
+                     COMMAND_LINE_FILE, SplitCompatApplication::shouldUseDebugFlags);
++            SplitCompatApplicationHooks.onCommandLineInitialized();
+             PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
+             // Register for activity lifecycle callbacks. Must be done before any activities are
+             // created and is needed only by processes that use the ApplicationStatus api (which
+diff --git a/vanadium/chromium_src/chrome/android/base_module_java_ext_deps.gni b/vanadium/chromium_src/chrome/android/base_module_java_ext_deps.gni
+index 376d730100896..2de239b7af1f1 100644
+--- a/vanadium/chromium_src/chrome/android/base_module_java_ext_deps.gni
++++ b/vanadium/chromium_src/chrome/android/base_module_java_ext_deps.gni
+@@ -6,6 +6,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ base_module_java_ext_full_path_deps = [
++  "//vanadium/chromium_src/chrome/browser/base/android:split_compat_application_hooks_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/chrome/browser/base/android/BUILD.gn b/vanadium/chromium_src/chrome/browser/base/android/BUILD.gn
+new file mode 100644
+index 0000000000000..258934b9a7f82
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/base/android/BUILD.gn
+@@ -0,0 +1,14 @@
++import("//build/config/android/rules.gni")
++
++android_library("split_compat_application_hooks_java") {
++  sources = [
++    "java/src/org/chromium/chrome/browser/base/SplitCompatApplicationHooks.java",
++  ]
++
++  deps = [
++    "//base:base_java",
++    "//build/android:build_java",
++    "//vanadium/chromium_src/base/config/android:vanadium_config_utils_java",
++    "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/chrome/browser/base/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplicationHooks.java b/vanadium/chromium_src/chrome/browser/base/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplicationHooks.java
+new file mode 100644
+index 0000000000000..f7d6603b668f5
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/browser/base/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplicationHooks.java
+@@ -0,0 +1,24 @@
++package org.chromium.chrome.browser.base;
++
++import org.chromium.base.ContextUtils;
++import org.chromium.base.config.VanadiumConfigsUtils;
++import org.chromium.base.library_loader.LibraryProcessType;
++import org.chromium.build.annotations.NonNull;
++
++@NonNull
++public final class SplitCompatApplicationHooks {
++
++    public static void attachBaseContextInBrowserProcess() {
++        assert !ContextUtils.getProcessName().contains(":");
++        VanadiumConfigsUtils.initConfigs(
++                ContextUtils.getApplicationContext(),
++                LibraryProcessType.PROCESS_BROWSER);
++    }
++
++    public static void onCommandLineInitialized() {
++        assert !ContextUtils.getProcessName().contains(":");
++        VanadiumConfigsUtils.applyFlagFromConfigs(
++                ContextUtils.getApplicationContext(),
++                LibraryProcessType.PROCESS_BROWSER);
++    }
++}

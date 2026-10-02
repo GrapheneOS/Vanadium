@@ -107,10 +107,10 @@ index d28b43a2c719c..198f0a7046376 100644
    <if expr="not use_titlecase">
      <message name="IDS_BOOKMARK_BAR_SHOW_APPS_SHORTCUT" desc="Name shown in the context menu to hide/show the apps shortcut in the bookmark bar">
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index a31f68f180568..2a62fa75907b1 100644
+index 8d2c2a3336eea..10640a70b37f8 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -5156,11 +5156,11 @@ are declared in tools/grit/grit_args.gni.
+@@ -5178,11 +5178,11 @@ are declared in tools/grit/grit_args.gni.
        <message name="IDS_UTILITY_PROCESS_FILE_UTILITY_NAME" desc="The name of the utility process used for various Vanadium specific file operations.">
            Vanadium File Utilities
        </message>
@@ -124,7 +124,7 @@ index a31f68f180568..2a62fa75907b1 100644
        <message name="IDS_UTILITY_PROCESS_QRCODE_GENERATOR_SERVICE_NAME" desc="The name of the utility process used for encoding QR Codes.">
          QR Code Generator
        </message>
-@@ -11679,7 +11679,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11754,7 +11754,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
        </if>
  
        <!-- Android uses custom UI for Bookmark importing -->
@@ -133,7 +133,7 @@ index a31f68f180568..2a62fa75907b1 100644
          <!-- Import Settings Dialog -->
          <if expr="is_win">
            <message name="IDS_IMPORT_FROM_IE" desc="browser combo box: Microsoft Internet Explorer">
-@@ -11712,7 +11712,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11787,7 +11787,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
              Import Bookmarks and Settings...
            </message>
          </if> <!-- is_macosx -->
@@ -143,7 +143,7 @@ index a31f68f180568..2a62fa75907b1 100644
        <if expr="is_macosx">
          <!-- Confirm to quit panel -->
 diff --git a/chrome/browser/bookmarks/android/BUILD.gn b/chrome/browser/bookmarks/android/BUILD.gn
-index f4e4519552b2f..f5c2a0bb69280 100644
+index 867d6a075141f..57c931ce1e807 100644
 --- a/chrome/browser/bookmarks/android/BUILD.gn
 +++ b/chrome/browser/bookmarks/android/BUILD.gn
 @@ -6,7 +6,10 @@ import("//build/config/android/rules.gni")
@@ -171,13 +171,13 @@ index f4e4519552b2f..f5c2a0bb69280 100644
    deps = [
      ":android",
 diff --git a/chrome/browser/bookmarks/android/DEPS b/chrome/browser/bookmarks/android/DEPS
-index d5f1722606e1f..4840951f15636 100644
+index c1edad1ad6cf0..210d123b29607 100644
 --- a/chrome/browser/bookmarks/android/DEPS
 +++ b/chrome/browser/bookmarks/android/DEPS
-@@ -18,4 +18,10 @@ include_rules = [
-     "+chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java",
-     "+chrome/android/java/src/org/chromium/chrome/browser/ActivityUtils.java",
-     "+chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java",
+@@ -6,4 +6,10 @@ include_rules = [
+     "+components/browser_ui/modaldialog/android",
+     "+components/browser_ui/settings/android",
+     "+components/image_fetcher",
 -]
 \ No newline at end of file
 +]
@@ -561,10 +561,10 @@ index d885e3aff2903..44e80691b615a 100644
      }
  }
 diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
-index 44f28f6229b69..4579627ce4b62 100644
+index e2217008fb995..6d9d5d87d570c 100644
 --- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
 +++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
-@@ -286,7 +286,8 @@ public class BookmarkManagerCoordinator
+@@ -290,7 +290,8 @@ public class BookmarkManagerCoordinator
                          bookmarkManagerOpener,
                          mSnackbarManager,
                          /* nextFocusableView= */ mMainView.findViewById(R.id.list_content),
@@ -739,10 +739,10 @@ index 8a1d68e110774..5717c7e5f375f 100644
  
  void ExternalProcessImporterHost::OnImportLockDialogEnd(bool is_continue) {
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 764dc3880dec4..002ab3ee57d3c 100644
+index 433515674d4dd..fed3cdd29e61e 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -4926,6 +4926,15 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
+@@ -4937,6 +4937,15 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
        <message name="IDS_SORT_BY_LAST_OPENED"  desc="Option in the bookmarks manager to sort by last opened. [CHAR_LIMIT=24]">
          Sort by last opened
        </message>
@@ -776,10 +776,10 @@ index bc73d6fe724c9..91f19ba423c26 100644
      sources += [ "firefox_importer_utils_linux.cc" ]
    } else if (is_mac) {
 diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
-index 500cbc7ed8e76..d524ec96ff35f 100644
+index b3fa5a032cee9..4396e87402578 100644
 --- a/chrome/utility/BUILD.gn
 +++ b/chrome/utility/BUILD.gn
-@@ -91,7 +91,7 @@ static_library("utility") {
+@@ -93,7 +93,7 @@ static_library("utility") {
      ]
    }
  
@@ -788,7 +788,7 @@ index 500cbc7ed8e76..d524ec96ff35f 100644
      sources += [
        "importer/bookmarks_file_importer.cc",
        "importer/bookmarks_file_importer.h",
-@@ -104,7 +104,7 @@ static_library("utility") {
+@@ -106,7 +106,7 @@ static_library("utility") {
        "importer/profile_import_impl.cc",
        "importer/profile_import_impl.h",
      ]
@@ -797,7 +797,7 @@ index 500cbc7ed8e76..d524ec96ff35f 100644
        sources += [
          "importer/firefox_importer.cc",
          "importer/firefox_importer.h",
-@@ -116,7 +116,7 @@ static_library("utility") {
+@@ -118,7 +118,7 @@ static_library("utility") {
          "importer/safari_importer.mm",
        ]
      }
@@ -806,7 +806,7 @@ index 500cbc7ed8e76..d524ec96ff35f 100644
        # NSS decryptor is not needed on ChromeOS. Additionally, it depends on
        # system NSS that is unavailable on MacOS/Fuchsia.
        sources += [
-@@ -151,6 +151,12 @@ static_library("utility") {
+@@ -153,6 +153,12 @@ static_library("utility") {
        "//services/proxy_resolver:lib",
        "//services/screen_ai",
      ]
@@ -833,10 +833,10 @@ index 5f8f27c70bafe..ec2eb79f70948 100644
        return new FirefoxImporter();
  #endif
 diff --git a/chrome/utility/services.cc b/chrome/utility/services.cc
-index 22b15ea3a1f49..e83da834df460 100644
+index 5f509ce2d6f0b..ebcf6e236f1f0 100644
 --- a/chrome/utility/services.cc
 +++ b/chrome/utility/services.cc
-@@ -61,6 +61,11 @@
+@@ -62,6 +62,11 @@
  #include "chrome/services/system_signals/linux/linux_system_signals_service.h"
  #endif  // BUILDFLAG(IS_LINUX)
  
@@ -848,7 +848,7 @@ index 22b15ea3a1f49..e83da834df460 100644
  #if !BUILDFLAG(IS_ANDROID)
  #include "chrome/common/importer/profile_import.mojom.h"
  #include "chrome/services/reading_mode_metrics/reading_mode_metrics_service.h"
-@@ -237,6 +242,16 @@ auto RunSystemSignalsService(
+@@ -238,6 +243,16 @@ auto RunSystemSignalsService(
  }
  #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
  
@@ -865,7 +865,7 @@ index 22b15ea3a1f49..e83da834df460 100644
  auto RunOakSessionService(
      mojo::PendingReceiver<private_ai::mojom::OakSession> receiver) {
    return std::make_unique<private_ai::OakSessionService>(std::move(receiver));
-@@ -488,6 +503,11 @@ void RegisterMainThreadServices(mojo::ServiceFactory& services) {
+@@ -489,6 +504,11 @@ void RegisterMainThreadServices(mojo::ServiceFactory& services) {
    services.Add(RunPassageEmbeddingsService);
    services.Add(RunOakSessionService);
  
