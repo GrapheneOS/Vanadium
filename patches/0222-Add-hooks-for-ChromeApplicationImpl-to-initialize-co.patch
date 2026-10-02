@@ -5,17 +5,17 @@ Subject: [PATCH] Add hooks for ChromeApplicationImpl to initialize
  conditionals for config app
 
 ---
- .../chrome/browser/ChromeApplicationImpl.java   | 10 ++++++++++
- .../chrome/android/chrome_java_ext_sources.gni  |  1 +
- .../browser/ChromeApplicationImplHooks.java     | 17 +++++++++++++++++
- 3 files changed, 28 insertions(+)
+ .../chrome/browser/ChromeApplicationImpl.java |  9 +++++++++
+ .../android/chrome_java_ext_sources.gni       |  1 +
+ .../browser/ChromeApplicationImplHooks.java   | 20 +++++++++++++++++++
+ 3 files changed, 30 insertions(+)
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
-index 5abcdccc9e331..2bfa050056621 100644
+index 13ce932accfe3..b11ba335a283b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java
-@@ -41,10 +41,17 @@ import org.chromium.url.GURL;
+@@ -43,10 +43,17 @@ import org.chromium.url.GURL;
  public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
      public ChromeApplicationImpl() {}
  
@@ -33,13 +33,12 @@ index 5abcdccc9e331..2bfa050056621 100644
          // This Impl is only instantiated in the browser process; SplitChromeApplication uses the
          // base Impl for all other processes so that the chrome split is never loaded there.
          assert SplitCompatApplication.isBrowserProcess();
-@@ -105,6 +112,9 @@ public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
+@@ -110,6 +117,8 @@ public class ChromeApplicationImpl extends SplitCompatApplication.Impl {
      @Override
      public void onConfigurationChanged(Configuration newConfig) {
          super.onConfigurationChanged(newConfig);
 +
 +        ChromeApplicationImplHooks.onConfigurationChanged(newConfig);
-+
          // TODO(huayinz): Add observer pattern for application configuration changes.
          SystemNightModeMonitor.getInstance().onApplicationConfigurationChanged();
      }
@@ -57,14 +56,17 @@ index 3b559cb448cf6..9e82309253caa 100644
    "java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettingsExt.java",
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
 new file mode 100644
-index 0000000000000..a445c2b87e4fe
+index 0000000000000..a3e9c5bfcd61e
 --- /dev/null
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/ChromeApplicationImplHooks.java
-@@ -0,0 +1,17 @@
+@@ -0,0 +1,20 @@
 +package org.chromium.chrome.browser;
 +
 +import android.content.res.Configuration;
 +
++import org.chromium.build.annotations.NullMarked;
++
++@NullMarked
 +final class ChromeApplicationImplHooks {
 +
 +    private static final String TAG = "ChromeApplicationImplHooks";
@@ -75,6 +77,6 @@ index 0000000000000..a445c2b87e4fe
 +    public static void onCreate() {
 +    }
 +
-+    public static void onConfigurationChanged(Configuration newConfig) {
++    public static void onConfigurationChanged(Configuration oldConfig) {
 +    }
 +}

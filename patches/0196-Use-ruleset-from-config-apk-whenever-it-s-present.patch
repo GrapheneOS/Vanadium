@@ -21,7 +21,7 @@ index bfed2dde27b25..06915d319c940 100644
 +  "+vanadium/chromium_src/components/subresource_filter/ext/android",
  ]
 diff --git a/components/subresource_filter/content/browser/ruleset_service.cc b/components/subresource_filter/content/browser/ruleset_service.cc
-index 19bd5b85ba922..16d965bd153ce 100644
+index 0e6ecd18ab6b8..23324bffc718d 100644
 --- a/components/subresource_filter/content/browser/ruleset_service.cc
 +++ b/components/subresource_filter/content/browser/ruleset_service.cc
 @@ -43,6 +43,9 @@
@@ -34,7 +34,7 @@ index 19bd5b85ba922..16d965bd153ce 100644
  
  namespace subresource_filter {
  
-@@ -267,7 +270,12 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
+@@ -263,7 +266,12 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
    if (most_recently_indexed_version.IsCurrentFormatVersion() &&
        most_recently_indexed_version.content_version ==
            unindexed_ruleset_info.content_version) {
@@ -47,7 +47,7 @@ index 19bd5b85ba922..16d965bd153ce 100644
    }
  
    // Before initialization, retain information about the most recently supplied
-@@ -498,6 +506,9 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
+@@ -494,6 +502,9 @@ void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
    }
    version.SaveToPrefs(local_state_);
    std::move(result_callback).Run(version);
