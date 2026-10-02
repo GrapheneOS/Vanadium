@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 30 Sep 2026 11:30:14 +0000
+Subject: [PATCH] Revert "Initialize configs from config app on library loading
+ init"
+
+This reverts commit ec4ffd4e5783038b81e8bc7b67d9c6c39a6a5272.
+---
+ vanadium/chromium_src/base/library_loader/android/BUILD.gn    | 1 -
+ .../chromium/base/library_loader/LibraryLoaderExtHooks.java   | 4 ----
+ 2 files changed, 5 deletions(-)
+
+diff --git a/vanadium/chromium_src/base/library_loader/android/BUILD.gn b/vanadium/chromium_src/base/library_loader/android/BUILD.gn
+index 7d305ff7f7a2b..2bc6a60677bb1 100644
+--- a/vanadium/chromium_src/base/library_loader/android/BUILD.gn
++++ b/vanadium/chromium_src/base/library_loader/android/BUILD.gn
+@@ -9,7 +9,6 @@ android_library("library_loader_ext_hooks_java") {
+     "java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java",
+   ]
+   deps = [
+-    "//vanadium/chromium_src/base/config/android:vanadium_config_utils_java",
+     "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
+   ]
+ }
+diff --git a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
+index 0eba100e2f1ae..363244ecddb2d 100644
+--- a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
++++ b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
+@@ -2,7 +2,6 @@ package org.chromium.base.library_loader;
+ 
+ import android.content.Context;
+ 
+-import org.chromium.base.config.VanadiumConfigsUtils;
+ import org.chromium.build.annotations.NullMarked;
+ 
+ @NullMarked
+@@ -10,17 +9,14 @@ final class LibraryLoaderExtHooks {
+ 
+     static void onSetLibraryProcessType(
+             Context appContext, @LibraryProcessType int type) {
+-        VanadiumConfigsUtils.initConfigs(appContext, type);
+     }
+ 
+     static void onBeforeCommandLineSwitchLocked(
+             Context appContext, @LibraryProcessType int type) {
+-        VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
+     }
+ 
+     static void onSubsequentCommandLineSwitchLockedCheck(
+             Context appContext, @LibraryProcessType int type) {
+-        VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
+     }
+ 
+     private LibraryLoaderExtHooks() {

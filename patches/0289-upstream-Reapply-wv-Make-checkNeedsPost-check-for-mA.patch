@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 24 Jul 2026 15:18:07 +0000
+Subject: [PATCH] [upstream] Reapply "[wv] Make checkNeedsPost check for
+ mAwContents"
+
+This reverts commit ac198bac40335941f6f4f2328615f30b3b054394.
+---
+ .../android/webview/chromium/SharedWebViewChromium.java    | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/SharedWebViewChromium.java b/android_webview/glue/java/src/com/android/webview/chromium/SharedWebViewChromium.java
+index ba5f705852646..e31e27c413267 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/SharedWebViewChromium.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/SharedWebViewChromium.java
+@@ -285,11 +285,10 @@ public class SharedWebViewChromium {
+     }
+ 
+     protected boolean checkNeedsPost() {
+-        boolean needsPost =
+-                !mStartupController.isChromiumInitialized() || !ThreadUtils.runningOnUiThread();
+-        if (!needsPost && mAwContents == null) {
+-            throw new IllegalStateException("AwContents must be created if we are not posting!");
++        if (!mStartupController.isChromiumInitialized()) {
++            throw new IllegalStateException("Chromium must be initialized if we are not posting!");
+         }
++        boolean needsPost = mAwContents == null || !ThreadUtils.runningOnUiThread();
+         return needsPost;
+     }
+ 

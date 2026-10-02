@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 29 Sep 2026 15:46:30 +0000
+Subject: [PATCH] Earlier WebView config parsing and feature list init
+
+---
+ .../WebViewChromiumFactoryProvider.java       |  2 ++
+ .../android_webview/glue/ext/BUILD.gn         | 14 +++++++++++++
+ .../WebViewChromiumFactoryProviderHooks.java  | 20 +++++++++++++++++++
+ .../glue/glue_java_ext_deps.gni               |  1 +
+ 4 files changed, 37 insertions(+)
+ create mode 100644 vanadium/chromium_src/android_webview/glue/ext/BUILD.gn
+ create mode 100644 vanadium/chromium_src/android_webview/glue/ext/java/src/com/android/webview/chromium/WebViewChromiumFactoryProviderHooks.java
+
+diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+index d6c153acb8ac7..bfc94f89b6ac8 100644
+--- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
++++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
+@@ -521,6 +521,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             // WebView needs to make sure to always use the wrapped application context.
+             ctx = ClassLoaderContextWrapperFactory.get(ctx);
+             ContextUtils.initApplicationContext(ctx);
++            WebViewChromiumFactoryProviderHooks.postInitAppContext();
+             CompatQuirks.setDelegate(WebViewChromiumFactoryProvider::isQuirkEnabled);
+ 
+             // Ensuring we set this before we might read it in any future calls to ApkInfo.
+@@ -547,6 +548,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             mStartupDelegate.setUpResourcesOnBackgroundThread(packageId, ctx);
+ 
+             AndroidXProcessGlobalConfig.extractConfigFromApp(application.getClassLoader());
++            WebViewChromiumFactoryProviderHooks.applyCommandLineChanges();
+ 
+             // Limiting scope of the command line switch object before it is passed to native.
+             // The reference to `cl` eventually becomes a stale object, causing incorrect behavior,
+diff --git a/vanadium/chromium_src/android_webview/glue/ext/BUILD.gn b/vanadium/chromium_src/android_webview/glue/ext/BUILD.gn
+new file mode 100644
+index 0000000000000..714bf7aeefd9b
+--- /dev/null
++++ b/vanadium/chromium_src/android_webview/glue/ext/BUILD.gn
+@@ -0,0 +1,14 @@
++import("//build/config/android/rules.gni")
++
++android_library("webview_chromium_factory_provider_hooks_java") {
++  sources = [
++    "java/src/com/android/webview/chromium/WebViewChromiumFactoryProviderHooks.java",
++  ]
++
++  deps = [
++    "//base:base_java",
++    "//build/android:build_java",
++    "//vanadium/chromium_src/base/config/android:vanadium_config_utils_java",
++    "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/android_webview/glue/ext/java/src/com/android/webview/chromium/WebViewChromiumFactoryProviderHooks.java b/vanadium/chromium_src/android_webview/glue/ext/java/src/com/android/webview/chromium/WebViewChromiumFactoryProviderHooks.java
+new file mode 100644
+index 0000000000000..bb634570c401b
+--- /dev/null
++++ b/vanadium/chromium_src/android_webview/glue/ext/java/src/com/android/webview/chromium/WebViewChromiumFactoryProviderHooks.java
+@@ -0,0 +1,20 @@
++package com.android.webview.chromium;
++
++import org.chromium.base.ContextUtils;
++import org.chromium.base.config.VanadiumConfigsUtils;
++import org.chromium.base.library_loader.LibraryProcessType;
++
++public class WebViewChromiumFactoryProviderHooks {
++
++    public static void postInitAppContext() {
++        VanadiumConfigsUtils.initConfigs(
++                ContextUtils.getApplicationContext(),
++                LibraryProcessType.PROCESS_WEBVIEW);
++    }
++
++    public static void applyCommandLineChanges() {
++        VanadiumConfigsUtils.applyFlagFromConfigs(
++                ContextUtils.getApplicationContext(),
++                LibraryProcessType.PROCESS_WEBVIEW);
++    }
++}
+diff --git a/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni b/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni
+index aa7065d0d30c7..3233e6ae1ade6 100644
+--- a/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni
++++ b/vanadium/chromium_src/android_webview/glue/glue_java_ext_deps.gni
+@@ -11,6 +11,7 @@ glue_java_ext_full_path_deps = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ glue_java_ext_rel_path_deps = [
++  "ext:webview_chromium_factory_provider_hooks_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes

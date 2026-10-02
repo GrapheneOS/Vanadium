@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sun, 20 Sep 2026 15:41:40 +0000
+Subject: [PATCH] config: Disable new tab appearance customization feature
+
+---
+ .../vanadium/config/host/ConfigGeneratorImpl.kt  | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+index 0121207f3b7e3..8af5f81538aa5 100644
+--- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+@@ -499,6 +499,22 @@ private fun unsortedConfigs(): List<Config> {
+         )
+     }
+ 
++    configs += config {
++        setSpec(spec {
++            specTypes(
++                SpecType.BROWSER,
++            )
++        })
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = "NewTabPageCustomizationV2"
++                    flagType = FlagType.DISABLED_FEATURE
++                }
++            )
++        )
++    }
++
+     return configs
+ }
+ 
