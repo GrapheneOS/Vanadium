@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 30 Sep 2026 11:30:20 +0000
+Subject: [PATCH] Revert "Hooks for LibraryLoader early init and command line
+ impl switch"
+
+This reverts commit f81fff1d7f14e8b2df71cbdd31c47fe376f0fe84.
+---
+ .../base/library_loader/LibraryLoader.java    |  9 -------
+ .../base_library_loader_java_ext_deps.gni     |  1 -
+ .../base/library_loader/android/BUILD.gn      | 14 -----------
+ .../library_loader/LibraryLoaderExtHooks.java | 24 -------------------
+ 4 files changed, 48 deletions(-)
+ delete mode 100644 vanadium/chromium_src/base/library_loader/android/BUILD.gn
+ delete mode 100644 vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
+
+diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
+index f1b5d5faa52ba..792e5b031d017 100644
+--- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
++++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
+@@ -421,7 +421,6 @@ public class LibraryLoader {
+                             mLibraryProcessType, type));
+         }
+         mLibraryProcessType = type;
+-        LibraryLoaderExtHooks.onSetLibraryProcessType(ContextUtils.getApplicationContext(), type);
+     }
+ 
+     public @LibraryProcessType int getLibraryProcessType() {
+@@ -712,14 +711,6 @@ public class LibraryLoader {
+         if (!CommandLine.isInitialized()) {
+             CommandLine.init(null);
+         }
+-
+-        if (!CommandLine.hasSwitchedToNative()) {
+-            LibraryLoaderExtHooks.onBeforeCommandLineSwitchLocked(
+-                    ContextUtils.getApplicationContext(), getLibraryProcessType());
+-        } else {
+-            LibraryLoaderExtHooks.onSubsequentCommandLineSwitchLockedCheck(
+-                    ContextUtils.getApplicationContext(), getLibraryProcessType());
+-        }
+         CommandLine.getInstance().switchToNativeImpl();
+     }
+ 
+diff --git a/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni b/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni
+index 66cd78d6ecc97..17cb56424b685 100644
+--- a/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni
++++ b/vanadium/chromium_src/base/base_library_loader_java_ext_deps.gni
+@@ -11,7 +11,6 @@ base_library_loader_java_ext_full_path_deps = [
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+ base_library_loader_java_ext_rel_path_deps = [
+-  "library_loader/android:library_loader_ext_hooks_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
+diff --git a/vanadium/chromium_src/base/library_loader/android/BUILD.gn b/vanadium/chromium_src/base/library_loader/android/BUILD.gn
+deleted file mode 100644
+index 2bc6a60677bb1..0000000000000
+--- a/vanadium/chromium_src/base/library_loader/android/BUILD.gn
++++ /dev/null
+@@ -1,14 +0,0 @@
+-# Copyright 2023-2026 GrapheneOS
+-# Use of this source code is governed by a GPL-2.0-only style license that can be
+-# found in the LICENSE file.
+-
+-import("//build/config/android/rules.gni")
+-
+-android_library("library_loader_ext_hooks_java") {
+-  sources = [
+-    "java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java",
+-  ]
+-  deps = [
+-    "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
+-  ]
+-}
+diff --git a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
+deleted file mode 100644
+index 363244ecddb2d..0000000000000
+--- a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
++++ /dev/null
+@@ -1,24 +0,0 @@
+-package org.chromium.base.library_loader;
+-
+-import android.content.Context;
+-
+-import org.chromium.build.annotations.NullMarked;
+-
+-@NullMarked
+-final class LibraryLoaderExtHooks {
+-
+-    static void onSetLibraryProcessType(
+-            Context appContext, @LibraryProcessType int type) {
+-    }
+-
+-    static void onBeforeCommandLineSwitchLocked(
+-            Context appContext, @LibraryProcessType int type) {
+-    }
+-
+-    static void onSubsequentCommandLineSwitchLockedCheck(
+-            Context appContext, @LibraryProcessType int type) {
+-    }
+-
+-    private LibraryLoaderExtHooks() {
+-    }
+-}
