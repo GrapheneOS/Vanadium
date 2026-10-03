@@ -1,0 +1,98 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 29 Sep 2026 15:09:37 +0000
+Subject: [PATCH] Check config app feature flags set on webview cached flags
+ methods
+
+---
+ .../common/WebViewCachedFlags.java            |  6 +++++
+ .../android_webview/common/ext/BUILD.gn       | 15 +++++++++++
+ .../common/WebViewCachedFlagsHooks.java       | 26 +++++++++++++++++++
+ .../android_webview/common_java_ext_deps.gni  |  1 +
+ 4 files changed, 48 insertions(+)
+ create mode 100644 vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/WebViewCachedFlagsHooks.java
+
+diff --git a/android_webview/java/src/org/chromium/android_webview/common/WebViewCachedFlags.java b/android_webview/java/src/org/chromium/android_webview/common/WebViewCachedFlags.java
+index a36db42cbb738..339d0cb9e93a2 100644
+--- a/android_webview/java/src/org/chromium/android_webview/common/WebViewCachedFlags.java
++++ b/android_webview/java/src/org/chromium/android_webview/common/WebViewCachedFlags.java
+@@ -255,6 +255,12 @@ public class WebViewCachedFlags {
+      */
+     public boolean isCachedFeatureEnabled(String feature) {
+         logFeatureAccess(feature);
++        Boolean hasOverrideFromConfig =
++                WebViewCachedFlagsHooks.isCachedFeatureEnabledFromConfig(feature);
++        if (hasOverrideFromConfig != null) {
++            return hasOverrideFromConfig;
++        }
++
+         if (mOverrideEnabled.contains(feature)) {
+             return true;
+         } else if (mOverrideDisabled.contains(feature)) {
+diff --git a/vanadium/chromium_src/android_webview/common/ext/BUILD.gn b/vanadium/chromium_src/android_webview/common/ext/BUILD.gn
+index 7f2bccb502962..390f1409dcbdd 100644
+--- a/vanadium/chromium_src/android_webview/common/ext/BUILD.gn
++++ b/vanadium/chromium_src/android_webview/common/ext/BUILD.gn
+@@ -51,3 +51,18 @@ generate_jni("feature_map_jni_headers") {
+     "java/src/org/chromium/android_webview/common/AwExtFeatureMap.java",
+   ]
+ }
++
++android_library("webview_cached_flags_hooks_java") {
++  sources = [
++    "java/src/org/chromium/android_webview/common/WebViewCachedFlagsHooks.java",
++  ]
++
++  deps = [
++    "//base:base_java",
++    "//build/android:build_java",
++    "//vanadium/android_config/parser:config_app_parser_java",
++    "//vanadium/android_config/proto:config_proto_java",
++    "//vanadium/chromium_src/base/config/android:vanadium_config_utils_java",
++    "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/WebViewCachedFlagsHooks.java b/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/WebViewCachedFlagsHooks.java
+new file mode 100644
+index 0000000000000..216eecad63005
+--- /dev/null
++++ b/vanadium/chromium_src/android_webview/common/ext/java/src/org/chromium/android_webview/common/WebViewCachedFlagsHooks.java
+@@ -0,0 +1,26 @@
++package org.chromium.android_webview.common;
++
++import org.chromium.build.annotations.NullMarked;
++import org.chromium.build.annotations.Nullable;
++
++import app.vanadium.config.VanadiumConfParser;
++import app.vanadium.config.proto.VanadiumConfigProto.Flag.FlagType;
++
++@NullMarked
++public final class WebViewCachedFlagsHooks {
++
++    @Nullable
++    public static Boolean isCachedFeatureEnabledFromConfig(String feature) {
++        if (VanadiumConfParser.getFlagsFor(FlagType.DISABLED_FEATURE)
++                .containsKey(feature)) {
++            return false;
++        }
++
++        if (VanadiumConfParser.getFlagsFor(FlagType.ENABLED_FEATURE)
++                .containsKey(feature)) {
++            return true;
++        }
++
++        return null;
++    }
++}
+diff --git a/vanadium/chromium_src/android_webview/common_java_ext_deps.gni b/vanadium/chromium_src/android_webview/common_java_ext_deps.gni
+index f5f535e2213a8..5d3b263b7bebd 100644
+--- a/vanadium/chromium_src/android_webview/common_java_ext_deps.gni
++++ b/vanadium/chromium_src/android_webview/common_java_ext_deps.gni
+@@ -7,6 +7,7 @@
+ # Three lines of code for minimizing conflicts in rebasing changes
+ common_java_ext_full_path_deps = [
+   "//vanadium/chromium_src/android_webview/common/ext:feature_map_java",
++  "//vanadium/chromium_src/android_webview/common/ext:webview_cached_flags_hooks_java",
+ ]
+ # Three lines of code for minimizing conflicts in rebasing changes
+ # Three lines of code for minimizing conflicts in rebasing changes
