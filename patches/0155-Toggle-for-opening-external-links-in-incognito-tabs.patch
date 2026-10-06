@@ -17,10 +17,10 @@ Subject: [PATCH] Toggle for opening external links in incognito tabs
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index a686054b6781a..74f603b08cbc0 100644
+index 0507897d2a42e..3b1e3c138c586 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -4942,6 +4942,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -4973,6 +4973,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
          // - we decided to close the tab, but it was opened by an external app, so we will go
          //   exit Chrome on top of closing the tab
          final boolean minimizeApp =
@@ -30,10 +30,10 @@ index a686054b6781a..74f603b08cbc0 100644
  
          BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 6f3854fb96fdf..956e19561e701 100644
+index abd476097e11d..2dcc5e0f9777a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -403,6 +403,7 @@ public class LaunchIntentDispatcher {
+@@ -433,6 +433,7 @@ public class LaunchIntentDispatcher {
  
          if (Intent.ACTION_VIEW.equals(newIntent.getAction())
                  && !IntentHandler.wasIntentSenderChrome(newIntent)) {

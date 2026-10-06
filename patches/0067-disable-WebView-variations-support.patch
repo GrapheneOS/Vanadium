@@ -4,20 +4,20 @@ Date: Thu, 10 Dec 2020 10:09:18 -0500
 Subject: [PATCH] disable WebView variations support
 
 ---
- .../android_webview/AwBrowserProcess.java     |  8 ++++
- .../android_webview/test/VariationsTest.java  | 38 ++++++++++++++-----
+ .../variations/VariationsSeedLoader.java      |  8 ++++
+ .../android_webview/test/VariationsTest.java  | 44 ++++++++++++++-----
  .../android_webview/browser_java_ext_deps.gni |  1 +
  ...view_instrumentation_test_apk_ext_deps.gni |  1 +
- 4 files changed, 38 insertions(+), 10 deletions(-)
+ 4 files changed, 42 insertions(+), 12 deletions(-)
 
-diff --git a/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java b/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
-index 4d36344a23e23..6c39d8e3947fc 100644
---- a/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
-+++ b/android_webview/java/src/org/chromium/android_webview/AwBrowserProcess.java
-@@ -119,6 +119,10 @@ public final class AwBrowserProcess {
+diff --git a/android_webview/java/src/org/chromium/android_webview/variations/VariationsSeedLoader.java b/android_webview/java/src/org/chromium/android_webview/variations/VariationsSeedLoader.java
+index c38b7d343a051..cbc87f8954b94 100644
+--- a/android_webview/java/src/org/chromium/android_webview/variations/VariationsSeedLoader.java
++++ b/android_webview/java/src/org/chromium/android_webview/variations/VariationsSeedLoader.java
+@@ -93,6 +93,10 @@ public class VariationsSeedLoader {
  
-     // See comments in VariationsSeedLoader.java on when it's safe to call this.
-     public static void startVariationsInit() {
+     /** Starts the asynchronous background task to load the variations seed. */
+     public static void startInit() {
 +        if (!org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED) {
 +            return;
 +        }
@@ -25,10 +25,10 @@ index 4d36344a23e23..6c39d8e3947fc 100644
          if (FastVariationsSeedSafeModeAction.hasRun()) {
              return;
          }
-@@ -131,6 +135,10 @@ public final class AwBrowserProcess {
-     }
+@@ -106,6 +110,10 @@ public class VariationsSeedLoader {
  
-     public static void finishVariationsInit() {
+     /** Finishes variations seed loading and applies variations before native startup. */
+     public static void finishInit() {
 +        if (!org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED) {
 +            return;
 +        }
@@ -37,10 +37,10 @@ index 4d36344a23e23..6c39d8e3947fc 100644
              return;
          }
 diff --git a/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java b/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java
-index e10f3a631c3c9..d41ce13e3d419 100644
+index e441c4734ce8f..78bac0b5bbe99 100644
 --- a/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java
 +++ b/android_webview/javatests/src/org/chromium/android_webview/test/VariationsTest.java
-@@ -122,8 +122,10 @@ public class VariationsTest extends AwParameterizedTest {
+@@ -130,8 +130,10 @@ public class VariationsTest extends AwParameterizedTest {
  
              ThreadUtils.runOnUiThreadBlocking(
                      () -> {
@@ -53,7 +53,7 @@ index e10f3a631c3c9..d41ce13e3d419 100644
                                  AwFeatureMap.isEnabled(AwFeatures.WEBVIEW_TEST_FEATURE));
                      });
          } finally {
-@@ -152,16 +154,24 @@ public class VariationsTest extends AwParameterizedTest {
+@@ -160,16 +162,24 @@ public class VariationsTest extends AwParameterizedTest {
                                              .setName("TestStudy")
                                              .addExperiment(defaultGroup))
                              .build();
@@ -82,9 +82,16 @@ index e10f3a631c3c9..d41ce13e3d419 100644
          } finally {
              VariationsTestUtils.deleteSeeds();
          }
-@@ -297,15 +307,23 @@ public class VariationsTest extends AwParameterizedTest {
-                         Assert.assertFalse(
-                                 "Limited-layer constrained study should not exist",
+@@ -305,14 +315,20 @@ public class VariationsTest extends AwParameterizedTest {
+ 
+             ThreadUtils.runOnUiThreadBlocking(
+                     () -> {
+-                        Assert.assertTrue(
+-                                "Limited-layer constrained study should exist",
++                        Assert.assertEquals(
++                                "Limited-layer constrained study existence "
++                                    + "should be dependent on field trial seed buildflag",
++                                isFieldTrialSeedEnabled(),
                                  FieldTrialList.trialExists(limitedStudyName));
 -                        Assert.assertTrue(
 -                                "Low-layer constrained study should exist",
@@ -102,14 +109,17 @@ index e10f3a631c3c9..d41ce13e3d419 100644
                                  FieldTrialList.trialExists(layerlessStudyName));
                      });
          } finally {
-             VariationsTestUtils.deleteSeeds();
+@@ -320,6 +336,10 @@ public class VariationsTest extends AwParameterizedTest {
          }
      }
-+
+ 
 +    private boolean isFieldTrialSeedEnabled() {
 +        return org.chromium.components.variations.FieldTrialSeedBuildflags.FIELDTRIAL_SEED_ENABLED;
 +    }
- }
++
+     @Test
+     @MediumTest
+     // Provides test coverage for applying a variations seed when the client lacks a limited entropy
 diff --git a/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni b/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
 index b23943c5a66c9..bc6f47b708a74 100644
 --- a/vanadium/chromium_src/android_webview/browser_java_ext_deps.gni
