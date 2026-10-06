@@ -10,10 +10,10 @@ Subject: [PATCH] Reduce user agent and client hints for webview
  3 files changed, 2 insertions(+), 9 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
-index 909ed22b3aeeb..3f59128b9f063 100644
+index be1a45a178fbd..f68fc9b955743 100644
 --- a/android_webview/browser/aw_field_trials.cc
 +++ b/android_webview/browser/aw_field_trials.cc
-@@ -100,10 +100,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+@@ -124,10 +124,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
    // Disable launch_handler on WebView.
    aw_feature_overrides.DisableFeature(blink::features::kWebAppLaunchQueue);
  
@@ -25,10 +25,10 @@ index 909ed22b3aeeb..3f59128b9f063 100644
    aw_feature_overrides.DisableFeature(blink::features::kFencedFrames);
  
 diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
-index e5c36e46bbccd..2ef35156b47aa 100644
+index 4ebc99dc2c7c4..204da418d6656 100644
 --- a/android_webview/common/aw_features.cc
 +++ b/android_webview/common/aw_features.cc
-@@ -366,7 +366,7 @@ BASE_FEATURE(kWebViewReducedSeedRequestPeriod,
+@@ -371,7 +371,7 @@ BASE_FEATURE(kWebViewReducedSeedRequestPeriod,
  
  // This enables reducing webview user-agent android version and device model.
  BASE_FEATURE(kWebViewReduceUAAndroidVersionDeviceModel,
@@ -38,10 +38,10 @@ index e5c36e46bbccd..2ef35156b47aa 100644
  // When enabled, WebView support for Instant Apps is removed.
  BASE_FEATURE(kWebViewRemoveInstantAppSupport,
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index f7c2134c78b20..abcc40b4aa5d9 100644
+index 2e4cce78fa5d1..d6c153acb8ac7 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -1148,10 +1148,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -1233,10 +1233,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
                              ? targetSdkVersion < Build.VERSION_CODES.TIRAMISU
                              : !CompatChanges.isChangeEnabled(
                                      WebSettings.ENABLE_SIMPLIFIED_DARK_MODE);

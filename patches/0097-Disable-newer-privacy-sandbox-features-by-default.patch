@@ -4,14 +4,28 @@ Date: Mon, 25 Sep 2023 09:26:57 +0000
 Subject: [PATCH] Disable newer privacy sandbox features by default
 
 ---
- services/network/public/cpp/features.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ components/attribution_reporting/features.cc  |  2 +-
+ services/network/public/cpp/features.cc       |  2 +-
+ .../runtime_enabled_features.override.json5   | 44 +++++++++++++++++++
+ 3 files changed, 46 insertions(+), 2 deletions(-)
 
+diff --git a/components/attribution_reporting/features.cc b/components/attribution_reporting/features.cc
+index b199e7682ad33..7eda43f1027d0 100644
+--- a/components/attribution_reporting/features.cc
++++ b/components/attribution_reporting/features.cc
+@@ -9,6 +9,6 @@
+ namespace attribution_reporting::features {
+ 
+ // Controls whether the Conversion Measurement API infrastructure is enabled.
+-BASE_FEATURE(kConversionMeasurement, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kConversionMeasurement, base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ }  // namespace attribution_reporting::features
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index 88bc309a39649..ad50c0501400c 100644
+index e1717709247a8..5fef52c96b777 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -426,7 +426,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect, base::FEATURE_ENABLED_BY_DEFAULT);
+@@ -429,7 +429,7 @@ BASE_FEATURE(kAvoidCorsURLLoaderRestartOnRedirect,
  
  // https://github.com/patcg-individual-drafts/topics
  // Kill switch for the Topics API.
@@ -20,3 +34,58 @@ index 88bc309a39649..ad50c0501400c 100644
  
  
  BASE_FEATURE(kIncreaseCookieAccessCacheSize, base::FEATURE_ENABLED_BY_DEFAULT);
+diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.override.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.override.json5
+index 43cfe5a54118d..ea3539a799296 100644
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.override.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.override.json5
+@@ -46,5 +46,49 @@
+ 
+   data: [
+     // Entries go here.
++    {
++      name: "TopicsAPI",
++      base_feature: "none",
++      public: true,
++      status: "test",
++    },
++    {
++      name: "Fledge",
++      status: "test",
++      public: true,
++    },
++    {
++      // Interest Group JS API/runtimeflag.
++      name: "AdInterestGroupAPI",
++      status: "test",
++      origin_trial_feature_name: "AdInterestGroupAPI",
++      implied_by: ["Fledge", "Parakeet"],
++      public: true,
++    },
++    {
++      // Enables using a 'deprecatedRenderURLReplacements' field within the
++      // Protected Audience ad auction config.
++      name: "FledgeDeprecatedRenderURLReplacements",
++      public: true,
++      status: "test",
++    },
++    {
++      // Enables real time reporting API in Protected Audience.
++      // https://github.com/WICG/turtledove/blob/main/PA_real_time_monitoring.md
++      name: "FledgeRealTimeReporting",
++      public: true,
++      status: "test",
++    },
++    {
++      name: "AttributionReporting",
++      status: "test",
++      base_feature: "none",
++      public: true,
++    },
++    {
++      name: "InterestGroupsInSharedStorageWorklet",
++      public: true,
++      status: "test",
++    },
+   ]
+ }
+\ No newline at end of file

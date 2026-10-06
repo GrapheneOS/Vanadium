@@ -8,10 +8,10 @@ Subject: [PATCH] fixup! make cross-origin referrer behavior configurable
  1 file changed, 49 insertions(+), 22 deletions(-)
 
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
-index 2b19bbba22365..a0a9774c7899f 100644
+index f20f63dbb8fc8..868b0cfccdfa8 100644
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
-@@ -381,6 +381,44 @@ std::string ComputeUserAgentValue(const std::string& user_agent_override) {
+@@ -384,6 +384,44 @@ std::string ComputeUserAgentValue(const std::string& user_agent_override) {
    return GetContentClient()->browser()->GetUserAgent();
  }
  
@@ -56,7 +56,7 @@ index 2b19bbba22365..a0a9774c7899f 100644
  void AddAdditionalRequestHeaders(
      net::HttpRequestHeaders* headers,
      const GURL& url,
-@@ -420,28 +458,8 @@ void AddAdditionalRequestHeaders(
+@@ -423,28 +461,8 @@ void AddAdditionalRequestHeaders(
          blink::mojom::Referrer(GURL(), network::mojom::ReferrerPolicy::kNever);
    }
  
@@ -87,7 +87,7 @@ index 2b19bbba22365..a0a9774c7899f 100644
  
    // Next, set the HTTP Origin if needed.
    std::optional<std::string> existing_origin =
-@@ -4013,6 +4031,9 @@ void NavigationRequest::OnRequestRedirected(
+@@ -4014,6 +4032,9 @@ void NavigationRequest::OnRequestRedirected(
    common_params_->referrer->url = GURL(redirect_info.new_referrer);
    common_params_->referrer = Referrer::SanitizeForRequest(
        common_params_->url, *common_params_->referrer);
@@ -97,7 +97,7 @@ index 2b19bbba22365..a0a9774c7899f 100644
  
    // On redirects, the initial referrer is no longer correct, so it must
    // be updated.  (A parallel process updates the outgoing referrer in the
-@@ -9555,6 +9576,9 @@ void NavigationRequest::UpdateStateFollowingRedirect(
+@@ -9591,6 +9612,9 @@ void NavigationRequest::UpdateStateFollowingRedirect(
    }
  
    common_params_->referrer = sanitized_referrer_.Clone();
@@ -107,7 +107,7 @@ index 2b19bbba22365..a0a9774c7899f 100644
  
    was_redirected_ = true;
    redirect_chain_.push_back(common_params_->url);
-@@ -10582,6 +10606,9 @@ void NavigationRequest::SetReferrer(blink::mojom::ReferrerPtr referrer) {
+@@ -10619,6 +10643,9 @@ void NavigationRequest::SetReferrer(blink::mojom::ReferrerPtr referrer) {
    sanitized_referrer_ =
        Referrer::SanitizeForRequest(common_params_->url, *referrer);
    common_params_->referrer = sanitized_referrer_.Clone();

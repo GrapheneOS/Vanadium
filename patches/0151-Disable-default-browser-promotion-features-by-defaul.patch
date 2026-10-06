@@ -9,10 +9,10 @@ Subject: [PATCH] Disable default browser promotion features by default
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-index 782ae491a559b..914c163bacc70 100644
+index 182202ef0fc5d..22c553316f319 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -465,6 +465,7 @@ public class MainSettings extends ChromeBaseSettingsFragment
+@@ -463,6 +463,7 @@ public class MainSettings extends ChromeBaseSettingsFragment
          org.chromium.base.settings.SettingsExtUtils.safelyRemovePreference(this, PREF_SAFETY_HUB);
          org.chromium.base.settings.SettingsExtUtils.safelyRemovePreference(this, PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION);
          org.chromium.base.settings.SettingsExtUtils.safelyRemovePreference(this, PREF_GOOGLE_SERVICES);
@@ -21,10 +21,10 @@ index 782ae491a559b..914c163bacc70 100644
  
      private static boolean shouldShowSafetyHubPref() {
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
-index fc0501e7aa285..8a7048a459225 100644
+index d3effc88a27f2..b1f8cca4504a0 100644
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -777,8 +777,8 @@ BASE_FEATURE(kCrossDeviceTabPaneAndroid, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -794,8 +794,8 @@ BASE_FEATURE(kCrossDeviceTabPaneAndroid, base::FEATURE_DISABLED_BY_DEFAULT);
  BASE_FEATURE(kCrossDeviceTaskHandoff, base::FEATURE_ENABLED_BY_DEFAULT);
  BASE_FEATURE(kCrossWindowTabGroupOperations, base::FEATURE_ENABLED_BY_DEFAULT);
  BASE_FEATURE(kDebugToolbarPositioning, base::FEATURE_DISABLED_BY_DEFAULT);

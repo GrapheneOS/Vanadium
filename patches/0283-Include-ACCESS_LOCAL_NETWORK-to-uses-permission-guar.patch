@@ -11,10 +11,10 @@ Subject: [PATCH] Include ACCESS_LOCAL_NETWORK to uses-permission guarded by
  3 files changed, 10 insertions(+)
 
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 42453781d7052..aba0e17952c32 100644
+index 72aea5b9f5396..fb3ca96aebe96 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -244,6 +244,10 @@ template("chrome_common_apk_or_module_tmpl") {
+@@ -248,6 +248,10 @@ template("chrome_common_apk_or_module_tmpl") {
      if (defined(invoker.jinja_extra_includes)) {
        includes += invoker.jinja_extra_includes
      }
@@ -23,13 +23,13 @@ index 42453781d7052..aba0e17952c32 100644
 +      "declare_access_local_network_permission=$declare_access_local_network_permission"
 +    ]
    }
+ 
    target(_target_type, target_name) {
-     android_manifest = _android_manifest
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 9125002be4876..a9a060d0e8dd0 100644
+index c461e1daa8d1d..f0e48b2c5af09 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -132,6 +132,11 @@ by a child template that "extends" this file.
+@@ -133,6 +133,11 @@ by a child template that "extends" this file.
      {% if target_sdk_version >= 37 %}
      <!-- Needed for checking local network connections on Android 17+. -->
      <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK"/>
