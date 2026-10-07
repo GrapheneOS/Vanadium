@@ -9,12 +9,69 @@ removes UserActionableError::{kNeedsSettingsConfirmation,kUnrecoverableError}.
 This is used on built-in login database backend which is still enabled
 downstream.
 ---
- components/sync/service/BUILD.gn               | 4 ++++
- components/sync/service/DEPS                   | 3 +++
- components/sync/service/sync_internals_util.cc | 8 ++++++--
- components/sync/service/sync_service.h         | 8 ++++++--
- 4 files changed, 19 insertions(+), 4 deletions(-)
+ components/send_tab_to_self/BUILD.gn                      | 4 ++++
+ components/send_tab_to_self/DEPS                          | 5 +++++
+ components/send_tab_to_self/entry_point_display_reason.cc | 8 ++++++--
+ components/sync/service/BUILD.gn                          | 4 ++++
+ components/sync/service/DEPS                              | 3 +++
+ components/sync/service/sync_internals_util.cc            | 8 ++++++--
+ components/sync/service/sync_service.h                    | 8 ++++++--
+ 7 files changed, 34 insertions(+), 6 deletions(-)
 
+diff --git a/components/send_tab_to_self/BUILD.gn b/components/send_tab_to_self/BUILD.gn
+index 7aaffda6dc6f3..fbba8399403cb 100644
+--- a/components/send_tab_to_self/BUILD.gn
++++ b/components/send_tab_to_self/BUILD.gn
+@@ -151,4 +151,8 @@ source_set("unit_tests") {
+     "//testing/gtest",
+     "//url",
+   ]
++
++  deps += [
++    "//components/password_manager/core/browser:password_manager_buildflags",
++  ]
+ }
+diff --git a/components/send_tab_to_self/DEPS b/components/send_tab_to_self/DEPS
+index c9557b4482f64..279e73a087c3e 100644
+--- a/components/send_tab_to_self/DEPS
++++ b/components/send_tab_to_self/DEPS
+@@ -19,3 +19,8 @@ include_rules = [
+   "+google_apis",
+   "+ui/base",
+ ]
++specific_include_rules = {
++  "entry_point_display_reason\\.cc": [
++    "+components/password_manager/core/browser/password_manager_buildflags.h",
++  ],
++}
+diff --git a/components/send_tab_to_self/entry_point_display_reason.cc b/components/send_tab_to_self/entry_point_display_reason.cc
+index 217810de78514..f0fcab313970e 100644
+--- a/components/send_tab_to_self/entry_point_display_reason.cc
++++ b/components/send_tab_to_self/entry_point_display_reason.cc
+@@ -16,6 +16,8 @@
+ #include "components/sync/service/sync_service.h"
+ #include "url/gurl.h"
+ 
++#include "components/password_manager/core/browser/password_manager_buildflags.h"
++
+ namespace send_tab_to_self {
+ 
+ namespace {
+@@ -78,10 +80,12 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
+     case syncer::SyncService::UserActionableError::
+         kNeedsTrustedVaultKeyForEverything:
+     case syncer::SyncService::UserActionableError::kNeedsClientUpgrade:
+-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case syncer::SyncService::UserActionableError::kNeedsSettingsConfirmation:
+     case syncer::SyncService::UserActionableError::kUnrecoverableError:
+-#endif
++#endif // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif // !BUILDFLAG(IS_IOS)
+ #if BUILDFLAG(IS_IOS)
+     case syncer::SyncService::UserActionableError::kDeviceManagementError:
+ #endif
 diff --git a/components/sync/service/BUILD.gn b/components/sync/service/BUILD.gn
 index 60d8dc0f7d68a..42ff46fe62ded 100644
 --- a/components/sync/service/BUILD.gn
@@ -74,7 +131,7 @@ index ab59b9b3bb3eb..6858e60c2e9c4 100644
      case SyncService::UserActionableError::kNeedsUPMBackendUpgrade:
        return "Needs UPM backend upgrade";
 diff --git a/components/sync/service/sync_service.h b/components/sync/service/sync_service.h
-index c2de3c4bf5ede..6cd77dc73b598 100644
+index 4b6a81215bfd9..122b1e25df2d1 100644
 --- a/components/sync/service/sync_service.h
 +++ b/components/sync/service/sync_service.h
 @@ -27,6 +27,8 @@

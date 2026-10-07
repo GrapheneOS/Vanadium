@@ -13,10 +13,10 @@ Subject: [PATCH] Earlier WebView config parsing and feature list init
  create mode 100644 vanadium/chromium_src/android_webview/glue/ext/java/src/com/android/webview/chromium/WebViewChromiumFactoryProviderHooks.java
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index abcc40b4aa5d9..c352cb28c8ea3 100644
+index d6c153acb8ac7..bfc94f89b6ac8 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -462,6 +462,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -521,6 +521,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
              // WebView needs to make sure to always use the wrapped application context.
              ctx = ClassLoaderContextWrapperFactory.get(ctx);
              ContextUtils.initApplicationContext(ctx);
@@ -24,8 +24,8 @@ index abcc40b4aa5d9..c352cb28c8ea3 100644
              CompatQuirks.setDelegate(WebViewChromiumFactoryProvider::isQuirkEnabled);
  
              // Ensuring we set this before we might read it in any future calls to ApkInfo.
-@@ -488,6 +489,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
-             mAwInit.setUpResourcesOnBackgroundThread(packageId, ctx);
+@@ -547,6 +548,7 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+             mStartupDelegate.setUpResourcesOnBackgroundThread(packageId, ctx);
  
              AndroidXProcessGlobalConfig.extractConfigFromApp(application.getClassLoader());
 +            WebViewChromiumFactoryProviderHooks.applyCommandLineChanges();
