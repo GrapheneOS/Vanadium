@@ -1,0 +1,436 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 15 Jul 2026 05:58:16 +0000
+Subject: [PATCH] [config] Add baseline components and flag configs for config
+ app
+
+---
+ .../config/host/ConfigGeneratorImpl.kt        | 415 ++++++++++++++++++
+ 1 file changed, 415 insertions(+)
+
+diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+index 24a3312d7b0e4..b204c47005723 100644
+--- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
++++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
+@@ -67,6 +67,421 @@ fun main(vararg args: String) {
+ private fun unsortedConfigs(): List<Config> {
+     val configs = ArrayList<Config>()
+ 
++    val subresourceFilteringAdditionalComponents = additionalComponents(
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_arabic"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "ar"
++                    },
++                )
++            )
++        },
++
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_bulgaria"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "bg"
++                    },
++                )
++            )
++        },
++
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_germany"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "de"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_spanish"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "es"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_french"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "fr"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_hebrew"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "he"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_indian"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "hi"
++                    },
++                    componentCondition {
++                        language = "bn"
++                    },
++                    componentCondition {
++                        language = "gu"
++                    },
++                    componentCondition {
++                        language = "pa"
++                    },
++                    componentCondition {
++                        language = "as"
++                    },
++                    componentCondition {
++                        language = "mr"
++                    },
++                    componentCondition {
++                        language = "ta"
++                    },
++                    componentCondition {
++                        language = "ml"
++                    },
++                    componentCondition {
++                        language = "te"
++                    },
++                    componentCondition {
++                        language = "kn"
++                    },
++                    componentCondition {
++                        language = "ne"
++                    },
++                    componentCondition {
++                        language = "si"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_indonesia"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "id"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_italy"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "it"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_korean"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "ko"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_lithuanian"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "lt"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_latvian"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "lv"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_dutch"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "nl"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_nordic"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "no"
++                    },
++                    componentCondition {
++                        language = "nn"
++                    },
++                    componentCondition {
++                        language = "kl"
++                    },
++                    componentCondition {
++                        language = "da"
++                    },
++                    componentCondition {
++                        language = "fi"
++                    },
++                    componentCondition {
++                        language = "is"
++                    },
++                    componentCondition {
++                        language = "sv"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_polish"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "pl"
++                    }
++                ))
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_portuguese"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "pt"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_romanian"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "ro"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_russian"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "ru"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_vietnam"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "vi"
++                    },
++                )
++            )
++        },
++        additionalComponent {
++            componentFileName = "unindexed_ruleset_china"
++            addAllConditions(
++                componentConditions(
++                    componentCondition {
++                        language = "zh"
++                    },
++                )
++            )
++        },
++    )
++
++    val subresourceFilteringComponents = components(
++        component {
++            componentType = ComponentType.SUBRESOURCE_FILTER_TOOLS
++            componentFileName = "unindexed_ruleset"
++            addAllAdditionalComponents(subresourceFilteringAdditionalComponents)
++        },
++    )
++
++    configs += config {
++        spec = spec {
++            specTypes(SpecType.BROWSER)
++        }
++        addAllComponents(subresourceFilteringComponents)
++    }
++
++    configs += config {
++        spec = spec {
++            specTypes(SpecType.BROWSER)
++        }
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = "disable-domain-reliability"
++                    flagType = FlagType.ENABLED_SWITCH
++                },
++            )
++        )
++    }
++
++    configs += config {
++        spec = spec {
++            specTypesWithVersionBounds(
++                specTypesList = listOf(SpecType.BROWSER, SpecType.WEBVIEW),
++                minVanadiumVersion = VanadiumVersion(major = 7778, minor = 178)
++            )
++        }
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = CheckOsConfigsFeatures.ISOLATED_PROCESS_V1
++                    flagType = FlagType.DISABLED_FEATURE
++                },
++            )
++        )
++    }
++
++    configs += config {
++        spec = spec {
++            specTypesWithVersionBounds(
++                specTypesList = listOf(SpecType.BROWSER, SpecType.WEBVIEW),
++                minVanadiumVersion = VanadiumVersion(major = 7778, minor = 178)
++            )
++        }
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = CheckOsConfigsFeatures.ISOLATED_PROCESS_V2
++                    flagType = FlagType.ENABLED_FEATURE
++                },
++            )
++        )
++    }
++
++    configs += config {
++        spec = spec {
++            specTypesWithVersionBounds(
++                specTypesList = listOf(SpecType.BROWSER, SpecType.WEBVIEW),
++                minVanadiumVersion = VanadiumVersion(major = 7827, minor = 28)
++            )
++        }
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = "IsolateSandboxedIframes:grouping/per-document"
++                    flagType = FlagType.ENABLED_FEATURE
++                },
++            )
++        )
++    }
++
++    configs += config {
++        spec = spec {
++            specTypes(SpecType.BROWSER, SpecType.WEBVIEW)
++        }
++        addAllFlags(
++            flags(
++                flag {
++                    flagName = "javaless-renderers"
++                    addAllFlagValue(listOf("disable"))
++                    flagType = FlagType.ENABLED_SWITCH
++                },
++            )
++        )
++    }
++
++    val enabledJavalessRendererFlags = flags(
++        flag {
++            flagName = "javaless-renderers"
++            addAllFlagValue(listOf("disable"))
++            flagType = FlagType.DISABLED_SWITCH
++        },
++        flag {
++            flagName = "javaless-renderers"
++            addAllFlagValue(listOf("enable"))
++            flagType = FlagType.ENABLED_SWITCH
++        },
++    )
++
++    val devicesWithLegacyBrowserPkgName: List<String> = listOf(
++        "cheetah",
++        "panther",
++        "bluejay",
++        "raven",
++        "oriole",
++    )
++
++    configs += config {
++        setSpec(spec {
++            specTypesWithVersionBounds(
++                specTypesList = listOf(SpecType.BROWSER),
++                minVanadiumVersion = VanadiumVersion(major = 7922, minor = 49)
++            )
++            addAllSysFeatureConditions(
++                sysFeatureConditions(
++                    sysFeatureCondition {
++                        setGosVersionBounds(
++                            minGosVersion = GrapheneOsVersion(year = 2026, month = 7, day = 29)
++                        )
++                    },
++                )
++            )
++            deviceSupportCondition = deviceSupportCondition {
++                addAllAllowedDevices(devicesWithLegacyBrowserPkgName)
++            }
++        })
++        addAllFlags(enabledJavalessRendererFlags)
++    }
++
++    configs += config {
++        setSpec(spec {
++            specTypesWithVersionBounds(
++                specTypesList = listOf(SpecType.BROWSER),
++                minVanadiumVersion = VanadiumVersion(major = 7922, minor = 49)
++            )
++            addAllSysFeatureConditions(
++                sysFeatureConditions(
++                    sysFeatureCondition {
++                        setGosVersionBounds(
++                            minGosVersion = GrapheneOsVersion(year = 2026, month = 7, day = 11)
++                        )
++                    }
++                )
++            )
++            deviceSupportCondition = deviceSupportCondition {
++                addAllBlockedDevices(devicesWithLegacyBrowserPkgName)
++            }
++        })
++        addAllFlags(enabledJavalessRendererFlags)
++    }
++
+     return configs
+ }
+ 

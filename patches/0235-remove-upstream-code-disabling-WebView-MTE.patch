@@ -8,7 +8,7 @@ Subject: [PATCH] remove upstream code disabling WebView MTE
  1 file changed, 7 deletions(-)
 
 diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
-index 3f59128b9f063..671d39baed988 100644
+index f68fc9b955743..82ab1f57d1838 100644
 --- a/android_webview/browser/aw_field_trials.cc
 +++ b/android_webview/browser/aw_field_trials.cc
 @@ -7,7 +7,6 @@
@@ -18,8 +18,8 @@ index 3f59128b9f063..671d39baed988 100644
 -#include "base/allocator/partition_alloc_features.h"
  #include "base/base_paths_android.h"
  #include "base/check.h"
- #include "base/metrics/persistent_histogram_allocator.h"
-@@ -269,12 +268,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+ #include "base/metrics/field_trial_params.h"
+@@ -293,12 +292,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
    aw_feature_overrides.DisableFeature(
        blink::features::kNavigationPredictorNewViewportFeatures);
  

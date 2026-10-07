@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Mon, 5 Oct 2026 15:19:36 +0000
+Subject: [PATCH] fixup! Initialize configs from config app on library loading
+ init
+
+---
+ .../library_loader/LibraryLoaderExtHooks.java | 23 ++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
+index 0eba100e2f1ae..cb4370064f9ac 100644
+--- a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
++++ b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
+@@ -10,17 +10,34 @@ final class LibraryLoaderExtHooks {
+ 
+     static void onSetLibraryProcessType(
+             Context appContext, @LibraryProcessType int type) {
+-        VanadiumConfigsUtils.initConfigs(appContext, type);
+     }
+ 
+     static void onBeforeCommandLineSwitchLocked(
+             Context appContext, @LibraryProcessType int type) {
+-        VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++        switch (type) {
++            case LibraryProcessType.PROCESS_BROWSER, LibraryProcessType.PROCESS_WEBVIEW -> {
++                return;
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++            }
++        }
+     }
+ 
+     static void onSubsequentCommandLineSwitchLockedCheck(
+             Context appContext, @LibraryProcessType int type) {
+-        VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++        switch (type) {
++            case LibraryProcessType.PROCESS_BROWSER, LibraryProcessType.PROCESS_WEBVIEW -> {
++                return;
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++            }
++        }
+     }
+ 
+     private LibraryLoaderExtHooks() {
