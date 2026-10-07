@@ -5,19 +5,19 @@ Subject: [PATCH] Disable opening PDF in the app by default
 
 ---
  .../customtabs/CustomTabAppMenuPropertiesDelegate.java    | 6 ++++--
- .../CustomTabAppMenuPropertiesDelegateUnitTest.java       | 5 +++++
+ .../CustomTabAppMenuPropertiesDelegateUnitTest.java       | 4 ++++
  .../src/org/chromium/chrome/browser/pdf/PdfUtils.java     | 4 ++++
  .../browser/ui/android/pdf/pdf_utils_java_ext_deps.gni    | 1 +
  .../chromium_src/content/public/ext/android/features.cc   | 4 ++++
  .../chromium_src/content/public/ext/android/features.h    | 1 +
  .../chromium/content_public/ContentExtFeatureList.java    | 8 ++++++++
- 7 files changed, 27 insertions(+), 2 deletions(-)
+ 7 files changed, 26 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
-index f197a742d54ac..8b35db22b9ddd 100644
+index 2a1eaf25f5d05..e7a33315cbaa6 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
-@@ -250,8 +250,10 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
+@@ -252,8 +252,10 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
          boolean isContentScheme = url.getScheme().equals(UrlConstants.CONTENT_SCHEME);
          // TODO(crbug.com/384992232): Hide open in Chrome for blob and data url until such view
          //  intent can be handled.
@@ -31,18 +31,10 @@ index f197a742d54ac..8b35db22b9ddd 100644
          }
          addToHomeScreenVisible &=
 diff --git a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
-index 80d1d09810013..f8cdff6ace20f 100644
+index 73aa5ae7f011f..89e93ae4a45d7 100644
 --- a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
 +++ b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
-@@ -35,6 +35,7 @@ import org.chromium.base.supplier.ObservableSuppliers;
- import org.chromium.base.supplier.SettableMonotonicObservableSupplier;
- import org.chromium.base.supplier.SupplierUtils;
- import org.chromium.base.test.BaseRobolectricTestRunner;
-+import org.chromium.base.test.util.Features.DisableFeatures;
- import org.chromium.base.test.util.Features.EnableFeatures;
- import org.chromium.chrome.R;
- import org.chromium.chrome.browser.ActivityTabProvider;
-@@ -66,6 +67,7 @@ import org.chromium.components.commerce.core.CommerceFeatureUtilsJni;
+@@ -77,6 +77,7 @@ import org.chromium.components.commerce.core.CommerceFeatureUtilsJni;
  import org.chromium.components.commerce.core.ShoppingService;
  import org.chromium.components.power_bookmarks.PowerBookmarkMeta;
  import org.chromium.components.power_bookmarks.ShoppingSpecifics;
@@ -50,7 +42,7 @@ index 80d1d09810013..f8cdff6ace20f 100644
  import org.chromium.content_public.browser.NavigationController;
  import org.chromium.content_public.browser.WebContents;
  import org.chromium.ui.modelutil.MVCListAdapter;
-@@ -75,6 +77,9 @@ import java.util.ArrayList;
+@@ -86,6 +87,9 @@ import java.util.ArrayList;
  
  /** Unit tests for {@link CustomTabAppMenuPropertiesDelegate}. */
  @RunWith(BaseRobolectricTestRunner.class)
@@ -61,10 +53,10 @@ index 80d1d09810013..f8cdff6ace20f 100644
      @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
      @Mock private Tab mTab;
 diff --git a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
-index 13e38ec7a3a3f..6ab093a97e44d 100644
+index fd00a4cdfcdce..95da85ee395af 100644
 --- a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
 +++ b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
-@@ -226,6 +226,10 @@ public class PdfUtils {
+@@ -234,6 +234,10 @@ public class PdfUtils {
      }
  
      private static boolean isPlatformSupported() {

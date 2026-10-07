@@ -1,0 +1,82 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 24 Jul 2026 15:16:59 +0000
+Subject: [PATCH] [upstream] Reapply "[WV] Separate notifyChromiumStarted from
+ drainQueue in WebViewChromiumRunQueue"
+
+This reverts commit 3f4ae2e9c6f8b1c64671a2c76e621ab3ba2ab7d2.
+---
+ .../chromium/android_webview/StartupController.java   |  9 ++++++++-
+ .../android_webview/WebViewChromiumRunQueue.java      | 11 ++++++++---
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/android_webview/java/src/org/chromium/android_webview/StartupController.java b/android_webview/java/src/org/chromium/android_webview/StartupController.java
+index 13f2d6434d76b..536633902e15a 100644
+--- a/android_webview/java/src/org/chromium/android_webview/StartupController.java
++++ b/android_webview/java/src/org/chromium/android_webview/StartupController.java
+@@ -57,6 +57,10 @@ public class StartupController {
+ 
+         /** Callback when startup diagnostics and timings are ready. */
+         void onStartupDiagnosticsReady(StartupDiagnostics diagnostics);
++
++        /** Notifies Chromium has started in glue layer */
++        default void notifyChromiumStarted() {
++        }
+     }
+ 
+     private static final int INIT_NOT_STARTED = 0;
+@@ -306,6 +310,7 @@ public class StartupController {
+                                 mStartupDiagnostics.setStartupTimings(timings);
+                                 mStartupCallbackQueue.notifyChromiumStarted();
+                                 mDelegate.onStartupDiagnosticsReady(mStartupDiagnostics);
++                                mStartupCallbackQueue.drainQueue();
+                             }
+ 
+                             @Override
+@@ -353,11 +358,13 @@ public class StartupController {
+     private void finishStartup() {
+         ThreadUtils.assertOnUiThread();
+ 
++        mRunQueue.notifyChromiumStarted();
++
+         mInitState.set(INIT_FINISHED);
+         mStartupFinished.countDown();
+ 
+         mDelegate.onStartupComplete();
+-        mRunQueue.notifyChromiumStarted();
++        mRunQueue.drainQueue();
+ 
+         PostTask.disablePreNativeUiTasks(false);
+         AwBrowserProcess.onStartupComplete();
+diff --git a/android_webview/java/src/org/chromium/android_webview/WebViewChromiumRunQueue.java b/android_webview/java/src/org/chromium/android_webview/WebViewChromiumRunQueue.java
+index d8710d77eded3..dd883bd91127b 100644
+--- a/android_webview/java/src/org/chromium/android_webview/WebViewChromiumRunQueue.java
++++ b/android_webview/java/src/org/chromium/android_webview/WebViewChromiumRunQueue.java
+@@ -39,11 +39,16 @@ public class WebViewChromiumRunQueue {
+     }
+ 
+     /**
+-     * Mark that Chromium has started and drain the queue, i.e. perform all the tasks in the queue.
++     * Mark that Chromium has started. This does not drain the queue, which must be done separately.
+      */
+     public void notifyChromiumStarted() {
+         mChromiumStarted = true;
+-        drainQueue();
++    }
++
++    /** Drain the queue, i.e. perform all the tasks in the queue. */
++    public void drainQueue() {
++        ThreadUtils.checkUiThread();
++        drainQueueInternal();
+     }
+ 
+     public <T> T runBlockingFuture(FutureTask<T> task) {
+@@ -76,7 +81,7 @@ public class WebViewChromiumRunQueue {
+         return runBlockingFuture(new FutureTask<T>(c));
+     }
+ 
+-    private void drainQueue() {
++    private void drainQueueInternal() {
+         Runnable task = mQueue.poll();
+         while (task != null) {
+             task.run();

@@ -8,10 +8,10 @@ Subject: [PATCH] Fix building tests with enable_reporting=false in build args
  1 file changed, 2 insertions(+)
 
 diff --git a/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc b/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc
-index 9cd0fff9d8577..44f543aaa1ccb 100644
+index c357db4daf599..4e1cde7afa19d 100644
 --- a/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc
 +++ b/chrome/browser/browsing_data/chrome_browsing_data_remover_delegate_unittest.cc
-@@ -848,6 +848,7 @@ class RemoveDownloadsTester {
+@@ -849,6 +849,7 @@ class RemoveDownloadsTester {
    raw_ptr<ChromeDownloadManagerDelegate> chrome_download_manager_delegate_;
  };
  
@@ -19,7 +19,7 @@ index 9cd0fff9d8577..44f543aaa1ccb 100644
  base::RepeatingCallback<bool(const GURL&)> CreateUrlFilterFromOriginFilter(
      const base::RepeatingCallback<bool(const url::Origin&)>& origin_filter) {
    if (origin_filter.is_null()) {
-@@ -857,6 +858,7 @@ base::RepeatingCallback<bool(const GURL&)> CreateUrlFilterFromOriginFilter(
+@@ -858,6 +859,7 @@ base::RepeatingCallback<bool(const GURL&)> CreateUrlFilterFromOriginFilter(
      return origin_filter.Run(url::Origin::Create(url));
    });
  }

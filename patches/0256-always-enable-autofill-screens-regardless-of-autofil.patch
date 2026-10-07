@@ -5,7 +5,7 @@ Subject: [PATCH] always enable autofill screens regardless of autofill
  settings
 
 ---
- .../AutofillPaymentMethodsFragment.java       |  4 ++-
+ .../autofill/AutofillClientProviderUtils.java |  5 +++
  .../options/AutofillOptionsCoordinator.java   | 36 ++++++++++++-------
  .../RadioButtonGroupThirdPartyPreference.java | 13 +++++++
  .../strings/android_chrome_strings.grd        |  6 ++++
@@ -20,27 +20,28 @@ Subject: [PATCH] always enable autofill screens regardless of autofill
  .../browser/flags/ext/android/features.cc     |  8 +++++
  .../browser/flags/ext/android/features.h      |  2 ++
  .../browser/flags/ChromeExtFeatureList.java   |  7 ++++
- 15 files changed, 76 insertions(+), 17 deletions(-)
+ 15 files changed, 78 insertions(+), 16 deletions(-)
  create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
  create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
  create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
  create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
-index 496547c613acc..c42732ce3955e 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
-@@ -838,7 +838,9 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
-     private static boolean disabledSettingsInThirdPartyMode(Profile profile) {
-         return (AutofillClientProviderUtils.getAndroidAutofillFrameworkAvailability(
-                                 UserPrefs.get(profile))
--                        == AndroidAutofillAvailabilityStatus.AVAILABLE);
-+                        == AndroidAutofillAvailabilityStatus.AVAILABLE)
-+                && org.chromium.chrome.browser.flags.ChromeExtFeatureList
-+                        .sThirdPartyDisableChromeAutofillSettingsScreen.isEnabled();
+diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
+index 699717664cafc..7fa6949f7345e 100644
+--- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
++++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
+@@ -67,6 +67,11 @@ public class AutofillClientProviderUtils {
+      * @return true if platform Autofill is enabled for the profile.
+      */
+     public static boolean isPlatformAutofillEnabledForProfile(Profile profile) {
++        if (!org.chromium.chrome.browser.flags.ChromeExtFeatureList
++                .sThirdPartyDisableChromeAutofillSettingsScreen.isEnabled()) {
++            return false;
++        }
++
+         return getAndroidAutofillFrameworkAvailability(UserPrefs.get(profile))
+                 == AndroidAutofillAvailabilityStatus.AVAILABLE;
      }
- 
-     static boolean shouldShowManagePix(PersonalDataManager manager, Profile profile) {
 diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/settings/options/AutofillOptionsCoordinator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/settings/options/AutofillOptionsCoordinator.java
 index a783cd99d82ad..9b7e0c17198f6 100644
 --- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/settings/options/AutofillOptionsCoordinator.java
@@ -113,10 +114,10 @@ index feeb355a88b76..14af219f12aca 100644
  
      /**
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 1d6451f4172ad..ef83a0c7833d3 100644
+index 33af158aa60f7..8529e5e9301f3 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -765,9 +765,15 @@ For more settings that use data to improve your Vanadium experience, go to <ph n
+@@ -771,9 +771,15 @@ For more settings that use data to improve your Vanadium experience, go to <ph n
        <message name="IDS_AUTOFILL_OPTIONS_CONFIRM_RESTART" desc="Description below switch toggling the use of third-party autofill in Vanadium." formatter_data="android_java">
          Restart Vanadium
        </message>
@@ -149,7 +150,7 @@ index 0000000000000..7ad19dc30474d
 +0397c7f77964cacbe565a8765976018a14a2e62a
 \ No newline at end of file
 diff --git a/components/autofill_strings.grdp b/components/autofill_strings.grdp
-index 6ccd88cc5df39..a6a233ab3633d 100644
+index efa34fcff043e..51d0d585ac0af 100644
 --- a/components/autofill_strings.grdp
 +++ b/components/autofill_strings.grdp
 @@ -482,9 +482,15 @@
