@@ -5,7 +5,10 @@ Subject: [PATCH] always enable autofill screens regardless of autofill
  settings
 
 ---
- .../autofill/AutofillClientProviderUtils.java |  5 +++
+ .../autofill/settings/AutofillAiDelegate.java | 12 +++----
+ .../AutofillPaymentMethodsFragment.java       | 26 +++++++-------
+ .../settings/AutofillProfilesFragment.java    | 10 +++---
+ .../autofill/AutofillClientProviderUtils.java |  9 +++++
  .../options/AutofillOptionsCoordinator.java   | 36 ++++++++++++-------
  .../RadioButtonGroupThirdPartyPreference.java | 13 +++++++
  .../strings/android_chrome_strings.grd        |  6 ++++
@@ -20,28 +23,252 @@ Subject: [PATCH] always enable autofill screens regardless of autofill
  .../browser/flags/ext/android/features.cc     |  8 +++++
  .../browser/flags/ext/android/features.h      |  2 ++
  .../browser/flags/ChromeExtFeatureList.java   |  7 ++++
- 15 files changed, 78 insertions(+), 16 deletions(-)
+ 18 files changed, 106 insertions(+), 40 deletions(-)
  create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TEXT.png.sha1
  create mode 100644 chrome/browser/ui/android/strings/android_chrome_strings_grd/IDS_AUTOFILL_OPTIONS_RESTART_PROMPT_TITLE.png.sha1
  create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION_NEW.png.sha1
  create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java
+index e057fcfc95d9a..b346a926f0235 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java
+@@ -4,7 +4,7 @@
+ 
+ package org.chromium.chrome.browser.autofill.settings;
+ 
+-import static org.chromium.chrome.browser.autofill.AutofillClientProviderUtils.isPlatformAutofillEnabledForProfile;
++import static org.chromium.chrome.browser.autofill.AutofillClientProviderUtils.isSettingsScreenDisabled;
+ 
+ import android.app.Activity;
+ import android.content.Context;
+@@ -343,7 +343,7 @@ public class AutofillAiDelegate {
+ 
+     private static boolean shouldShowWalletDataSharingDataCard(Profile profile) {
+         EntityDataManager entityDataManager = EntityDataManagerFactory.getForProfile(profile);
+-        return !isPlatformAutofillEnabledForProfile(profile)
++        return !isSettingsScreenDisabled(profile)
+                 && entityDataManager != null
+                 && !entityDataManager.isWalletPublicPassStorageEnabled()
+                 && ChromeFeatureList.isEnabled(
+@@ -394,7 +394,7 @@ public class AutofillAiDelegate {
+     /** Adds an information card if Chrome settings are disabled in third-party mode. */
+     void maybeAddDisabledSettingsInfoCard(
+             PreferenceScreen screen, @AutofillOptionsReferrer int referrer) {
+-        if (isPlatformAutofillEnabledForProfile(mFragment.getProfile())) {
++        if (isSettingsScreenDisabled(mFragment.getProfile())) {
+             addDisabledSettingsInfoCard(screen, referrer);
+         }
+     }
+@@ -436,7 +436,7 @@ public class AutofillAiDelegate {
+     /** Adds an information card to the search index if Chrome settings are disabled. */
+     static void maybeAddDisabledSettingsInfoCard(
+             SettingsIndexData indexData, Profile profile, String prefFragmentName) {
+-        if (isPlatformAutofillEnabledForProfile(profile)) {
++        if (isSettingsScreenDisabled(profile)) {
+             if (indexData.getEntryForKey(prefFragmentName, DISABLED_SETTINGS_INFO) == null) {
+                 addDisabledSettingsInfoCard(indexData, prefFragmentName);
+             }
+@@ -613,7 +613,7 @@ public class AutofillAiDelegate {
+ 
+     private boolean isAddButtonEnabled(EntityDataManager entityDataManager, EntityType entityType) {
+         return isEligibleToAddEntities(entityDataManager, entityType.getTypeName())
+-                && !isPlatformAutofillEnabledForProfile(mFragment.getProfile());
++                && !isSettingsScreenDisabled(mFragment.getProfile());
+     }
+ 
+     private boolean isEligibleToAddEntities(
+@@ -642,7 +642,7 @@ public class AutofillAiDelegate {
+         EntityDataManager entityDataManager =
+                 EntityDataManagerFactory.getForProfile(mFragment.getProfile());
+         if (entityDataManager == null
+-                || isPlatformAutofillEnabledForProfile(mFragment.getProfile())) {
++                || isSettingsScreenDisabled(mFragment.getProfile())) {
+             return AutofillAiToggleState.DISABLED;
+         }
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
+index 94711c5ef4d07..3126b6fc7f24f 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
+@@ -6,7 +6,7 @@ package org.chromium.chrome.browser.autofill.settings;
+ 
+ import static org.chromium.build.NullUtil.assertNonNull;
+ import static org.chromium.build.NullUtil.assumeNonNull;
+-import static org.chromium.chrome.browser.autofill.AutofillClientProviderUtils.isPlatformAutofillEnabledForProfile;
++import static org.chromium.chrome.browser.autofill.AutofillClientProviderUtils.isSettingsScreenDisabled;
+ 
+ import android.content.Context;
+ import android.graphics.PorterDuff;
+@@ -167,7 +167,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+         getPreferenceScreen().removeAll();
+         getPreferenceScreen().setOrderingAsAdded(true);
+ 
+-        boolean disabledSettings = isPlatformAutofillEnabledForProfile(getProfile());
++        boolean disabledSettings = isSettingsScreenDisabled(getProfile());
+ 
+         if (disabledSettings) {
+             // Add the information string at the top.
+@@ -504,7 +504,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+                 personalDataManager.isAutofillPaymentMethodsEnabled()
+                         && (assumeNonNull(mReauthenticatorBridge).getBiometricAvailabilityStatus()
+                                 != BiometricStatus.UNAVAILABLE)
+-                        && !isPlatformAutofillEnabledForProfile(getProfile());
++                        && !isSettingsScreenDisabled(getProfile());
+         mandatoryReauthSwitch.setEnabled(enableReauthSwitch);
+         mandatoryReauthSwitch.setOnPreferenceChangeListener(this::onMandatoryReauthSwitchToggled);
+         getPreferenceScreen().addPreference(mandatoryReauthSwitch);
+@@ -520,7 +520,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+         // updated and is in sync with the mandatory reauth user pref.
+         mandatoryReauthSwitch.setChecked(
+                 personalDataManager.isPaymentMethodsMandatoryReauthEnabled()
+-                        && !isPlatformAutofillEnabledForProfile(getProfile()));
++                        && !isSettingsScreenDisabled(getProfile()));
+     }
+ 
+     private void createWalletReminderNoticePreference() {
+@@ -833,7 +833,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+         return ChromeFeatureList.isEnabled(
+                         ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM)
+                 && manager.getMaskedBankAccounts().length != 0
+-                && !isPlatformAutofillEnabledForProfile(profile);
++                && !isSettingsScreenDisabled(profile);
+     }
+ 
+     private static boolean shouldShowManageNonCardPayment(
+@@ -842,7 +842,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+         return ChromeFeatureList.isEnabled(
+                         ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM)
+                 && (hasEwallets || showA2aToggle)
+-                && !isPlatformAutofillEnabledForProfile(profile);
++                && !isSettingsScreenDisabled(profile);
+     }
+ 
+     static boolean shouldShowOtherFinanceAccounts(
+@@ -851,7 +851,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+         return !ChromeFeatureList.isEnabled(
+                         ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM)
+                 && (hasEwallets || hasPixAccounts)
+-                && !isPlatformAutofillEnabledForProfile(profile);
++                && !isSettingsScreenDisabled(profile);
+     }
+ 
+     private static boolean shouldShowMandatoryReauthSwitch() {
+@@ -862,31 +862,31 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+ 
+     private static boolean shouldShowCardBenefitsPref(
+             PersonalDataManager manager, Profile profile) {
+-        return !isPlatformAutofillEnabledForProfile(profile)
++        return !isSettingsScreenDisabled(profile)
+                 && manager.isAutofillPaymentMethodsEnabled();
+     }
+ 
+     static boolean shouldShowBnplPref(PersonalDataManager manager, Profile profile) {
+-        return !isPlatformAutofillEnabledForProfile(profile)
++        return !isSettingsScreenDisabled(profile)
+                 && manager.isAutofillPaymentMethodsEnabled()
+                 && manager.shouldShowBnplSettings();
+     }
+ 
+     private static boolean shouldShowAddFirstCardPref(
+             PersonalDataManager manager, Profile profile) {
+-        return !isPlatformAutofillEnabledForProfile(profile)
++        return !isSettingsScreenDisabled(profile)
+                 && manager.isAutofillPaymentMethodsEnabled()
+                 && manager.getCreditCardsForSettings().isEmpty();
+     }
+ 
+     private static boolean shouldShowAddCardPref(PersonalDataManager manager, Profile profile) {
+-        return !isPlatformAutofillEnabledForProfile(profile)
++        return !isSettingsScreenDisabled(profile)
+                 && manager.isAutofillPaymentMethodsEnabled()
+                 && !manager.getCreditCardsForSettings().isEmpty();
+     }
+ 
+     private static boolean shouldShowAddIbanPref(PersonalDataManager manager, Profile profile) {
+-        return !isPlatformAutofillEnabledForProfile(profile)
++        return !isSettingsScreenDisabled(profile)
+                 && manager.isAutofillPaymentMethodsEnabled()
+                 && manager.shouldShowAddIbanButtonOnSettingsPage();
+     }
+@@ -920,7 +920,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+                                     && ChromeFeatureList.isEnabled(
+                                             ChromeFeatureList
+                                                     .FACILITATED_PAYMENTS_ENABLE_A2A_PAYMENT);
+-                    if (isPlatformAutofillEnabledForProfile(profile)) {
++                    if (isSettingsScreenDisabled(profile)) {
+                         indexData.addEntryForKey(
+                                 frag,
+                                 DISABLED_SETTINGS_INFO,
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java
+index f65f9759ff543..2d3afe3d77261 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillProfilesFragment.java
+@@ -5,7 +5,7 @@
+ package org.chromium.chrome.browser.autofill.settings;
+ 
+ import static org.chromium.build.NullUtil.assumeNonNull;
+-import static org.chromium.chrome.browser.autofill.AutofillClientProviderUtils.isPlatformAutofillEnabledForProfile;
++import static org.chromium.chrome.browser.autofill.AutofillClientProviderUtils.isSettingsScreenDisabled;
+ 
+ import android.content.Context;
+ import android.content.res.Configuration;
+@@ -209,7 +209,7 @@ public class AutofillProfilesFragment extends ChromeBaseSettingsFragment
+ 
+         addAutofillSwitch(screen);
+         addProfilePreferences(screen);
+-        if (!isPlatformAutofillEnabledForProfile(getProfile())) {
++        if (!isSettingsScreenDisabled(getProfile())) {
+             addAddAddressButton(screen);
+         }
+         if (ChromeFeatureList.isEnabled(ChromeFeatureList.EMAIL_VERIFICATION_PROTOCOL)) {
+@@ -247,7 +247,7 @@ public class AutofillProfilesFragment extends ChromeBaseSettingsFragment
+         autofillSwitch.setSummary(R.string.autofill_enable_profiles_toggle_sublabel);
+         // LINT.ThenChange(:DynamicAutofillSwitch)
+ 
+-        boolean disabledSettings = isPlatformAutofillEnabledForProfile(getProfile());
++        boolean disabledSettings = isSettingsScreenDisabled(getProfile());
+         autofillSwitch.setEnabled(!disabledSettings);
+         autofillSwitch.setChecked(
+                 personalDataManager.isAutofillProfileEnabled() && !disabledSettings);
+@@ -525,7 +525,7 @@ public class AutofillProfilesFragment extends ChromeBaseSettingsFragment
+                     // LINT.IfChange(DynamicPreferences)
+                     AutofillAiDelegate.maybeAddDisabledSettingsInfoCard(
+                             indexData, profile, getPrefFragmentName());
+-                    if (!isPlatformAutofillEnabledForProfile(profile)) {
++                    if (!isSettingsScreenDisabled(profile)) {
+                         addAddAddressButton(indexData, profile, getPrefFragmentName());
+                     }
+ 
+@@ -567,7 +567,7 @@ public class AutofillProfilesFragment extends ChromeBaseSettingsFragment
+ 
+         AutofillAiDelegate.maybeAddDisabledSettingsInfoCard(indexData, profile, prefFragmentName);
+ 
+-        if (isPlatformAutofillEnabledForProfile(profile)) {
++        if (isSettingsScreenDisabled(profile)) {
+             indexData.removeEntryForKey(prefFragmentName, PREF_NEW_PROFILE);
+         } else {
+             if (indexData.getEntryForKey(prefFragmentName, PREF_NEW_PROFILE) == null) {
 diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
-index 699717664cafc..7fa6949f7345e 100644
+index 699717664cafc..0bddc5052a8a8 100644
 --- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
 +++ b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/AutofillClientProviderUtils.java
-@@ -67,6 +67,11 @@ public class AutofillClientProviderUtils {
-      * @return true if platform Autofill is enabled for the profile.
-      */
-     public static boolean isPlatformAutofillEnabledForProfile(Profile profile) {
+@@ -71,6 +71,15 @@ public class AutofillClientProviderUtils {
+                 == AndroidAutofillAvailabilityStatus.AVAILABLE;
+     }
+ 
++    public static boolean isSettingsScreenDisabled(Profile profile) {
 +        if (!org.chromium.chrome.browser.flags.ChromeExtFeatureList
 +                .sThirdPartyDisableChromeAutofillSettingsScreen.isEnabled()) {
 +            return false;
 +        }
 +
-         return getAndroidAutofillFrameworkAvailability(UserPrefs.get(profile))
-                 == AndroidAutofillAvailabilityStatus.AVAILABLE;
-     }
++        return isPlatformAutofillEnabledForProfile(profile);
++    }
++
+     /**
+      * Returns whether all conditions are met for using the Android Autofill framework in Chrome on
+      * Android: The AutofillManager exists, is enabled, and its provider is not Autofill with
 diff --git a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/settings/options/AutofillOptionsCoordinator.java b/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/settings/options/AutofillOptionsCoordinator.java
 index a783cd99d82ad..9b7e0c17198f6 100644
 --- a/chrome/browser/autofill/android/java/src/org/chromium/chrome/browser/autofill/settings/options/AutofillOptionsCoordinator.java
