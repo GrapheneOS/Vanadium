@@ -30,7 +30,7 @@ Subject: [PATCH] always enable autofill screens regardless of autofill
  create mode 100644 components/autofill_strings_grdp/IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION_NEW.png.sha1
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java
-index e057fcfc95d9a..b346a926f0235 100644
+index a13eb70770c19..8333ad439bb1c 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillAiDelegate.java
 @@ -4,7 +4,7 @@
@@ -42,7 +42,7 @@ index e057fcfc95d9a..b346a926f0235 100644
  
  import android.app.Activity;
  import android.content.Context;
-@@ -343,7 +343,7 @@ public class AutofillAiDelegate {
+@@ -385,7 +385,7 @@ public class AutofillAiDelegate {
  
      private static boolean shouldShowWalletDataSharingDataCard(Profile profile) {
          EntityDataManager entityDataManager = EntityDataManagerFactory.getForProfile(profile);
@@ -51,7 +51,7 @@ index e057fcfc95d9a..b346a926f0235 100644
                  && entityDataManager != null
                  && !entityDataManager.isWalletPublicPassStorageEnabled()
                  && ChromeFeatureList.isEnabled(
-@@ -394,7 +394,7 @@ public class AutofillAiDelegate {
+@@ -436,7 +436,7 @@ public class AutofillAiDelegate {
      /** Adds an information card if Chrome settings are disabled in third-party mode. */
      void maybeAddDisabledSettingsInfoCard(
              PreferenceScreen screen, @AutofillOptionsReferrer int referrer) {
@@ -60,7 +60,7 @@ index e057fcfc95d9a..b346a926f0235 100644
              addDisabledSettingsInfoCard(screen, referrer);
          }
      }
-@@ -436,7 +436,7 @@ public class AutofillAiDelegate {
+@@ -478,7 +478,7 @@ public class AutofillAiDelegate {
      /** Adds an information card to the search index if Chrome settings are disabled. */
      static void maybeAddDisabledSettingsInfoCard(
              SettingsIndexData indexData, Profile profile, String prefFragmentName) {
@@ -69,7 +69,7 @@ index e057fcfc95d9a..b346a926f0235 100644
              if (indexData.getEntryForKey(prefFragmentName, DISABLED_SETTINGS_INFO) == null) {
                  addDisabledSettingsInfoCard(indexData, prefFragmentName);
              }
-@@ -613,7 +613,7 @@ public class AutofillAiDelegate {
+@@ -655,7 +655,7 @@ public class AutofillAiDelegate {
  
      private boolean isAddButtonEnabled(EntityDataManager entityDataManager, EntityType entityType) {
          return isEligibleToAddEntities(entityDataManager, entityType.getTypeName())
@@ -78,7 +78,7 @@ index e057fcfc95d9a..b346a926f0235 100644
      }
  
      private boolean isEligibleToAddEntities(
-@@ -642,7 +642,7 @@ public class AutofillAiDelegate {
+@@ -684,7 +684,7 @@ public class AutofillAiDelegate {
          EntityDataManager entityDataManager =
                  EntityDataManagerFactory.getForProfile(mFragment.getProfile());
          if (entityDataManager == null
@@ -88,7 +88,7 @@ index e057fcfc95d9a..b346a926f0235 100644
          }
  
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
-index 94711c5ef4d07..3126b6fc7f24f 100644
+index 65a55c685234f..e715c70d61865 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/autofill/settings/AutofillPaymentMethodsFragment.java
 @@ -6,7 +6,7 @@ package org.chromium.chrome.browser.autofill.settings;
@@ -127,7 +127,7 @@ index 94711c5ef4d07..3126b6fc7f24f 100644
      }
  
      private void createWalletReminderNoticePreference() {
-@@ -833,7 +833,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+@@ -816,7 +816,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
          return ChromeFeatureList.isEnabled(
                          ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM)
                  && manager.getMaskedBankAccounts().length != 0
@@ -136,7 +136,7 @@ index 94711c5ef4d07..3126b6fc7f24f 100644
      }
  
      private static boolean shouldShowManageNonCardPayment(
-@@ -842,7 +842,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+@@ -825,7 +825,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
          return ChromeFeatureList.isEnabled(
                          ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM)
                  && (hasEwallets || showA2aToggle)
@@ -145,7 +145,7 @@ index 94711c5ef4d07..3126b6fc7f24f 100644
      }
  
      static boolean shouldShowOtherFinanceAccounts(
-@@ -851,7 +851,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+@@ -834,7 +834,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
          return !ChromeFeatureList.isEnabled(
                          ChromeFeatureList.AUTOFILL_ENABLE_SEPARATE_PIX_PREFERENCE_ITEM)
                  && (hasEwallets || hasPixAccounts)
@@ -154,7 +154,7 @@ index 94711c5ef4d07..3126b6fc7f24f 100644
      }
  
      private static boolean shouldShowMandatoryReauthSwitch() {
-@@ -862,31 +862,31 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+@@ -845,31 +845,31 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
  
      private static boolean shouldShowCardBenefitsPref(
              PersonalDataManager manager, Profile profile) {
@@ -191,7 +191,7 @@ index 94711c5ef4d07..3126b6fc7f24f 100644
                  && manager.isAutofillPaymentMethodsEnabled()
                  && manager.shouldShowAddIbanButtonOnSettingsPage();
      }
-@@ -920,7 +920,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
+@@ -903,7 +903,7 @@ public class AutofillPaymentMethodsFragment extends ChromeBaseSettingsFragment
                                      && ChromeFeatureList.isEnabled(
                                              ChromeFeatureList
                                                      .FACILITATED_PAYMENTS_ENABLE_A2A_PAYMENT);
@@ -341,7 +341,7 @@ index feeb355a88b76..14af219f12aca 100644
  
      /**
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 33af158aa60f7..8529e5e9301f3 100644
+index 8d99c4896fc74..f3f550a068a88 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -771,9 +771,15 @@ For more settings that use data to improve your Vanadium experience, go to <ph n
@@ -377,10 +377,10 @@ index 0000000000000..7ad19dc30474d
 +0397c7f77964cacbe565a8765976018a14a2e62a
 \ No newline at end of file
 diff --git a/components/autofill_strings.grdp b/components/autofill_strings.grdp
-index efa34fcff043e..51d0d585ac0af 100644
+index 8467b2e373966..746e515d12593 100644
 --- a/components/autofill_strings.grdp
 +++ b/components/autofill_strings.grdp
-@@ -482,9 +482,15 @@
+@@ -512,9 +512,15 @@
        Autofill using another service
      </message>
      <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION" desc="Description shown on the option to use the default Vanadium autofill experience." formatter_data="android_java">
