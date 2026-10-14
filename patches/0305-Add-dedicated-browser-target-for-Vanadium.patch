@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 13 Oct 2026 16:12:02 +0000
+Subject: [PATCH] Add dedicated browser target for Vanadium
+
+---
+ vanadium/BUILD.gn                             |  1 +
+ vanadium/chromium_src/chrome/android/BUILD.gn | 32 +++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+ create mode 100644 vanadium/chromium_src/chrome/android/BUILD.gn
+
+diff --git a/vanadium/BUILD.gn b/vanadium/BUILD.gn
+index 51435ef811038..04a06f073fee0 100644
+--- a/vanadium/BUILD.gn
++++ b/vanadium/BUILD.gn
+@@ -7,5 +7,6 @@ assert(is_android)
+ group("vanadium_build_targets") {
+   deps = [
+     "android_config:empty_group",
++    "chromium_src/chrome/android:empty_group",
+   ]
+ }
+diff --git a/vanadium/chromium_src/chrome/android/BUILD.gn b/vanadium/chromium_src/chrome/android/BUILD.gn
+new file mode 100644
+index 0000000000000..e8bccf140a48e
+--- /dev/null
++++ b/vanadium/chromium_src/chrome/android/BUILD.gn
+@@ -0,0 +1,32 @@
++import("//build/config/android/config.gni")
++import("//build/config/cronet/config.gni")
++
++assert(!is_cronet_build)
++
++_is_default_toolchain = current_toolchain == default_toolchain
++
++if (_is_default_toolchain) {
++  import("//build/config/android/rules.gni")
++  import("//chrome/android/chrome_public_apk_tmpl.gni")
++}
++
++if (_is_default_toolchain) {
++  chrome_public_apk_or_module_tmpl("vanadium_browser_apk") {
++    target_type = "android_apk"
++    apk_name = "VanadiumBrowser"
++    if (defined(android_app_secondary_abi)) {
++      # Ensure 64-bit chrome does not depend on 32-bit things.
++      assert_no_deps =
++          [ "//build/config:toolchain_marker_" +
++            get_label_info(android_secondary_abi_toolchain, "name") ]
++    }
++    min_sdk_version = 34
++
++    enable_lint = false
++  }
++}
++
++# An empty group included in //BUILD.gn to make this and other config apk type build
++# files reachable by GN.
++group("empty_group") {
++}

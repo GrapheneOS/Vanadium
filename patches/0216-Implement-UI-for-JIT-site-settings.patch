@@ -20,7 +20,7 @@ Subject: [PATCH] Implement UI for JIT site settings
  create mode 100644 vanadium/chromium_src/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/JavascriptJitSettingsHooks.java
 
 diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
-index d6114a13237cd..eedf081524aa7 100644
+index 4d5b4abaf4a62..45563a79e27ee 100644
 --- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 +++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsCategory.java
 @@ -86,6 +86,10 @@ public class SiteSettingsCategory {
@@ -48,7 +48,7 @@ index d6114a13237cd..eedf081524aa7 100644
          // Three lines of placeholder comment to minimize cascading conflicts.
          // Three lines of placeholder comment to minimize cascading conflicts.
 diff --git a/components/browser_ui/site_settings/android/website_preference_bridge.cc b/components/browser_ui/site_settings/android/website_preference_bridge.cc
-index 5f9d57761343f..22fbc1d1b8f25 100644
+index c70accf64ea18..bd34f92eff96a 100644
 --- a/components/browser_ui/site_settings/android/website_preference_bridge.cc
 +++ b/components/browser_ui/site_settings/android/website_preference_bridge.cc
 @@ -1090,6 +1090,7 @@ static void JNI_WebsitePreferenceBridge_SetContentSettingEnabled(
@@ -60,10 +60,10 @@ index 5f9d57761343f..22fbc1d1b8f25 100644
        case ContentSettingsType::REQUEST_DESKTOP_SITE:
        case ContentSettingsType::SENSORS:
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index a5919cfaf47b4..f775293018180 100644
+index 3469f1dcc5042..6ff9bf4bed00f 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -570,7 +570,7 @@ void ContentSettingsRegistry::Init() {
+@@ -559,7 +559,7 @@ void ContentSettingsRegistry::Init() {
             PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
  
    Register(ContentSettingsType::JAVASCRIPT_JIT, "javascript-jit",
@@ -73,7 +73,7 @@ index a5919cfaf47b4..f775293018180 100644
             /*valid_settings=*/{CONTENT_SETTING_ALLOW, CONTENT_SETTING_BLOCK},
             WebsiteSettingsInfo::TOP_ORIGIN_ONLY_SCOPE,
 diff --git a/components/page_info/android/page_info_controller_android.cc b/components/page_info/android/page_info_controller_android.cc
-index 0f3efc8c6ac40..a7c649c580903 100644
+index 4c7bf5a6b0baf..20367bdee652d 100644
 --- a/components/page_info/android/page_info_controller_android.cc
 +++ b/components/page_info/android/page_info_controller_android.cc
 @@ -207,6 +207,7 @@ void PageInfoControllerAndroid::SetPermissionInfo(
@@ -94,7 +94,7 @@ index 0f3efc8c6ac40..a7c649c580903 100644
      // Notifications permission should be displayed while it is being requested.
      return permission.default_setting;
 diff --git a/components/page_info/page_info.cc b/components/page_info/page_info.cc
-index f2ab5e7522fa9..b087f765f3c8e 100644
+index 81954bda08be0..c1625d4a445fc 100644
 --- a/components/page_info/page_info.cc
 +++ b/components/page_info/page_info.cc
 @@ -120,6 +120,7 @@ ContentSettingsType kPermissionType[] = {

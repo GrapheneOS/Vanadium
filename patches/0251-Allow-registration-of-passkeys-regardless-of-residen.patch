@@ -9,10 +9,10 @@ Subject: [PATCH] Allow registration of passkeys regardless of residentKey
  1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java b/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
-index 055d8c5f07067..443cd4cbd9b20 100644
+index e580b59514a24..13efaca9fe960 100644
 --- a/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
 +++ b/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
-@@ -305,10 +305,6 @@ public class Fido2CredentialRequest implements WebauthnBrowserBridge.Provider {
+@@ -319,10 +319,6 @@ public class Fido2CredentialRequest implements WebauthnBrowserBridge.Provider {
              @Nullable PaymentOptions paymentOptions,
              boolean isCrossOrigin) {
          log(TAG, "continueMakeCredentialRequestAfterRpIdValidation");
@@ -23,7 +23,7 @@ index 055d8c5f07067..443cd4cbd9b20 100644
          mEchoCredProps = options.credProps;
  
          byte[] clientDataHash = null;
-@@ -412,8 +408,10 @@ public class Fido2CredentialRequest implements WebauthnBrowserBridge.Provider {
+@@ -430,8 +426,10 @@ public class Fido2CredentialRequest implements WebauthnBrowserBridge.Provider {
          //
          // Payments requests are also routed to Play Services since we haven't
          // defined how SPC works in CredMan yet.

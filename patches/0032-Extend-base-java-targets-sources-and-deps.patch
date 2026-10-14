@@ -26,10 +26,10 @@ Subject: [PATCH] Extend //base java targets sources and deps
  create mode 100644 vanadium/chromium_src/base/base_shared_preferences_java_ext_sources.gni
 
 diff --git a/base/BUILD.gn b/base/BUILD.gn
-index 44ffb6ee338ca..d32346e253855 100644
+index 9569528f10db0..09167497231d9 100644
 --- a/base/BUILD.gn
 +++ b/base/BUILD.gn
-@@ -5275,6 +5275,13 @@ if (is_android) {
+@@ -5292,6 +5292,13 @@ if (is_android) {
        ":wrapped_class_loader_java",
      ]
  
@@ -43,7 +43,7 @@ index 44ffb6ee338ca..d32346e253855 100644
      if (!is_cronet_build) {
        proguard_configs += [
          "android/proguard/chromium_apk.flags",
-@@ -5903,6 +5910,18 @@ if (is_android) {
+@@ -5945,6 +5952,18 @@ if (is_android) {
        "//third_party/androidx:androidx_annotation_annotation_java",
        "//third_party/jni_zero:jni_zero_java",
      ]
@@ -62,7 +62,7 @@ index 44ffb6ee338ca..d32346e253855 100644
    }
  
    generate_jni("base_shared_preferences_jni") {
-@@ -5926,6 +5945,11 @@ if (is_android) {
+@@ -5968,6 +5987,11 @@ if (is_android) {
        "android/java/src/org/chromium/base/shared_preferences/SharedPreferencesManager.java",
        "android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java",
      ]
