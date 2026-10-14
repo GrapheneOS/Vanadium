@@ -9,10 +9,10 @@ Subject: [PATCH] enable strict site isolation by default on Android
  2 files changed, 14 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
-index ba175a0e376a9..78b484c3912da 100644
+index 3bd06fa95993f..58125345272ff 100644
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -5741,16 +5741,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -5870,16 +5870,6 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_VALUE_TYPE(features::kNotificationsIgnoreRequireInteraction)},
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -30,10 +30,10 @@ index ba175a0e376a9..78b484c3912da 100644
      {kEnterpriseIsolatedModeInternalName,
       flag_descriptions::kEnterpriseIsolatedModeName,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index 0444a656a3da0..462896399818b 100644
+index a4f4e6b0fc854..7a248b4ed443f 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -1669,11 +1669,7 @@ BASE_FEATURE(kExtensionServiceWorkerPriorityVoter,
+@@ -1697,11 +1697,7 @@ BASE_FEATURE(kExtensionServiceWorkerPriorityVoter,
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  BASE_FEATURE(kSitePerProcess,
