@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 15 Oct 2026 14:11:59 +0000
+Subject: [PATCH] [bugfix] Only log soft navigation heuristic metrics
+
+This is needed for compatibility with certain keyboard apps causing
+crashes on website navigation changes, such as UnexpectedKeyboard on
+OpenWRT sites. See https://github.com/GrapheneOS/Vanadium/issues/1321.
+---
+ .../blink/renderer/core/timing/soft_navigation_heuristics.cc    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/third_party/blink/renderer/core/timing/soft_navigation_heuristics.cc b/third_party/blink/renderer/core/timing/soft_navigation_heuristics.cc
+index c981148efebe8..62752aabd7d9f 100644
+--- a/third_party/blink/renderer/core/timing/soft_navigation_heuristics.cc
++++ b/third_party/blink/renderer/core/timing/soft_navigation_heuristics.cc
+@@ -587,7 +587,7 @@ void SoftNavigationHeuristics::ReportSoftNavigationToMetrics(
+   CHECK_EQ(context->GetSoftNavigationHeuristics(), this);
+ 
+   if (LocalFrameClient* frame_client = frame->Client()) {
+-#if BUILDFLAG(IS_FUCHSIA)
++#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID)
+     if (context->TimeOrigin() <= loader->GetTiming().ReferenceMonotonicTime()) {
+       LOG(ERROR) << "SoftNavigationHeuristics: TimeOrigin ("
+                  << context->TimeOrigin().since_origin().InMicroseconds()
