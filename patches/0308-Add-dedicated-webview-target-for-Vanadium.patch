@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 13 Oct 2026 16:16:57 +0000
+Subject: [PATCH] Add dedicated webview target for Vanadium
+
+---
+ vanadium/BUILD.gn                             |  1 +
+ .../chromium_src/android_webview/BUILD.gn     | 66 +++++++++++++++++++
+ 2 files changed, 67 insertions(+)
+ create mode 100644 vanadium/chromium_src/android_webview/BUILD.gn
+
+diff --git a/vanadium/BUILD.gn b/vanadium/BUILD.gn
+index 04a06f073fee0..1f14fa7df10ed 100644
+--- a/vanadium/BUILD.gn
++++ b/vanadium/BUILD.gn
+@@ -7,6 +7,7 @@ assert(is_android)
+ group("vanadium_build_targets") {
+   deps = [
+     "android_config:empty_group",
++    "chromium_src/android_webview:empty_group",
+     "chromium_src/chrome/android:empty_group",
+   ]
+ }
+diff --git a/vanadium/chromium_src/android_webview/BUILD.gn b/vanadium/chromium_src/android_webview/BUILD.gn
+new file mode 100644
+index 0000000000000..992d9c742060f
+--- /dev/null
++++ b/vanadium/chromium_src/android_webview/BUILD.gn
+@@ -0,0 +1,66 @@
++import("//android_webview/variables.gni")
++import("//build/config/android/config.gni")
++import("//build/config/android/rules.gni")
++
++_is_default_toolchain = current_toolchain == default_toolchain
++
++if (_is_default_toolchain) {
++  import("//android_webview/system_webview_apk_tmpl.gni")
++}
++
++if (_is_default_toolchain) {
++  if (!android_64bit_target_cpu) {
++    _default_arch_tokens = ""
++  } else if (defined(android_app_secondary_abi)) {
++    _default_arch_tokens = "_64_32"
++  } else {
++    _default_arch_tokens = "_64"
++  }
++
++  _main_vanadium_system_webview_apk_target =
++   "vanadium_webview${_default_arch_tokens}_apk"
++
++  template("standalone_vanadium_system_webview_system_apk_tmpl") {
++    system_webview_apk_or_module_tmpl(target_name) {
++      forward_variables_from(invoker, "*")
++      deps = upstream_only_webview_deps
++      min_sdk_version = 34
++    }
++  }
++
++  if (android_64bit_target_cpu) {
++    alias_with_wrapper_script("vanadium_webview_apk") {
++      alias_target = ":$_main_vanadium_system_webview_apk_target"
++    }
++  }
++
++  if (android_64bit_target_cpu) {
++    standalone_vanadium_system_webview_system_apk_tmpl("vanadium_webview_64_apk") {
++      apk_name = "VanadiumWebView64"
++      is_64_bit_browser = true
++      include_32_bit_webview = false
++      include_64_bit_webview = true
++    }
++
++    if (defined(android_app_secondary_abi)) {
++      # 64_32 targets for standalone
++      template("vanadium_webview_64_32_tmpl") {
++        standalone_vanadium_system_webview_system_apk_tmpl(target_name) {
++          forward_variables_from(invoker, "*")
++          is_64_bit_browser = true
++          include_32_bit_webview = true
++          include_64_bit_webview = true
++        }
++      }
++
++      vanadium_webview_64_32_tmpl("vanadium_webview_64_32_apk") {
++        apk_name = "VanadiumWebView6432"
++      }
++    }
++  }
++}
++
++# An empty group included in //BUILD.gn to make this and other config apk type build
++# files reachable by GN.
++group("empty_group") {
++}
