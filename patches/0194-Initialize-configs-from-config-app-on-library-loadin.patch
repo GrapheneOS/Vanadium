@@ -4,9 +4,9 @@ Date: Wed, 10 Jun 2026 11:30:05 +0000
 Subject: [PATCH] Initialize configs from config app on library loading init
 
 ---
- vanadium/chromium_src/base/library_loader/android/BUILD.gn    | 1 +
- .../chromium/base/library_loader/LibraryLoaderExtHooks.java   | 4 ++++
- 2 files changed, 5 insertions(+)
+ .../base/library_loader/android/BUILD.gn      |  1 +
+ .../library_loader/LibraryLoaderExtHooks.java | 21 +++++++++++++++++++
+ 2 files changed, 22 insertions(+)
 
 diff --git a/vanadium/chromium_src/base/library_loader/android/BUILD.gn b/vanadium/chromium_src/base/library_loader/android/BUILD.gn
 index 2bc6a60677bb1..7d305ff7f7a2b 100644
@@ -21,7 +21,7 @@ index 2bc6a60677bb1..7d305ff7f7a2b 100644
    ]
  }
 diff --git a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
-index 363244ecddb2d..0eba100e2f1ae 100644
+index 363244ecddb2d..cb4370064f9ac 100644
 --- a/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
 +++ b/vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
 @@ -2,6 +2,7 @@ package org.chromium.base.library_loader;
@@ -32,21 +32,34 @@ index 363244ecddb2d..0eba100e2f1ae 100644
  import org.chromium.build.annotations.NullMarked;
  
  @NullMarked
-@@ -9,14 +10,17 @@ final class LibraryLoaderExtHooks {
- 
-     static void onSetLibraryProcessType(
-             Context appContext, @LibraryProcessType int type) {
-+        VanadiumConfigsUtils.initConfigs(appContext, type);
-     }
+@@ -13,10 +14,30 @@ final class LibraryLoaderExtHooks {
  
      static void onBeforeCommandLineSwitchLocked(
              Context appContext, @LibraryProcessType int type) {
-+        VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++        switch (type) {
++            case LibraryProcessType.PROCESS_BROWSER, LibraryProcessType.PROCESS_WEBVIEW -> {
++                return;
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++            }
++        }
      }
  
      static void onSubsequentCommandLineSwitchLockedCheck(
              Context appContext, @LibraryProcessType int type) {
-+        VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++        switch (type) {
++            case LibraryProcessType.PROCESS_BROWSER, LibraryProcessType.PROCESS_WEBVIEW -> {
++                return;
++            }
++            case LibraryProcessType.PROCESS_CHILD,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED,
++                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
++                VanadiumConfigsUtils.applyFlagFromConfigs(appContext, type);
++            }
++        }
      }
  
      private LibraryLoaderExtHooks() {
