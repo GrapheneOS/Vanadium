@@ -11,13 +11,13 @@ Subject: [PATCH] content-filtering: Add support for updating content filtering
  3 files changed, 7 insertions(+)
 
 diff --git a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
-index 6744931a27342..b3aff572b6256 100644
+index c295f71087e9b..1c0305db464bf 100644
 --- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
 +++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/settings/ContentLanguagesPreference.java
-@@ -159,6 +159,7 @@ public class ContentLanguagesPreference extends Preference {
+@@ -167,6 +167,7 @@ public class ContentLanguagesPreference extends Preference {
+                 disableDrag();
              }
-             setDisplayedLanguages(
-                     LanguagesManager.getForProfile(getProfile()).getUserAcceptLanguageItems());
+             setDisplayedLanguages(mLanguagesManager.getUserAcceptLanguageItems());
 +            LanguageSettingsExt.onContentLanguagesPreferenceDataUpdated();
          }
      }

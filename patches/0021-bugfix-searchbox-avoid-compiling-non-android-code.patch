@@ -4,44 +4,40 @@ Date: Sat, 9 May 2026 16:23:57 +0000
 Subject: [PATCH] [bugfix] searchbox: avoid compiling non-android code
 
 ---
- .../ui/webui/cr_components/searchbox/searchbox_handler.cc   | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../ui/webui/cr_components/searchbox/searchbox_handler.cc     | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-index 02b5f06f950e4..298cb945ccd11 100644
+index dc0975fd520ff..fedaea65e746b 100644
 --- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 +++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-@@ -241,6 +241,7 @@ constexpr char kShareIconResourceName[] =
-     "//resources/cr_components/searchbox/icons/share_cr23.svg";
- #endif
- 
+@@ -1000,6 +1000,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+   mojom_match->destination_url = match.destination_url;
+   mojom_match->suggestion_group_id =
+       match.suggestion_group_id.value_or(omnibox::GROUP_INVALID);
 +#if !BUILDFLAG(IS_ANDROID)
- std::u16string GetAdditionalA11yMessage(
-     const AutocompleteMatch& match,
-     searchbox::mojom::SelectionLineState state) {
-@@ -278,6 +279,7 @@ bool MatchHasSideTypeAndRenderType(
-          suggestion_groups_map.at(group_id).side_type() == side_type &&
-          suggestion_groups_map.at(group_id).render_type() == render_type;
- }
+   const bool is_bookmarked =
+       bookmark_model->IsBookmarked(match.destination_url);
+   // For starter pack suggestions, use template url to generate proper vector
+@@ -1010,6 +1011,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+           : turl_service->GetTemplateURLForKeyword(match.associated_keyword);
+   mojom_match->icon_path = AutocompleteIconToResourceName(
+       match.GetVectorIcon(is_bookmarked, associated_keyword_turl));
 +#endif // !BUILDFLAG(IS_ANDROID)
- 
- std::string GetBase64UrlVariations(Profile* profile) {
-   variations::VariationsClient* provider = profile->GetVariationsClient();
-@@ -927,6 +929,9 @@ SearchboxHandler::CreateAutocompleteMatch(
-     bookmarks::BookmarkModel* bookmark_model,
-     const omnibox::GroupConfigMap& suggestion_groups_map,
-     const TemplateURLService* turl_service) const {
-+#if BUILDFLAG(IS_ANDROID)
-+  return std::nullopt;
-+#else // BUILDFLAG(IS_ANDROID)
-   // Skip the primary column horizontal matches. This check guards against
-   // this unexpected scenario as the UI expects the primary column matches to
-   // be vertical ones.
-@@ -1106,6 +1111,7 @@ SearchboxHandler::CreateAutocompleteMatch(
-   }
- 
-   return mojom_match;
-+#endif // BUILDFLAG(IS_ANDROID)
- }
- 
- WindowOpenDisposition SearchboxHandler::ComputeWindowOpenDisposition(
+   OverrideIconPaths(match, mojom_match.get());
+   mojom_match->icon_url = match.icon_url;
+   // For featured enterprise search suggestions, use template url to generate
+@@ -1056,11 +1058,13 @@ SearchboxHandler::CreateAutocompleteMatch(
+       }
+ #endif
+       std::string icon_path;
++#if !BUILDFLAG(IS_ANDROID)
+       if (action->GetIconImage().IsEmpty()) {
+         icon_path = AutocompleteIconToResourceName(action->GetVectorIcon());
+       } else {
+         icon_path = webui::GetBitmapDataUrl(action->GetIconImage().AsBitmap());
+       }
++#endif // !BUILDFLAG(IS_ANDROID)
+       const OmniboxAction::LabelStrings& label_strings =
+           action->GetLabelStrings();
+       mojom_match->actions.emplace_back(searchbox::mojom::Action::New(

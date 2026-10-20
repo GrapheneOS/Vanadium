@@ -14,10 +14,10 @@ Subject: [PATCH] Hooks for LibraryLoader early init and command line impl
  create mode 100644 vanadium/chromium_src/base/library_loader/android/java/src/org/chromium/base/library_loader/LibraryLoaderExtHooks.java
 
 diff --git a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-index 792e5b031d017..f1b5d5faa52ba 100644
+index b70efce6cc120..d98e32506ef14 100644
 --- a/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
 +++ b/base/android/java/src/org/chromium/base/library_loader/LibraryLoader.java
-@@ -421,6 +421,7 @@ public class LibraryLoader {
+@@ -423,6 +423,7 @@ public class LibraryLoader {
                              mLibraryProcessType, type));
          }
          mLibraryProcessType = type;
@@ -25,7 +25,7 @@ index 792e5b031d017..f1b5d5faa52ba 100644
      }
  
      public @LibraryProcessType int getLibraryProcessType() {
-@@ -711,6 +712,14 @@ public class LibraryLoader {
+@@ -713,6 +714,14 @@ public class LibraryLoader {
          if (!CommandLine.isInitialized()) {
              CommandLine.init(null);
          }
