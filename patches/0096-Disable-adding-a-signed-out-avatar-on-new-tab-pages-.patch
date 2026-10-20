@@ -7,7 +7,8 @@ Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
 ---
  .../browser/identity_disc/IdentityDiscController.java     | 5 +++++
  .../chromium/chrome/browser/ui/signin/SigninUtils.java    | 8 ++++++++
- 2 files changed, 13 insertions(+)
+ .../toolbar/signin_button/SigninButtonCoordinator.java    | 1 +
+ 3 files changed, 14 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 index b432bdd08888c..8f39fa45fa4c8 100644
@@ -48,3 +49,15 @@ index 458e31e093be1..fe5badebd87e4 100644
          if (profileData == null) {
              return context.getString(R.string.accessibility_toolbar_btn_signed_out_identity_disc);
          }
+diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/signin_button/SigninButtonCoordinator.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/signin_button/SigninButtonCoordinator.java
+index fe8bbaeb384ba..070261c298d1d 100644
+--- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/signin_button/SigninButtonCoordinator.java
++++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/signin_button/SigninButtonCoordinator.java
+@@ -183,6 +183,7 @@ public class SigninButtonCoordinator extends ToolbarChildButton implements UrlFo
+                 tab != null
+                         && !tab.isOffTheRecord()
+                         && !shouldHideButtonForUrlFocus
++                        && org.chromium.chrome.browser.ui.signin.SigninUtils.allowNtpAvatar()
+                         && (mShowOnAllPages || isNtp(tab));
+ 
+         // Only update signin button if it does not match the intended state.
