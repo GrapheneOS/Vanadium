@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: inthewaves <inthewaves@pm.me>
+Date: Tue, 20 Oct 2026 18:47:31 -0700
+Subject: [PATCH] [bugfix] Disable WebView cookie policy latching
+
+Existing pages can keep reading and writing cookies after the host app
+blocks access. Disable policy latching to restore live enforcement of the
+app's cookie settings.
+
+A future fix could preserve the optimization with live policy updates and
+cache invalidation.
+---
+ android_webview/common/aw_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/android_webview/common/aw_features.cc b/android_webview/common/aw_features.cc
+index a59c3ec0064f6..def2c684d57b7 100644
+--- a/android_webview/common/aw_features.cc
++++ b/android_webview/common/aw_features.cc
+@@ -256,7 +256,7 @@ BASE_FEATURE(kWebViewInvokeZoomPickerOnGSU, base::FEATURE_DISABLED_BY_DEFAULT);
+ // When enabled, cookie policy settings are captured at RestrictedCookieManager
+ // creation time and used throughout its lifetime. This enables shared memory
+ // cookie versioning to reduce IPC overhead.
+-BASE_FEATURE(kWebViewLatchedCookiePolicy, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kWebViewLatchedCookiePolicy, base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ // Install the profiling client with memory_system::Initializer. If this is
+ // enabled the profiler MAY be started by
