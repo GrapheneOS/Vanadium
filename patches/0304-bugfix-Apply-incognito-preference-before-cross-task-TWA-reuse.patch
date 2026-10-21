@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: inthewaves <inthewaves@pm.me>
+Date: Tue, 20 Oct 2026 18:25:14 -0700
+Subject: [PATCH] [bugfix] Apply incognito preference before TWA reuse across
+ tasks
+
+M156 can reuse an existing regular TWA before the activity creation hook
+applies the incognito setting. Skip this reuse when the setting is enabled
+so the link opens in an incognito Custom Tab.
+---
+ .../chromium/chrome/browser/LaunchIntentDispatcher.java  | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index ad7c54931515f..ea90b6b11ddfe 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -441,15 +441,18 @@ public class LaunchIntentDispatcher {
+                 ApiCompatibilityUtils.moveTaskToFront(mActivity, handler.getTaskId(), 0);
+                 return true;
+             }
+-        } else if (SessionDataHolder.getInstance()
+-                        .getActiveHandlerClassInCurrentTask(mIntent, mActivity)
+-                == null) {
++        } else if (!TabPreferencesUtils.shouldOpenLinksInIncognito()
++                && SessionDataHolder.getInstance()
++                                .getActiveHandlerClassInCurrentTask(mIntent, mActivity)
++                        == null) {
+             // For TWAs, if the handler is not in the current task (e.g. launched from a trampoline
+             // activity with different task affinity), route the intent directly to the existing
+             // handler and bring its task to the foreground instead of spawning a new document task.
+             // Note: The handler is matched by session token, so this relies on the client giving
+             // each TWA task its own deterministic session ID. Otherwise multiple TWA tasks of the
+             // same app would share a session and this could resolve to the wrong task.
++            // When the incognito preference is enabled, use the activity-creation path below so
++            // its hook applies the preference instead of navigating an existing regular tab.
+             SessionHandler handler = SessionDataHolder.getInstance().getHandlerForIntent(mIntent);
+             if (handler != null) {
+                 Intent forwardedIntent = new Intent(mIntent);
