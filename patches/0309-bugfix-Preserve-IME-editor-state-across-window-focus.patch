@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: inthewaves <inthewaves@pm.me>
+Date: Wed, 21 Oct 2026 13:20:56 -0700
+Subject: [PATCH] [bugfix] Preserve IME editor state across window focus
+ changes
+
+Preserve the text field's editable state during window focus loss so dismissing a spelling popup
+does not hide the keyboard. Track a pending reconnect to refresh the input connection after updated
+field state arrives on focus regain, preserving the upstream recovery behavior for b/558115274.
+---
+ .../content/browser/input/ImeAdapterImpl.java | 28 ++++++++++---------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
+
+diff --git a/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java b/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
+index 2f2732eb6d3ce..fec086cf46715 100644
+--- a/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
+@@ -195,6 +195,8 @@ public class ImeAdapterImpl
+     private int mLastCompositionStart;
+     private int mLastCompositionEnd;
+     private boolean mRestartInputOnNextStateUpdate;
++    // Window focus recovery must reconnect even if the DOM node has not changed.
++    private boolean mReconnectInputOnNextStateUpdate;
+     // Do not access directly, use getStylusWritingImeCallback() instead.
+     private @Nullable StylusWritingImeCallback mStylusWritingImeCallback;
+     private final SparseArray<OngoingGesture> mOngoingGestures = new SparseArray<>();
+@@ -771,7 +773,9 @@ public class ImeAdapterImpl
+                         showIfNeeded,
+                         alwaysHide);
+             }
+-            boolean needsRestart = false;
++            boolean needsRestart =
++                    mReconnectInputOnNextStateUpdate && isTextInputType(textInputType);
++            mReconnectInputOnNextStateUpdate = false;
+             boolean hide = false;
+             if (mRestartInputOnNextStateUpdate) {
+                 if (mTextInputNodeId != nodeId || nodeId == 0) {
+@@ -1102,18 +1106,15 @@ public class ImeAdapterImpl
+     public void onWindowFocusChanged(boolean gainFocus) {
+         if (DEBUG_LOGS) Log.i(TAG, "onWindowFocusChanged: gainFocus [%b]", gainFocus);
+ 
+-        if (ContentFeatureMap.isEnabled(
+-                ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)) {
+-            if (gainFocus) {
+-                if (isValid()) {
+-                    requestTextInputStateUpdate();
+-                }
+-            } else {
+-                // Due to crbug.com/560321831, we should not hide keyboard when the window loses
+-                // focus. This is to prevent issues that the keyboard dialog disappears when users
+-                // switch languages.
+-                reset();
+-            }
++        mReconnectInputOnNextStateUpdate = false;
++        if (gainFocus
++                && isValid()
++                && ContentFeatureMap.isEnabled(
++                        ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)) {
++            // Android queries the editor before the asynchronous renderer update arrives. Preserve
++            // its state across window focus changes and reconnect once the fresh state is applied.
++            mReconnectInputOnNextStateUpdate = true;
++            requestTextInputStateUpdate();
+         }
+ 
+         if (mInputConnectionFactory != null) {
+@@ -1166,6 +1167,7 @@ public class ImeAdapterImpl
+         mTextInputMode = WebTextInputMode.DEFAULT;
+         mTextInputNodeId = 0;
+         mRestartInputOnNextStateUpdate = false;
++        mReconnectInputOnNextStateUpdate = false;
+         updateNodeAttributes(/* isEditable= */ false, mNodePassword);
+     }
+ 

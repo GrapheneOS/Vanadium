@@ -1,0 +1,201 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chuong Ho <hdchuong@google.com>
+Date: Mon, 19 Oct 2026 12:20:16 -0700
+Subject: [PATCH] [upstream] input: avoid hiding keyboard on window focus loss
+
+Original change's description:
+> input: avoid hiding keyboard on window focus loss
+>
+> Before:
+> https://drive.google.com/file/d/1eoPck8UzHkU78VfczJR9drtnYX71spMi/view?usp=sharing
+>
+> After:
+> https://drive.google.com/file/d/15tpX7oiLRlo5ZgQGt2fe2loCoDuyKNdW/view?usp=sharing
+>
+> Previously, CL 8363405 added if (!gainFocus) resetAndHideKeyboard(); in
+> ImeAdapterImpl.onWindowFocusChanged() to fix b/558115274. However,
+> calling resetAndHideKeyboard() on window focus loss causes the IME to
+> immediately dismiss when focusable system dialogs or overlays open above
+> Chrome while the activity remains top-resumed (e.g. IME picker dialog,
+> notification shade, power menu) (b/560321831).
+>
+> To fix b/560321831 while preserving the fix for b/558115274: 1. Remove
+> `if (!gainFocus) resetAndHideKeyboard();` on window focus loss so the
+> keyboard remains visible when opening system dialogs/overlays, and
+> replace with `reset()` (so that the keyboard does not disappear).
+>
+> 2. In updateState(), ensuring restartInput() is invoked to reconnect the
+> system IME even if the focused editable DOM node ID did not change.
+>
+> Bug: b:560321831, b:558115274, b:570312518
+> Change-Id: Ib43ababd05777d1c0d8b598dd9103589e5136aa9
+> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8555138
+> Auto-Submit: Chuong Ho <hdchuong@chromium.org>
+> Commit-Queue: Chuong Ho <hdchuong@chromium.org>
+> Reviewed-by: Bao-Duy Tran <tranbaoduy@chromium.org>
+> Cr-Commit-Position: refs/heads/main@{#1718330}
+
+(cherry picked from commit 37d5228c9e8b9c9def67a000c4e0a2bdd0b35bff)
+
+Bug: 574175080,b:560321831,b:558115274,b:570312518
+Change-Id: Ib43ababd05777d1c0d8b598dd9103589e5136aa9
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/8612119
+Auto-Submit: chrome-cherry-picker@chops-service-accounts.iam.gserviceaccount.com <chrome-cherry-picker@chops-service-accounts.iam.gserviceaccount.com>
+Bot-Commit: rubber-stamper@appspot.gserviceaccount.com <rubber-stamper@appspot.gserviceaccount.com>
+Commit-Queue: rubber-stamper@appspot.gserviceaccount.com <rubber-stamper@appspot.gserviceaccount.com>
+Cr-Commit-Position: refs/branch-heads/8103@{#409}
+Cr-Branched-From: e7baefea94b4a90087e3043e4a8effec33c2025f-refs/heads/main@{#1717349}
+(cherry picked from commit c4146a5b9b54838db4a353d58bdef021ca096922)
+---
+ .../content/browser/input/ImeAdapterImpl.java | 32 +++++---
+ .../browser/input/ImeAdapterImplTest.java     | 81 +++++++++++++++++++
+ 2 files changed, 103 insertions(+), 10 deletions(-)
+
+diff --git a/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java b/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
+index ab2598645ea9c..2f2732eb6d3ce 100644
+--- a/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/input/ImeAdapterImpl.java
+@@ -1102,12 +1102,18 @@ public class ImeAdapterImpl
+     public void onWindowFocusChanged(boolean gainFocus) {
+         if (DEBUG_LOGS) Log.i(TAG, "onWindowFocusChanged: gainFocus [%b]", gainFocus);
+ 
+-        if (!gainFocus) resetAndHideKeyboard();
+-        if (gainFocus
+-                && isValid()
+-                && ContentFeatureMap.isEnabled(
+-                        ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)) {
+-            requestTextInputStateUpdate();
++        if (ContentFeatureMap.isEnabled(
++                ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)) {
++            if (gainFocus) {
++                if (isValid()) {
++                    requestTextInputStateUpdate();
++                }
++            } else {
++                // Due to crbug.com/560321831, we should not hide keyboard when the window loses
++                // focus. This is to prevent issues that the keyboard dialog disappears when users
++                // switch languages.
++                reset();
++            }
+         }
+ 
+         if (mInputConnectionFactory != null) {
+@@ -1152,16 +1158,22 @@ public class ImeAdapterImpl
+         }
+     }
+ 
+-    /** Resets IME adapter and hides keyboard. Note that this will also unblock input connection. */
+-    @Override
+-    public void resetAndHideKeyboard() {
+-        if (DEBUG_LOGS) Log.i(TAG, "resetAndHideKeyboard");
++    /** Resets IME adapter. */
++    public void reset() {
++        if (DEBUG_LOGS) Log.i(TAG, "reset");
+         mTextInputType = TextInputType.NONE;
+         mTextInputFlags = 0;
+         mTextInputMode = WebTextInputMode.DEFAULT;
+         mTextInputNodeId = 0;
+         mRestartInputOnNextStateUpdate = false;
+         updateNodeAttributes(/* isEditable= */ false, mNodePassword);
++    }
++
++    /** Resets IME adapter and hides keyboard. Note that this will also unblock input connection. */
++    @Override
++    public void resetAndHideKeyboard() {
++        if (DEBUG_LOGS) Log.i(TAG, "resetAndHideKeyboard");
++        reset();
+         // This will trigger unblocking if necessary.
+         hideKeyboard();
+     }
+diff --git a/content/public/android/junit/src/org/chromium/content/browser/input/ImeAdapterImplTest.java b/content/public/android/junit/src/org/chromium/content/browser/input/ImeAdapterImplTest.java
+index 6fd04d90c366e..727e8713deb45 100644
+--- a/content/public/android/junit/src/org/chromium/content/browser/input/ImeAdapterImplTest.java
++++ b/content/public/android/junit/src/org/chromium/content/browser/input/ImeAdapterImplTest.java
+@@ -206,6 +206,87 @@ public class ImeAdapterImplTest {
+         verify(mImeAdapterImplJni).requestTextInputStateUpdate(anyLong());
+     }
+ 
++    private void updateTextInputState(
++            ImeAdapterImpl adapter, @TextInputType int textInputType, int nodeId) {
++        adapter.updateState(
++                /* textInputType= */ textInputType,
++                /* textInputFlags= */ 0,
++                /* textInputMode= */ 0,
++                /* textInputAction= */ 0,
++                /* showIfNeeded= */ textInputType != TextInputType.NONE,
++                /* alwaysHide= */ false,
++                /* text= */ "",
++                /* selectionStart= */ 0,
++                /* selectionEnd= */ 0,
++                /* compositionStart= */ -1,
++                /* compositionEnd= */ -1,
++                /* replyToRequest= */ false,
++                /* lastVkVisibilityRequest= */ 0,
++                /* vkPolicy= */ 0,
++                /* nodeId= */ nodeId,
++                /* imeTextSpans= */ null);
++    }
++
++    @Test
++    @EnableFeatures(ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)
++    public void testOnWindowFocusChangedLostResetsWithoutHidingKeyboard() {
++        ImeAdapterImpl adapter = new ImeAdapterImpl(mWebContentsImpl);
++        adapter.setInputMethodManagerWrapper(mInputMethodManagerWrapper);
++        adapter.onConnectedToRenderProcess();
++
++        // Focus an editable text field.
++        adapter.focusedNodeChanged(/* isEditable= */ true, 0, 0, 100, 100);
++        updateTextInputState(adapter, TextInputType.TEXT, /* nodeId= */ 42);
++        reset(mInputMethodManagerWrapper);
++
++        // Window focus is lost (e.g. IME picker dialog, notification shade, power menu).
++        adapter.onWindowFocusChanged(/* gainFocus= */ false);
++
++        // Verify that the soft keyboard is NOT hidden and input is reset.
++        verify(mInputMethodManagerWrapper, never()).hideSoftInputFromWindow(any(), anyInt(), any());
++        verify(mInputMethodManagerWrapper, never()).restartInput(any());
++    }
++
++    @Test
++    @EnableFeatures(ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)
++    public void testOnWindowFocusChangedGainedRestartsInputOnNextStateUpdateWhenTextInputActive() {
++        ImeAdapterImpl adapter = new ImeAdapterImpl(mWebContentsImpl);
++        adapter.setInputMethodManagerWrapper(mInputMethodManagerWrapper);
++        adapter.onConnectedToRenderProcess();
++
++        // Initial focus on node 42.
++        adapter.focusedNodeChanged(/* isEditable= */ true, 0, 0, 100, 100);
++        updateTextInputState(adapter, TextInputType.TEXT, /* nodeId= */ 42);
++        verify(mInputMethodManagerWrapper, times(1)).restartInput(mContainerView);
++        reset(mInputMethodManagerWrapper);
++
++        // Window loses focus then gains focus.
++        adapter.onWindowFocusChanged(/* gainFocus= */ false);
++        verify(mInputMethodManagerWrapper, never()).restartInput(any());
++
++        adapter.onWindowFocusChanged(/* gainFocus= */ true);
++        verify(mImeAdapterImplJni).requestTextInputStateUpdate(anyLong());
++
++        // Subsequent updateState for the same node 42 should restart input.
++        updateTextInputState(adapter, TextInputType.TEXT, /* nodeId= */ 42);
++        verify(mInputMethodManagerWrapper, times(1)).restartInput(mContainerView);
++    }
++
++    @Test
++    @EnableFeatures(ContentFeatureList.ANDROID_FORCE_TEXT_INPUT_STATE_UPDATE_UPON_FOCUS)
++    public void testOnWindowFocusChangedGainedDoesNotRestartInputWhenNoActiveTextInput() {
++        ImeAdapterImpl adapter = new ImeAdapterImpl(mWebContentsImpl);
++        adapter.setInputMethodManagerWrapper(mInputMethodManagerWrapper);
++        adapter.onConnectedToRenderProcess();
++
++        adapter.onWindowFocusChanged(/* gainFocus= */ true);
++        verify(mImeAdapterImplJni).requestTextInputStateUpdate(anyLong());
++
++        // Subsequent updateState for TextInputType.NONE does not restart input.
++        updateTextInputState(adapter, TextInputType.NONE, /* nodeId= */ 0);
++        verify(mInputMethodManagerWrapper, never()).restartInput(any());
++    }
++
+     @Test
+     @EnableFeatures(ContentFeatureList.ANDROID_CAPTURE_KEY_EVENTS)
+     public void testSendCompositionToNative() {
