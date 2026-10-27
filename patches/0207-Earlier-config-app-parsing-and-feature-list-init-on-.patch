@@ -14,10 +14,10 @@ Subject: [PATCH] Earlier config app parsing and feature list init on browser
  create mode 100644 vanadium/chromium_src/chrome/browser/base/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplicationHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-index df5786d9ed95e..2e71e515d5f71 100644
+index b2eff462cf575..1c4b88efb97d3 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatApplication.java
-@@ -193,6 +193,7 @@ public class SplitCompatApplication extends Application {
+@@ -186,6 +186,7 @@ public class SplitCompatApplication extends Application {
                  BundleUtils.getInstalledSplitNamesForLogging());
  
          if (isBrowserProcess) {
@@ -25,7 +25,7 @@ index df5786d9ed95e..2e71e515d5f71 100644
              // This must come as early as possible to avoid early loading of the native library from
              // failing unnoticed.
              LibraryLoader.sLoadFailedCallback =
-@@ -235,6 +236,7 @@ public class SplitCompatApplication extends Application {
+@@ -228,6 +229,7 @@ public class SplitCompatApplication extends Application {
              // (see ChildProcessService.java).
              CommandLineInitUtil.initCommandLine(
                      COMMAND_LINE_FILE, SplitCompatApplication::shouldUseDebugFlags);
