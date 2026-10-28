@@ -9,20 +9,82 @@ removes UserActionableError::{kNeedsSettingsConfirmation,kUnrecoverableError}.
 This is used on built-in login database backend which is still enabled
 downstream.
 ---
- components/send_tab_to_self/BUILD.gn                      | 4 ++++
- components/send_tab_to_self/DEPS                          | 5 +++++
- components/send_tab_to_self/entry_point_display_reason.cc | 8 ++++++--
- components/sync/service/BUILD.gn                          | 4 ++++
- components/sync/service/DEPS                              | 3 +++
- components/sync/service/sync_internals_util.cc            | 8 ++++++--
- components/sync/service/sync_service.h                    | 8 ++++++--
- 7 files changed, 34 insertions(+), 6 deletions(-)
+ .../password_store_built_in_backend.cc           | 16 ++++++++++++++--
+ components/send_tab_to_self/BUILD.gn             |  4 ++++
+ components/send_tab_to_self/DEPS                 |  5 +++++
+ .../entry_point_display_reason.cc                | 16 +++++++++++-----
+ components/sync/service/BUILD.gn                 |  4 ++++
+ components/sync/service/DEPS                     |  3 +++
+ components/sync/service/sync_internals_util.cc   | 15 +++++++++++----
+ components/sync/service/sync_service.h           | 15 +++++++++++----
+ components/sync/service/sync_service_impl.cc     | 10 ++++++++--
+ 9 files changed, 71 insertions(+), 17 deletions(-)
 
+diff --git a/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc b/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
+index 096a683e65249..2874c078e5392 100644
+--- a/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
++++ b/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
+@@ -32,6 +32,8 @@
+ #include "components/sync/model/proxy_data_type_controller_delegate.h"
+ #include "components/sync/service/sync_service.h"
+ 
++#include "components/password_manager/core/browser/password_manager_buildflags.h"
++
+ namespace password_manager {
+ 
+ namespace {
+@@ -98,12 +100,16 @@ bool ShouldForwardSyncErrorToStore(
+     case SyncError::kNeedsTrustedVaultKeyForPasswords:
+     case SyncError::kNeedsTrustedVaultKeyForEverything:
+ #if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsSettingsConfirmation:
+     case SyncError::kUnrecoverableError:
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+ #endif  // !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #if BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsUPMBackendUpgrade:
+ #endif  // BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncError::kNeedsClientUpgrade:
+       // Errors that aren't categorized will block saving.
+       return true;
+@@ -136,12 +142,16 @@ SyncErrorToBackendError(syncer::SyncService::UserActionableError error) {
+       return base::unexpected(
+           PasswordStoreBackendError(BackendError::kKeyRetrievalRequired));
+ #if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsSettingsConfirmation:
+     case SyncError::kUnrecoverableError:
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+ #endif  // !BUILDFLAG(IS_IOS)
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncError::kNeedsUPMBackendUpgrade:
+-#endif
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
++#endif  // BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsClientUpgrade:
+       // Errors that aren't categorized will block saving.
+       return base::unexpected(
+@@ -170,8 +180,10 @@ ActionableError SyncErrorToActionableError(
+     case SyncError::kUnrecoverableError:
+ #endif  // !BUILDFLAG(IS_IOS)
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncError::kNeedsUPMBackendUpgrade:
+-#endif
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
++#endif  // BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsClientUpgrade:
+     case SyncError::kBookmarksLimitExceeded:
+ #if BUILDFLAG(IS_IOS)
 diff --git a/components/send_tab_to_self/BUILD.gn b/components/send_tab_to_self/BUILD.gn
-index 061c4c8ba0e42..aee3090976295 100644
+index 1ec3e373cccf8..ad00fdf452fb9 100644
 --- a/components/send_tab_to_self/BUILD.gn
 +++ b/components/send_tab_to_self/BUILD.gn
-@@ -157,4 +157,8 @@ source_set("unit_tests") {
+@@ -154,4 +154,8 @@ source_set("unit_tests") {
      "//testing/gtest",
      "//url",
    ]
@@ -45,7 +107,7 @@ index c9557b4482f64..279e73a087c3e 100644
 +  ],
 +}
 diff --git a/components/send_tab_to_self/entry_point_display_reason.cc b/components/send_tab_to_self/entry_point_display_reason.cc
-index 876a016264c4d..c600db6a9479f 100644
+index 876a016264c4d..2db66cd7645cf 100644
 --- a/components/send_tab_to_self/entry_point_display_reason.cc
 +++ b/components/send_tab_to_self/entry_point_display_reason.cc
 @@ -16,6 +16,8 @@
@@ -57,7 +119,19 @@ index 876a016264c4d..c600db6a9479f 100644
  namespace send_tab_to_self {
  
  namespace {
-@@ -78,10 +80,12 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
+@@ -69,8 +71,10 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
+         kTrustedVaultRecoverabilityDegradedForEverything:
+     case syncer::SyncService::UserActionableError::kBookmarksLimitExceeded:
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case syncer::SyncService::UserActionableError::kNeedsUPMBackendUpgrade:
+-#endif
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
++#endif  // BUILDFLAG(IS_ANDROID)
+       return false;
+ 
+     case syncer::SyncService::UserActionableError::kSignInNeedsUpdate:
+@@ -78,13 +82,15 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
      case syncer::SyncService::UserActionableError::
          kNeedsTrustedVaultKeyForEverything:
      case syncer::SyncService::UserActionableError::kNeedsClientUpgrade:
@@ -67,11 +141,16 @@ index 876a016264c4d..c600db6a9479f 100644
      case syncer::SyncService::UserActionableError::kNeedsSettingsConfirmation:
      case syncer::SyncService::UserActionableError::kUnrecoverableError:
 -#endif
-+#endif // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
-+#endif // !BUILDFLAG(IS_IOS)
- #if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
+-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif  // !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(IS_IOS)
      case syncer::SyncService::UserActionableError::kDeviceManagementError:
- #endif
+-#endif
++#endif  // BUILDFLAG(IS_IOS)
+       return true;
+   }
+ }
 diff --git a/components/sync/service/BUILD.gn b/components/sync/service/BUILD.gn
 index 60d8dc0f7d68a..42ff46fe62ded 100644
 --- a/components/sync/service/BUILD.gn
@@ -101,7 +180,7 @@ index a627fa3392ec3..fa62179ee1cac 100644
      "+components/sync_preferences",
    ],
 diff --git a/components/sync/service/sync_internals_util.cc b/components/sync/service/sync_internals_util.cc
-index 2ed913accb7a8..1e3a441258a79 100644
+index 2ed913accb7a8..be9cd97e80404 100644
 --- a/components/sync/service/sync_internals_util.cc
 +++ b/components/sync/service/sync_internals_util.cc
 @@ -29,6 +29,8 @@
@@ -113,7 +192,7 @@ index 2ed913accb7a8..1e3a441258a79 100644
  namespace syncer::sync_ui_util {
  
  namespace {
-@@ -202,12 +204,14 @@ std::string GetUserActionableErrorString(
+@@ -202,24 +204,29 @@ std::string GetUserActionableErrorString(
      case SyncService::UserActionableError::
          kTrustedVaultRecoverabilityDegradedForEverything:
        return "Trusted vault recoverability degraded for everything";
@@ -125,13 +204,30 @@ index 2ed913accb7a8..1e3a441258a79 100644
      case SyncService::UserActionableError::kUnrecoverableError:
        return "Unrecoverable error";
 -#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
-+#endif  // !BUILDFLAG(IS_IOS)
 +#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif  // !BUILDFLAG(IS_IOS)
  #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
      case SyncService::UserActionableError::kNeedsUPMBackendUpgrade:
        return "Needs UPM backend upgrade";
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif  // BUILDFLAG(IS_ANDROID)
+     case SyncService::UserActionableError::kNeedsClientUpgrade:
+       return "Client version is too old and needs upgrade";
+     case SyncService::UserActionableError::kBookmarksLimitExceeded:
+       return "Bookmarks limit exceeded";
+-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(IS_IOS)
++
+     case SyncService::UserActionableError::kDeviceManagementError:
+       return "Device Management error";
+-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(IS_IOS)
+   }
+ 
+   NOTREACHED();
 diff --git a/components/sync/service/sync_service.h b/components/sync/service/sync_service.h
-index d55f8835982ee..5b615f8298fce 100644
+index d55f8835982ee..b93cb811af8cc 100644
 --- a/components/sync/service/sync_service.h
 +++ b/components/sync/service/sync_service.h
 @@ -28,6 +28,8 @@
@@ -152,7 +248,7 @@ index d55f8835982ee..5b615f8298fce 100644
      // Sync settings dialog not confirmed yet.
      kNeedsSettingsConfirmation = 7,
      // Sync has encountered an unrecoverable error. It won't attempt to start
-@@ -233,13 +235,15 @@ class SyncService : public KeyedService {
+@@ -233,12 +235,17 @@ class SyncService : public KeyedService {
      // and back in again. This error is only shown for syncing users, and will
      // be removed with "Sync The Feature" deprecation.
      kUnrecoverableError = 8,
@@ -160,12 +256,85 @@ index d55f8835982ee..5b615f8298fce 100644
 +#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
  #endif  // !BUILDFLAG(IS_IOS)
  
-+#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
  #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
      // Indicates that the Google Play services need to be upgraded.
      kNeedsUPMBackendUpgrade = 9,
++#else
++    // Stub non-unified indicator of needing Google Play Services update for UPM.
++    kNeedsUPMBackendUpgrade = 0,
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
  #endif  // BUILDFLAG(IS_ANDROID)
-+#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
  
      // Indicates that the version of the client/browser is too old and needs to
-     // be upgraded to a more recent version.
+@@ -247,7 +254,7 @@ class SyncService : public KeyedService {
+     // The number of bookmarks has exceeded the limit.
+     kBookmarksLimitExceeded = 11,
+ 
+-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(IS_IOS)
+     // Sync has encountered a Device Management error. The user should be
+     // notified and depending on the type of error, may need to take action to
+     // resolve it.
+@@ -255,7 +262,7 @@ class SyncService : public KeyedService {
+     kMaxValue = kDeviceManagementError,
+ #else
+     kMaxValue = kBookmarksLimitExceeded,
+-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(IS_IOS)
+   };
+   // LINT.ThenChange(/tools/metrics/histograms/metadata/sync/enums.xml:UserActionableError)
+ 
+diff --git a/components/sync/service/sync_service_impl.cc b/components/sync/service/sync_service_impl.cc
+index 1f03761e1860c..89bf47806f388 100644
+--- a/components/sync/service/sync_service_impl.cc
++++ b/components/sync/service/sync_service_impl.cc
+@@ -908,7 +908,8 @@ SyncService::TransportState SyncServiceImpl::GetTransportState() const {
+ 
+ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+     const {
+-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+   if (HasSyncConsent()) {
+     if (!GetUserSettings()->IsInitialSyncFeatureSetupComplete()) {
+       return UserActionableError::kNeedsSettingsConfirmation;
+@@ -919,7 +920,8 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+       return UserActionableError::kUnrecoverableError;
+     }
+   }
+-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif  // !BUILDFLAG(IS_IOS)
+ 
+   if (GetAuthError().state() != GoogleServiceAuthError::NONE) {
+ #if BUILDFLAG(IS_IOS)
+@@ -930,6 +932,7 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+       return UserActionableError::kDeviceManagementError;
+     }
+ #elif BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     // TODO(crbug.com/530541220): Merge with the iOS section during the feature
+     // flag cleanup.
+     if (GetAuthError().state() ==
+@@ -938,6 +941,7 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+             switches::kHandleMdmErrorsForDasherAccountsOnAndroid)) {
+       return UserActionableError::kDeviceManagementError;
+     }
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif
+     return UserActionableError::kSignInNeedsUpdate;
+   }
+@@ -961,10 +965,12 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+   }
+ 
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+   if (user_settings_->GetSelectedTypes().Has(UserSelectableType::kPasswords) &&
+       password_manager::IsGmsCoreUpdateRequired()) {
+     return UserActionableError::kNeedsUPMBackendUpgrade;
+   }
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+   // This error should ideally be the last one to be checked. Any new identity

@@ -11,10 +11,10 @@ Subject: [PATCH] Apply toggle for opening links in incognito for explicit
  3 files changed, 37 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-index d496502e5ff8c..49e2dbe01e745 100644
+index 0abb3eaf90001..d55b6e335aca5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1924,6 +1924,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -1956,6 +1956,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
                  return;
              }
  
@@ -23,7 +23,7 @@ index d496502e5ff8c..49e2dbe01e745 100644
              // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
              // adding NEW_TASK flag to make sure backing from CCT brings up the caller activity,
              // and not Chrome
-@@ -2454,6 +2456,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+@@ -2493,6 +2495,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
              Log.i(TAG, "#initializeState");
              Intent intent = getIntent();
  
@@ -33,10 +33,10 @@ index d496502e5ff8c..49e2dbe01e745 100644
              PersistableBundle persistentState = getPersistentInstanceState();
              if (shouldPersistAcrossReboots() && persistentState != null) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 8903dab0e496d..ad7c54931515f 100644
+index d342ac2f66a6c..d3cea861e437a 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -569,6 +569,9 @@ public class LaunchIntentDispatcher {
+@@ -565,6 +565,9 @@ public class LaunchIntentDispatcher {
                  newIntent.setFlags(newIntent.getFlags() & ~Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
              }
              maybePutCallingAppPackage(newIntent);
