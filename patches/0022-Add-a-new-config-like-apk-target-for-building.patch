@@ -7,8 +7,8 @@ Subject: [PATCH] Add a new config-like apk target for building
  .../android_config/AndroidManifest_config.xml | 28 ++++++
  vanadium/android_config/BUILD.gn              | 21 ++++
  vanadium/android_config/config_apk.gni        | 96 +++++++++++++++++++
- vanadium/android_config/config_apk_vars.gni   | 19 ++++
- 4 files changed, 164 insertions(+)
+ vanadium/android_config/config_apk_vars.gni   | 17 ++++
+ 4 files changed, 162 insertions(+)
  create mode 100644 vanadium/android_config/AndroidManifest_config.xml
  create mode 100644 vanadium/android_config/BUILD.gn
  create mode 100644 vanadium/android_config/config_apk.gni
@@ -179,22 +179,20 @@ index 0000000000000..e2f441c691feb
 +}
 diff --git a/vanadium/android_config/config_apk_vars.gni b/vanadium/android_config/config_apk_vars.gni
 new file mode 100644
-index 0000000000000..fcf49a9b2fcad
+index 0000000000000..4757f99020b4d
 --- /dev/null
 +++ b/vanadium/android_config/config_apk_vars.gni
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,17 @@
 +# Copyright 2023 The Chromium Authors
 +# Use of this source code is governed by a BSD-style license that can be
 +# found in the LICENSE file.
-+
-+import("//chrome/android/trichrome.gni")
 +
 +default_version_code_for_config_apk = "0"
 +default_version_name_for_config_apk = "0"
 +
 +declare_args() {
 +  config_apk_package = "app.vanadium.config"
-+  config_apk_certdigest = trichrome_certdigest
++  config_apk_certdigest = "c6adb8b83c6d4c17d292afde56fd488a51d316ff8f2c11c5410223bff8a7dbb3"
 +  config_apk_version_code = default_version_code_for_config_apk
 +  config_apk_version_name = default_version_name_for_config_apk
 +  config_apk_is_debug = false
