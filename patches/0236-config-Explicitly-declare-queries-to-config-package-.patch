@@ -12,7 +12,7 @@ Subject: [PATCH] config: Explicitly declare queries to config package for
  4 files changed, 16 insertions(+)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
-index 425dcad19852d..e95d1fcd9363d 100644
+index 3139ca0aa0a1d..a23a259a195bc 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
 @@ -38,6 +38,12 @@ by a child template that "extends" this file.
@@ -29,7 +29,7 @@ index 425dcad19852d..e95d1fcd9363d 100644
                   android:icon="@{{manifest_package|default('com.android.webview')}}:drawable/icon_webview"
                   android:name="{{ application_name|default('org.chromium.android_webview.nonembedded.WebViewApkApplication') }}"
 diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
-index 587b1ddd913f9..2a4fee52c3940 100644
+index f1b13ef4ad44d..c2e41a669e4d1 100644
 --- a/android_webview/system_webview_apk_tmpl.gni
 +++ b/android_webview/system_webview_apk_tmpl.gni
 @@ -14,6 +14,7 @@ import("//chrome/version.gni")
@@ -39,7 +39,7 @@ index 587b1ddd913f9..2a4fee52c3940 100644
 +import("//vanadium/android_config/config_apk_vars.gni")
  
  declare_args() {
-   # Android package name to use when compiling the system_webview_apk and
+   # Android package name to use when compiling the system_webview_apk
 @@ -89,6 +90,7 @@ template("system_webview_apk_or_module_tmpl") {
      variables = [
        "force_32_bit=$_force_32_bit",
@@ -49,7 +49,7 @@ index 587b1ddd913f9..2a4fee52c3940 100644
      if (_is_trichrome) {
        variables +=
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 6b9413f634e59..079ecc05e7599 100644
+index a6828d39a1022..f5f865a9f525e 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
 @@ -20,6 +20,7 @@ import("//content/public/common/features.gni")
@@ -69,7 +69,7 @@ index 6b9413f634e59..079ecc05e7599 100644
  
  # Generates an AndroidManifest.xml along with an optional second manifest
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 96670d3fd604d..a5ac75cad1a17 100644
+index feab59429eb62..0c2ea220f4fa1 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -218,6 +218,12 @@ by a child template that "extends" this file.

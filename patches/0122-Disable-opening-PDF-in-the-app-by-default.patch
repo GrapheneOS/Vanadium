@@ -14,7 +14,7 @@ Subject: [PATCH] Disable opening PDF in the app by default
  7 files changed, 26 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
-index 59099d1d210d6..c5cf635006b18 100644
+index 7140335570bae..4a473f672866e 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegate.java
 @@ -231,8 +231,10 @@ public class CustomTabAppMenuPropertiesDelegate extends AppMenuPropertiesDelegat
@@ -31,7 +31,7 @@ index 59099d1d210d6..c5cf635006b18 100644
          }
          addToHomeScreenVisible &=
 diff --git a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
-index a359bf2ea8a2d..2caddea1ab9f7 100644
+index fb18dd4f45000..e6b09e51926dc 100644
 --- a/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
 +++ b/chrome/android/junit/src/org/chromium/chrome/browser/customtabs/CustomTabAppMenuPropertiesDelegateUnitTest.java
 @@ -77,6 +77,7 @@ import org.chromium.components.commerce.core.CommerceFeatureUtilsJni;
@@ -53,7 +53,7 @@ index a359bf2ea8a2d..2caddea1ab9f7 100644
      @Rule public final MockitoRule mMockitoRule = MockitoJUnit.rule();
      @Mock private Tab mTab;
 diff --git a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
-index 63a0419ad263d..2bb08f5f3ed3e 100644
+index 029f9208c50ec..598b063ca4497 100644
 --- a/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
 +++ b/chrome/browser/ui/android/pdf/java/src/org/chromium/chrome/browser/pdf/PdfUtils.java
 @@ -234,6 +234,10 @@ public class PdfUtils {
