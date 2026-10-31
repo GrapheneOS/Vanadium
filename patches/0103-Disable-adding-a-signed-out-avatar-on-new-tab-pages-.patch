@@ -8,7 +8,9 @@ Subject: [PATCH] Disable adding a signed out avatar on new tab pages by
  .../browser/identity_disc/IdentityDiscController.java     | 5 +++++
  .../chromium/chrome/browser/ui/signin/SigninUtils.java    | 8 ++++++++
  .../toolbar/signin_button/SigninButtonCoordinator.java    | 1 +
- 3 files changed, 14 insertions(+)
+ .../org/chromium/components/signin/SigninFeatureMap.java  | 2 +-
+ components/signin/public/base/signin_switches.cc          | 2 +-
+ 5 files changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
 index b432bdd08888c..8f39fa45fa4c8 100644
@@ -61,3 +63,29 @@ index fe8bbaeb384ba..070261c298d1d 100644
                          && (mShowOnAllPages || isNtp(tab));
  
          // Only update signin button if it does not match the intended state.
+diff --git a/components/signin/public/android/java/src/org/chromium/components/signin/SigninFeatureMap.java b/components/signin/public/android/java/src/org/chromium/components/signin/SigninFeatureMap.java
+index 7664ddfe6dce2..7a0510a87e229 100644
+--- a/components/signin/public/android/java/src/org/chromium/components/signin/SigninFeatureMap.java
++++ b/components/signin/public/android/java/src/org/chromium/components/signin/SigninFeatureMap.java
+@@ -32,7 +32,7 @@ public final class SigninFeatureMap extends FeatureMap {
+             new CachedFlag(
+                     sInstance,
+                     SigninFeatures.PROFILE_DISC_ON_ALL_PAGES,
+-                    /* defaultValue= */ true,
++                    /* defaultValue= */ false,
+                     /* defaultValueInTests= */ true);
+     public static final CachedFlag sSigninLevelUpButton =
+             new CachedFlag(
+diff --git a/components/signin/public/base/signin_switches.cc b/components/signin/public/base/signin_switches.cc
+index 00f7590fe4da8..5f42b147d2f2f 100644
+--- a/components/signin/public/base/signin_switches.cc
++++ b/components/signin/public/base/signin_switches.cc
+@@ -825,7 +825,7 @@ BASE_FEATURE(kProfileCreationDeclineSigninCTAExperiment,
+ #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
+ 
+ #if BUILDFLAG(IS_ANDROID)
+-BASE_FEATURE(kProfileDiscOnAllPages, base::FEATURE_ENABLED_BY_DEFAULT);
++BASE_FEATURE(kProfileDiscOnAllPages, base::FEATURE_DISABLED_BY_DEFAULT);
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+ BASE_FEATURE(kProfilesReordering, base::FEATURE_DISABLED_BY_DEFAULT);

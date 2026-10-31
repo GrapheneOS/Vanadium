@@ -8,10 +8,10 @@ Subject: [PATCH] [bugfix] searchbox: avoid compiling non-android code
  1 file changed, 4 insertions(+)
 
 diff --git a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-index dc0975fd520ff..fedaea65e746b 100644
+index d817230d7e045..c7e79495cbff4 100644
 --- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
 +++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
-@@ -1000,6 +1000,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -1007,6 +1007,7 @@ SearchboxHandler::CreateAutocompleteMatch(
    mojom_match->destination_url = match.destination_url;
    mojom_match->suggestion_group_id =
        match.suggestion_group_id.value_or(omnibox::GROUP_INVALID);
@@ -19,7 +19,7 @@ index dc0975fd520ff..fedaea65e746b 100644
    const bool is_bookmarked =
        bookmark_model->IsBookmarked(match.destination_url);
    // For starter pack suggestions, use template url to generate proper vector
-@@ -1010,6 +1011,7 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -1017,6 +1018,7 @@ SearchboxHandler::CreateAutocompleteMatch(
            : turl_service->GetTemplateURLForKeyword(match.associated_keyword);
    mojom_match->icon_path = AutocompleteIconToResourceName(
        match.GetVectorIcon(is_bookmarked, associated_keyword_turl));
@@ -27,7 +27,7 @@ index dc0975fd520ff..fedaea65e746b 100644
    OverrideIconPaths(match, mojom_match.get());
    mojom_match->icon_url = match.icon_url;
    // For featured enterprise search suggestions, use template url to generate
-@@ -1056,11 +1058,13 @@ SearchboxHandler::CreateAutocompleteMatch(
+@@ -1049,11 +1051,13 @@ SearchboxHandler::CreateAutocompleteMatch(
        }
  #endif
        std::string icon_path;

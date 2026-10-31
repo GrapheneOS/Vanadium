@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 31 Oct 2026 07:17:57 +0000
+Subject: [PATCH] fixup! [WebAuthn] Support WebAuthnAndroidCredManForDev in
+ WebView
+
+---
+ .../webauthn/cred_man/CredManSupportProvider.java      | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/components/webauthn/android/java/src/org/chromium/components/webauthn/cred_man/CredManSupportProvider.java b/components/webauthn/android/java/src/org/chromium/components/webauthn/cred_man/CredManSupportProvider.java
+index 7c34e180e73fc..6263f29f8f8ef 100644
+--- a/components/webauthn/android/java/src/org/chromium/components/webauthn/cred_man/CredManSupportProvider.java
++++ b/components/webauthn/android/java/src/org/chromium/components/webauthn/cred_man/CredManSupportProvider.java
+@@ -66,11 +66,21 @@ public class CredManSupportProvider {
+             log(TAG, "Disabled because of Android version.");
+             return sCredManSupport;
+         }
++        // START CHANGE downstream: Always route to Android 15's CredMan
++        if (getAndroidVersion() >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
++            return getCredManSupportInnerForBrowser();
++        }
++        // END CHANGE downstream: Always route to Android 15's CredMan
+         if (notSkippedBecauseInTests() && hasOldGmsVersion()) {
+             sCredManSupport = CredManSupport.DISABLED;
+             log(TAG, "Disabled because of old GMS version.");
+             return sCredManSupport;
+         }
++
++        return getCredManSupportInnerForBrowser();
++    }
++
++    private static @CredManSupport int getCredManSupportInnerForBrowser() {
+         if (notSkippedBecauseInTests()
+                 && ContextUtils.getApplicationContext().getSystemService(Context.CREDENTIAL_SERVICE)
+                         == null) {

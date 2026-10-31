@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 31 Oct 2026 07:18:05 +0000
+Subject: [PATCH] fixup! [WebAuthn] Support WebAuthnAndroidCredManForDev in
+ WebView
+
+---
+ .../webauthn/AuthenticatorImpl.java           | 28 +++++++++++++++----
+ 1 file changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/components/webauthn/android/java/src/org/chromium/components/webauthn/AuthenticatorImpl.java b/components/webauthn/android/java/src/org/chromium/components/webauthn/AuthenticatorImpl.java
+index 6bea91e06bbd6..5b3372d19c2a4 100644
+--- a/components/webauthn/android/java/src/org/chromium/components/webauthn/AuthenticatorImpl.java
++++ b/components/webauthn/android/java/src/org/chromium/components/webauthn/AuthenticatorImpl.java
+@@ -362,9 +362,9 @@ public final class AuthenticatorImpl implements Authenticator, AuthenticationCon
+ 
+     private boolean couldSupportConditionalMediation() {
+         // START CHANGE downstream: Always route to Android 15's CredMan
+-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+-            // Skip GMSCore checks.
+-            return true;
++        Boolean isCredmanSupported = isCredmanSupporedOverride();
++        if (isCredmanSupported != null) {
++            return isCredmanSupported;
+         }
+         // END CHANGE downstream: Always route to Android 15's CredMan
+         return GmsCoreUtils.isWebauthnSupported() && isChrome(mWebContents);
+@@ -377,9 +377,9 @@ public final class AuthenticatorImpl implements Authenticator, AuthenticationCon
+      */
+     private boolean hasCredentialBackend() {
+         // START CHANGE downstream: Always route to Android 15's CredMan
+-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+-            // Skip GMSCore checks.
+-            return true;
++        Boolean isCredmanSupported = isCredmanSupporedOverride();
++        if (isCredmanSupported != null) {
++            return isCredmanSupported;
+         }
+         // END CHANGE downstream: Always route to Android 15's CredMan
+         if (isChrome(mWebContents)) {
+@@ -389,6 +389,22 @@ public final class AuthenticatorImpl implements Authenticator, AuthenticationCon
+                 || CredManSupportProvider.getCredManSupportForWebView() != CredManSupport.DISABLED;
+     }
+ 
++    // START CHANGE downstream: Always route to Android 15's CredMan
++    @Nullable
++    private Boolean isCredmanSupporedOverride() {
++        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) {
++            return null;
++        }
++
++        // Skip GMSCore checks.
++        if (isChrome(mWebContents)) {
++            return CredManSupportProvider.getCredManSupport() != CredManSupport.DISABLED;
++        }
++
++        return CredManSupportProvider.getCredManSupportForWebView() != CredManSupport.DISABLED;
++    }
++    // END CHANGE downstream: Always route to Android 15's CredMan
++
+     @Override
+     public void isUserVerifyingPlatformAuthenticatorAvailable(
+             final IsUserVerifyingPlatformAuthenticatorAvailable_Response callback) {

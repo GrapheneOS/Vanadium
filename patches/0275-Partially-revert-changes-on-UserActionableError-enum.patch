@@ -81,10 +81,10 @@ index 096a683e65249..2874c078e5392 100644
      case SyncError::kBookmarksLimitExceeded:
  #if BUILDFLAG(IS_IOS)
 diff --git a/components/send_tab_to_self/BUILD.gn b/components/send_tab_to_self/BUILD.gn
-index 061c4c8ba0e42..aee3090976295 100644
+index 1ec3e373cccf8..ad00fdf452fb9 100644
 --- a/components/send_tab_to_self/BUILD.gn
 +++ b/components/send_tab_to_self/BUILD.gn
-@@ -157,4 +157,8 @@ source_set("unit_tests") {
+@@ -154,4 +154,8 @@ source_set("unit_tests") {
      "//testing/gtest",
      "//url",
    ]
@@ -286,7 +286,7 @@ index d55f8835982ee..946c1ddb7d17a 100644
    // LINT.ThenChange(/tools/metrics/histograms/metadata/sync/enums.xml:UserActionableError)
  
 diff --git a/components/sync/service/sync_service_impl.cc b/components/sync/service/sync_service_impl.cc
-index d37ce22f7d962..537e193d48de4 100644
+index 1f03761e1860c..89bf47806f388 100644
 --- a/components/sync/service/sync_service_impl.cc
 +++ b/components/sync/service/sync_service_impl.cc
 @@ -908,7 +908,8 @@ SyncService::TransportState SyncServiceImpl::GetTransportState() const {
@@ -313,7 +313,7 @@ index d37ce22f7d962..537e193d48de4 100644
        return UserActionableError::kDeviceManagementError;
      }
  #elif BUILDFLAG(IS_ANDROID)
-+#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) 
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
      // TODO(crbug.com/530541220): Merge with the iOS section during the feature
      // flag cleanup.
      if (GetAuthError().state() ==
@@ -321,7 +321,7 @@ index d37ce22f7d962..537e193d48de4 100644
              switches::kHandleMdmErrorsForDasherAccountsOnAndroid)) {
        return UserActionableError::kDeviceManagementError;
      }
-+#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) 
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
  #endif
      return UserActionableError::kSignInNeedsUpdate;
    }
@@ -329,12 +329,12 @@ index d37ce22f7d962..537e193d48de4 100644
    }
  
  #if BUILDFLAG(IS_ANDROID)
-+#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) 
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
    if (user_settings_->GetSelectedTypes().Has(UserSelectableType::kPasswords) &&
        password_manager::IsGmsCoreUpdateRequired()) {
      return UserActionableError::kNeedsUPMBackendUpgrade;
    }
-+#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) 
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
  #endif  // BUILDFLAG(IS_ANDROID)
  
    // This error should ideally be the last one to be checked. Any new identity

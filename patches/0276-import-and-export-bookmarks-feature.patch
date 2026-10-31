@@ -107,10 +107,10 @@ index 6c40dcc925594..a658fc69f007c 100644
    <if expr="not use_titlecase">
      <message name="IDS_BOOKMARK_BAR_SHOW_APPS_SHORTCUT" desc="Name shown in the context menu to hide/show the apps shortcut in the bookmark bar">
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 274a95ab3f8dc..7208db64569e5 100644
+index b571300403071..6ca267af6a12f 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -5177,11 +5177,11 @@ are declared in tools/grit/grit_args.gni.
+@@ -5183,11 +5183,11 @@ are declared in tools/grit/grit_args.gni.
        <message name="IDS_UTILITY_PROCESS_FILE_UTILITY_NAME" desc="The name of the utility process used for various Vanadium specific file operations.">
            Vanadium File Utilities
        </message>
@@ -124,7 +124,7 @@ index 274a95ab3f8dc..7208db64569e5 100644
        <message name="IDS_UTILITY_PROCESS_QRCODE_GENERATOR_SERVICE_NAME" desc="The name of the utility process used for encoding QR Codes.">
          QR Code Generator
        </message>
-@@ -11734,7 +11734,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11823,7 +11823,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
        </if>
  
        <!-- Android uses custom UI for Bookmark importing -->
@@ -133,7 +133,7 @@ index 274a95ab3f8dc..7208db64569e5 100644
          <!-- Import Settings Dialog -->
          <if expr="is_win">
            <message name="IDS_IMPORT_FROM_IE" desc="browser combo box: Microsoft Internet Explorer">
-@@ -11767,7 +11767,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
+@@ -11856,7 +11856,7 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Google
              Import Bookmarks and Settings...
            </message>
          </if> <!-- is_macosx -->
@@ -143,7 +143,7 @@ index 274a95ab3f8dc..7208db64569e5 100644
        <if expr="is_macosx">
          <!-- Confirm to quit panel -->
 diff --git a/chrome/browser/bookmarks/android/BUILD.gn b/chrome/browser/bookmarks/android/BUILD.gn
-index ea812516d0f00..078a0333ee79a 100644
+index eb28061ee1e1e..1b8040784f1c5 100644
 --- a/chrome/browser/bookmarks/android/BUILD.gn
 +++ b/chrome/browser/bookmarks/android/BUILD.gn
 @@ -6,7 +6,10 @@ import("//build/config/android/rules.gni")
@@ -167,9 +167,9 @@ index ea812516d0f00..078a0333ee79a 100644
 +    "bookmark_bridge.cc",
 +    "bookmark_import_export_helper.cc",
 +  ]
-   public_deps = [ "//chrome/browser:browser_public_dependencies" ]
    deps = [
      ":android",
+     "//chrome/android:chrome_jni_headers",
 diff --git a/chrome/browser/bookmarks/android/DEPS b/chrome/browser/bookmarks/android/DEPS
 index c1edad1ad6cf0..210d123b29607 100644
 --- a/chrome/browser/bookmarks/android/DEPS
@@ -188,7 +188,7 @@ index c1edad1ad6cf0..210d123b29607 100644
 +  ],
 +}
 diff --git a/chrome/browser/bookmarks/android/bookmark_bridge.cc b/chrome/browser/bookmarks/android/bookmark_bridge.cc
-index 9671f32a867ae..075881763766f 100644
+index b94692c5baf50..c4227e29e76d7 100644
 --- a/chrome/browser/bookmarks/android/bookmark_bridge.cc
 +++ b/chrome/browser/bookmarks/android/bookmark_bridge.cc
 @@ -34,6 +34,7 @@
@@ -208,7 +208,7 @@ index 9671f32a867ae..075881763766f 100644
    load_start_time_ = base::TimeTicks::Now();
    RecordLoadedStateEnum(LoadedState::kLoadStarted);
  
-@@ -1337,6 +1340,30 @@ bool BookmarkBridge::IsBookmarked(JNIEnv* env, const GURL& url) {
+@@ -1355,6 +1358,30 @@ bool BookmarkBridge::IsBookmarked(JNIEnv* env, const GURL& url) {
    return !GetMostRecentlyAddedUserBookmarkIdForUrl(env, url).is_null();
  }
  
@@ -520,7 +520,7 @@ index 0000000000000..252b1d9481ecd
 +
 +#endif  // CHROME_BROWSER_BOOKMARKS_ANDROID_BOOKMARK_IMPORT_EXPORT_HELPER_H_
 diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
-index d885e3aff2903..44e80691b615a 100644
+index 80894ac9c1a29..a2274d9ddef70 100644
 --- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
 +++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
 @@ -32,6 +32,7 @@ import org.chromium.components.bookmarks.BookmarkItem;
@@ -531,7 +531,7 @@ index d885e3aff2903..44e80691b615a 100644
  import org.chromium.url.GURL;
  
  import java.util.ArrayList;
-@@ -892,6 +893,18 @@ class BookmarkBridge {
+@@ -910,6 +911,18 @@ class BookmarkBridge {
          return BookmarkBridgeJni.get().isBookmarked(mNativeBookmarkBridge, url);
      }
  
@@ -550,7 +550,7 @@ index d885e3aff2903..44e80691b615a 100644
      public @Nullable BookmarkId getPartnerFolderId() {
          ThreadUtils.assertOnUiThread();
          if (mNativeBookmarkBridge == 0) return null;
-@@ -1198,5 +1211,9 @@ class BookmarkBridge {
+@@ -1216,5 +1229,9 @@ class BookmarkBridge {
          void reorderChildren(long nativeBookmarkBridge, BookmarkId parent, long[] orderedNodes);
  
          boolean isBookmarked(long nativeBookmarkBridge, @JniType("GURL") GURL url);
@@ -561,10 +561,10 @@ index d885e3aff2903..44e80691b615a 100644
      }
  }
 diff --git a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
-index e2217008fb995..6d9d5d87d570c 100644
+index ef73312e43cb4..ced97bbc4d52b 100644
 --- a/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
 +++ b/chrome/browser/bookmarks/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManagerCoordinator.java
-@@ -290,7 +290,8 @@ public class BookmarkManagerCoordinator
+@@ -289,7 +289,8 @@ public class BookmarkManagerCoordinator
                          bookmarkManagerOpener,
                          mSnackbarManager,
                          /* nextFocusableView= */ mMainView.findViewById(R.id.list_content),
@@ -672,7 +672,7 @@ index ed1ebb53315ec..455460efe3d84 100644
      }
  }
 diff --git a/chrome/browser/importer/BUILD.gn b/chrome/browser/importer/BUILD.gn
-index 08b67eb41ebb0..c39af4497766f 100644
+index ed8e8bf048399..3fe9dc6aa0fec 100644
 --- a/chrome/browser/importer/BUILD.gn
 +++ b/chrome/browser/importer/BUILD.gn
 @@ -2,7 +2,7 @@
@@ -684,7 +684,7 @@ index 08b67eb41ebb0..c39af4497766f 100644
  
  source_set("importer") {
    sources = [
-@@ -72,6 +72,36 @@ source_set("impl") {
+@@ -70,6 +70,36 @@ source_set("impl") {
    }
  }
  
@@ -722,13 +722,13 @@ index 08b67eb41ebb0..c39af4497766f 100644
    testonly = true
    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 diff --git a/chrome/browser/importer/external_process_importer_host.cc b/chrome/browser/importer/external_process_importer_host.cc
-index 8a1d68e110774..5717c7e5f375f 100644
+index 051ffd1259dd1..5681972b53380 100644
 --- a/chrome/browser/importer/external_process_importer_host.cc
 +++ b/chrome/browser/importer/external_process_importer_host.cc
 @@ -130,10 +130,12 @@ void ExternalProcessImporterHost::OnTemplateURLServiceLoaded() {
  
  void ExternalProcessImporterHost::ShowWarningDialog() {
-   DCHECK(!headless_);
+   CHECK(!headless_, base::NotFatalUntil::M161);
 +#if !BUILDFLAG(IS_ANDROID)
    importer::ShowImportLockDialog(
        parent_window_,
@@ -739,10 +739,10 @@ index 8a1d68e110774..5717c7e5f375f 100644
  
  void ExternalProcessImporterHost::OnImportLockDialogEnd(bool is_continue) {
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 098e836402add..1de84762d946e 100644
+index 02384ff0a9010..9b85f6794c031 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -4893,6 +4893,15 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
+@@ -4942,6 +4942,15 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Vanadium
        <message name="IDS_SORT_BY_LAST_OPENED"  desc="Option in the bookmarks manager to sort by last opened. [CHAR_LIMIT=24]">
          Sort by last opened
        </message>
@@ -759,7 +759,7 @@ index 098e836402add..1de84762d946e 100644
          Sorting by last opened
        </message>
 diff --git a/chrome/common/importer/BUILD.gn b/chrome/common/importer/BUILD.gn
-index bc73d6fe724c9..91f19ba423c26 100644
+index 9aecb7847e3f7..54aeaf9f4193a 100644
 --- a/chrome/common/importer/BUILD.gn
 +++ b/chrome/common/importer/BUILD.gn
 @@ -89,6 +89,12 @@ source_set("importer") {
@@ -776,10 +776,10 @@ index bc73d6fe724c9..91f19ba423c26 100644
      sources += [ "firefox_importer_utils_linux.cc" ]
    } else if (is_mac) {
 diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
-index 95b88e50fca92..a02e2755b3661 100644
+index e5b851a44d644..1468031e69a21 100644
 --- a/chrome/utility/BUILD.gn
 +++ b/chrome/utility/BUILD.gn
-@@ -95,7 +95,7 @@ static_library("utility") {
+@@ -92,7 +92,7 @@ static_library("utility") {
      ]
    }
  
@@ -788,7 +788,7 @@ index 95b88e50fca92..a02e2755b3661 100644
      sources += [
        "importer/bookmarks_file_importer.cc",
        "importer/bookmarks_file_importer.h",
-@@ -108,7 +108,7 @@ static_library("utility") {
+@@ -105,7 +105,7 @@ static_library("utility") {
        "importer/profile_import_impl.cc",
        "importer/profile_import_impl.h",
      ]
@@ -797,7 +797,7 @@ index 95b88e50fca92..a02e2755b3661 100644
        sources += [
          "importer/firefox_importer.cc",
          "importer/firefox_importer.h",
-@@ -120,7 +120,7 @@ static_library("utility") {
+@@ -117,7 +117,7 @@ static_library("utility") {
          "importer/safari_importer.mm",
        ]
      }
@@ -806,7 +806,7 @@ index 95b88e50fca92..a02e2755b3661 100644
        # NSS decryptor is not needed on ChromeOS. Additionally, it depends on
        # system NSS that is unavailable on MacOS/Fuchsia.
        sources += [
-@@ -155,6 +155,12 @@ static_library("utility") {
+@@ -152,6 +152,12 @@ static_library("utility") {
        "//services/proxy_resolver:lib",
        "//services/screen_ai",
      ]
@@ -833,7 +833,7 @@ index 5f8f27c70bafe..ec2eb79f70948 100644
        return new FirefoxImporter();
  #endif
 diff --git a/chrome/utility/services.cc b/chrome/utility/services.cc
-index fd641144f16cb..5059429f26b6f 100644
+index 14cdd3f48779e..d5ba58ef679e9 100644
 --- a/chrome/utility/services.cc
 +++ b/chrome/utility/services.cc
 @@ -63,6 +63,11 @@
