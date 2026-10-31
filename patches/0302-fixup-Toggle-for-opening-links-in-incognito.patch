@@ -1,0 +1,398 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 31 Oct 2026 07:19:44 +0000
+Subject: [PATCH] fixup! Toggle for opening links in incognito
+
+Squash this with all the commit(s) involving the feature of opening
+external links in incognito in the future.
+---
+ .../chrome/browser/ChromeTabbedActivity.java  | 14 ++--
+ .../chrome/browser/IntentHandler.java         |  5 ++
+ .../browser/LaunchIntentDispatcher.java       |  8 +--
+ .../IncognitoCustomTabIntentDataProvider.java |  3 +
+ .../document/ChromeLauncherActivity.java      |  9 +--
+ .../browser/searchwidget/SearchActivity.java  |  5 +-
+ .../browser/LaunchIntentDispatcherHooks.java  | 64 ++++++-------------
+ .../chrome/browser/TabPreferencesUtils.java   | 33 +++++-----
+ .../searchwidget/SearchActivityHooks.java     | 15 +----
+ 9 files changed, 62 insertions(+), 94 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+index d55b6e335aca5..c9939e0d2793e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -1956,7 +1956,7 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+                 return;
+             }
+ 
+-            intent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(this, intent);
++            LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(intent);
+ 
+             // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
+             // adding NEW_TASK flag to make sure backing from CCT brings up the caller activity,
+@@ -2495,7 +2495,7 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+             Log.i(TAG, "#initializeState");
+             Intent intent = getIntent();
+ 
+-            intent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(this, intent);
++            LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(intent);
+ 
+             boolean hadCipherData = false;
+             PersistableBundle persistentState = getPersistentInstanceState();
+@@ -3106,7 +3106,8 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+                 resultTab = launchIntent(loadUrlParams, externalAppId, true, intent);
+                 break;
+             case TabOpenType.OPEN_NEW_INCOGNITO_TAB:
+-                if (!TextUtils.equals(externalAppId, getPackageName())) {
++                if (!TabPreferencesUtils.shouldOpenExternalLinksInIncognito(intent)
++                        && !TextUtils.equals(externalAppId, getPackageName())) {
+                     assert false : "Only Chrome is allowed to open incognito tabs";
+                     Log.e(TAG, "Only Chrome is allowed to open incognito tabs");
+                     return null;
+@@ -5108,8 +5109,6 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+         // - we decided to close the tab, but it was opened by an external app, so we will go
+         //   exit Chrome on top of closing the tab
+         final boolean minimizeApp =
+-                (currentTab.getLaunchType() == TabLaunchType.FROM_EXTERNAL_APP &&
+-                TabPreferencesUtils.shouldOpenLinksInIncognito()) ||
+                 !shouldCloseTab || TabAssociatedApp.isOpenedFromExternalApp(currentTab);
+ 
+         BackPressManager.record(BackPressHandler.Type.MINIMIZE_APP_AND_CLOSE_TAB);
+@@ -5383,6 +5382,11 @@ public class ChromeTabbedActivity extends ChromeActivity implements PreAttachInt
+             return firstTab;
+         }
+ 
++        if (TabPreferencesUtils.shouldOpenExternalLinksInIncognito(intent)) {
++            return getTabCreator(true)
++                    .launchUrlFromExternalApp(loadUrlParams, null, forceNewTab, intent);
++        }
++
+         Tab tab =
+                 getTabCreator(isIncognitoForced)
+                         .launchUrlFromExternalApp(
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
+index 49f01e63217d2..3385108d30eba 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
+@@ -1135,6 +1135,8 @@ public class IntentHandler {
+ 
+     private static boolean isAllowedIncognitoIntent(
+             boolean isChrome, boolean isCustomTab, Intent intent) {
++        if (TabPreferencesUtils.shouldOpenExternalLinksInIncognito(intent)) return true;
++
+         // "Open new incognito tab" is currently limited to Chrome for the Chrome app. It can be
+         // launched by external apps if it's a Custom Tab, although there are additional checks in
+         // IncognitoCustomTabIntentDataProvider#isValidIncognitoIntent.
+@@ -1240,6 +1242,9 @@ public class IntentHandler {
+      * intents with action NDEF_DISCOVERED (links beamed over NFC) are handled properly.
+      */
+     public static @TabOpenType int getTabOpenType(Intent intent) {
++        if (TabPreferencesUtils.shouldOpenExternalLinksInIncognito(intent)) {
++            return TabOpenType.OPEN_NEW_INCOGNITO_TAB;
++        }
+         if (IntentUtils.isTrustedIntentFromSelf(intent)) {
+             @TabOpenType
+             int tabOpenType = IntentUtils.safeGetIntExtra(intent, EXTRA_TAB_OPEN_TYPE, -1);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index e551cb2bb9f0f..81afd86e69dfd 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -336,7 +336,7 @@ public class LaunchIntentDispatcher {
+             newIntent.setData(uri);
+         }
+         newIntent.setClassName(context, CustomTabActivity.class.getName());
+-        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, newIntent);
++        LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(newIntent);
+         // Make sure the result of the CustomTabActivity is forwarded to the client.
+         newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+ 
+@@ -525,6 +525,7 @@ public class LaunchIntentDispatcher {
+ 
+     private boolean maybeStartNavigation() {
+         if (!ProfileManager.isInitialized()) return false;
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) return false;
+         if (IntentHandler.willLaunchIncognitoCustomTab(mIntent)) return false;
+         if (clearTopIntentsForCustomTabsEnabled(mIntent)
+                 && SessionDataHolder.getInstance()
+@@ -557,7 +558,7 @@ public class LaunchIntentDispatcher {
+ 
+         if (Intent.ACTION_VIEW.equals(newIntent.getAction())
+                 && !IntentHandler.wasIntentSenderChrome(newIntent)) {
+-            newIntent = LaunchIntentDispatcherHooks.maybeModifyActionViewIntents(mActivity, newIntent);
++            LaunchIntentDispatcherHooks.maybeModifyActionViewIntents(newIntent);
+             if (!chromeTabbedTaskExists(mActivity)) {
+                 newIntent.putExtra(IntentHandler.EXTRA_STARTED_TABBED_CHROME_TASK, true);
+             }
+@@ -569,8 +570,7 @@ public class LaunchIntentDispatcher {
+             }
+             maybePutCallingAppPackage(newIntent);
+         } else {
+-            newIntent = LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(
+-                    mActivity, newIntent);
++            LaunchIntentDispatcherHooks.maybeModifyMainOrExplicitIntents(newIntent);
+         }
+ 
+         if (mActivity instanceof ChromeLauncherActivity) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
+index f3f28df683fbd..3d9f47fc4f2f2 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
+@@ -215,6 +215,9 @@ public class IncognitoCustomTabIntentDataProvider extends BrowserServicesIntentD
+ 
+     public static boolean isValidIncognitoIntent(Intent intent, boolean recordMetrics) {
+         if (!isIncognitoRequested(intent)) return false;
++        if (org.chromium.chrome.browser.TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            return true;
++        }
+         var session = SessionHolder.getSessionHolderFromIntent(intent);
+         if (isIntentFromThirdPartyAllowed()
+                 && getClientPackageNameFromSessionOrCallingActivity(intent, session) != null) {
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
+index 3456d20b25f90..7a81356f9883c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
+@@ -118,10 +118,7 @@ public class ChromeLauncherActivity extends Activity {
+         // Check if a web search Intent is being handled.
+         if (processWebSearchIntent(targetTabId, intent)) return;
+ 
+-        if (Intent.ACTION_SEND.equals(intent.getAction())
+-                && "text/plain".equals(intent.getType())) {
+-            org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(this, intent);
+-        }
++        org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifyActionSendIntents(intent);
+ 
+         // Check if a LIVE WebappActivity has to be brought back to the foreground.  We can't
+         // check for a dead WebappActivity because we don't have that information without a global
+@@ -245,8 +242,8 @@ public class ChromeLauncherActivity extends Activity {
+             searchActivityIntent.setClass(
+                     ContextUtils.getApplicationContext(), SearchActivity.class);
+             searchActivityIntent.putExtra(SearchManager.QUERY, query);
+-            searchActivityIntent = org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifySearchIntents(
+-                    this, searchActivityIntent);
++            org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifySearchIntents(
++                    searchActivityIntent);
+             startActivity(searchActivityIntent);
+         }
+         return true;
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+index b18beb7ae57e2..a0e81cdce2437 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
+@@ -596,10 +596,7 @@ public class SearchActivity extends AsyncInitializationActivity
+         Intent intent = SearchActivityUtils.createIntentForStartActivity(params);
+         if (intent == null) return;
+ 
+-        intent = SearchActivityHooks.modifyIntentForStartActivity(this, intent);
+-        if (intent == null) {
+-            return;
+-        }
++        SearchActivityHooks.modifyIntentForStartActivity(intent);
+ 
+         if (mCurrentSession.intentOrigin == IntentOrigin.SEARCH_WIDGET) {
+             intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+index b26dc4d8491b0..955df94e3f0fb 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
+@@ -4,8 +4,6 @@
+ 
+ package org.chromium.chrome.browser;
+ 
+-import android.app.Activity;
+-import android.content.Context;
+ import android.content.Intent;
+ 
+ import org.chromium.base.IntentUtils;
+@@ -14,73 +12,51 @@ import org.chromium.build.annotations.NullMarked;
+ @NullMarked
+ public final class LaunchIntentDispatcherHooks {
+ 
+-    private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
+-        Intent newIntent = intent;
+-        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
+-            TabPreferencesUtils.appendNeededIncognitoExtras(context, newIntent);
+-        }
+-
+-        return newIntent;
+-    }
+-
+-
+-    static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
++    static void maybeModifyActionViewIntents(Intent intent) {
+         if (!Intent.ACTION_VIEW.equals(intent.getAction())) {
+-            return intent;
+-        }
+-
+-        Intent newIntent = intent;
+-        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
+-            newIntent = TabPreferencesUtils.createIncognitoIntent(activity, intent);
++            return;
+         }
+ 
+-        return newIntent;
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
+     }
+ 
+-    static Intent maybeModifyCustomTabIntents(Context context, Intent intent) {
+-        Intent newIntent = maybeCreateIncognitoTabIntentFor(context, intent);
+-
+-        return newIntent;
++    static void maybeModifyCustomTabIntents(Intent intent) {
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
+     }
+ 
+-    public static Intent maybeModifySearchIntents(Activity activity, Intent intent) {
+-        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
+-
+-        return newIntent;
++    public static void maybeModifySearchIntents(Intent intent) {
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
+     }
+ 
+-    public static Intent maybeModifyActionSendIntents(Activity activity, Intent intent) {
+-        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
++    public static void maybeModifyActionSendIntents(Intent intent) {
++        if (!Intent.ACTION_SEND.equals(intent.getAction())
++                || !"text/plain".equals(intent.getType())) {
++            return;
++        }
++
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
+ 
+-        return newIntent;
+     }
+ 
+-    static Intent maybeModifyMainOrExplicitIntents(Activity activity, Intent intent) {
++    static void maybeModifyMainOrExplicitIntents(Intent intent) {
+         if (intent == null) {
+-            return intent;
++            return;
+         }
+ 
+         String urlFromIntent = IntentHandler.getUrlFromIntent(intent);
+         if (urlFromIntent == null) {
+-            return intent;
+-        }
+-
+-        if (IntentUtils.safeGetBooleanExtra(intent,
+-                IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false)) {
+-            return intent;
++            return;
+         }
+ 
+         if (IntentUtils.isTrustedIntentFromSelf(intent)) {
+-            return intent;
++            return;
+         }
+ 
+         if (intent.getComponent() == null
+                 && !Intent.ACTION_MAIN.equals(intent.getAction())) {
+-            return intent;
++            return;
+         }
+ 
+-        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
+-
+-        return newIntent;
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
+     }
+ }
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
+index 0f41a75a1b062..a601baf620cba 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/TabPreferencesUtils.java
+@@ -4,15 +4,13 @@
+ 
+ package org.chromium.chrome.browser;
+ 
+-import android.content.Context;
+-import android.provider.Browser;
+ import android.content.Intent;
+ 
++import androidx.browser.customtabs.CustomTabsIntent;
++
+ import org.chromium.base.IntentUtils;
+ import org.chromium.base.shared_preferences.SharedPrefsUtils.SharedPrefsExt;
+ import org.chromium.build.annotations.NullMarked;
+-import org.chromium.chrome.browser.document.ChromeLauncherActivity;
+-import org.chromium.chrome.browser.tab.TabLaunchType;
+ 
+ /*
+  * Utility class for modifying tab-related browsing behaviors
+@@ -29,22 +27,21 @@ public final class TabPreferencesUtils {
+         return SharedPrefsExt.OPEN_LINKS_IN_INCOGNITO.get();
+     }
+ 
+-    static Intent createIncognitoIntent(Context context, Intent intent) {
+-        Intent newIntent = new Intent();
+-        newIntent.setAction(intent.getAction());
+-        newIntent.setData(intent.getData());
+-        newIntent.putExtras(intent);
+-        newIntent.setClass(context, ChromeLauncherActivity.class);
+-        newIntent.putExtra(Browser.EXTRA_CREATE_NEW_TAB, true);
+-        IntentHandler.setTabLaunchType(newIntent, TabLaunchType.FROM_EXTERNAL_APP);
+-        appendNeededIncognitoExtras(context, newIntent);
+-        return newIntent;
++    public static boolean shouldOpenExternalLinksInIncognito(Intent intent) {
++        if (!shouldOpenLinksInIncognito()) {
++            return false;
++        }
++
++        return IntentHandler.hasAnyIncognitoExtra(intent.getExtras());
+     }
+ 
+-    public static void appendNeededIncognitoExtras(Context context, Intent intent) {
+-        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
++
++    public static void maybeModifyNeededIncognitoExtras(Intent intent) {
++        if (!shouldOpenLinksInIncognito()) {
++            return;
++        }
++
+         intent.putExtra(IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, true);
+-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+-        IntentUtils.addTrustedIntentExtras(intent);
++        intent.putExtra(CustomTabsIntent.EXTRA_ENABLE_EPHEMERAL_BROWSING, true);
+     }
+ }
+diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
+index c05d9cdf76a96..5c265d3ceb320 100644
+--- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
++++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
+@@ -1,23 +1,16 @@
+ package org.chromium.chrome.browser.searchwidget;
+ 
+-import android.app.Activity;
+ import android.content.Intent;
+ import android.app.SearchManager;
+ 
+ import org.chromium.base.IntentUtils;
+ import org.chromium.chrome.browser.IntentHandler;
+ import org.chromium.chrome.browser.TabPreferencesUtils;
+-import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
+ 
+ public final class SearchActivityHooks {
+ 
+-    static Intent modifyIntentForStartActivity(Activity activity, Intent intent) {
+-        Intent newIntent = intent;
+-        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
+-            TabPreferencesUtils.appendNeededIncognitoExtras(activity, newIntent);
+-        }
+-
+-        return newIntent;
++    static void modifyIntentForStartActivity(Intent intent) {
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
+     }
+ 
+     static boolean shouldOpenInIncognito(Intent intent) {
+@@ -26,10 +19,6 @@ public final class SearchActivityHooks {
+             return TabPreferencesUtils.shouldOpenLinksInIncognito();
+         }
+ 
+-        if (!IntentUtils.isTrustedIntentFromSelf(intent)) {
+-            return false;
+-        }
+-
+         return IntentUtils.safeGetBooleanExtra(intent,
+                 IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false);
+     }

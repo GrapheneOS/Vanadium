@@ -11,10 +11,10 @@ Subject: [PATCH] Support opening external web search in incognito
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index a0060821d2c5e..15bd02879e4aa 100644
+index dbd4ab12c9d98..ebe288a1846cd 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -653,6 +653,11 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -595,6 +595,11 @@ public class SearchActivity extends AsyncInitializationActivity
          Intent intent = SearchActivityUtils.createIntentForStartActivity(params);
          if (intent == null) return;
  
@@ -23,7 +23,7 @@ index a0060821d2c5e..15bd02879e4aa 100644
 +            return;
 +        }
 +
-         if (mIntentOrigin == IntentOrigin.SEARCH_WIDGET) {
+         if (mCurrentSession.intentOrigin == IntentOrigin.SEARCH_WIDGET) {
              intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
          }
 diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
