@@ -11,10 +11,10 @@ Subject: [PATCH] Apply toggle for opening links in incognito for search tabs
  4 files changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
-index 385599005c752..a817a98a40855 100644
+index f1dbd8c76bbdc..6152966cab9c4 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
-@@ -241,6 +241,8 @@ public class ChromeLauncherActivity extends Activity {
+@@ -240,6 +240,8 @@ public class ChromeLauncherActivity extends Activity {
              searchActivityIntent.setClass(
                      ContextUtils.getApplicationContext(), SearchActivity.class);
              searchActivityIntent.putExtra(SearchManager.QUERY, query);
@@ -24,10 +24,10 @@ index 385599005c752..a817a98a40855 100644
          }
          return true;
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 15bd02879e4aa..290961ccf221a 100644
+index ebe288a1846cd..b18beb7ae57e2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -448,7 +448,8 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -403,7 +403,8 @@ public class SearchActivity extends AsyncInitializationActivity
  
      @Override
      protected OneshotSupplier<ProfileProvider> createProfileProvider() {

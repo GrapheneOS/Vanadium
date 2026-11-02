@@ -11,10 +11,10 @@ Subject: [PATCH] Include ACCESS_LOCAL_NETWORK to uses-permission guarded by
  3 files changed, 10 insertions(+)
 
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 5e8368c29ba69..b27061ffcd5a2 100644
+index 155469e28557b..30bcd29634a63 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
-@@ -248,6 +248,10 @@ template("chrome_common_apk_or_module_tmpl") {
+@@ -259,6 +259,10 @@ template("chrome_common_apk_or_module_tmpl") {
      if (defined(invoker.jinja_extra_includes)) {
        includes += invoker.jinja_extra_includes
      }
@@ -26,7 +26,7 @@ index 5e8368c29ba69..b27061ffcd5a2 100644
  
    target(_target_type, target_name) {
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index 886c7cca00437..335fac2a7bc63 100644
+index 93f69a7d62277..30b40d1eab95c 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -133,6 +133,11 @@ by a child template that "extends" this file.
