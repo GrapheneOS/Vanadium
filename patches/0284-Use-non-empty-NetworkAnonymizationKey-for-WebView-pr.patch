@@ -9,18 +9,18 @@ Subject: [PATCH] Use non-empty NetworkAnonymizationKey for WebView
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/android_webview/browser/aw_preconnector.cc b/android_webview/browser/aw_preconnector.cc
-index 686707a52925c..1c90ce5e4c2f3 100644
+index 92fb2084bb4cb..5a83874075575 100644
 --- a/android_webview/browser/aw_preconnector.cc
 +++ b/android_webview/browser/aw_preconnector.cc
-@@ -20,6 +20,7 @@
+@@ -22,6 +22,7 @@
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "net/base/network_anonymization_key.h"
  #include "net/socket/next_proto.h"
 +#include "net/base/schemeful_site.h"
  #include "services/network/public/cpp/constants.h"
+ #include "services/network/public/mojom/network_context.mojom.h"
  #include "url/android/gurl_android.h"
- #include "url/origin.h"
-@@ -101,14 +102,13 @@ AwPreconnector::~AwPreconnector() {
+@@ -114,14 +115,13 @@ AwPreconnector::~AwPreconnector() {
  }
  
  bool AwPreconnector::Preconnect(JNIEnv* env, const GURL& url) {

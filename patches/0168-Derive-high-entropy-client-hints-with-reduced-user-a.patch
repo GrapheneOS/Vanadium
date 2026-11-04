@@ -15,10 +15,10 @@ Android.
  4 files changed, 53 insertions(+)
 
 diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
-index eff35f8b4c1d8..c0b228b13c224 100644
+index a3730e93b8418..6c1c7ea37f2a6 100644
 --- a/components/embedder_support/user_agent_utils.cc
 +++ b/components/embedder_support/user_agent_utils.cc
-@@ -683,6 +683,34 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
+@@ -655,6 +655,34 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
                 : metadata;
    }
  
@@ -79,7 +79,7 @@ index 1eae0a9aa962f..fc05f2d54f3a5 100644
    if (ShouldAddClientHint(data, WebClientHintsType::kDeviceMemory_DEPRECATED)) {
      AddDeviceMemoryHeader(headers, /*use_deprecated_version*/ true);
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index b4d62dbec52ee..91abbf08d3329 100644
+index 6dca1ba06fd1a..cb29d3318ada3 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
 @@ -318,6 +318,14 @@ BASE_FEATURE(kCapStringBuilderLengthTo1GiB, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -98,7 +98,7 @@ index b4d62dbec52ee..91abbf08d3329 100644
               base::FEATURE_ENABLED_BY_DEFAULT);
  
 diff --git a/third_party/blink/public/common/features.h b/third_party/blink/public/common/features.h
-index 8c7ae2a27b0ec..b8008ce4de404 100644
+index c5a2caebba7da..ac00153009fcf 100644
 --- a/third_party/blink/public/common/features.h
 +++ b/third_party/blink/public/common/features.h
 @@ -231,6 +231,9 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kCapStringBuilderLengthTo1GiB);
