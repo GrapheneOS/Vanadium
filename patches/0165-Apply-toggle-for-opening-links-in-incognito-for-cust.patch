@@ -3,60 +3,53 @@ From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Thu, 1 Feb 2024 17:58:19 +0000
 Subject: [PATCH] Apply toggle for opening links in incognito for custom tabs
 
+Changes since:
+  - 156.0.8078.79.0
+    - Simplify hooks to better indicate intent modification.
+    - Treat intents modified with open external links in incognito as valid
+      incognito custom tab intent.
 ---
- .../chrome/browser/LaunchIntentDispatcher.java  |  1 +
- .../browser/LaunchIntentDispatcherHooks.java    | 17 +++++++++++++++++
- 2 files changed, 18 insertions(+)
+ .../org/chromium/chrome/browser/LaunchIntentDispatcher.java   | 1 +
+ .../customtabs/IncognitoCustomTabIntentDataProvider.java      | 3 +++
+ .../chromium/chrome/browser/LaunchIntentDispatcherHooks.java  | 4 ++++
+ 3 files changed, 8 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-index 6306a9f2d3230..8903dab0e496d 100644
+index 80a587fb45c60..494445f8471a5 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
-@@ -337,6 +337,7 @@ public class LaunchIntentDispatcher {
+@@ -336,6 +336,7 @@ public class LaunchIntentDispatcher {
              newIntent.setData(uri);
          }
          newIntent.setClassName(context, CustomTabActivity.class.getName());
-+        newIntent = LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(context, newIntent);
++        LaunchIntentDispatcherHooks.maybeModifyCustomTabIntents(newIntent);
          // Make sure the result of the CustomTabActivity is forwarded to the client.
          newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
  
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
+index f3f28df683fbd..feed7d30080a0 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/IncognitoCustomTabIntentDataProvider.java
+@@ -215,6 +215,9 @@ public class IncognitoCustomTabIntentDataProvider extends BrowserServicesIntentD
+ 
+     public static boolean isValidIncognitoIntent(Intent intent, boolean recordMetrics) {
+         if (!isIncognitoRequested(intent)) return false;
++        if (org.chromium.chrome.browser.TabPreferencesUtils.shouldOpenExternalLinksInIncognito(intent)) {
++            return true;
++        }
+         var session = SessionHolder.getSessionHolderFromIntent(intent);
+         if (isIntentFromThirdPartyAllowed()
+                 && getClientPackageNameFromSessionOrCallingActivity(intent, session) != null) {
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index e6417a75fe55b..e5ab145e31955 100644
+index 8b86b257e924e..63947f16c6e40 100644
 --- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-@@ -5,6 +5,7 @@
- package org.chromium.chrome.browser;
+@@ -18,4 +18,8 @@ public final class LaunchIntentDispatcherHooks {
  
- import android.app.Activity;
-+import android.content.Context;
- import android.content.Intent;
- 
- import org.chromium.build.annotations.NullMarked;
-@@ -12,6 +13,16 @@ import org.chromium.build.annotations.NullMarked;
- @NullMarked
- public final class LaunchIntentDispatcherHooks {
- 
-+    private static Intent maybeCreateIncognitoTabIntentFor(Context context, Intent intent) {
-+        Intent newIntent = intent;
-+        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-+            TabPreferencesUtils.appendNeededIncognitoExtras(context, newIntent);
-+        }
-+
-+        return newIntent;
-+    }
-+
-+
-     static Intent maybeModifyActionViewIntents(Activity activity, Intent intent) {
-         if (!Intent.ACTION_VIEW.equals(intent.getAction())) {
-             return intent;
-@@ -24,4 +35,10 @@ public final class LaunchIntentDispatcherHooks {
- 
-         return newIntent;
+         TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
      }
 +
-+    static Intent maybeModifyCustomTabIntents(Context context, Intent intent) {
-+        Intent newIntent = maybeCreateIncognitoTabIntentFor(context, intent);
-+
-+        return newIntent;
++    static void maybeModifyCustomTabIntents(Intent intent) {
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
 +    }
  }

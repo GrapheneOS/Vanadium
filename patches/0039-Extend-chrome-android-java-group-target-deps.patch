@@ -10,19 +10,19 @@ Subject: [PATCH] Extend //chrome/android java group target deps
  create mode 100644 vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 3e2913ca33696..0c0a4b567e47f 100644
+index d971d402c3244..639dd9af0e4cd 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -1032,6 +1032,9 @@ if (_is_default_toolchain) {
+@@ -1042,6 +1042,9 @@ if (_is_default_toolchain) {
        "//components/visited_url_ranking/internal:internal_java",
      ]
  
 +    import("//vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni")
 +    deps += chrome_all_java_group_ext_deps
 +
-     if (is_desktop_android) {
+     if (enable_extensions_core) {
        deps += [
-         "//chrome/browser/ui/android/extensions/side_panel/internal:java",
+         "//chrome/browser/ui/android/extensions/browser_window_helper/internal:java",
 diff --git a/vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni b/vanadium/chromium_src/chrome/android/chrome_all_java_group_ext_deps.gni
 new file mode 100644
 index 0000000000000..780cfc0bcfda9

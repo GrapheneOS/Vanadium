@@ -5,8 +5,8 @@ Subject: [PATCH] Add dedicated webview target for Vanadium
 
 ---
  vanadium/BUILD.gn                             |  1 +
- .../chromium_src/android_webview/BUILD.gn     | 66 +++++++++++++++++++
- 2 files changed, 67 insertions(+)
+ .../chromium_src/android_webview/BUILD.gn     | 68 +++++++++++++++++++
+ 2 files changed, 69 insertions(+)
  create mode 100644 vanadium/chromium_src/android_webview/BUILD.gn
 
 diff --git a/vanadium/BUILD.gn b/vanadium/BUILD.gn
@@ -23,10 +23,10 @@ index 04a06f073fee0..1f14fa7df10ed 100644
  }
 diff --git a/vanadium/chromium_src/android_webview/BUILD.gn b/vanadium/chromium_src/android_webview/BUILD.gn
 new file mode 100644
-index 0000000000000..992d9c742060f
+index 0000000000000..f99434004aecd
 --- /dev/null
 +++ b/vanadium/chromium_src/android_webview/BUILD.gn
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,68 @@
 +import("//android_webview/variables.gni")
 +import("//build/config/android/config.gni")
 +import("//build/config/android/rules.gni")
@@ -54,6 +54,8 @@ index 0000000000000..992d9c742060f
 +      forward_variables_from(invoker, "*")
 +      deps = upstream_only_webview_deps
 +      min_sdk_version = 34
++      # TODO: Set back to 37 before M159 once fixes have landed in canary.
++      # target_sdk_version = 37
 +    }
 +  }
 +

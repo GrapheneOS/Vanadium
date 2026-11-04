@@ -5,8 +5,8 @@ Subject: [PATCH] Add dedicated browser target for Vanadium
 
 ---
  vanadium/BUILD.gn                             |  1 +
- vanadium/chromium_src/chrome/android/BUILD.gn | 32 +++++++++++++++++++
- 2 files changed, 33 insertions(+)
+ vanadium/chromium_src/chrome/android/BUILD.gn | 34 +++++++++++++++++++
+ 2 files changed, 35 insertions(+)
  create mode 100644 vanadium/chromium_src/chrome/android/BUILD.gn
 
 diff --git a/vanadium/BUILD.gn b/vanadium/BUILD.gn
@@ -22,10 +22,10 @@ index 51435ef811038..04a06f073fee0 100644
  }
 diff --git a/vanadium/chromium_src/chrome/android/BUILD.gn b/vanadium/chromium_src/chrome/android/BUILD.gn
 new file mode 100644
-index 0000000000000..e8bccf140a48e
+index 0000000000000..af8397dc9f054
 --- /dev/null
 +++ b/vanadium/chromium_src/chrome/android/BUILD.gn
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,34 @@
 +import("//build/config/android/config.gni")
 +import("//build/config/cronet/config.gni")
 +
@@ -49,6 +49,8 @@ index 0000000000000..e8bccf140a48e
 +            get_label_info(android_secondary_abi_toolchain, "name") ]
 +    }
 +    min_sdk_version = 34
++    # TODO: Set back to 37 before M159 once fixes have landed in canary.
++    # target_sdk_version = 37
 +
 +    enable_lint = false
 +  }

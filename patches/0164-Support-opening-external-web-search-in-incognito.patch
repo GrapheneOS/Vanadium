@@ -3,27 +3,27 @@ From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Sat, 3 Sep 2022 08:15:59 +0200
 Subject: [PATCH] Support opening external web search in incognito
 
+Changes since:
+  - 156.0.8078.79.0
+    - Simplify hooks to better indicate intent modification.
 ---
- .../browser/searchwidget/SearchActivity.java  |  5 +++++
- .../android/chrome_java_ext_sources.gni       |  1 +
- .../searchwidget/SearchActivityHooks.java     | 19 +++++++++++++++++++
- 3 files changed, 25 insertions(+)
+ .../chrome/browser/searchwidget/SearchActivity.java  |  2 ++
+ .../chrome/android/chrome_java_ext_sources.gni       |  1 +
+ .../browser/searchwidget/SearchActivityHooks.java    | 12 ++++++++++++
+ 3 files changed, 15 insertions(+)
  create mode 100644 vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index a0060821d2c5e..15bd02879e4aa 100644
+index dbd4ab12c9d98..e57ec4790749d 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -653,6 +653,11 @@ public class SearchActivity extends AsyncInitializationActivity
+@@ -595,6 +595,8 @@ public class SearchActivity extends AsyncInitializationActivity
          Intent intent = SearchActivityUtils.createIntentForStartActivity(params);
          if (intent == null) return;
  
-+        intent = SearchActivityHooks.modifyIntentForStartActivity(this, intent);
-+        if (intent == null) {
-+            return;
-+        }
++        SearchActivityHooks.modifyIntentForStartActivity(intent);
 +
-         if (mIntentOrigin == IntentOrigin.SEARCH_WIDGET) {
+         if (mCurrentSession.intentOrigin == IntentOrigin.SEARCH_WIDGET) {
              intent.putExtra(SearchWidgetProvider.EXTRA_FROM_SEARCH_WIDGET, true);
          }
 diff --git a/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni b/vanadium/chromium_src/chrome/android/chrome_java_ext_sources.gni
@@ -40,26 +40,19 @@ index b17e4419b1dd4..3b559cb448cf6 100644
  # Three lines of code for minimizing conflicts in rebasing changes
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 new file mode 100644
-index 0000000000000..9e30677b315ea
+index 0000000000000..2f06751228fc1
 --- /dev/null
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,12 @@
 +package org.chromium.chrome.browser.searchwidget;
 +
-+import android.app.Activity;
 +import android.content.Intent;
 +
 +import org.chromium.chrome.browser.TabPreferencesUtils;
-+import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
 +
 +public final class SearchActivityHooks {
 +
-+    static Intent modifyIntentForStartActivity(Activity activity, Intent intent) {
-+        Intent newIntent = intent;
-+        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) {
-+            TabPreferencesUtils.appendNeededIncognitoExtras(activity, newIntent);
-+        }
-+
-+        return newIntent;
++    static void modifyIntentForStartActivity(Intent intent) {
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
 +    }
 +}

@@ -5,14 +5,14 @@ Subject: [PATCH] [config] Add baseline components and flag configs for config
  app
 
 ---
- .../config/host/ConfigGeneratorImpl.kt        | 415 ++++++++++++++++++
- 1 file changed, 415 insertions(+)
+ .../config/host/ConfigGeneratorImpl.kt        | 418 ++++++++++++++++++
+ 1 file changed, 418 insertions(+)
 
 diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
-index 24a3312d7b0e4..b204c47005723 100644
+index 24a3312d7b0e4..c45c93d08c17a 100644
 --- a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
 +++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
-@@ -67,6 +67,421 @@ fun main(vararg args: String) {
+@@ -67,6 +67,424 @@ fun main(vararg args: String) {
  private fun unsortedConfigs(): List<Config> {
      val configs = ArrayList<Config>()
  
@@ -186,6 +186,9 @@ index 24a3312d7b0e4..b204c47005723 100644
 +            componentFileName = "unindexed_ruleset_nordic"
 +            addAllConditions(
 +                componentConditions(
++                    componentCondition {
++                        language = "nb"
++                    },
 +                    componentCondition {
 +                        language = "no"
 +                    },

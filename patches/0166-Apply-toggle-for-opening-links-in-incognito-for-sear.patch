@@ -3,83 +3,89 @@ From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Thu, 1 Feb 2024 17:58:40 +0000
 Subject: [PATCH] Apply toggle for opening links in incognito for search tabs
 
+Changes since:
+  - 156.0.8078.79.0
+    - Simplify hooks to better indicate intent modification.
+    - Open web search action and other origins of search activity in
+      incognito.
 ---
- .../document/ChromeLauncherActivity.java        |  2 ++
- .../browser/searchwidget/SearchActivity.java    |  3 ++-
- .../browser/LaunchIntentDispatcherHooks.java    |  6 ++++++
- .../searchwidget/SearchActivityHooks.java       | 17 +++++++++++++++++
- 4 files changed, 27 insertions(+), 1 deletion(-)
+ .../document/ChromeLauncherActivity.java      |  2 ++
+ .../searchwidget/SearchActivityUtils.java     |  3 +++
+ .../browser/LaunchIntentDispatcherHooks.java  |  4 ++++
+ .../searchwidget/SearchActivityHooks.java     | 20 +++++++++++++++++++
+ 4 files changed, 29 insertions(+)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
-index 385599005c752..a817a98a40855 100644
+index f1dbd8c76bbdc..546f6feac5d12 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/document/ChromeLauncherActivity.java
-@@ -241,6 +241,8 @@ public class ChromeLauncherActivity extends Activity {
+@@ -240,6 +240,8 @@ public class ChromeLauncherActivity extends Activity {
              searchActivityIntent.setClass(
                      ContextUtils.getApplicationContext(), SearchActivity.class);
              searchActivityIntent.putExtra(SearchManager.QUERY, query);
-+            searchActivityIntent = org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifySearchIntents(
-+                    this, searchActivityIntent);
++            org.chromium.chrome.browser.LaunchIntentDispatcherHooks.maybeModifySearchIntents(
++                    searchActivityIntent);
              startActivity(searchActivityIntent);
          }
          return true;
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-index 15bd02879e4aa..290961ccf221a 100644
---- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivity.java
-@@ -448,7 +448,8 @@ public class SearchActivity extends AsyncInitializationActivity
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityUtils.java
+index 5e4c5b03d4c9e..c47bf7c5b85f5 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityUtils.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityUtils.java
+@@ -114,6 +114,9 @@ public class SearchActivityUtils {
  
-     @Override
-     protected OneshotSupplier<ProfileProvider> createProfileProvider() {
--        boolean isIncognito = SearchActivityUtils.getIntentIncognitoStatus(getIntent());
-+        boolean isIncognito = SearchActivityUtils.getIntentIncognitoStatus(getIntent())
-+                || SearchActivityHooks.shouldOpenInIncognito(getIntent());
-         ActivityProfileProvider profileProvider =
-                 new ActivityProfileProvider(getLifecycleDispatcher());
-         profileProvider.runSyncOrOnAvailable(
+     /** Returns the incognito status of the associated launching activity. */
+     /* package */ static boolean getIntentIncognitoStatus(Intent intent) {
++        if (SearchActivityHooks.shouldOpenInIncognito(intent)) {
++            return true;
++        }
+         return IntentUtils.isTrustedIntentFromSelf(intent)
+                 && IntentUtils.safeGetBooleanExtra(
+                         intent, SearchActivityExtras.EXTRA_IS_INCOGNITO, false);
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-index e5ab145e31955..b5f5769429b4a 100644
+index 63947f16c6e40..9a8ed6329341f 100644
 --- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcherHooks.java
-@@ -41,4 +41,10 @@ public final class LaunchIntentDispatcherHooks {
- 
-         return newIntent;
+@@ -22,4 +22,8 @@ public final class LaunchIntentDispatcherHooks {
+     static void maybeModifyCustomTabIntents(Intent intent) {
+         TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
      }
 +
-+    public static Intent maybeModifySearchIntents(Activity activity, Intent intent) {
-+        Intent newIntent = maybeCreateIncognitoTabIntentFor(activity, intent);
-+
-+        return newIntent;
++    public static void maybeModifySearchIntents(Intent intent) {
++        TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
 +    }
  }
 diff --git a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-index 9e30677b315ea..c05d9cdf76a96 100644
+index 2f06751228fc1..68aeee348b665 100644
 --- a/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
 +++ b/vanadium/chromium_src/chrome/android/java/src/org/chromium/chrome/browser/searchwidget/SearchActivityHooks.java
-@@ -2,7 +2,10 @@ package org.chromium.chrome.browser.searchwidget;
+@@ -1,7 +1,12 @@
+ package org.chromium.chrome.browser.searchwidget;
  
- import android.app.Activity;
++import static org.chromium.chrome.browser.ui.searchactivityutils.SearchActivityExtras.IntentOrigin.WEB_SEARCH;
++import static org.chromium.chrome.browser.ui.searchactivityutils.SearchActivityExtras.IntentOrigin.UNKNOWN;
++
  import android.content.Intent;
-+import android.app.SearchManager;
  
 +import org.chromium.base.IntentUtils;
 +import org.chromium.chrome.browser.IntentHandler;
  import org.chromium.chrome.browser.TabPreferencesUtils;
- import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
  
-@@ -16,4 +19,18 @@ public final class SearchActivityHooks {
- 
-         return newIntent;
+ public final class SearchActivityHooks {
+@@ -9,4 +14,19 @@ public final class SearchActivityHooks {
+     static void modifyIntentForStartActivity(Intent intent) {
+         TabPreferencesUtils.maybeModifyNeededIncognitoExtras(intent);
      }
 +
 +    static boolean shouldOpenInIncognito(Intent intent) {
-+        if (Intent.ACTION_WEB_SEARCH.equals(intent.getAction())
-+                || SearchManager.INTENT_ACTION_GLOBAL_SEARCH.equals(intent.getAction())) {
-+            return TabPreferencesUtils.shouldOpenLinksInIncognito();
++        if (!TabPreferencesUtils.shouldOpenLinksInIncognito()) {
++            return false;
 +        }
 +
-+        if (!IntentUtils.isTrustedIntentFromSelf(intent)) {
-+            return false;
++        int origin = SearchActivityUtils.getIntentOrigin(intent);
++
++        if (origin == WEB_SEARCH || origin == UNKNOWN) {
++            return true;
 +        }
 +
 +        return IntentUtils.safeGetBooleanExtra(intent,
