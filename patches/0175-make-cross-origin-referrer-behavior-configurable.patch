@@ -9,7 +9,7 @@ preference.
 The chrome for the cross-origin referrer policy preference is based on
 0089-Implement-UI-for-WebRTC-toggle.patch.
 ---
- .../net/profile_network_context_service.cc    | 18 ++++
+ .../net/profile_network_context_service.cc    | 21 ++++
  .../net/profile_network_context_service.h     |  2 +
  chrome/browser/renderer_preferences_util.cc   |  3 +
  chrome/browser/ui/prefs/pref_watcher.cc       |  2 +
@@ -39,7 +39,7 @@ The chrome for the cross-origin referrer policy preference is based on
  .../CrossOriginReferrerPolicySettings.java    | 63 ++++++++++++
  .../CrossOriginReferrerPolicyUtils.java       | 44 +++++++++
  .../strings/android_chrome_ext_strings.grdp   | 13 +++
- 30 files changed, 575 insertions(+), 6 deletions(-)
+ 30 files changed, 578 insertions(+), 6 deletions(-)
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/BUILD.gn
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/java/res/layout/cross_origin_referrer_policy_preference.xml
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/java/res/xml/cross_origin_referrer_policy_preferences.xml
@@ -48,7 +48,7 @@ The chrome for the cross-origin referrer policy preference is based on
  create mode 100644 vanadium/chromium_src/chrome/browser/referrer/android/java/src/org/chromium/chrome/browser/referrer/settings/CrossOriginReferrerPolicyUtils.java
 
 diff --git a/chrome/browser/net/profile_network_context_service.cc b/chrome/browser/net/profile_network_context_service.cc
-index fb0823793aa64..9d22b53c88d79 100644
+index fb0823793aa64..2c4aa17498aba 100644
 --- a/chrome/browser/net/profile_network_context_service.cc
 +++ b/chrome/browser/net/profile_network_context_service.cc
 @@ -98,6 +98,7 @@
@@ -97,6 +97,16 @@ index fb0823793aa64..9d22b53c88d79 100644
  network::mojom::CTPolicyPtr ProfileNetworkContextService::GetCTPolicy() {
    auto* prefs = profile_->GetPrefs();
    const base::ListValue& ct_excluded =
+@@ -1356,6 +1374,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+ 
+   network_context_params->accept_language = ComputeAcceptLanguage();
+   network_context_params->enable_referrers = enable_referrers_.GetValue();
++  network_context_params->cross_origin_referrer_policy =
++      static_cast<network::mojom::CrossOriginReferrerPolicy>(
++          cross_origin_referrer_policy_.GetValue());
+ 
+   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+   if (command_line->HasSwitch(embedder_support::kShortReportingDelay)) {
 diff --git a/chrome/browser/net/profile_network_context_service.h b/chrome/browser/net/profile_network_context_service.h
 index 8c6a5031b03e9..ee1ddb9caa20f 100644
 --- a/chrome/browser/net/profile_network_context_service.h

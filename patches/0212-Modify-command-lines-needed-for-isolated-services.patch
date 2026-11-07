@@ -10,8 +10,8 @@ javascript and wasm in JITless mode.
  .../ChildProcessLauncherHelperImpl.java       |   6 +
  .../android/content_full_java_ext_deps.gni    |   1 +
  .../public/child_process/android/BUILD.gn     |  19 +++
- .../ChildProcessLauncherHelperImplHooks.java  | 109 ++++++++++++++++++
- 4 files changed, 135 insertions(+)
+ .../ChildProcessLauncherHelperImplHooks.java  | 110 ++++++++++++++++++
+ 4 files changed, 136 insertions(+)
  create mode 100644 vanadium/chromium_src/content/public/child_process/android/BUILD.gn
  create mode 100644 vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
 
@@ -71,10 +71,10 @@ index 0000000000000..35c6051b5fe9a
 +}
 diff --git a/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java b/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
 new file mode 100644
-index 0000000000000..1d8d9d4616f54
+index 0000000000000..82e3eeaf0b911
 --- /dev/null
 +++ b/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
-@@ -0,0 +1,109 @@
+@@ -0,0 +1,110 @@
 +package org.chromium.content.browser;
 +
 +import android.text.TextUtils;
@@ -151,7 +151,8 @@ index 0000000000000..1d8d9d4616f54
 +        boolean alreadySet = false;
 +        String jsFlagsPrefix = "--js-flags=";
 +        Set<String> jsFlagValuesToRemove =
-+                new LinkedHashSet<>(Arrays.asList("--no-jitless", "--no_jitless",
++                new LinkedHashSet<>(Arrays.asList(
++                        "--nojitless", "--no-jitless", "--no_jitless",
 +                        "--no-wasm-jitless", "--no-wasm_jitless",
 +                        "--no_wasm_jitless", "--no_wasm_jitless"));
 +        Set<String> jsFlagValuesToAppend =
