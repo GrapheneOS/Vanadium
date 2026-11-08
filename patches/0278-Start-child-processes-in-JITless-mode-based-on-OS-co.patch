@@ -34,7 +34,7 @@ index 63b5b1510de82..733025588ae35 100644
      "//vanadium/chromium_src/base/library_loader:library_loader_java_enums_java",
    ]
 diff --git a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
-index 89ba01f27ac48..e363444047be2 100644
+index 89ba01f27ac48..93bfb188cdc97 100644
 --- a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
 +++ b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
 @@ -9,12 +9,14 @@ import org.chromium.build.annotations.NullMarked;
@@ -80,7 +80,7 @@ index 89ba01f27ac48..e363444047be2 100644
 +                    LinkedHashSet<String> jsFlags = new LinkedHashSet<>(
 +                            getCommaDelimitedSwitchValue(jsFlagsName));
 +                    Set<String> jsFlagValuesToRemove = new LinkedHashSet<>(Set.of(
-+                            "--no-jitless", "--no_jitless",
++                            "--nojitless", "--no-jitless", "--no_jitless",
 +                            "--no-wasm-jitless", "--no-wasm_jitless",
 +                            "--no_wasm-jitless", "--no_wasm_jitless"));
 +                    jsFlags.removeAll(jsFlagValuesToRemove);

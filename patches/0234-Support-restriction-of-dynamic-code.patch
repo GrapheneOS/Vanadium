@@ -16,12 +16,12 @@ This commit has three parts, utilizing seccomp-bpf to prevent:
 
 It's inspired by PaX MPROTECT restrictions.
 ---
- .../syscall_parameters_restrictions.cc        | 55 +++++++++++++++++++
+ .../syscall_parameters_restrictions.cc        | 57 +++++++++++++++++++
  .../syscall_parameters_restrictions.h         | 18 ++++++
- 2 files changed, 73 insertions(+)
+ 2 files changed, 75 insertions(+)
 
 diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
-index 88e6b30e29c9a..207a56941ada4 100644
+index 88e6b30e29c9a..6d2ad359c9398 100644
 --- a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 +++ b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 @@ -15,6 +15,7 @@
@@ -32,7 +32,7 @@ index 88e6b30e29c9a..207a56941ada4 100644
  #include <sys/socket.h>
  #include <sys/stat.h>
  #include <sys/time.h>
-@@ -274,6 +275,31 @@ SANDBOX_EXPORT ResultExpr RestrictMremapFlagsForODML() {
+@@ -274,6 +275,33 @@ SANDBOX_EXPORT ResultExpr RestrictMremapFlagsForODML() {
    return If((flags & ~kAllowedMask) == 0, Allow()).Else(CrashSIGSYS());
  }
  
@@ -46,17 +46,19 @@ index 88e6b30e29c9a..207a56941ada4 100644
 +  const Arg<int> prot(2);
 +  const Arg<int> flags(3);
 +
-+  const BoolExpr is_mapping_w_x = (prot & (PROT_WRITE | PROT_EXEC)) != (PROT_WRITE | PROT_EXEC);
++  const uint64_t kAllowedMask = MAP_SHARED | MAP_PRIVATE | MAP_STACK |
++                                MAP_NORESERVE | MAP_FIXED | MAP_DENYWRITE |
++                                MAP_LOCKED;
++
++  const BoolExpr is_mapping_w_x =
++      (prot & (PROT_WRITE | PROT_EXEC)) != (PROT_WRITE | PROT_EXEC);
 +
 +  const BoolExpr is_anon_mapping_nx =
 +      AllOf((prot & PROT_EXEC) == 0,
 +            (flags & MAP_ANONYMOUS) == MAP_ANONYMOUS);
 +
-+  const uint64_t kAllowedMask = MAP_SHARED | MAP_PRIVATE | MAP_STACK |
-+                                MAP_NORESERVE | MAP_FIXED | MAP_DENYWRITE |
-+                                MAP_LOCKED;
-+
-+  return If(is_anon_mapping_nx, Allow())
++  return If(AllOf(is_anon_mapping_nx,
++          (flags & ~(MAP_ANONYMOUS | kAllowedMask)) == 0), Allow())
 +      .ElseIf(AllOf(is_mapping_w_x, (flags & ~kAllowedMask) == 0), Allow())
 +      .Else(CrashSIGSYS());
 +}
@@ -64,7 +66,7 @@ index 88e6b30e29c9a..207a56941ada4 100644
  ResultExpr RestrictMprotectFlags() {
    // The flags you see are actually the allowed ones, and the variable is a
    // "denied" mask because of the negation operator.
-@@ -292,6 +318,24 @@ ResultExpr RestrictMprotectFlags() {
+@@ -292,6 +320,24 @@ ResultExpr RestrictMprotectFlags() {
    return If((prot & ~kAllowedMask) == 0, Allow()).Else(CrashSIGSYS());
  }
  
@@ -89,7 +91,7 @@ index 88e6b30e29c9a..207a56941ada4 100644
  ResultExpr RestrictFcntlCommands() {
    // We also restrict the flags in F_SETFL. We don't want to permit flags with
    // a history of trouble such as O_DIRECT. The flags you see are actually the
-@@ -334,6 +378,17 @@ ResultExpr RestrictFcntlCommands() {
+@@ -334,6 +380,17 @@ ResultExpr RestrictFcntlCommands() {
    // clang-format on
  }
  
