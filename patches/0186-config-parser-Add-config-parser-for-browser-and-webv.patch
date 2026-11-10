@@ -21,8 +21,8 @@ Changes since:
  vanadium/android_config/parser/BUILD.gn       |  26 +
  .../SubresourceFilterComponentUtils.java      |  90 +++
  .../config/VanadiumConfConditionals.java      |  60 ++
- .../vanadium/config/VanadiumConfParser.java   | 601 ++++++++++++++++++
- 4 files changed, 777 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 615 ++++++++++++++++++
+ 4 files changed, 791 insertions(+)
  create mode 100644 vanadium/android_config/parser/BUILD.gn
  create mode 100644 vanadium/android_config/parser/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
  create mode 100644 vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfConditionals.java
@@ -224,10 +224,10 @@ index 0000000000000..f23da6445d09d
 +}
 diff --git a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..da87b2742c40f
+index 0000000000000..22b4d70e50c09
 --- /dev/null
 +++ b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,601 @@
+@@ -0,0 +1,615 @@
 +package app.vanadium.config;
 +
 +import android.annotation.SuppressLint;
@@ -721,6 +721,18 @@ index 0000000000000..da87b2742c40f
 +                        final Set<String> flagValues =
 +                                new LinkedHashSet<>(flag.getFlagValueList());
 +                        final FlagType flagType = flag.getFlagType();
++                        switch (flagType) {
++                            case ENABLED_FEATURE, DISABLED_FEATURE,
++                                    ENABLED_SWITCH, DISABLED_SWITCH -> {}
++                            default -> {
++                                // A flag type from a newer config (or an unset
++                                // one) must not drop every other override.
++                                Log.w(TAG, "skipping flag " + flagName
++                                        + " with unsupported type "
++                                        + flag.getFlagTypeValue());
++                                continue;
++                            }
++                        }
 +                        final Map<String, Set<String>> map = switch (flagType) {
 +                            case ENABLED_FEATURE -> enabledFeatureFlags;
 +                            case DISABLED_FEATURE -> disabledFeatureFlags;
@@ -777,7 +789,9 @@ index 0000000000000..da87b2742c40f
 +                appendFlagsToTypes.accept(config.getFlagsList());
 +
 +                for (Component component : config.getComponentsList()) {
-+                    int componentType = component.getComponentType().getNumber();
++                    // getComponentType().getNumber() throws for a value this
++                    // parser does not know; read the raw value instead.
++                    int componentType = component.getComponentTypeValue();
 +                    if (ComponentType.forNumber(componentType) == null) {
 +                        continue;
 +                    }

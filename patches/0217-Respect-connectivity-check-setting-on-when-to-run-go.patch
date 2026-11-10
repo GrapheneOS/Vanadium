@@ -5,11 +5,11 @@ Subject: [PATCH] Respect connectivity check setting on when to run google dns
  probe
 
 ---
- .../browser/net/dns_probe_service_factory.cc  | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ .../browser/net/dns_probe_service_factory.cc  | 40 +++++++++++++++++--
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/browser/net/dns_probe_service_factory.cc b/chrome/browser/net/dns_probe_service_factory.cc
-index 81e18eded62a9..3767df9a08099 100644
+index 81e18eded62a9..4f663b5e9f9b5 100644
 --- a/chrome/browser/net/dns_probe_service_factory.cc
 +++ b/chrome/browser/net/dns_probe_service_factory.cc
 @@ -33,6 +33,14 @@
@@ -27,23 +27,72 @@ index 81e18eded62a9..3767df9a08099 100644
  namespace chrome_browser_net {
  
  namespace {
-@@ -251,8 +259,19 @@ void DnsProbeServiceImpl::StartProbes() {
+@@ -74,6 +82,18 @@ net::DnsConfigOverrides GoogleConfigOverrides() {
+   return overrides;
+ }
+ 
++// Whether the probe against Google's public DNS servers may be sent. On
++// Android it is only sent when the OS connectivity check setting is Standard.
++bool ShouldRunGoogleConfigProbe() {
++#if BUILDFLAG(IS_ANDROID)
++  return base::FeatureList::IsEnabled(
++             net::android::features::kRespectConnChecksOsSetting) &&
++         GetConnChecksOsSetting() == ConnChecksOsSetting::STANDARD;
++#else
++  return true;
++#endif  // BUILDFLAG(IS_ANDROID)
++}
++
+ class DnsProbeServiceImpl
+     : public DnsProbeService,
+       public network::mojom::DnsConfigChangeManagerClient {
+@@ -149,6 +169,9 @@ class DnsProbeServiceImpl
+   // not operating in SECURE mode.
+   std::unique_ptr<DnsProbeRunner> current_config_runner_;
+   std::unique_ptr<DnsProbeRunner> google_config_runner_;
++  // Whether |google_config_runner_| was started for the current probe. Read
++  // once per probe so a setting change mid-probe cannot desync the state.
++  bool google_config_probe_started_ = false;
+ 
+   // Time source for cache expiry.
+   raw_ptr<const base::TickClock> tick_clock_;  // Not owned.
+@@ -247,17 +270,22 @@ void DnsProbeServiceImpl::StartProbes() {
+   CHECK(!current_config_runner_->IsRunning(), base::NotFatalUntil::M161);
+   CHECK(!google_config_runner_->IsRunning(), base::NotFatalUntil::M161);
+ 
++  google_config_probe_started_ = ShouldRunGoogleConfigProbe();
++
+   // Unretained safe because the callback will not be run if the DnsProbeRunner
    // is destroyed.
    current_config_runner_->RunProbe(base::BindOnce(
        &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
-+#if BUILDFLAG(IS_ANDROID)
-+  if (base::FeatureList::IsEnabled(
-+      net::android::features::kRespectConnChecksOsSetting)) {
-+    ConnChecksOsSetting setting = GetConnChecksOsSetting();
-+    if (setting == ConnChecksOsSetting::STANDARD) {
-+      google_config_runner_->RunProbe(base::BindOnce(
-+          &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
-+    }
+-  google_config_runner_->RunProbe(base::BindOnce(
+-      &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
++  if (google_config_probe_started_) {
++    google_config_runner_->RunProbe(base::BindOnce(
++        &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
 +  }
-+#else
-   google_config_runner_->RunProbe(base::BindOnce(
-       &DnsProbeServiceImpl::OnProbeComplete, base::Unretained(this)));
-+#endif // BUILDFLAG(IS_ANDROID)
    probe_start_time_ = tick_clock_->NowTicks();
    state_ = STATE_PROBE_RUNNING;
  
+   CHECK(current_config_runner_->IsRunning(), base::NotFatalUntil::M161);
+-  CHECK(google_config_runner_->IsRunning(), base::NotFatalUntil::M161);
++  CHECK(!google_config_probe_started_ || google_config_runner_->IsRunning(),
++        base::NotFatalUntil::M161);
+ }
+ 
+ void DnsProbeServiceImpl::OnProbeComplete() {
+@@ -270,8 +298,12 @@ void DnsProbeServiceImpl::OnProbeComplete() {
+   if (current_config_runner_->IsRunning() || google_config_runner_->IsRunning())
+     return;
+ 
++  // A skipped Google probe must not reuse the result of an earlier probe that
++  // ran while the setting was Standard.
+   cached_result_ = EvaluateResults(current_config_runner_->result(),
+-                                   google_config_runner_->result());
++                                   google_config_probe_started_
++                                       ? google_config_runner_->result()
++                                       : DnsProbeRunner::UNKNOWN);
+   state_ = STATE_RESULT_CACHED;
+ 
+   CallCallbacks();
