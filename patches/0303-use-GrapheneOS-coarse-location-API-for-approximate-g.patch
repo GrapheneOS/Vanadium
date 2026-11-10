@@ -1,0 +1,228 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dmitry Muhomor <muhomor.dmitry@gmail.com>
+Date: Mon, 26 Oct 2026 02:28:37 +0000
+Subject: [PATCH] use GrapheneOS coarse location API for approximate
+ geolocation
+
+---
+ services/device/geolocation/BUILD.gn          |  9 ++++
+ .../geolocation/LocationProviderAndroid.java  | 28 ++++++++++-
+ .../device/geolocation/android/BUILD.gn       | 17 +++++++
+ .../geolocation/CoarseLocationRequests.java   | 46 +++++++++++++++++++
+ .../src/app/vanadium/ext/CustomOSApis.java    | 45 ++++++++++++++++++
+ 5 files changed, 144 insertions(+), 1 deletion(-)
+ create mode 100644 vanadium/chromium_src/services/downstream/device/geolocation/android/BUILD.gn
+ create mode 100644 vanadium/chromium_src/services/downstream/device/geolocation/android/java/src/org/chromium/device/geolocation/CoarseLocationRequests.java
+
+diff --git a/services/device/geolocation/BUILD.gn b/services/device/geolocation/BUILD.gn
+index 870d9f9464f54..9f9fb8cd31045 100644
+--- a/services/device/geolocation/BUILD.gn
++++ b/services/device/geolocation/BUILD.gn
+@@ -178,6 +178,15 @@ if (is_android) {
+       "//third_party/androidx:androidx_annotation_annotation_java",
+       "//third_party/jni_zero:jni_zero_java",
+     ]
++
++    # START downstream added deps
++
++    deps += [
++      "//vanadium/chromium_src/services/downstream/device/geolocation/android:downstream_geolocation_java",
++    ]
++
++    # END downstream added deps
++
+   }
+ }
+ 
+diff --git a/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderAndroid.java b/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderAndroid.java
+index 8acca131c6584..ac8787500c5e0 100644
+--- a/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderAndroid.java
++++ b/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderAndroid.java
+@@ -62,11 +62,14 @@ public class LocationProviderAndroid implements LocationProvider {
+         // approximate (coarse) location using Criteria. To avoid leaking precise location
+         // when coarse location is requested, report a position error.
+         // See crbug.com/502587667.
++        // GrapheneOS provides an API for requesting coarse locations when precise location
++        // permission is granted, see requestCoarseLocationUpdates().
+         if (PermissionsAndroidFeatureMap.isEnabled(
+                         PermissionsAndroidFeatureList.APPROXIMATE_GEOLOCATION_PERMISSION)
+                 && !enableHighAccuracy
+                 && mContext.checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+-                        == PackageManager.PERMISSION_GRANTED) {
++                        == PackageManager.PERMISSION_GRANTED
++                && !CoarseLocationRequests.isSupported()) {
+             unregisterFromLocationUpdates();
+             LocationProviderAdapter.newErrorAvailable("Cannot generate approximate location.");
+             return;
+@@ -174,6 +177,9 @@ public class LocationProviderAndroid implements LocationProvider {
+                     criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                 } else {
+                     criteria.setAccuracy(Criteria.ACCURACY_COARSE);
++                    if (requestCoarseLocationUpdates()) {
++                        return;
++                    }
+                 }
+             } else {
+                 if (mEffectiveHighAccuracy) {
+@@ -200,6 +206,26 @@ public class LocationProviderAndroid implements LocationProvider {
+         }
+     }
+ 
++    /**
++     * Requests coarse locations via the GrapheneOS API, see CoarseLocationRequests.
++     *
++     * @return true if the request was handled, false if the Criteria-based request should be used.
++     */
++    @RequiresNonNull({"mLocationManager", "mLocationListener"})
++    private boolean requestCoarseLocationUpdates() {
++        if (CoarseLocationRequests.requestLocationUpdates(mLocationManager, mLocationListener)) {
++            return true;
++        }
++        if (mContext.checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
++                == PackageManager.PERMISSION_GRANTED) {
++            // Criteria-based request would deliver precise locations, see start().
++            unregisterFromLocationUpdates();
++            LocationProviderAdapter.newErrorAvailable("Cannot generate approximate location.");
++            return true;
++        }
++        return false;
++    }
++
+     /** Unregisters this object from the location service. */
+     private void unregisterFromLocationUpdates() {
+         if (!mIsRunning) return;
+diff --git a/vanadium/chromium_src/services/downstream/device/geolocation/android/BUILD.gn b/vanadium/chromium_src/services/downstream/device/geolocation/android/BUILD.gn
+new file mode 100644
+index 0000000000000..49431f6023ee3
+--- /dev/null
++++ b/vanadium/chromium_src/services/downstream/device/geolocation/android/BUILD.gn
+@@ -0,0 +1,17 @@
++# Copyright 2026 GrapheneOS
++# Use of this source code is governed by a GPL-2.0 style license that can be
++# found in the LICENSE file.
++
++import("//build/config/android/rules.gni")
++
++android_library("downstream_geolocation_java") {
++  sources = [
++    "java/src/org/chromium/device/geolocation/CoarseLocationRequests.java",
++  ]
++
++  deps = [
++    "//base:base_java",
++    "//build/android:build_java",
++    "//vanadium/ext/custom_os:custom_os_apis_java",
++  ]
++}
+diff --git a/vanadium/chromium_src/services/downstream/device/geolocation/android/java/src/org/chromium/device/geolocation/CoarseLocationRequests.java b/vanadium/chromium_src/services/downstream/device/geolocation/android/java/src/org/chromium/device/geolocation/CoarseLocationRequests.java
+new file mode 100644
+index 0000000000000..49265ef209ba8
+--- /dev/null
++++ b/vanadium/chromium_src/services/downstream/device/geolocation/android/java/src/org/chromium/device/geolocation/CoarseLocationRequests.java
+@@ -0,0 +1,46 @@
++package org.chromium.device.geolocation;
++
++import android.location.LocationListener;
++import android.location.LocationManager;
++import android.location.LocationRequest;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.build.annotations.NullMarked;
++
++import app.vanadium.ext.CustomOSApis;
++
++/**
++ * Requests coarse locations via the GrapheneOS LocationRequest.Builder#setCoarse() API.
++ */
++@NullMarked
++final class CoarseLocationRequests {
++    private CoarseLocationRequests() {}
++
++    static boolean isSupported() {
++        return CustomOSApis.isCoarseLocationRequestSupported();
++    }
++
++    /**
++     * Requests coarse location updates from the fused provider with the same parameters as the
++     * Criteria-based request made for Criteria.ACCURACY_COARSE.
++     *
++     * @return false if requesting coarse locations isn't supported or failed, in which case no
++     *     request was made.
++     */
++    static boolean requestLocationUpdates(
++            LocationManager locationManager, LocationListener listener) {
++        LocationRequest.Builder builder =
++                new LocationRequest.Builder(0)
++                        .setQuality(LocationRequest.QUALITY_BALANCED_POWER_ACCURACY)
++                        .setMinUpdateIntervalMillis(0);
++        if (!CustomOSApis.setLocationRequestCoarse(builder)) {
++            return false;
++        }
++        locationManager.requestLocationUpdates(
++                LocationManager.FUSED_PROVIDER,
++                builder.build(),
++                ThreadUtils.getUiThreadHandler()::post,
++                listener);
++        return true;
++    }
++}
+diff --git a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+index 1cec7d175632b..79e308cd9af68 100644
+--- a/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
++++ b/vanadium/ext/custom_os/java/src/app/vanadium/ext/CustomOSApis.java
+@@ -1,5 +1,6 @@
+ package app.vanadium.ext;
+ 
++import android.location.LocationRequest;
+ import android.os.Environment;
+ import android.util.Log;
+ 
+@@ -107,4 +108,48 @@ public class CustomOSApis {
+     public static Boolean isWebViewDclRestricted() {
+         return sIsWebViewDclRestrictedMethodCacheWrapper.invoke(null);
+     }
++
++    private static final MemberCache<Method> sLocationRequestBuilderSetCoarseMethodCache =
++            MemberCache.of(new MemberCache.Fetcher<>() {
++
++                @Override
++                public Method getMember() throws NoSuchMethodException {
++                    return LocationRequest.Builder.class.getDeclaredMethod(
++                            "setCoarse", Boolean.TYPE);
++                }
++
++                @Override
++                public void logOrThrow(ReflectiveOperationException e) {
++                    Log.e(TAG, "", e);
++                }
++            });
++
++    /**
++     * Checks if the OS supports location requests that are limited to coarse locations even when
++     * the app holds the ACCESS_FINE_LOCATION permission, see {@link #setLocationRequestCoarse}.
++     */
++    public static boolean isCoarseLocationRequestSupported() {
++        return sLocationRequestBuilderSetCoarseMethodCache.getMember() != null;
++    }
++
++    /**
++     * Limits location requests built by the given builder to coarse locations. The OS coarsens
++     * locations that are delivered for such requests even when the app holds the
++     * ACCESS_FINE_LOCATION permission.
++     * @return true if the OS method exists and was invoked successfully, false otherwise.
++     */
++    public static boolean setLocationRequestCoarse(LocationRequest.Builder builder) {
++        Method method = sLocationRequestBuilderSetCoarseMethodCache.getMember();
++        if (method == null) {
++            return false;
++        }
++
++        try {
++            method.invoke(builder, true);
++            return true;
++        } catch (InvocationTargetException | IllegalAccessException e) {
++            Log.e(TAG, "", e);
++            return false;
++        }
++    }
+ }
