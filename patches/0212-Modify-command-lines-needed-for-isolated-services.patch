@@ -10,8 +10,8 @@ javascript and wasm in JITless mode.
  .../ChildProcessLauncherHelperImpl.java       |   6 +
  .../android/content_full_java_ext_deps.gni    |   1 +
  .../public/child_process/android/BUILD.gn     |  19 +++
- .../ChildProcessLauncherHelperImplHooks.java  | 110 ++++++++++++++++++
- 4 files changed, 136 insertions(+)
+ .../ChildProcessLauncherHelperImplHooks.java  | 112 ++++++++++++++++++
+ 4 files changed, 138 insertions(+)
  create mode 100644 vanadium/chromium_src/content/public/child_process/android/BUILD.gn
  create mode 100644 vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
 
@@ -71,10 +71,10 @@ index 0000000000000..35c6051b5fe9a
 +}
 diff --git a/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java b/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
 new file mode 100644
-index 0000000000000..82e3eeaf0b911
+index 0000000000000..2202bab104a00
 --- /dev/null
 +++ b/vanadium/chromium_src/content/public/child_process/android/java/src/org/chromium/content/browser/ChildProcessLauncherHelperImplHooks.java
-@@ -0,0 +1,110 @@
+@@ -0,0 +1,112 @@
 +package org.chromium.content.browser;
 +
 +import android.text.TextUtils;
@@ -153,8 +153,9 @@ index 0000000000000..82e3eeaf0b911
 +        Set<String> jsFlagValuesToRemove =
 +                new LinkedHashSet<>(Arrays.asList(
 +                        "--nojitless", "--no-jitless", "--no_jitless",
++                        "--nowasm-jitless", "--nowasm_jitless",
 +                        "--no-wasm-jitless", "--no-wasm_jitless",
-+                        "--no_wasm_jitless", "--no_wasm_jitless"));
++                        "--no_wasm-jitless", "--no_wasm_jitless"));
 +        Set<String> jsFlagValuesToAppend =
 +                new LinkedHashSet<>(Arrays.asList("--jitless", "--wasm_jitless"));
 +        String delimiter = ",";
@@ -169,6 +170,7 @@ index 0000000000000..82e3eeaf0b911
 +                Set<String> valueSet =
 +                        new LinkedHashSet<>(Arrays.asList(values.split(delimiter)));
 +                valueSet.removeAll(jsFlagValuesToRemove);
++                valueSet.removeAll(jsFlagValuesToAppend);
 +                valueSet.addAll(jsFlagValuesToAppend);
 +                newCommandLine[i] = jsFlagsPrefix + TextUtils.join(delimiter, valueSet);
 +                alreadySet = true;

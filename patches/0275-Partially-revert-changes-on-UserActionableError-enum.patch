@@ -9,6 +9,13 @@ removes UserActionableError::{kNeedsSettingsConfirmation,kUnrecoverableError}.
 This is used on built-in login database backend which is still enabled
 downstream.
 ---
+ .../sync/settings/ManageSyncSettings.java        |  3 ---
+ .../chrome/browser/sync/ui/SyncErrorMessage.java |  4 ----
+ .../IdentityErrorCardPreferenceTest.java         |  1 -
+ .../browser/sync/ui/SyncErrorMessageTest.java    |  2 --
+ .../chrome/browser/sync/SyncSettingsUtils.java   |  2 --
+ .../sync/ui/IdentityErrorCardViewBinder.java     |  4 ----
+ .../chrome/browser/sync/FakeSyncServiceImpl.java | 13 -------------
  .../password_store_built_in_backend.cc           | 16 ++++++++++++++--
  components/send_tab_to_self/BUILD.gn             |  4 ++++
  components/send_tab_to_self/DEPS                 |  5 +++++
@@ -16,10 +23,137 @@ downstream.
  components/sync/service/BUILD.gn                 |  4 ++++
  components/sync/service/DEPS                     |  3 +++
  components/sync/service/sync_internals_util.cc   | 15 +++++++++++----
- components/sync/service/sync_service.h           | 15 +++++++++++----
+ components/sync/service/sync_service.h           | 12 ++++++++----
  components/sync/service/sync_service_impl.cc     | 10 ++++++++--
- 9 files changed, 71 insertions(+), 17 deletions(-)
+ 16 files changed, 68 insertions(+), 46 deletions(-)
 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
+index c3ed0793ee4ec..32ad6cf35c641 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
+@@ -952,9 +952,6 @@ public class ManageSyncSettings extends ChromeBaseSettingsFragment
+                         primaryAccountInfo,
+                         REQUEST_CODE_TRUSTED_VAULT_RECOVERABILITY_DEGRADED);
+                 return;
+-            case UserActionableError.NEEDS_UPM_BACKEND_UPGRADE:
+-                GmsUpdateLauncher.launch(getContext());
+-                return;
+             case UserActionableError.BOOKMARKS_LIMIT_EXCEEDED:
+                 SyncSettingsUtils.openBookmarkLimitHelpPage(
+                         getContext(),
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java
+index 51a6619e93e91..d00e4be3aa530 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java
+@@ -409,10 +409,6 @@ public class SyncErrorMessage implements SyncService.SyncStateChangedListener {
+ 
+     private static @UserActionableError int getError(Profile profile) {
+         @UserActionableError int error = SyncSettingsUtils.getSyncError(profile);
+-        // Do not show sync error message for UPM_BACKEND_OUTDATED.
+-        if (error == UserActionableError.NEEDS_UPM_BACKEND_UPGRADE) {
+-            return UserActionableError.NONE;
+-        }
+         return error;
+     }
+ 
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java
+index 0535bba39f538..45b586134d7ae 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java
+@@ -114,7 +114,6 @@ public class IdentityErrorCardPreferenceTest {
+     @LargeTest
+     @Feature("RenderTest")
+     public void testIdentityErrorCardForClientOutOfDate() throws Exception {
+-        mFakeSyncServiceImpl.setRequiresClientUpgrade(true);
+         mSigninTestRule.addAccountThenSignin(TestAccounts.ACCOUNT1);
+ 
+         try (HistogramWatcher watchIdentityErrorCardShownHistogram =
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java
+index 6a04116b1f012..dd69afe848446 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java
+@@ -181,7 +181,6 @@ public class SyncErrorMessageTest {
+ 
+         // Sign in.
+         mSyncTestRule.setUpAccountAndSignInForTesting();
+-        mFakeSyncServiceImpl.setRequiresClientUpgrade(true);
+         mSyncTestRule.loadUrl(UrlConstants.VERSION_URL);
+         verifyHasShownMessage();
+         watchIdentityErrorMessageShownHistogram.assertExpected();
+@@ -374,7 +373,6 @@ public class SyncErrorMessageTest {
+                             return SyncSettingsUtils.getSyncError(
+                                     mSyncTestRule.getProfile(/* incognito= */ false));
+                         });
+-        Assert.assertEquals(UserActionableError.NEEDS_UPM_BACKEND_UPGRADE, syncError);
+ 
+         mSyncTestRule.loadUrl(UrlConstants.VERSION_URL);
+         verifyHasNeverShownMessage();
+diff --git a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java
+index 9dad366fa4066..85b7a39cf4756 100644
+--- a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java
++++ b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java
+@@ -332,8 +332,6 @@ public class SyncSettingsUtils {
+                 return ".TrustedVaultRecoverabilityDegradedForEverything";
+             case UserActionableError.TRUSTED_VAULT_RECOVERABILITY_DEGRADED_FOR_PASSWORDS:
+                 return ".TrustedVaultRecoverabilityDegradedForPasswords";
+-            case UserActionableError.NEEDS_UPM_BACKEND_UPGRADE:
+-                return ".UpmBackendOutdated";
+             case UserActionableError.BOOKMARKS_LIMIT_EXCEEDED:
+                 return ".BookmarkLimitReached";
+             default:
+diff --git a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java
+index fde8fec809360..61c39c082b200 100644
+--- a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java
++++ b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java
+@@ -85,10 +85,6 @@ public class IdentityErrorCardViewBinder {
+                 message = R.string.identity_error_card_sync_recoverability_degraded_for_passwords;
+                 buttonLabel = R.string.identity_error_card_button_verify;
+                 break;
+-            case UserActionableError.NEEDS_UPM_BACKEND_UPGRADE:
+-                message = R.string.sync_error_card_outdated_gms;
+-                buttonLabel = R.string.password_manager_outdated_gms_positive_button;
+-                break;
+             case UserActionableError.BOOKMARKS_LIMIT_EXCEEDED:
+                 message = R.string.bookmark_sync_limit_error_description;
+                 buttonLabel = R.string.learn_more;
+diff --git a/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java b/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java
+index 2cf85e490ccad..7977ca50f0bca 100644
+--- a/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java
++++ b/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java
+@@ -39,7 +39,6 @@ public class FakeSyncServiceImpl implements SyncService {
+     private boolean mTrustedVaultRecoverabilityDegraded;
+     private boolean mEncryptEverythingEnabled;
+     private boolean mRequiresClientUpgrade;
+-    private boolean mRequiresUpmBackendUpgrade;
+     private boolean mBookmarksLimitExceeded;
+     private GoogleServiceAuthError mAuthError =
+             new GoogleServiceAuthError(GoogleServiceAuthErrorState.NONE);
+@@ -172,15 +171,6 @@ public class FakeSyncServiceImpl implements SyncService {
+                 });
+     }
+ 
+-    @AnyThread
+-    public void setRequiresUpmBackendUpgrade(boolean requiresUpmBackendUpgrade) {
+-        ThreadUtils.runOnUiThreadBlocking(
+-                () -> {
+-                    mRequiresUpmBackendUpgrade = requiresUpmBackendUpgrade;
+-                    notifySyncStateChanged();
+-                });
+-    }
+-
+     @AnyThread
+     public void setBookmarksLimitExceeded(boolean bookmarksLimitExceeded) {
+         ThreadUtils.runOnUiThreadBlocking(
+@@ -301,9 +291,6 @@ public class FakeSyncServiceImpl implements SyncService {
+                     ? UserActionableError.TRUSTED_VAULT_RECOVERABILITY_DEGRADED_FOR_EVERYTHING
+                     : UserActionableError.TRUSTED_VAULT_RECOVERABILITY_DEGRADED_FOR_PASSWORDS;
+         }
+-        if (mRequiresUpmBackendUpgrade) {
+-            return UserActionableError.NEEDS_UPM_BACKEND_UPGRADE;
+-        }
+         if (mBookmarksLimitExceeded) {
+             return UserActionableError.BOOKMARKS_LIMIT_EXCEEDED;
+         }
 diff --git a/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc b/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
 index 096a683e65249..2874c078e5392 100644
 --- a/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
@@ -227,7 +361,7 @@ index 2ed913accb7a8..be9cd97e80404 100644
  
    NOTREACHED();
 diff --git a/components/sync/service/sync_service.h b/components/sync/service/sync_service.h
-index d55f8835982ee..946c1ddb7d17a 100644
+index d55f8835982ee..21d8beb25d90d 100644
 --- a/components/sync/service/sync_service.h
 +++ b/components/sync/service/sync_service.h
 @@ -28,6 +28,8 @@
@@ -248,7 +382,7 @@ index d55f8835982ee..946c1ddb7d17a 100644
      // Sync settings dialog not confirmed yet.
      kNeedsSettingsConfirmation = 7,
      // Sync has encountered an unrecoverable error. It won't attempt to start
-@@ -233,12 +235,17 @@ class SyncService : public KeyedService {
+@@ -233,12 +235,14 @@ class SyncService : public KeyedService {
      // and back in again. This error is only shown for syncing users, and will
      // be removed with "Sync The Feature" deprecation.
      kUnrecoverableError = 8,
@@ -260,14 +394,11 @@ index d55f8835982ee..946c1ddb7d17a 100644
 +#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
      // Indicates that the Google Play services need to be upgraded.
      kNeedsUPMBackendUpgrade = 9,
-+#else
-+    // Stub non-unified indicator of needing Google Play Services update for UPM.
-+    kNeedsUPMBackendUpgrade = 8,
 +#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
  #endif  // BUILDFLAG(IS_ANDROID)
  
      // Indicates that the version of the client/browser is too old and needs to
-@@ -247,7 +254,7 @@ class SyncService : public KeyedService {
+@@ -247,7 +251,7 @@ class SyncService : public KeyedService {
      // The number of bookmarks has exceeded the limit.
      kBookmarksLimitExceeded = 11,
  
@@ -276,7 +407,7 @@ index d55f8835982ee..946c1ddb7d17a 100644
      // Sync has encountered a Device Management error. The user should be
      // notified and depending on the type of error, may need to take action to
      // resolve it.
-@@ -255,7 +262,7 @@ class SyncService : public KeyedService {
+@@ -255,7 +259,7 @@ class SyncService : public KeyedService {
      kMaxValue = kDeviceManagementError,
  #else
      kMaxValue = kBookmarksLimitExceeded,

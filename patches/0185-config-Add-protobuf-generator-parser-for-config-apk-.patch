@@ -5,12 +5,12 @@ Subject: [PATCH] config: Add protobuf generator, parser for config apk
  contents
 
 ---
- vanadium/android_config/proto/host/BUILD.gn   |  55 ++++
+ vanadium/android_config/proto/host/BUILD.gn   |  55 +++
  .../vanadium/config/host/ConfigGenerator.java |  10 +
- .../config/host/ConfigGeneratorImpl.kt        | 299 ++++++++++++++++++
+ .../config/host/ConfigGeneratorImpl.kt        | 397 ++++++++++++++++++
  .../vanadium/config/host/ConfigParser.java    |  31 ++
  .../config/android/internal_rules_ext.gni     |   2 +
- 5 files changed, 397 insertions(+)
+ 5 files changed, 495 insertions(+)
  create mode 100644 vanadium/android_config/proto/host/BUILD.gn
  create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGenerator.java
  create mode 100644 vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
@@ -95,10 +95,10 @@ index 0000000000000..14174cf8ba465
 +}
 diff --git a/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
 new file mode 100644
-index 0000000000000..24a3312d7b0e4
+index 0000000000000..90f7c200d8b42
 --- /dev/null
 +++ b/vanadium/android_config/proto/host/java/src/app/vanadium/config/host/ConfigGeneratorImpl.kt
-@@ -0,0 +1,299 @@
+@@ -0,0 +1,397 @@
 +package app.vanadium.config.host
 +
 +import app.vanadium.config.common.Constants.CheckOsConfigsFeatures
@@ -172,12 +172,24 @@ index 0000000000000..24a3312d7b0e4
 +}
 +
 +
++// Configs are applied in order and later entries take precedence, so more
++// specific entries sort later: more spec types first, then lower min_version
++// (0 = unbounded) first, then higher max_version (0 = unbounded) first;
++// ties keep source order.
 +private fun sortConfigs(configList: List<Config>): Configs {
 +    return Configs.newBuilder().addAllConfigs(
 +        configList.sortedWith { config: Config, otherConfig: Config ->
 +            val spec = config.spec
 +            val otherSpec = otherConfig.spec
-+            val specTypeCmp = spec.specTypes.compareTo(otherSpec.specTypes)
++            val specTypes = spec.specTypes
++            val otherSpecTypes = otherSpec.specTypes
++            val specTypesBitCountCmp = otherSpecTypes.countOneBits()
++                .compareTo(specTypes.countOneBits())
++            if (specTypesBitCountCmp != 0) {
++                return@sortedWith specTypesBitCountCmp
++            }
++
++            val specTypeCmp = specTypes.compareTo(otherSpecTypes)
 +            if (specTypeCmp != 0) {
 +                return@sortedWith specTypeCmp
 +            }
@@ -187,7 +199,8 @@ index 0000000000000..24a3312d7b0e4
 +                return@sortedWith minVerCmp
 +            }
 +
-+            val maxVerCmp = spec.maxVersion.compareTo(otherSpec.maxVersion)
++            val maxVerCmp = otherSpec.effectiveMaxVersion()
++                .compareTo(spec.effectiveMaxVersion())
 +            if (maxVerCmp != 0) {
 +                return@sortedWith maxVerCmp
 +            }
@@ -201,11 +214,10 @@ index 0000000000000..24a3312d7b0e4
 +    flags: List<Flag>,
 +    block: Config.Builder.() -> Unit,
 +): Config {
-+    return Config.newBuilder().run {
++    return config {
 +        addAllComponents(components)
 +        addAllFlags(flags)
 +        block(this)
-+        build()
 +    }
 +}
 +
@@ -215,21 +227,106 @@ index 0000000000000..24a3312d7b0e4
 +    flags: List<Flag>,
 +    block: Config.Builder.() -> Unit,
 +): Config {
-+    return Config.newBuilder().run {
++    return config {
 +        setSpec(spec)
 +        addAllComponents(components)
 +        addAllFlags(flags)
 +        block(this)
-+        build()
 +    }
 +}
 +
 +private fun config(block: Config.Builder.() -> Unit): Config {
 +    return Config.newBuilder().run {
 +        block(this)
++        fun errorMsg(reason: String) = "invalid config: $reason"
++        check(hasSpec()) { errorMsg("unset spec instance") }
++        spec.run {
++            check(specTypes != 0L) { errorMsg("empty spec types") }
++            sysFeatureConditionsList.forEachIndexed { conditionIndex, condition ->
++                val suffixMsg = "for $conditionIndex"
++                condition.run {
++                    check(featureName.isNotEmpty()) {
++                        errorMsg("empty feature name $suffixMsg")
++                    }
++                    check(minVersion < effectiveMaxVersion()) {
++                        errorMsg("out of bounds feature version constraints")
++                    }
++                }
++            }
++            deviceSupportCondition.run {
++                check(allowedDevicesList.none { it in blockedDevicesList }) {
++                    errorMsg("allowed and blocked device list with common values")
++                }
++            }
++            check(minVersion < effectiveMaxVersion()) {
++                errorMsg("out of bounds browser version constraints")
++            }
++        }
++
++        fun checkFlag(flag: Flag, suffixMsg: String) {
++            flag.run {
++                check(flagName.isNotEmpty()) {
++                    errorMsg("empty flag $suffixMsg")
++                }
++                check(!flagName.contains(",")) {
++                    errorMsg("flags with invalid name $suffixMsg")
++                }
++                check(flagType != FlagType.UNKNOWN
++                        && flagType != FlagType.UNRECOGNIZED) {
++                    errorMsg("unknown or unrecognized flag type $suffixMsg")
++                }
++            }
++        }
++        componentsList.forEachIndexed { index, component ->
++            component.run {
++                val suffixMsg = "for component list at index $index"
++                check(componentFileName.isNotEmpty()) {
++                    errorMsg("empty component file name for $suffixMsg")
++                }
++                check(componentType != ComponentType.UNKNOWN
++                        && componentType != ComponentType.UNRECOGNIZED) {
++                    errorMsg("unknown or unrecognized component type $suffixMsg")
++                }
++                additionalComponentsList.forEachIndexed { index, additionalComponent ->
++                    val suffixMsg = "for additional component at index $index"
++                    additionalComponent.run {
++                        check(componentFileName.isNotEmpty()) {
++                            errorMsg("empty component file name $suffixMsg")
++                        }
++                        conditionsList.forEach { condition ->
++                            check(condition.language.isNotEmpty()) {
++                                errorMsg("empty language $suffixMsg")
++                            }
++                        }
++                    }
++                }
++                dependentFlagsList.forEachIndexed { index, flag ->
++                    val suffixMsg = "for dependent flag at index $index"
++                    checkFlag(flag, suffixMsg)
++                }
++            }
++        }
++        flagsList.forEachIndexed { index, flag ->
++            val suffixMsg = "for flag list at index $index"
++            checkFlag(flag, suffixMsg)
++        }
 +        build()
 +    }
 +}
++
++private fun Spec.effectiveMaxVersion() =
++    if (maxVersion != 0L) {
++        maxVersion
++    } else {
++        Long.MAX_VALUE
++    }
++
++private fun SysFeatureCondition.effectiveMaxVersion() =
++    if (maxVersion != SystemFeatures.UNBOUNDED_FEATURE_VERSION) {
++        maxVersion
++    } else {
++        Long.MAX_VALUE
++    }
 +
 +private fun spec(block: Spec.Builder.() -> Unit): Spec {
 +    return Spec.newBuilder().run {
@@ -365,17 +462,18 @@ index 0000000000000..24a3312d7b0e4
 +data class VanadiumVersion(
 +    val major: Int,
 +    val minor: Int,
-+    val archApkVariant: Int = 0
++    val archApkVariant: Int = 0,
++    val increment: Int = 0,
 +) {
 +    init {
 +        check(major > 0)
-+        check(minor in 0..999)
++        check((minor + increment) in 0..999)
 +        check(archApkVariant in 0..99)
 +    }
 +
-+    fun toLong() = major * 100_000L + minor * 100L + archApkVariant
++    fun toLong() = major * 100_000L + (minor + increment) * 100L + archApkVariant
 +    companion object {
-+        fun min() = VanadiumVersion(major = 6261, minor = 43 + 1)
++        fun min() = VanadiumVersion(major = 6261, minor = 43, increment = 1)
 +    }
 +}
 +
@@ -389,7 +487,7 @@ index 0000000000000..24a3312d7b0e4
 +        check(year > 0)
 +        check(month in 1..12)
 +        check(day in 1..31)
-+        check(increment in 0..100)
++        check(increment in 0..99)
 +    }
 +
 +    fun toLong() = year * 1_000_000L + month * 10_000L + day * 100L + increment
