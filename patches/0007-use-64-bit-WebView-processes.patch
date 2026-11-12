@@ -8,7 +8,7 @@ Subject: [PATCH] use 64-bit WebView processes
  1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/android_webview/nonembedded/java/AndroidManifest.xml b/android_webview/nonembedded/java/AndroidManifest.xml
-index 647f8dcd97863..cdb5892fe2a8d 100644
+index e813575c590dc..e899b6acf3659 100644
 --- a/android_webview/nonembedded/java/AndroidManifest.xml
 +++ b/android_webview/nonembedded/java/AndroidManifest.xml
 @@ -42,9 +42,7 @@ by a child template that "extends" this file.
@@ -19,6 +19,6 @@ index 647f8dcd97863..cdb5892fe2a8d 100644
 -                 android:use32bitAbi="true"
 -                 {% endif %}>
 +                 >
-         {# This part is shared between stand-alone WebView and Trichrome WebView #}
-         {% macro common(manifest_package, webview_lib) %}
-             <meta-data android:name="com.android.webview.WebViewLibrary"
+         <meta-data android:name="com.android.webview.WebViewLibrary"
+                    android:value="libwebviewchromium.so" />
+         <!-- Service used to hold androidx.webkit startup feature metadata

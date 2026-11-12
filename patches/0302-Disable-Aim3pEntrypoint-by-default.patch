@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Fri, 6 Nov 2026 09:47:19 +0000
+Subject: [PATCH] Disable Aim3pEntrypoint by default
+
+---
+ .../src/org/chromium/components/omnibox/OmniboxFeatures.java    | 2 +-
+ components/omnibox/common/omnibox_features.cc                   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/omnibox/common/android/java/src/org/chromium/components/omnibox/OmniboxFeatures.java b/components/omnibox/common/android/java/src/org/chromium/components/omnibox/OmniboxFeatures.java
+index 66170b04dc477..89161bf6e9fce 100644
+--- a/components/omnibox/common/android/java/src/org/chromium/components/omnibox/OmniboxFeatures.java
++++ b/components/omnibox/common/android/java/src/org/chromium/components/omnibox/OmniboxFeatures.java
+@@ -254,7 +254,7 @@ public class OmniboxFeatures {
+      * AiModeButtonUiConfig}.
+      */
+     public static final CachedFlag sAim3pEntrypoint =
+-            newFlag(OmniboxFeatureList.AIM3P_ENTRYPOINT, FeatureState.ENABLED_IN_PROD);
++            newFlag(OmniboxFeatureList.AIM3P_ENTRYPOINT, FeatureState.ENABLED_IN_TEST);
+ 
+     // Shows the preview match's favicon in the status view. Originally and incorrectly called exact
+     // match. The feature string remains exact, but java code should be updated to the right name.
+diff --git a/components/omnibox/common/omnibox_features.cc b/components/omnibox/common/omnibox_features.cc
+index 8681bda5d4acc..df206f64689e5 100644
+--- a/components/omnibox/common/omnibox_features.cc
++++ b/components/omnibox/common/omnibox_features.cc
+@@ -215,7 +215,7 @@ BASE_FEATURE(kOmniboxFuseboxUserEdGuidedTour, DISABLED);
+ BASE_FEATURE(kOmniboxDisableTabsForCanvas, ENABLED);
+ 
+ // Enables the AIM entrypoint for third party search engines.
+-BASE_FEATURE(kAim3pEntrypoint, ENABLED);
++BASE_FEATURE(kAim3pEntrypoint, DISABLED);
+ const base::FeatureParam<bool> kAim3pEntrypointDebug{
+     &kAim3pEntrypoint, "Aim3pEntrypointDebug", false};
+ 
