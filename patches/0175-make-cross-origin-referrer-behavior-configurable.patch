@@ -170,7 +170,7 @@ index 3824309147e0f..c04d88a422228 100644
  inline constexpr char kEnableDoNotTrack[] = "enable_do_not_track";
  
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
-index 6811b5d2f03dc..8635c523eeebc 100644
+index 63ce150021619..2d01be7d9e932 100644
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
 @@ -386,6 +386,44 @@ std::string ComputeUserAgentValue(const std::string& user_agent_override) {
@@ -228,7 +228,7 @@ index 6811b5d2f03dc..8635c523eeebc 100644
    // Next, set the HTTP Origin if needed.
    std::optional<std::string> existing_origin =
        headers->GetHeader(net::HttpRequestHeaders::kOrigin);
-@@ -4034,6 +4075,9 @@ void NavigationRequest::OnRequestRedirected(
+@@ -4038,6 +4079,9 @@ void NavigationRequest::OnRequestRedirected(
    common_params_->referrer->url = GURL(redirect_info.new_referrer);
    common_params_->referrer = Referrer::SanitizeForRequest(
        common_params_->url, *common_params_->referrer);
@@ -238,7 +238,7 @@ index 6811b5d2f03dc..8635c523eeebc 100644
  
    // On redirects, the initial referrer is no longer correct, so it must
    // be updated.  (A parallel process updates the outgoing referrer in the
-@@ -9700,6 +9744,9 @@ void NavigationRequest::UpdateStateFollowingRedirect(
+@@ -9710,6 +9754,9 @@ void NavigationRequest::UpdateStateFollowingRedirect(
    }
  
    common_params_->referrer = sanitized_referrer_.Clone();
@@ -248,7 +248,7 @@ index 6811b5d2f03dc..8635c523eeebc 100644
  
    was_redirected_ = true;
    redirect_chain_.push_back(common_params_->url);
-@@ -10756,6 +10803,9 @@ void NavigationRequest::SetReferrer(blink::mojom::ReferrerPtr referrer) {
+@@ -10766,6 +10813,9 @@ void NavigationRequest::SetReferrer(blink::mojom::ReferrerPtr referrer) {
    sanitized_referrer_ =
        Referrer::SanitizeForRequest(common_params_->url, *referrer);
    common_params_->referrer = sanitized_referrer_.Clone();

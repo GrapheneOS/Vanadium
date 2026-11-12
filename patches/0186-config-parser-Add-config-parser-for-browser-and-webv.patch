@@ -21,8 +21,8 @@ Changes since:
  vanadium/android_config/parser/BUILD.gn       |  26 +
  .../SubresourceFilterComponentUtils.java      |  90 +++
  .../config/VanadiumConfConditionals.java      |  60 ++
- .../vanadium/config/VanadiumConfParser.java   | 615 ++++++++++++++++++
- 4 files changed, 791 insertions(+)
+ .../vanadium/config/VanadiumConfParser.java   | 616 ++++++++++++++++++
+ 4 files changed, 792 insertions(+)
  create mode 100644 vanadium/android_config/parser/BUILD.gn
  create mode 100644 vanadium/android_config/parser/java/src/app/vanadium/config/SubresourceFilterComponentUtils.java
  create mode 100644 vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfConditionals.java
@@ -224,10 +224,10 @@ index 0000000000000..f23da6445d09d
 +}
 diff --git a/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
 new file mode 100644
-index 0000000000000..22b4d70e50c09
+index 0000000000000..052532c45ca2a
 --- /dev/null
 +++ b/vanadium/android_config/parser/java/src/app/vanadium/config/VanadiumConfParser.java
-@@ -0,0 +1,615 @@
+@@ -0,0 +1,616 @@
 +package app.vanadium.config;
 +
 +import android.annotation.SuppressLint;
@@ -791,14 +791,15 @@ index 0000000000000..22b4d70e50c09
 +                for (Component component : config.getComponentsList()) {
 +                    // getComponentType().getNumber() throws for a value this
 +                    // parser does not know; read the raw value instead.
-+                    int componentType = component.getComponentTypeValue();
-+                    if (ComponentType.forNumber(componentType) == null) {
++                    int componentTypeVal = component.getComponentTypeValue();
++                    if (componentTypeVal == ComponentType.UNKNOWN_VALUE
++                            || ComponentType.forNumber(componentTypeVal) == null) {
 +                        continue;
 +                    }
 +
 +                    ParsedComponent parsedComponent = new ParsedComponent(component);
 +                    parsedComponent.initializeComponentByteArrayFetching(configApkFilePath);
-+                    pendingComponents.put(componentType, parsedComponent);
++                    pendingComponents.put(componentTypeVal, parsedComponent);
 +                    appendFlagsToTypes.accept(component.getDependentFlagsList());
 +                }
 +            }

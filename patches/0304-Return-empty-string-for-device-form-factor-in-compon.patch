@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 16:52:15 +0000
+Subject: [PATCH] Return empty string for device form factor in component
+ updates query
+
+---
+ .../component_updater/chrome_component_updater_configurator.cc  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/component_updater/chrome_component_updater_configurator.cc b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
+index 07a39b5bb2659..0410693999b40 100644
+--- a/chrome/browser/component_updater/chrome_component_updater_configurator.cc
++++ b/chrome/browser/component_updater/chrome_component_updater_configurator.cc
+@@ -198,7 +198,7 @@ std::string ChromeConfigurator::GetOSLongName() const {
+ 
+ std::string ChromeConfigurator::GetDeviceFormFactor() const {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  return configurator_impl_.GetDeviceFormFactor();
++  return {};
+ }
+ 
+ base::flat_map<std::string, std::string>
