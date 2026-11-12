@@ -38,7 +38,7 @@ index 0000000000000..63b5b1510de82
 +}
 diff --git a/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
 new file mode 100644
-index 0000000000000..89ba01f27ac48
+index 0000000000000..29cb4e6c00841
 --- /dev/null
 +++ b/vanadium/chromium_src/base/config/android/java/src/org/chromium/base/config/VanadiumConfigsUtils.java
 @@ -0,0 +1,148 @@
@@ -72,11 +72,11 @@ index 0000000000000..89ba01f27ac48
 +            case LibraryProcessType.PROCESS_BROWSER -> {
 +                VanadiumConfParser.initForBrowser(appCtx);
 +            }
-+            case LibraryProcessType.PROCESS_WEBVIEW -> {
++            case LibraryProcessType.PROCESS_WEBVIEW,
++                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED -> {
 +                VanadiumConfParser.initForWebView(appCtx);
 +            }
 +            case LibraryProcessType.PROCESS_CHILD,
-+                 LibraryProcessType.PROCESS_WEBVIEW_NONEMBEDDED,
 +                 LibraryProcessType.PROCESS_WEBVIEW_CHILD -> {
 +                Log.i(TAG, "configs are not initialized for child processes");
 +                return;
