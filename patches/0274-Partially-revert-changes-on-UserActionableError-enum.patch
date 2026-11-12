@@ -1,0 +1,471 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 21 Apr 2026 09:27:23 +0000
+Subject: [PATCH] Partially revert changes on UserActionableError enums
+
+The change https://chromium-review.googlesource.com/c/chromium/src/+/7772435
+removes UserActionableError::{kNeedsSettingsConfirmation,kUnrecoverableError}.
+
+This is used on built-in login database backend which is still enabled
+downstream.
+---
+ .../sync/settings/ManageSyncSettings.java        |  3 ---
+ .../chrome/browser/sync/ui/SyncErrorMessage.java |  4 ----
+ .../IdentityErrorCardPreferenceTest.java         |  2 --
+ .../browser/sync/ui/SyncErrorMessageTest.java    |  2 --
+ .../chrome/browser/sync/SyncSettingsUtils.java   |  2 --
+ .../sync/ui/IdentityErrorCardViewBinder.java     |  4 ----
+ .../chrome/browser/sync/FakeSyncServiceImpl.java | 13 -------------
+ .../password_store_built_in_backend.cc           | 16 ++++++++++++++--
+ components/send_tab_to_self/BUILD.gn             |  4 ++++
+ components/send_tab_to_self/DEPS                 |  5 +++++
+ .../entry_point_display_reason.cc                | 16 +++++++++++-----
+ components/sync/service/BUILD.gn                 |  4 ++++
+ components/sync/service/DEPS                     |  3 +++
+ components/sync/service/sync_internals_util.cc   | 15 +++++++++++----
+ components/sync/service/sync_service.h           | 12 ++++++++----
+ components/sync/service/sync_service_impl.cc     | 10 ++++++++--
+ 16 files changed, 68 insertions(+), 47 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
+index 2eee4b9924903..a5011998f7a9a 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
+@@ -960,9 +960,6 @@ public class ManageSyncSettings extends ChromeBaseSettingsFragment
+                         primaryAccountInfo,
+                         REQUEST_CODE_TRUSTED_VAULT_RECOVERABILITY_DEGRADED);
+                 return;
+-            case UserActionableError.NEEDS_UPM_BACKEND_UPGRADE:
+-                GmsUpdateLauncher.launch(getContext());
+-                return;
+             case UserActionableError.BOOKMARKS_LIMIT_EXCEEDED:
+                 SyncSettingsUtils.openBookmarkLimitHelpPage(
+                         getContext(),
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java b/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java
+index 51a6619e93e91..d00e4be3aa530 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessage.java
+@@ -409,10 +409,6 @@ public class SyncErrorMessage implements SyncService.SyncStateChangedListener {
+ 
+     private static @UserActionableError int getError(Profile profile) {
+         @UserActionableError int error = SyncSettingsUtils.getSyncError(profile);
+-        // Do not show sync error message for UPM_BACKEND_OUTDATED.
+-        if (error == UserActionableError.NEEDS_UPM_BACKEND_UPGRADE) {
+-            return UserActionableError.NONE;
+-        }
+         return error;
+     }
+ 
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java
+index 0535bba39f538..3ad87ddb05a79 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/settings/IdentityErrorCardPreferenceTest.java
+@@ -233,8 +233,6 @@ public class IdentityErrorCardPreferenceTest {
+     @LargeTest
+     @Feature("RenderTest")
+     public void testIdentityErrorCardForUpmBackendOutdated() throws Exception {
+-        mFakeSyncServiceImpl.setRequiresUpmBackendUpgrade(true);
+-
+         mSigninTestRule.addAccountThenSignin(TestAccounts.ACCOUNT1);
+ 
+         try (HistogramWatcher watchIdentityErrorCardShownHistogram =
+diff --git a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java
+index 227507bb7a6d3..8b603ab9c3471 100644
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/sync/ui/SyncErrorMessageTest.java
+@@ -367,7 +367,6 @@ public class SyncErrorMessageTest {
+     @LargeTest
+     public void testSyncErrorMessageNotShownForUpmBackendOutdatedSignedInUsers() {
+         // Sign in.
+-        mFakeSyncServiceImpl.setRequiresUpmBackendUpgrade(true);
+         mSyncTestRule.setUpAccountAndSignInForTesting();
+         @UserActionableError
+         int syncError =
+@@ -376,7 +375,6 @@ public class SyncErrorMessageTest {
+                             return SyncSettingsUtils.getSyncError(
+                                     mSyncTestRule.getProfile(/* incognito= */ false));
+                         });
+-        Assert.assertEquals(UserActionableError.NEEDS_UPM_BACKEND_UPGRADE, syncError);
+ 
+         mSyncTestRule.loadUrl(UrlConstants.VERSION_URL);
+         verifyHasNeverShownMessage();
+diff --git a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java
+index 3cb478c616c36..eeb5ad17d53df 100644
+--- a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java
++++ b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/SyncSettingsUtils.java
+@@ -324,8 +324,6 @@ public class SyncSettingsUtils {
+                 return ".TrustedVaultRecoverabilityDegradedForEverything";
+             case UserActionableError.TRUSTED_VAULT_RECOVERABILITY_DEGRADED_FOR_PASSWORDS:
+                 return ".TrustedVaultRecoverabilityDegradedForPasswords";
+-            case UserActionableError.NEEDS_UPM_BACKEND_UPGRADE:
+-                return ".UpmBackendOutdated";
+             case UserActionableError.BOOKMARKS_LIMIT_EXCEEDED:
+                 return ".BookmarkLimitReached";
+             default:
+diff --git a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java
+index 1d6eec3217176..364eb3755f698 100644
+--- a/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java
++++ b/chrome/browser/sync/android/java/src/org/chromium/chrome/browser/sync/ui/IdentityErrorCardViewBinder.java
+@@ -85,10 +85,6 @@ public class IdentityErrorCardViewBinder {
+                 message = R.string.identity_error_card_sync_recoverability_degraded_for_passwords;
+                 buttonLabel = R.string.identity_error_card_button_verify;
+                 break;
+-            case UserActionableError.NEEDS_UPM_BACKEND_UPGRADE:
+-                message = R.string.sync_error_card_outdated_gms;
+-                buttonLabel = R.string.password_manager_outdated_gms_positive_button;
+-                break;
+             case UserActionableError.BOOKMARKS_LIMIT_EXCEEDED:
+                 message = R.string.bookmark_sync_limit_error_description;
+                 buttonLabel = R.string.learn_more;
+diff --git a/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java b/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java
+index 2cf85e490ccad..7977ca50f0bca 100644
+--- a/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java
++++ b/chrome/browser/sync/test/android/java/src/org/chromium/chrome/browser/sync/FakeSyncServiceImpl.java
+@@ -39,7 +39,6 @@ public class FakeSyncServiceImpl implements SyncService {
+     private boolean mTrustedVaultRecoverabilityDegraded;
+     private boolean mEncryptEverythingEnabled;
+     private boolean mRequiresClientUpgrade;
+-    private boolean mRequiresUpmBackendUpgrade;
+     private boolean mBookmarksLimitExceeded;
+     private GoogleServiceAuthError mAuthError =
+             new GoogleServiceAuthError(GoogleServiceAuthErrorState.NONE);
+@@ -172,15 +171,6 @@ public class FakeSyncServiceImpl implements SyncService {
+                 });
+     }
+ 
+-    @AnyThread
+-    public void setRequiresUpmBackendUpgrade(boolean requiresUpmBackendUpgrade) {
+-        ThreadUtils.runOnUiThreadBlocking(
+-                () -> {
+-                    mRequiresUpmBackendUpgrade = requiresUpmBackendUpgrade;
+-                    notifySyncStateChanged();
+-                });
+-    }
+-
+     @AnyThread
+     public void setBookmarksLimitExceeded(boolean bookmarksLimitExceeded) {
+         ThreadUtils.runOnUiThreadBlocking(
+@@ -301,9 +291,6 @@ public class FakeSyncServiceImpl implements SyncService {
+                     ? UserActionableError.TRUSTED_VAULT_RECOVERABILITY_DEGRADED_FOR_EVERYTHING
+                     : UserActionableError.TRUSTED_VAULT_RECOVERABILITY_DEGRADED_FOR_PASSWORDS;
+         }
+-        if (mRequiresUpmBackendUpgrade) {
+-            return UserActionableError.NEEDS_UPM_BACKEND_UPGRADE;
+-        }
+         if (mBookmarksLimitExceeded) {
+             return UserActionableError.BOOKMARKS_LIMIT_EXCEEDED;
+         }
+diff --git a/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc b/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
+index 096a683e65249..2874c078e5392 100644
+--- a/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
++++ b/components/password_manager/core/browser/password_store/password_store_built_in_backend.cc
+@@ -32,6 +32,8 @@
+ #include "components/sync/model/proxy_data_type_controller_delegate.h"
+ #include "components/sync/service/sync_service.h"
+ 
++#include "components/password_manager/core/browser/password_manager_buildflags.h"
++
+ namespace password_manager {
+ 
+ namespace {
+@@ -98,12 +100,16 @@ bool ShouldForwardSyncErrorToStore(
+     case SyncError::kNeedsTrustedVaultKeyForPasswords:
+     case SyncError::kNeedsTrustedVaultKeyForEverything:
+ #if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsSettingsConfirmation:
+     case SyncError::kUnrecoverableError:
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+ #endif  // !BUILDFLAG(IS_IOS)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #if BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsUPMBackendUpgrade:
+ #endif  // BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncError::kNeedsClientUpgrade:
+       // Errors that aren't categorized will block saving.
+       return true;
+@@ -136,12 +142,16 @@ SyncErrorToBackendError(syncer::SyncService::UserActionableError error) {
+       return base::unexpected(
+           PasswordStoreBackendError(BackendError::kKeyRetrievalRequired));
+ #if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsSettingsConfirmation:
+     case SyncError::kUnrecoverableError:
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+ #endif  // !BUILDFLAG(IS_IOS)
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncError::kNeedsUPMBackendUpgrade:
+-#endif
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
++#endif  // BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsClientUpgrade:
+       // Errors that aren't categorized will block saving.
+       return base::unexpected(
+@@ -170,8 +180,10 @@ ActionableError SyncErrorToActionableError(
+     case SyncError::kUnrecoverableError:
+ #endif  // !BUILDFLAG(IS_IOS)
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncError::kNeedsUPMBackendUpgrade:
+-#endif
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
++#endif  // BUILDFLAG(IS_ANDROID)
+     case SyncError::kNeedsClientUpgrade:
+     case SyncError::kBookmarksLimitExceeded:
+ #if BUILDFLAG(IS_IOS)
+diff --git a/components/send_tab_to_self/BUILD.gn b/components/send_tab_to_self/BUILD.gn
+index 31bb0041a09a1..e34acf078f6a0 100644
+--- a/components/send_tab_to_self/BUILD.gn
++++ b/components/send_tab_to_self/BUILD.gn
+@@ -149,4 +149,8 @@ source_set("unit_tests") {
+     "//testing/gtest",
+     "//url",
+   ]
++
++  deps += [
++    "//components/password_manager/core/browser:password_manager_buildflags",
++  ]
+ }
+diff --git a/components/send_tab_to_self/DEPS b/components/send_tab_to_self/DEPS
+index 6b01f49aef3c7..52d60a818265e 100644
+--- a/components/send_tab_to_self/DEPS
++++ b/components/send_tab_to_self/DEPS
+@@ -13,3 +13,8 @@ include_rules = [
+   "+components/sync_sessions",
+   "+components/version_info",
+ ]
++specific_include_rules = {
++  "entry_point_display_reason\\.cc": [
++    "+components/password_manager/core/browser/password_manager_buildflags.h",
++  ],
++}
+diff --git a/components/send_tab_to_self/entry_point_display_reason.cc b/components/send_tab_to_self/entry_point_display_reason.cc
+index ca1d55e5e6a54..1bed5f983269b 100644
+--- a/components/send_tab_to_self/entry_point_display_reason.cc
++++ b/components/send_tab_to_self/entry_point_display_reason.cc
+@@ -14,6 +14,8 @@
+ #include "components/sync/service/sync_service.h"
+ #include "url/gurl.h"
+ 
++#include "components/password_manager/core/browser/password_manager_buildflags.h"
++
+ namespace send_tab_to_self {
+ 
+ namespace {
+@@ -63,8 +65,10 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
+         kTrustedVaultRecoverabilityDegradedForEverything:
+     case syncer::SyncService::UserActionableError::kBookmarksLimitExceeded:
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case syncer::SyncService::UserActionableError::kNeedsUPMBackendUpgrade:
+-#endif
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
++#endif  // BUILDFLAG(IS_ANDROID)
+       return false;
+ 
+     case syncer::SyncService::UserActionableError::kSignInNeedsUpdate:
+@@ -72,13 +76,15 @@ bool HasUserActionableErrorBlockingSendTabToSelf(
+     case syncer::SyncService::UserActionableError::
+         kNeedsTrustedVaultKeyForEverything:
+     case syncer::SyncService::UserActionableError::kNeedsClientUpgrade:
+-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case syncer::SyncService::UserActionableError::kNeedsSettingsConfirmation:
+     case syncer::SyncService::UserActionableError::kUnrecoverableError:
+-#endif
+-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif  // !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(IS_IOS)
+     case syncer::SyncService::UserActionableError::kDeviceManagementError:
+-#endif
++#endif  // BUILDFLAG(IS_IOS)
+       return true;
+   }
+ }
+diff --git a/components/sync/service/BUILD.gn b/components/sync/service/BUILD.gn
+index ea7b0dddbe162..ed7a6dff7ab2e 100644
+--- a/components/sync/service/BUILD.gn
++++ b/components/sync/service/BUILD.gn
+@@ -141,4 +141,8 @@ static_library("service") {
+       "//components/password_manager/core/browser:split_stores_and_local_upm",
+     ]
+   }
++
++  deps += [
++    "//components/password_manager/core/browser:password_manager_buildflags",
++  ]
+ }
+diff --git a/components/sync/service/DEPS b/components/sync/service/DEPS
+index a627fa3392ec3..fa62179ee1cac 100644
+--- a/components/sync/service/DEPS
++++ b/components/sync/service/DEPS
+@@ -27,6 +27,9 @@ include_rules = [
+   "+ui/base/l10n",
+ ]
+ specific_include_rules = {
++  "sync_(service|internals_util)\\.(cc|h)": [
++    "+components/password_manager/core/browser/password_manager_buildflags.h",
++  ],
+   "sync_service_impl_unittest\\.cc": [
+     "+components/sync_preferences",
+   ],
+diff --git a/components/sync/service/sync_internals_util.cc b/components/sync/service/sync_internals_util.cc
+index 2ed913accb7a8..be9cd97e80404 100644
+--- a/components/sync/service/sync_internals_util.cc
++++ b/components/sync/service/sync_internals_util.cc
+@@ -29,6 +29,8 @@
+ #include "components/version_info/version_info.h"
+ #include "url/gurl.h"
+ 
++#include "components/password_manager/core/browser/password_manager_buildflags.h"
++
+ namespace syncer::sync_ui_util {
+ 
+ namespace {
+@@ -202,24 +204,29 @@ std::string GetUserActionableErrorString(
+     case SyncService::UserActionableError::
+         kTrustedVaultRecoverabilityDegradedForEverything:
+       return "Trusted vault recoverability degraded for everything";
+-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     case SyncService::UserActionableError::kNeedsSettingsConfirmation:
+       return "Needs settings confirmation";
+     case SyncService::UserActionableError::kUnrecoverableError:
+       return "Unrecoverable error";
+-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif  // !BUILDFLAG(IS_IOS)
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     case SyncService::UserActionableError::kNeedsUPMBackendUpgrade:
+       return "Needs UPM backend upgrade";
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif  // BUILDFLAG(IS_ANDROID)
+     case SyncService::UserActionableError::kNeedsClientUpgrade:
+       return "Client version is too old and needs upgrade";
+     case SyncService::UserActionableError::kBookmarksLimitExceeded:
+       return "Bookmarks limit exceeded";
+-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(IS_IOS)
++
+     case SyncService::UserActionableError::kDeviceManagementError:
+       return "Device Management error";
+-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(IS_IOS)
+   }
+ 
+   NOTREACHED();
+diff --git a/components/sync/service/sync_service.h b/components/sync/service/sync_service.h
+index d55f8835982ee..21d8beb25d90d 100644
+--- a/components/sync/service/sync_service.h
++++ b/components/sync/service/sync_service.h
+@@ -28,6 +28,8 @@
+ #include "base/android/scoped_java_ref.h"
+ #endif
+ 
++#include "components/password_manager/core/browser/password_manager_buildflags.h"
++
+ struct CoreAccountInfo;
+ class GoogleServiceAuthError;
+ class GURL;
+@@ -225,7 +227,7 @@ class SyncService : public KeyedService {
+     kTrustedVaultRecoverabilityDegradedForEverything = 6,
+ // This enum is parsed by java_cpp_enum.py, which doesn't accept &&ing flags.
+ #if !BUILDFLAG(IS_IOS)
+-#if !BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+     // Sync settings dialog not confirmed yet.
+     kNeedsSettingsConfirmation = 7,
+     // Sync has encountered an unrecoverable error. It won't attempt to start
+@@ -233,12 +235,14 @@ class SyncService : public KeyedService {
+     // and back in again. This error is only shown for syncing users, and will
+     // be removed with "Sync The Feature" deprecation.
+     kUnrecoverableError = 8,
+-#endif  // !BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+ #endif  // !BUILDFLAG(IS_IOS)
+ 
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     // Indicates that the Google Play services need to be upgraded.
+     kNeedsUPMBackendUpgrade = 9,
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+     // Indicates that the version of the client/browser is too old and needs to
+@@ -247,7 +251,7 @@ class SyncService : public KeyedService {
+     // The number of bookmarks has exceeded the limit.
+     kBookmarksLimitExceeded = 11,
+ 
+-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(IS_IOS)
+     // Sync has encountered a Device Management error. The user should be
+     // notified and depending on the type of error, may need to take action to
+     // resolve it.
+@@ -255,7 +259,7 @@ class SyncService : public KeyedService {
+     kMaxValue = kDeviceManagementError,
+ #else
+     kMaxValue = kBookmarksLimitExceeded,
+-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(IS_IOS)
+   };
+   // LINT.ThenChange(/tools/metrics/histograms/metadata/sync/enums.xml:UserActionableError)
+ 
+diff --git a/components/sync/service/sync_service_impl.cc b/components/sync/service/sync_service_impl.cc
+index 3f4d67c65a6d0..5fe669d1cb816 100644
+--- a/components/sync/service/sync_service_impl.cc
++++ b/components/sync/service/sync_service_impl.cc
+@@ -891,7 +891,8 @@ SyncService::TransportState SyncServiceImpl::GetTransportState() const {
+ 
+ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+     const {
+-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(IS_IOS)
++#if BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
+   if (HasSyncConsent()) {
+     if (!GetUserSettings()->IsInitialSyncFeatureSetupComplete()) {
+       return UserActionableError::kNeedsSettingsConfirmation;
+@@ -902,7 +903,8 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+       return UserActionableError::kUnrecoverableError;
+     }
+   }
+-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
++#endif  // BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND) || !BUILDFLAG(IS_ANDROID)
++#endif  // !BUILDFLAG(IS_IOS)
+ 
+   if (GetAuthError().state() != GoogleServiceAuthError::NONE) {
+ #if BUILDFLAG(IS_IOS)
+@@ -913,6 +915,7 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+       return UserActionableError::kDeviceManagementError;
+     }
+ #elif BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+     // TODO(crbug.com/530541220): Merge with the iOS section during the feature
+     // flag cleanup.
+     if (GetAuthError().state() ==
+@@ -921,6 +924,7 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+             switches::kHandleMdmErrorsForDasherAccountsOnAndroid)) {
+       return UserActionableError::kDeviceManagementError;
+     }
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif
+     return UserActionableError::kSignInNeedsUpdate;
+   }
+@@ -944,10 +948,12 @@ SyncService::UserActionableError SyncServiceImpl::GetUserActionableError()
+   }
+ 
+ #if BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+   if (user_settings_->GetSelectedTypes().Has(UserSelectableType::kPasswords) &&
+       password_manager::IsGmsCoreUpdateRequired()) {
+     return UserActionableError::kNeedsUPMBackendUpgrade;
+   }
++#endif  // !BUILDFLAG(USE_LOGIN_DATABASE_AS_BACKEND)
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+   // This error should ideally be the last one to be checked. Any new identity

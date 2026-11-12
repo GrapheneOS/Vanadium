@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Sat, 31 Oct 2026 07:19:44 +0000
+Subject: [PATCH] Skip pre-launch network activity for incognito external links
+
+---
+ .../src/org/chromium/chrome/browser/LaunchIntentDispatcher.java | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+index 3c386492401ee..22c1b172f2dfd 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDispatcher.java
+@@ -316,6 +316,7 @@ public class LaunchIntentDispatcher {
+ 
+     /** When started with an intent, maybe pre-resolve the domain. */
+     private void maybePrefetchDnsInBackground() {
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) return;
+         if (Intent.ACTION_VIEW.equals(mIntent.getAction())) {
+             String maybeUrl = IntentHandler.getUrlFromIntent(mIntent);
+             if (maybeUrl != null) {
+@@ -546,6 +547,7 @@ public class LaunchIntentDispatcher {
+ 
+     private boolean maybeStartNavigation() {
+         if (!ProfileManager.isInitialized()) return false;
++        if (TabPreferencesUtils.shouldOpenLinksInIncognito()) return false;
+         if (IntentHandler.willLaunchIncognitoCustomTab(mIntent)) return false;
+         if (clearTopIntentsForCustomTabsEnabled(mIntent)
+                 && SessionDataHolder.getInstance()
