@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 10:31:46 +0000
+Subject: [PATCH] Restore permisssion prompts for local network access
+ regardless of targetSdk
+
+---
+ .../components/permissions/PermissionUtil.java        |  9 +--------
+ .../AndroidPermissionDelegateWithRequester.java       | 11 -----------
+ 2 files changed, 1 insertion(+), 19 deletions(-)
+
+diff --git a/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java b/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
+index 035b966fc0e2e..08e9bec6b1bdd 100644
+--- a/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
++++ b/components/permissions/android/java/src/org/chromium/components/permissions/PermissionUtil.java
+@@ -122,14 +122,7 @@ public class PermissionUtil {
+      * https://developer.android.com/privacy-and-security/local-network-permission
+      */
+     private static boolean isLocalNetworkAccessPermissionRequired() {
+-        if (Build.VERSION.SDK_INT < 37) {
+-            return false;
+-        }
+-        // TODO(https://crbug.com/583513077): Remove once targetSdkVersion 37 reaches Stable.
+-        if (UiAndroidFeatureList.sCheckLocalNetworkPermissionRevokedCompat.isEnabled()) {
+-            return true;
+-        }
+-        return ContextUtils.getApplicationContext().getApplicationInfo().targetSdkVersion >= 37;
++        return true;
+     }
+ 
+     /**
+diff --git a/ui/android/java/src/org/chromium/ui/permissions/AndroidPermissionDelegateWithRequester.java b/ui/android/java/src/org/chromium/ui/permissions/AndroidPermissionDelegateWithRequester.java
+index 156e823ed5e63..6f6a2764a72c4 100644
+--- a/ui/android/java/src/org/chromium/ui/permissions/AndroidPermissionDelegateWithRequester.java
++++ b/ui/android/java/src/org/chromium/ui/permissions/AndroidPermissionDelegateWithRequester.java
+@@ -88,17 +88,6 @@ public abstract class AndroidPermissionDelegateWithRequester implements AndroidP
+             return true;
+         }
+ 
+-        if (Build.VERSION.SDK_INT >= 37
+-                && ANDROID_PERMISSION_ACCESS_LOCAL_NETWORK.equals(permission)
+-                && ContextUtils.getApplicationContext().getApplicationInfo().targetSdkVersion < 37
+-                && UiAndroidFeatureList.sCheckLocalNetworkPermissionRevokedCompat.isEnabled()) {
+-            // TODO(https://crbug.com/583513077): Remove once targetSdkVersion 37 reaches Stable.
+-            // When targeting SDK < 37, ACCESS_LOCAL_NETWORK is an implicit split permission not
+-            // declared in AndroidManifest.xml and cannot be requested via the OS runtime dialog;
+-            // the user must re-enable it in Android Settings.
+-            return false;
+-        }
+-
+         if (isPermissionRevokedByPolicy(permission)) {
+             return false;
+         }
