@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <daniel.micay@grapheneos.org>
+Date: Wed, 15 Jan 2025 22:15:49 -0500
+Subject: [PATCH] remove upstream code disabling WebView MTE
+
+---
+ android_webview/browser/aw_field_trials.cc               | 7 -------
+ android_webview/js_sandbox/service/js_sandbox_isolate.cc | 7 ++-----
+ 2 files changed, 2 insertions(+), 12 deletions(-)
+
+diff --git a/android_webview/browser/aw_field_trials.cc b/android_webview/browser/aw_field_trials.cc
+index 260cb003de7c2..0df65b03c5ec6 100644
+--- a/android_webview/browser/aw_field_trials.cc
++++ b/android_webview/browser/aw_field_trials.cc
+@@ -7,7 +7,6 @@
+ #include "android_webview/browser/metrics/aw_metrics_service_client.h"
+ #include "android_webview/common/aw_features.h"
+ #include "android_webview/common/aw_switches.h"
+-#include "base/allocator/partition_alloc_features.h"
+ #include "base/base_paths_android.h"
+ #include "base/check.h"
+ #include "base/metrics/field_trial_params.h"
+@@ -306,12 +305,6 @@ void AwFieldTrials::RegisterFeatureOverrides(base::FeatureList* feature_list) {
+   aw_feature_overrides.DisableFeature(
+       blink::features::kNavigationPredictorNewViewportFeatures);
+ 
+-  // DISABLED_INCOMPATIBLE: This feature is global for the process and thus
+-  // should not be enabled by WebView because this will interfere with the host
+-  // app.
+-  aw_feature_overrides.DisableFeature(
+-      base::features::kPartitionAllocMemoryTagging);
+-
+   // Disable Topics on WebView.
+   aw_feature_overrides.DisableFeature(network::features::kBrowsingTopics);
+ 
+diff --git a/android_webview/js_sandbox/service/js_sandbox_isolate.cc b/android_webview/js_sandbox/service/js_sandbox_isolate.cc
+index 89a03f7f9ea7d..8ac51ee76e2cf 100644
+--- a/android_webview/js_sandbox/service/js_sandbox_isolate.cc
++++ b/android_webview/js_sandbox/service/js_sandbox_isolate.cc
+@@ -9,7 +9,6 @@
+ 
+ #include <algorithm>
+ #include <cstddef>
+-#include <functional>
+ #include <memory>
+ #include <set>
+ #include <string>
+@@ -17,7 +16,6 @@
+ 
+ #include "android_webview/js_sandbox/service/js_sandbox_array_buffer_allocator.h"
+ #include "android_webview/js_sandbox/service/js_sandbox_isolate_callback.h"
+-#include "base/allocator/partition_alloc_features.h"
+ #include "base/allocator/partition_alloc_support.h"
+ #include "base/android/callback_android.h"
+ #include "base/android/jni_android.h"
+@@ -1159,9 +1157,8 @@ static void JNI_JsSandboxIsolate_InitializeEnvironment() {
+   // All features keep their default state except for memory tagging.
+   // Memory tagging is kept OFF to maintain the same behavior as WebView.
+   base::FeatureList::InitInstance(
+-      /*enable_features=*/"", /*disable_features=*/"",
+-      {{std::cref(base::features::kPartitionAllocMemoryTagging),
+-        base::FeatureList::OVERRIDE_DISABLE_FEATURE}});
++      /*enable_features=*/"", /*disable_features=*/"");
++
+   // There is some special handling for known process types. Since this is not
+   // a process type known to the callee, it triggers the default configuration
+   // which is reasonable for this process. BackupRefPtr is enabled nevertheless.

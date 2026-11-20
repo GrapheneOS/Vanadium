@@ -1,0 +1,145 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 09:44:48 +0000
+Subject: [PATCH] Partially revert "[Android] Remove unused omit_dex argument
+ from APK GN templates"
+
+The omit_dex argument is still needed for config-like apk targets.
+---
+ build/android/gyp/write_build_config.py |  4 ++-
+ build/config/android/rules.gni          | 41 ++++++++++++++++---------
+ 2 files changed, 30 insertions(+), 15 deletions(-)
+
+diff --git a/build/android/gyp/write_build_config.py b/build/android/gyp/write_build_config.py
+index 2d836e2f4b04c..cb6af0f1f4e24 100755
+--- a/build/android/gyp/write_build_config.py
++++ b/build/android/gyp/write_build_config.py
+@@ -992,7 +992,9 @@ def main():
+             main_config['version_code'] = params['version_code']
+             main_config['version_name'] = params['version_name']
+ 
+-        main_config['final_dex_path'] = params['final_dex_path']
++        # VanadiumConfig has no dex.
++        if final_dex_path := params.get('final_dex_path'):
++            main_config['final_dex_path'] = final_dex_path
+ 
+         library_paths = params.native_libraries()
+         secondary_abi_libraries = params.secondary_abi_native_libraries()
+diff --git a/build/config/android/rules.gni b/build/config/android/rules.gni
+index e36929c35a0fb..d39d0d91c9a91 100644
+--- a/build/config/android/rules.gni
++++ b/build/config/android/rules.gni
+@@ -2242,6 +2242,7 @@ if (!is_robolectric && enable_java_templates) {
+   #     loads it at runtime.
+ 
+   #   uncompress_dex: Store final .dex files uncompressed in the apk.
++  #   omit_dex: If true, do not build or include classes.dex.
+   #   strip_resource_names: True if resource names should be stripped from the
+   #     resources.arsc file in the apk or module.
+   #   strip_unused_resources: True if unused resources should be stripped from
+@@ -2320,10 +2321,12 @@ if (!is_robolectric && enable_java_templates) {
+     _is_base_module = !_is_bundle_module || (defined(invoker.is_base_module) &&
+                                              invoker.is_base_module)
+ 
++    _omit_dex = defined(invoker.omit_dex) && invoker.omit_dex
++
+     _proguard_enabled =
+         defined(invoker.proguard_enabled) && invoker.proguard_enabled
+-    _optimize_resources =
+-        optimize_android_resources && !_is_bundle_module && _proguard_enabled
++    _optimize_resources = optimize_android_resources && !_is_bundle_module &&
++                          !_omit_dex && _proguard_enabled
+ 
+     if (!_is_bundle_module) {
+       _final_apk_path = invoker.final_apk_path
+@@ -2478,12 +2481,14 @@ if (!is_robolectric && enable_java_templates) {
+         defined(_native_libs_filearg) || _loadable_modules != [] ||
+         _sanitizer_loadable_modules != []
+ 
+-    # Bundle modules don't build the dex here, but need to write this path
+-    # to their .build_config.json file only when proguarding.
+-    if (_proguard_enabled) {
+-      _final_dex_path = "$_base_path.r8dex.jar"
+-    } else {
+-      _final_dex_path = "$_base_path.mergeddex.jar"
++    if (!_omit_dex) {
++      # Bundle modules don't build the dex here, but need to write this path
++      # to their .build_config.json file only when proguarding.
++      if (_proguard_enabled) {
++        _final_dex_path = "$_base_path.r8dex.jar"
++      } else {
++        _final_dex_path = "$_base_path.mergeddex.jar"
++      }
+     }
+ 
+     _android_manifest =
+@@ -2654,7 +2659,7 @@ if (!is_robolectric && enable_java_templates) {
+       _generate_native_libraries_java = invoker.generate_native_libraries_java
+     } else {
+       _generate_native_libraries_java =
+-          _is_base_module && !defined(invoker.apk_under_test)
++          _is_base_module && !_omit_dex && !defined(invoker.apk_under_test)
+     }
+     if (_generate_native_libraries_java) {
+       write_native_libraries_java("${_template_name}__native_libraries") {
+@@ -2685,7 +2690,7 @@ if (!is_robolectric && enable_java_templates) {
+     # Many possible paths where we wouldn't use this variable.
+     not_needed([ "_assertions_implicitly_enabled" ])
+ 
+-    _generate_buildconfig_java = !defined(invoker.apk_under_test)
++    _generate_buildconfig_java = !defined(invoker.apk_under_test) && !_omit_dex
+     if (defined(invoker.generate_buildconfig_java)) {
+       _generate_buildconfig_java = invoker.generate_buildconfig_java
+     }
+@@ -2725,6 +2730,8 @@ if (!is_robolectric && enable_java_templates) {
+     _enable_lint = defined(invoker.enable_lint) && invoker.enable_lint &&
+                    !disable_android_lint
+ 
++    # We cannot skip this target when omit_dex = true because it writes the
++    # build_config.json.
+     java_library_impl(_java_target_name) {
+       forward_variables_from(invoker,
+                              [
+@@ -2780,7 +2787,9 @@ if (!is_robolectric && enable_java_templates) {
+       requires_android = true
+       srcjar_deps = _srcjar_deps
+       merged_android_manifest = _android_manifest
+-      final_dex_path = _final_dex_path
++      if (defined(_final_dex_path)) {
++        final_dex_path = _final_dex_path
++      }
+       if (defined(invoker.assert_no_native_deps)) {
+         assert_no_deps = invoker.assert_no_native_deps
+       }
+@@ -2829,7 +2838,7 @@ if (!is_robolectric && enable_java_templates) {
+       }
+     }
+ 
+-    if (_is_bundle_module) {
++    if (_is_bundle_module || _omit_dex) {
+       # Dex generation for app bundle modules take place in the
+       # android_app_bundle template.
+       not_needed(invoker, [ "custom_assertion_handler" ])
+@@ -3052,9 +3061,12 @@ if (!is_robolectric && enable_java_templates) {
+         deps += _all_native_libs_deps + [
+                   ":$_compile_resources_target",
+                   ":$_merge_manifest_target",
+-                  _final_dex_target_dep,
+                 ]
+-        dex_paths = _final_dex_paths
++
++        if (defined(_final_dex_paths)) {
++          dex_paths = _final_dex_paths
++          deps += [ _final_dex_target_dep ]
++        }
+ 
+         output_apk_path = _final_apk_path
+ 
+@@ -3271,6 +3283,7 @@ if (!is_robolectric && enable_java_templates) {
+                                "mergeable_android_manifests",
+                                "min_sdk_version",
+                                "native_lib_placeholders",
++                               "omit_dex",
+                                "post_process_package_resources_script",
+                                "processor_args_javac",
+                                "proguard_configs",

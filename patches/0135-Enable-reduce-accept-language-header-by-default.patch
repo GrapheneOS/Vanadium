@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
+Date: Tue, 14 Feb 2023 21:35:28 +0000
+Subject: [PATCH] Enable reduce accept language header by default
+
+This now reduces accept language count to 2.
+---
+ components/language/core/common/language_experiments.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/language/core/common/language_experiments.cc b/components/language/core/common/language_experiments.cc
+index d05c3f75de9b9..81d97a5af9203 100644
+--- a/components/language/core/common/language_experiments.cc
++++ b/components/language/core/common/language_experiments.cc
+@@ -28,6 +28,6 @@ BASE_FEATURE_PARAM(int,
+                    kMaxAcceptLanguage,
+                    &kReduceAcceptLanguageCount,
+                    /*name=*/"MaxAcceptLanguage",
+-                   /*default_value=*/10);
++                   /*default_value=*/2);
+ 
+ }  // namespace language
